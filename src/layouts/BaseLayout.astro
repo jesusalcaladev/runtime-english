@@ -36,7 +36,7 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B
 ---
 
 <!doctype html>
-<html lang="es" data-theme="deveng">
+<html lang="es" data-theme="deveng" transition:animate="none">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -50,27 +50,33 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B
 
     <script is:inline>
       (function () {
-        try {
-          var raw = localStorage.getItem("deveng_core_v2");
-          var theme = null;
-          if (raw) {
-            var parsed = JSON.parse(raw);
-            theme = parsed && parsed.settings ? parsed.settings.theme : null;
+        function applyStoredPreferences() {
+          try {
+            var raw = localStorage.getItem("deveng_core_v2");
+            var theme = null;
+            var parsed = null;
+            if (raw) {
+              parsed = JSON.parse(raw);
+              theme = parsed && parsed.settings ? parsed.settings.theme : null;
+            }
+            if (!theme) {
+              theme = window.matchMedia("(prefers-color-scheme: dark)").matches
+                ? "dark"
+                : "light";
+            }
+            document.documentElement.dataset.theme =
+              theme === "dark" ? "deveng-dark" : "deveng";
+            var ttsEnabled =
+              parsed && parsed.settings ? parsed.settings.ttsEnabled : true;
+            document.documentElement.dataset.tts = ttsEnabled === false ? "off" : "on";
+          } catch (error) {
+            document.documentElement.dataset.theme = "deveng";
+            document.documentElement.dataset.tts = "on";
           }
-          if (!theme) {
-            theme = window.matchMedia("(prefers-color-scheme: dark)").matches
-              ? "dark"
-              : "light";
-          }
-          document.documentElement.dataset.theme =
-            theme === "dark" ? "deveng-dark" : "deveng";
-          var ttsEnabled =
-            parsed && parsed.settings ? parsed.settings.ttsEnabled : true;
-          document.documentElement.dataset.tts = ttsEnabled === false ? "off" : "on";
-        } catch (error) {
-          document.documentElement.dataset.theme = "deveng";
-          document.documentElement.dataset.tts = "on";
         }
+
+        applyStoredPreferences();
+        document.addEventListener("astro:after-swap", applyStoredPreferences);
       })();
     </script>
   </head>
@@ -97,6 +103,27 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B
     </div>
 
     <ToastHost client:only="preact" transition:persist />
+
+    <script is:inline>
+      (function () {
+        var capacitor = window.Capacitor;
+        if (!capacitor || !capacitor.isNativePlatform || !capacitor.isNativePlatform()) {
+          return;
+        }
+        if (!document.startViewTransition) return;
+        document.startViewTransition = function (callback) {
+          var update = Promise.resolve().then(function () {
+            return callback();
+          });
+          return {
+            ready: Promise.resolve(),
+            updateCallbackDone: update,
+            finished: update,
+            skipTransition: function () {},
+          };
+        };
+      })();
+    </script>
 
     <script>
       import { Capacitor } from "@capacitor/core";
