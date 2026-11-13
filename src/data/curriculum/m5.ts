@@ -521,5 +521,301 @@ export const m5: Module = {
         },
       ],
     },
+    {
+      id: "m5-l6",
+      slug: "comentarios-de-pr-claros",
+      title: "Comentarios de PR: claros y profesionales",
+      step: "B2 · Paso 5.6",
+      cefr: "B2",
+      minutes: 12,
+      summary:
+        "Aprueba, pide cambios o sugiere mejoras con comentarios concretos, amables y accionables.",
+      objectives: [
+        "Escribir comentarios de PR con contexto y sugerencia clara.",
+        "Distinguir un bloqueo de un nit y comunicarlo bien.",
+        "Reescribir comentarios duros en feedback útil.",
+      ],
+      pronunciation:
+        "Nit: could you rename this variable? This might break when the input is null. LGTM once tests pass.",
+      blocks: [
+        {
+          type: "technique",
+          name: "Feedback accionable = qué + por qué + sugerencia",
+          desc: "Un buen comentario no solo critica: señala el punto, explica el impacto y propone una alternativa. Ejemplo: 'This might break when the input is null. Could you add a guard clause?' Así el autor sabe qué hacer.",
+        },
+        {
+          type: "phrases",
+          title: "Frases para revisar PRs",
+          items: [
+            { en: "Could you add a test for this case?", es: "¿Podrías agregar un test para este caso?" },
+            { en: "This might break when the input is null.", es: "Esto podría fallar cuando la entrada es null." },
+            { en: "Nit: consider renaming this variable for clarity.", es: "Detalle menor: considera renombrar esta variable para mayor claridad." },
+            { en: "I suggest extracting this into a helper function.", es: "Sugiero extraer esto a una función helper." },
+            { en: "LGTM once the tests pass.", es: "Aprobado cuando pasen los tests." },
+            { en: "Can you explain why we need this change?", es: "¿Puedes explicar por qué necesitamos este cambio?" },
+            { en: "Nice catch, thanks for fixing this.", es: "Buen hallazgo, gracias por arreglarlo." },
+          ],
+        },
+        {
+          type: "table",
+          title: "De duro a útil",
+          columns: ["Comentario duro", "Comentario útil"],
+          rows: [
+            ["This is wrong.", "This might break when the list is empty. Could we add a check?"],
+            ["Bad name.", "Nit: could you rename this to `userId` for clarity?"],
+            ["Why?", "Can you explain why we need this change here?"],
+          ],
+        },
+      ],
+      exercises: [
+        {
+          id: "m5-l6-e1",
+          type: "choice",
+          prompt: "Quieres pedir un cambio sin sonar agresivo. ¿Qué comentario es mejor?",
+          options: [
+            "This is bad.",
+            "This might break when the input is null. Could you add a guard clause?",
+            "Fix this.",
+            "Wrong.",
+          ],
+          answer: 1,
+          explanation:
+            "Explicas el riesgo y propones una acción concreta: eso es feedback útil y profesional.",
+        },
+        {
+          id: "m5-l6-e2",
+          type: "builder",
+          prompt: "Construye: 'Detalle menor: considera renombrar esta variable para mayor claridad.'",
+          words: ["Nit:", "consider renaming", "this variable", "for clarity."],
+          answer: "Nit: consider renaming this variable for clarity.",
+          explanation:
+            "'Nit' marca que es un detalle menor; 'consider' suaviza la sugerencia.",
+        },
+        {
+          id: "m5-l6-e3",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Aprobado cuando pasen los tests.'",
+          answer: "LGTM once the tests pass.",
+          accept: [
+            "LGTM once tests pass.",
+            "Looks good to me once the tests pass.",
+          ],
+          hint: "Usa 'LGTM once...'",
+          explanation:
+            "'LGTM once...' aprueba condicionado a que se cumpla algo específico.",
+        },
+        {
+          id: "m5-l6-e4",
+          type: "choice",
+          prompt: "¿Qué significa 'nit' en un code review?",
+          options: [
+            "Un bug crítico.",
+            "Un detalle menor que no suele bloquear el merge.",
+            "Un error de seguridad.",
+            "Una solicitud de borrado.",
+          ],
+          answer: 1,
+          explanation:
+            "'Nit' (nitpick) es un comentario menor, de estilo o claridad, normalmente no bloqueante.",
+        },
+      ],
+    },
+    {
+      id: "m5-l7",
+      slug: "reuniones-cortas-y-actualizaciones",
+      title: "Reuniones cortas y actualizaciones claras",
+      step: "B1 · Paso 5.7",
+      cefr: "B1",
+      minutes: 10,
+      summary:
+        "Da updates en 30 segundos, pide aclaración, interrumpe con respeto y cierra con próximos pasos.",
+      objectives: [
+        "Dar una actualización breve con contexto y siguiente paso.",
+        "Pedir aclaración o repetir sin interrumpir bruscamente.",
+        "Cerrar una reunión con acciones y responsables claros.",
+      ],
+      pronunciation:
+        "Quick update: I finished the fix and I'm testing it now. Sorry to interrupt, could you clarify that?",
+      blocks: [
+        {
+          type: "technique",
+          name: "Update de 30 segundos",
+          desc: "Estructura: qué hiciste / qué harás / si hay bloqueo. Ejemplo: 'Yesterday I fixed the bug. Today I'm writing tests. No blockers.' Corto, claro y fácil de seguir.",
+        },
+        {
+          type: "phrases",
+          title: "Frases para reuniones",
+          items: [
+            { en: "Quick update: the feature is ready for review.", es: "Actualización rápida: la función está lista para revisión." },
+            { en: "Sorry to interrupt, but could you clarify that?", es: "Disculpa que interrumpa, ¿podrías aclarar eso?" },
+            { en: "Could you say that again, please?", es: "¿Podrías decirlo otra vez, por favor?" },
+            { en: "Just to confirm, we're launching on Monday, right?", es: "Solo para confirmar, lanzamos el lunes, ¿verdad?" },
+            { en: "What are the next steps?", es: "¿Cuáles son los próximos pasos?" },
+            { en: "I'll take care of that.", es: "Yo me encargo de eso." },
+          ],
+        },
+        {
+          type: "table",
+          title: "Interrumpir y aclarar con respeto",
+          columns: ["Situación", "Frase"],
+          rows: [
+            ["No entendiste", "Sorry, could you clarify what you mean by 'stable'?"],
+            ["Necesitas interrumpir", "Sorry to interrupt, but I have a quick question."],
+            ["Confirmar acuerdo", "Just to confirm, I'll handle the deployment."],
+          ],
+        },
+      ],
+      exercises: [
+        {
+          id: "m5-l7-e1",
+          type: "choice",
+          prompt: "Quieres interrumpir con respeto para hacer una pregunta. ¿Qué dices?",
+          options: [
+            "Stop.",
+            "Sorry to interrupt, but I have a quick question.",
+            "Wait now.",
+            "I don't care.",
+          ],
+          answer: 1,
+          explanation:
+            "'Sorry to interrupt, but...' es una forma educada de entrar en la conversación.",
+        },
+        {
+          id: "m5-l7-e2",
+          type: "builder",
+          prompt: "Construye: 'Actualización rápida: la función está lista para revisión.'",
+          words: ["Quick update:", "the feature", "is ready", "for review."],
+          answer: "Quick update: the feature is ready for review.",
+          explanation:
+            "'Quick update' señala que serás breve y directo.",
+        },
+        {
+          id: "m5-l7-e3",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Solo para confirmar, yo me encargo del despliegue.'",
+          answer: "Just to confirm, I'll handle the deployment.",
+          accept: [
+            "Just to confirm, I will handle the deployment.",
+            "Just to confirm, I'll take care of the deployment.",
+          ],
+          hint: "Usa 'Just to confirm,...'",
+          explanation:
+            "'Just to confirm' evita malentendidos al cerrar acciones y responsables.",
+        },
+        {
+          id: "m5-l7-e4",
+          type: "choice",
+          prompt: "No entendiste un punto técnico. ¿Qué es lo mejor pedir?",
+          options: [
+            "Whatever.",
+            "Could you clarify what you mean by that?",
+            "I know it.",
+            "No.",
+          ],
+          answer: 1,
+          explanation:
+            "Pedir aclaración es profesional y evita errores: 'Could you clarify what you mean by that?'",
+        },
+      ],
+    },
+    {
+      id: "m5-l8",
+      slug: "async-avanzado-mensajes-claros",
+      title: "Async avanzado: tickets y mensajes que funcionan",
+      step: "B2 · Paso 5.8",
+      cefr: "B2",
+      minutes: 12,
+      summary:
+        "Escribe tickets, handoffs y actualizaciones async con contexto, estado y siguiente acción claros.",
+      objectives: [
+        "Redactar un handoff o ticket que otro pueda retomar sin reunión.",
+        "Comunicar estado, riesgo y siguiente paso en pocas líneas.",
+        "Usar sentence frames para escribir más rápido y claro.",
+      ],
+      pronunciation:
+        "Status: in progress. Blocker: waiting for API access. Next step: I'll deploy once access is granted.",
+      blocks: [
+        {
+          type: "technique",
+          name: "Patrones reutilizables (sentence frames)",
+          desc: "Usa marcos que solo cambias por variables: 'Status: [X]. Blocker: [Y]. Next step: [Z].' / 'I'm working on [X]. I expect to finish by [Y].' / 'The issue is caused by [X]. I suggest [Y].' Esto hace tu escritura rápida y consistente.",
+        },
+        {
+          type: "phrases",
+          title: "Mensajes async avanzados",
+          items: [
+            { en: "Status: in progress. Next step: run the migration tonight.", es: "Estado: en progreso. Próximo paso: ejecutar la migración esta noche." },
+            { en: "Blocker: waiting for access to the production database.", es: "Bloqueo: esperando acceso a la base de datos de producción." },
+            { en: "Context: the error happens only on Safari.", es: "Contexto: el error ocurre solo en Safari." },
+            { en: "Handoff: I've documented the steps in the ticket.", es: "Traspaso: documenté los pasos en el ticket." },
+            { en: "FYI: I'll be out tomorrow, but the PR is ready for review.", es: "Para tu info: mañana no estaré, pero el PR está listo para revisión." },
+            { en: "Please let me know if you need more details.", es: "Avísame si necesitas más detalles." },
+          ],
+        },
+        {
+          type: "table",
+          title: "Plantilla de handoff/ticket",
+          columns: ["Campo", "Ejemplo"],
+          rows: [
+            ["Context", "Users can't log in on mobile Safari."],
+            ["Status", "Root cause identified: cookie SameSite setting."],
+            ["Next step", "Update config and test on staging."],
+            ["Risk/Blocker", "Needs QA sign-off before release."],
+          ],
+        },
+      ],
+      exercises: [
+        {
+          id: "m5-l8-e1",
+          type: "choice",
+          prompt: "Debes dejar un handoff claro. ¿Qué mensaje es mejor?",
+          options: [
+            "I did some stuff.",
+            "Status: fixed locally. Blocker: needs staging access. Next step: deploy after QA sign-off.",
+            "Almost done.",
+            "Check it.",
+          ],
+          answer: 1,
+          explanation:
+            "Estado, bloqueo y próximo paso permiten que otro continúe sin reunión.",
+        },
+        {
+          id: "m5-l8-e2",
+          type: "builder",
+          prompt: "Construye: 'Bloqueo: esperando acceso a la base de datos de producción.'",
+          words: ["Blocker:", "waiting for access", "to the production database."],
+          answer: "Blocker: waiting for access to the production database.",
+          explanation:
+            "Nombrar el bloqueo explícitamente ayuda a desbloquearlo rápido.",
+        },
+        {
+          id: "m5-l8-e3",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Para tu info: el PR está listo para revisión.'",
+          answer: "FYI: the PR is ready for review.",
+          accept: [
+            "FYI, the PR is ready for review.",
+            "FYI: the pull request is ready for review.",
+          ],
+          hint: "Empieza con 'FYI:'.",
+          explanation:
+            "'FYI' (for your information) comparte información sin pedir acción inmediata.",
+        },
+        {
+          id: "m5-l8-e4",
+          type: "choice",
+          prompt: "¿Qué completa mejor el sentence frame? 'I'm working on ___, I expect to finish by ___.'",
+          options: [
+            "things / soon",
+            "the login fix / tomorrow afternoon",
+            "stuff / later",
+            "it / maybe",
+          ],
+          answer: 1,
+          explanation:
+            "Los marcos funcionan mejor con detalles concretos: qué tarea y cuándo esperas terminar.",
+        },
+      ],
+    },
   ],
 };

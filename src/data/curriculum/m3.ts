@@ -405,5 +405,116 @@ export const m3: Module = {
         },
       ],
     },
+    {
+      id: "m3-l5",
+      slug: "errores-stack-traces-y-logs",
+      title: "Errores, stack traces y logs",
+      step: "A2 · Paso 3.5",
+      cefr: "A2",
+      minutes: 12,
+      summary:
+        "Lee mensajes de error y stack traces, explica qué pasó y pide ayuda con el contexto exacto.",
+      objectives: [
+        "Entender mensajes de error comunes y describirlos en inglés.",
+        "Ubicar el archivo, línea y causa probable en un stack trace.",
+        "Pedir ayuda compartiendo error, contexto y lo que ya intentaste.",
+      ],
+      pronunciation:
+        "I'm getting a TypeError: undefined is not a function at line 42. I think the value is null.",
+      blocks: [
+        {
+          type: "technique",
+          name: "Lee el error de arriba a abajo, pero explica la causa",
+          desc: "El mensaje te dice el tipo de error; el stack trace te dice dónde ocurrió. Al reportarlo, di: 1) el mensaje exacto, 2) dónde pasa (archivo/línea), 3) qué esperabas, 4) qué ya probaste. Eso hace que te ayuden rápido.",
+        },
+        {
+          type: "vocab",
+          title: "Errores y términos comunes",
+          items: [
+            { en: "TypeError", es: "error de tipo", example: "TypeError: undefined is not a function." },
+            { en: "ReferenceError", es: "variable no definida", example: "ReferenceError: user is not defined." },
+            { en: "stack trace", es: "traza de la pila de llamadas", example: "Check the stack trace for the file and line." },
+            { en: "log", es: "registro", example: "The logs show a timeout." },
+            { en: "null / undefined", es: "nulo / no definido", example: "The value is null." },
+            { en: "permission denied", es: "permiso denegado", example: "I'm getting 'permission denied'." },
+            { en: "connection refused", es: "conexión rechazada", example: "The database connection was refused." },
+          ],
+        },
+        {
+          type: "phrases",
+          title: "Cómo reportar un error",
+          items: [
+            { en: "I'm getting this error: ...", es: "Me está saliendo este error: ..." },
+            { en: "It fails at line 42 in auth.ts.", es: "Falla en la línea 42 de auth.ts." },
+            { en: "The stack trace points to the login function.", es: "El stack trace apunta a la función de login." },
+            { en: "I expected it to return a user, but it returns null.", es: "Esperaba que devolviera un usuario, pero devuelve null." },
+            { en: "I've already checked the logs.", es: "Ya revisé los logs." },
+            { en: "Could you help me figure out what's causing this?", es: "¿Me ayudas a ver qué está causando esto?" },
+          ],
+        },
+        {
+          type: "table",
+          title: "Mensaje → explicación clara",
+          columns: ["Mensaje", "Cómo decirlo"],
+          rows: [
+            ["undefined is not a function", "I'm calling a function, but the value is undefined."],
+            ["connection refused", "The app can't connect to the service; the connection was refused."],
+            ["permission denied", "The process doesn't have permission to access that file."],
+          ],
+        },
+      ],
+      exercises: [
+        {
+          id: "m3-l5-e1",
+          type: "choice",
+          prompt: "Ves 'TypeError: undefined is not a function'. ¿Qué explicación es más clara?",
+          options: [
+            "It is broken.",
+            "I'm calling something as a function, but its value is undefined.",
+            "The computer is wrong.",
+            "There is an error somewhere.",
+          ],
+          answer: 1,
+          explanation:
+            "Explicar el tipo de error y la causa probable ayuda a depurar rápido: llamas algo como función pero es undefined.",
+        },
+        {
+          id: "m3-l5-e2",
+          type: "builder",
+          prompt: "Construye: 'Falla en la línea 42 de auth.ts.'",
+          words: ["It fails", "at line 42", "in auth.ts."],
+          answer: "It fails at line 42 in auth.ts.",
+          explanation:
+            "Dar archivo y línea es clave cuando compartes un stack trace.",
+        },
+        {
+          id: "m3-l5-e3",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Me está saliendo este error: conexión rechazada.'",
+          answer: "I'm getting this error: connection refused.",
+          accept: [
+            "I am getting this error: connection refused.",
+            "I'm getting this error: Connection refused.",
+          ],
+          hint: "Usa 'I'm getting this error: ...'",
+          explanation:
+            "Citar el mensaje exacto ('connection refused') hace el reporte preciso.",
+        },
+        {
+          id: "m3-l5-e4",
+          type: "choice",
+          prompt: "¿Qué información hace más útil tu pedido de ayuda?",
+          options: [
+            "Solo decir 'it doesn't work'.",
+            "Error exacto, dónde ocurre, qué esperabas y qué probaste.",
+            "Enviar una captura sin texto.",
+            "Decir que es urgente.",
+          ],
+          answer: 1,
+          explanation:
+            "Error + ubicación + expectativa + intentos previos es la fórmula más rápida para recibir ayuda.",
+        },
+      ],
+    },
   ],
 };

@@ -495,5 +495,95 @@ export const m4: Module = {
         },
       ],
     },
+    {
+      id: "m4-l6",
+      slug: "pair-programming-y-debugging-en-vivo",
+      title: "Pair programming y debugging en vivo",
+      step: "B1 · Paso 4.6",
+      cefr: "B1",
+      minutes: 11,
+      summary:
+        "Narra lo que piensas, propone hipótesis y colabora en vivo sin perder claridad.",
+      objectives: [
+        "Explicar tu razonamiento mientras depuras o programas en pareja.",
+        "Proponer hipótesis y siguientes pasos con frases simples.",
+        "Confirmar entendimiento y pedir feedback durante la sesión.",
+      ],
+      pronunciation:
+        "I suspect the issue is in the cache. Let's check the logs. What do you think?",
+      blocks: [
+        {
+          type: "technique",
+          name: "Piensa en voz alta, pero con estructura",
+          desc: "En pair programming, di qué ves, qué sospechas y qué harás: 'I see X, I suspect Y, let's try Z.' Esto mantiene a la otra persona alineada y hace el debugging más rápido.",
+        },
+        {
+          type: "phrases",
+          title: "Frases para colaborar en vivo",
+          items: [
+            { en: "Let's take a look at this together.", es: "Veámoslo juntos." },
+            { en: "I suspect the issue is in the cache.", es: "Sospecho que el problema está en la caché." },
+            { en: "What if we add a log here?", es: "¿Y si agregamos un log aquí?" },
+            { en: "Let me share my screen.", es: "Déjame compartir mi pantalla." },
+            { en: "Can you walk me through this function?", es: "¿Me explicas esta función paso a paso?" },
+            { en: "That makes sense. Let's try it.", es: "Tiene sentido. Probémoslo." },
+            { en: "I'm not sure yet, but let's check the tests.", es: "Aún no estoy seguro, pero revisemos los tests." },
+          ],
+        },
+        {
+          type: "callout",
+          tone: "tip",
+          title: "Usa conectores para pensar en voz alta",
+          body: "Marcadores como 'I mean', 'actually' y 'basically' ayudan a ajustar tu idea en tiempo real: 'Actually, I think the bug is elsewhere.' / 'Basically, we need to validate the input first.'",
+        },
+      ],
+      exercises: [
+        {
+          id: "m4-l6-e1",
+          type: "choice",
+          prompt: "Quieres proponer una idea mientras depuran juntos. ¿Qué suena más natural?",
+          options: [
+            "Maybe do thing.",
+            "What if we add a log here?",
+            "You must add log.",
+            "Log now.",
+          ],
+          answer: 1,
+          explanation:
+            "'What if we...?' propone una hipótesis o acción de forma colaborativa.",
+        },
+        {
+          id: "m4-l6-e2",
+          type: "builder",
+          prompt: "Construye: 'Sospecho que el problema está en la caché.'",
+          words: ["I suspect", "the issue", "is in", "the cache."],
+          answer: "I suspect the issue is in the cache.",
+          explanation:
+            "'I suspect...' expresa una hipótesis sin afirmarla como hecho.",
+        },
+        {
+          id: "m4-l6-e3",
+          type: "write",
+          prompt: "Escríbelo en inglés: '¿Me explicas esta función paso a paso?'",
+          answer: "Can you walk me through this function?",
+          accept: [
+            "Could you walk me through this function?",
+            "Can you walk me through this function",
+          ],
+          hint: "Usa 'walk me through...'.",
+          explanation:
+            "'Walk someone through' es pedir una explicación paso a paso, muy común en pair programming.",
+        },
+        {
+          id: "m4-l6-e4",
+          type: "choice",
+          prompt: "Quieres mostrar que estás de acuerdo y avanzar. ¿Qué dices?",
+          options: ["No.", "That makes sense. Let's try it.", "I don't know.", "Whatever."],
+          answer: 1,
+          explanation:
+            "Validar la idea ('That makes sense') y proponer el siguiente paso ('Let's try it') mantiene el flujo.",
+        },
+      ],
+    },
   ],
 };

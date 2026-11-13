@@ -55,6 +55,67 @@ function TypeIcon({ type }: { type: Exercise["type"] }) {
   return <PenLine class="h-4 w-4" />;
 }
 
+function shuffleIndices(length: number): number[] {
+  const indices = Array.from({ length }, (_, i) => i);
+  for (let i = indices.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  if (length > 1) {
+    const sameOrder = indices.every((value, i) => value === i);
+    if (sameOrder) [indices[0], indices[1]] = [indices[1], indices[0]];
+  }
+  return indices;
+}
+
+function burstConfetti() {
+  if (typeof document === "undefined") return;
+  const root = document.createElement("div");
+  root.setAttribute("aria-hidden", "true");
+  Object.assign(root.style, {
+    position: "fixed",
+    inset: "0",
+    pointerEvents: "none",
+    overflow: "hidden",
+    zIndex: "9999",
+  } as CSSStyleDeclaration);
+  const colors = ["#0b8f6d", "#58d6ad", "#f3c969", "#2563eb", "#f08a8a", "#ffffff"];
+  const count = 28;
+  for (let i = 0; i < count; i += 1) {
+    const piece = document.createElement("span");
+    const size = 6 + Math.random() * 6;
+    const left = 30 + Math.random() * 40;
+    const dx = (Math.random() - 0.5) * 220;
+    const dy = 220 + Math.random() * 260;
+    const rot = (Math.random() - 0.5) * 720;
+    const dur = 900 + Math.random() * 700;
+    Object.assign(piece.style, {
+      position: "absolute",
+      left: `${left}%`,
+      top: "30%",
+      width: `${size}px`,
+      height: `${size * (0.6 + Math.random() * 0.8)}px`,
+      background: colors[i % colors.length],
+      borderRadius: `${Math.random() > 0.5 ? 2 : 999}px`,
+      opacity: "0.95",
+      transform: "translate(-50%, -50%)",
+    } as CSSStyleDeclaration);
+    root.appendChild(piece);
+    piece.animate(
+      [
+        { transform: "translate(-50%, -50%) translate(0px, 0px) rotate(0deg)", opacity: 1 },
+        {
+          transform: `translate(-50%, -50%) translate(${dx}px, ${dy}px) rotate(${rot}deg)`,
+          opacity: 0,
+        },
+      ],
+      { duration: dur, easing: "cubic-bezier(.2,.8,.2,1)", fill: "forwards" },
+    );
+  }
+  document.body.appendChild(root);
+  window.setTimeout(() => root.remove(), 1800);
+}
+
 export default function ExerciseRunner({
   sessionId,
   sessionTitle,
@@ -89,10 +150,19 @@ export default function ExerciseRunner({
   const [solved, setSolved] = useState<string[]>(initialRun.solved);
   const [finished, setFinished] = useState(false);
   const [attempted, setAttempted] = useState(false);
+  const [shuffledWords, setShuffledWords] = useState<number[]>([]);
 
   const exercise = exercises[index];
   const total = exercises.length;
   const progress = Math.round((solved.length / Math.max(total, 1)) * 100);
+
+  useEffect(() => {
+    if (exercise?.type === "builder") {
+      setShuffledWords(shuffleIndices(exercise.words.length));
+    } else {
+      setShuffledWords([]);
+    }
+  }, [exercise?.id, exercise?.type]);
 
   const isCorrectAnswer = useMemo(() => {
     if (!exercise) return false;
@@ -119,6 +189,9 @@ export default function ExerciseRunner({
     setText("");
     setStatus("idle");
     setAttempted(false);
+    if (exercise?.type === "builder") {
+      setShuffledWords(shuffleIndices(exercise.words.length));
+    }
   }
 
   function goTo(nextIndex: number) {
@@ -144,6 +217,7 @@ export default function ExerciseRunner({
       setSolved((current) =>
         current.includes(exercise.id) ? current : [...current, exercise.id],
       );
+      burstConfetti();
     } else {
       setStatus("incorrect");
     }
@@ -167,7 +241,10 @@ export default function ExerciseRunner({
     setStatus("idle");
     setAttempted(false);
     if (exercise?.type === "choice") setSelected(null);
-    if (exercise?.type === "builder") setPicked([]);
+    if (exercise?.type === "builder") {
+      setPicked([]);
+      setShuffledWords(shuffleIndices(exercise.words.length));
+    }
     if (exercise?.type === "write") setText("");
   }
 
@@ -480,7 +557,8 @@ export default function ExerciseRunner({
               </div>
 
               <div class="flex flex-wrap gap-1.5">
-                {exercise.words.map((word, wordIndex) => {
+                {(shuffledWords.length ? shuffledWords : exercise.words.map((_, i) => i)).map((wordIndex) => {
+                  const word = exercise.words[wordIndex];
                   const used = picked.includes(wordIndex);
                   return (
                     <button
