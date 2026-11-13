@@ -24,10 +24,19 @@ export default function SidebarNav({ modules }: Props) {
   const [path, setPath] = useState("");
 
   useEffect(() => {
-    setPath(window.location.pathname);
+    const syncPath = () => {
+      setPath(window.location.pathname);
+      setOpen(false);
+    };
     const onMenu = () => setOpen((value) => !value);
+
+    syncPath();
+    document.addEventListener("astro:page-load", syncPath);
     window.addEventListener("deveng:menu", onMenu);
-    return () => window.removeEventListener("deveng:menu", onMenu);
+    return () => {
+      document.removeEventListener("astro:page-load", syncPath);
+      window.removeEventListener("deveng:menu", onMenu);
+    };
   }, []);
 
   useEffect(() => {

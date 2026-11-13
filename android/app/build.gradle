@@ -24,6 +24,30 @@ android {
     }
 }
 
+def apksDirectory = rootProject.file("../apks")
+
+android.applicationVariants.all { variant ->
+    variant.outputs.all { output ->
+        outputFileName = "deveng-core-${variant.name}.apk"
+    }
+}
+
+tasks.register("copyApksToRoot") {
+    doLast {
+        apksDirectory.mkdirs()
+        project.copy {
+            from project.layout.buildDirectory.dir("outputs/apk")
+            include "**/*.apk"
+            into apksDirectory
+            eachFile { file -> file.path = file.name }
+        }
+    }
+}
+
+tasks.matching { it.name == "assembleDebug" || it.name == "assembleRelease" }.configureEach {
+    finalizedBy("copyApksToRoot")
+}
+
 repositories {
     flatDir{
         dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'

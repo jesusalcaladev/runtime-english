@@ -6,6 +6,7 @@ import { getAllExerciseIds, levelStats } from "../data/curriculum";
 export interface ProgressSettings {
   theme: "light" | "dark";
   immersion: "auto" | "es" | "mixed" | "en";
+  ttsEnabled: boolean;
   ttsRate: number;
   name: string;
 }
@@ -53,6 +54,7 @@ export function createDefaultState(): ProgressState {
     settings: {
       theme: preferredTheme(),
       immersion: "auto",
+      ttsEnabled: true,
       ttsRate: 1,
       name: "",
     },
@@ -101,6 +103,13 @@ function migrateKeys<T>(record: Record<string, T>): Record<string, T> {
     }
   }
   return next;
+}
+
+function applyDocumentSettings(settings: ProgressSettings) {
+  if (!isBrowser()) return;
+  document.documentElement.dataset.theme =
+    settings.theme === "dark" ? "deveng-dark" : "deveng";
+  document.documentElement.dataset.tts = settings.ttsEnabled ? "on" : "off";
 }
 
 function mergeState(raw: unknown): ProgressState {
@@ -273,6 +282,7 @@ class ProgressStore {
       ...state,
       settings: { ...state.settings, ...patch },
     }));
+    applyDocumentSettings(this.getState().settings);
   }
 
   importProgress(raw: unknown): boolean {
@@ -284,28 +294,18 @@ class ProgressStore {
     this.state = next;
     this.persist();
     this.notify();
-    if (isBrowser()) {
-      document.documentElement.dataset.theme =
-        next.settings.theme === "dark" ? "deveng-dark" : "deveng";
-    }
+    applyDocumentSettings(next.settings);
     return true;
   }
 
   setTheme(theme: ProgressSettings["theme"]) {
     this.setSettings({ theme });
-    if (isBrowser()) {
-      document.documentElement.dataset.theme =
-        theme === "dark" ? "deveng-dark" : "deveng";
-    }
   }
 
   reset() {
     const defaults = createDefaultState();
     this.commit(defaults);
-    if (isBrowser()) {
-      document.documentElement.dataset.theme =
-        defaults.settings.theme === "dark" ? "deveng-dark" : "deveng";
-    }
+    applyDocumentSettings(defaults.settings);
     emitToast("Progreso reiniciado. Empezamos de cero.", "info");
   }
 

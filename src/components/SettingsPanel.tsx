@@ -293,9 +293,36 @@ export default function SettingsPanel() {
         <SectionTitle
           icon={Volume2}
           title="Pronunciación"
-          description="Velocidad de la voz en inglés."
+          description="Controla la voz y su velocidad en toda la app."
         />
-        <div class="mt-5 flex flex-wrap gap-1.5">
+        <div class="mt-5 flex items-center justify-between gap-3 rounded-2xl bg-base-100/45 p-3.5">
+          <div>
+            <p class="text-xs font-medium">Voz en toda la app</p>
+            <p class="mt-1 text-[11px] leading-relaxed text-base-content/60">
+              Activa o desactiva los botones de pronunciación en sesiones y slang.
+            </p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={state.settings.ttsEnabled}
+            aria-label="Activar o desactivar la voz"
+            onClick={() =>
+              progressStore.setSettings({ ttsEnabled: !state.settings.ttsEnabled })
+            }
+            class={`relative h-6 w-11 shrink-0 rounded-full transition ${
+              state.settings.ttsEnabled ? "bg-accent" : "bg-base-300"
+            }`}
+          >
+            <span
+              class={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-all ${
+                state.settings.ttsEnabled ? "left-[22px]" : "left-0.5"
+              }`}
+            />
+          </button>
+        </div>
+
+        <div class="mt-3 flex flex-wrap gap-1.5">
           {[0.75, 1, 1.25].map((rate) => {
             const active = state.settings.ttsRate === rate;
             return (
@@ -313,14 +340,21 @@ export default function SettingsPanel() {
               </button>
             );
           })}
-          <button
-            type="button"
-            data-speak="The server is running. Pull the latest changes before you push."
-            class="speak-btn ml-auto flex items-center gap-1.5 rounded-full bg-base-100/60 px-3.5 py-2 text-xs font-medium text-base-content/50 transition hover:bg-base-100 hover:text-base-content/75"
-          >
-            <Volume2 class="h-3.5 w-3.5" />
-            Probar voz
-          </button>
+          {state.settings.ttsEnabled ? (
+            <button
+              type="button"
+              data-speak="The server is running. Pull the latest changes before you push."
+              class="speak-btn ml-auto flex items-center gap-1.5 rounded-full bg-base-100/60 px-3.5 py-2 text-xs font-medium text-base-content/50 transition hover:bg-base-100 hover:text-base-content/75"
+            >
+              <Volume2 class="h-3.5 w-3.5" />
+              Probar voz
+            </button>
+          ) : (
+            <span class="ml-auto flex items-center gap-1.5 rounded-full bg-base-100/40 px-3.5 py-2 text-xs text-base-content/55">
+              <Volume2 class="h-3.5 w-3.5" />
+              Voz desactivada
+            </span>
+          )}
         </div>
       </section>
 

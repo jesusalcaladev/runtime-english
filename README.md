@@ -25,6 +25,7 @@ npm run preview  # sirve el build
 npm run check    # typecheck de Astro + TS
 npm run android:sync  # build + copia los assets a android/
 npm run android:open  # abre el proyecto en Android Studio
+npm run android:apk   # compila el APK debug y lo copia a apks/
 ```
 
 ## Estructura
@@ -56,6 +57,7 @@ src/
 └── pages/                 # /, /slang, /achievements, /settings, /session/[slug]
 
 android/                   # proyecto nativo generado por Capacitor
+apks/                      # APK debug/release generados (no versionados)
 capacitor.config.ts        # appId, nombre, webDir y tema del sistema
 ```
 
@@ -69,7 +71,11 @@ Requisitos para compilar: **JDK 17+** y **Android SDK** instalados, además de A
 ```bash
 npm run android:sync   # genera dist/ y lo copia a android/
 npm run android:open   # abre Android Studio
+npm run android:apk    # compila debug y deja apks/deveng-core-debug.apk
 ```
+
+El build de Gradle copia automáticamente los APK a `apks/` en la raíz del proyecto. También
+puedes compilar desde Android Studio: el resultado se copia al mismo destino.
 
 En Android Studio: `Build > Generate Signed Bundle / APK`. Para Play Store se sube un **AAB**
 firmado con una keystore propia; esa keystore y los archivos de firma no deben commitearse.

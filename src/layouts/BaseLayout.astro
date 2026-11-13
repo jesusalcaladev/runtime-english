@@ -3,6 +3,7 @@ import "@fontsource-variable/geist";
 import "@fontsource-variable/geist-mono";
 import "@fontsource-variable/geist-pixel";
 import "../styles/global.css";
+import { ClientRouter } from "astro:transitions";
 import Topbar from "../components/Topbar.astro";
 import SidebarNav from "../components/SidebarNav";
 import ToastHost from "../components/ToastHost";
@@ -41,6 +42,7 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#101010" />
+    <ClientRouter />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" href="/favicon.svg" />
@@ -62,8 +64,12 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B
           }
           document.documentElement.dataset.theme =
             theme === "dark" ? "deveng-dark" : "deveng";
+          var ttsEnabled =
+            parsed && parsed.settings ? parsed.settings.ttsEnabled : true;
+          document.documentElement.dataset.tts = ttsEnabled === false ? "off" : "on";
         } catch (error) {
           document.documentElement.dataset.theme = "deveng";
+          document.documentElement.dataset.tts = "on";
         }
       })();
     </script>
@@ -78,7 +84,7 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B
     />
 
     <div class="mx-auto flex w-full max-w-[1600px] flex-1 items-start">
-      <SidebarNav client:only="preact" modules={nav} />
+      <SidebarNav client:only="preact" transition:persist modules={nav} />
 
       <main
         class:list={[
@@ -90,7 +96,7 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B
       </main>
     </div>
 
-    <ToastHost client:only="preact" />
+    <ToastHost client:only="preact" transition:persist />
 
     <script>
       import { Capacitor } from "@capacitor/core";
@@ -99,7 +105,12 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B
 
       initVoices();
 
-      if (Capacitor.isNativePlatform()) {
+      const nativeWindow = window as Window & {
+        __devengBackBound?: boolean;
+        __devengSpeechBound?: boolean;
+      };
+      if (Capacitor.isNativePlatform() && !nativeWindow.__devengBackBound) {
+        nativeWindow.__devengBackBound = true;
         App.addListener("backButton", ({ canGoBack }) => {
           if (canGoBack) {
             window.history.back();
@@ -109,14 +120,17 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B
         });
       }
 
-      document.addEventListener("click", (event) => {
-        const target = event.target;
-        if (!(target instanceof Element)) return;
-        const button = target.closest("[data-speak]");
-        if (!(button instanceof HTMLElement)) return;
-        event.preventDefault();
-        speak(button.dataset.speak ?? "", button);
-      });
+      if (!nativeWindow.__devengSpeechBound) {
+        nativeWindow.__devengSpeechBound = true;
+        document.addEventListener("click", (event) => {
+          const target = event.target;
+          if (!(target instanceof Element)) return;
+          const button = target.closest("[data-speak]");
+          if (!(button instanceof HTMLElement)) return;
+          event.preventDefault();
+          speak(button.dataset.speak ?? "", button);
+        });
+      }
     </script>
   </body>
 </html>

@@ -3,19 +3,26 @@ import { emitToast } from "./toast";
 let cachedVoice: SpeechSynthesisVoice | null = null;
 let voicesPromise: Promise<SpeechSynthesisVoice[]> | null = null;
 
-export function getSpeechRate(): number {
-  if (typeof window === "undefined") return 1;
+function readStoredSettings(): { ttsEnabled?: boolean; ttsRate?: number } | null {
+  if (typeof window === "undefined") return null;
   try {
     const raw = window.localStorage.getItem("deveng_core_v2");
-    if (!raw) return 1;
-    const parsed = JSON.parse(raw);
-    const rate = parsed?.settings?.ttsRate;
-    return typeof rate === "number" && Number.isFinite(rate)
-      ? Math.min(2, Math.max(0.5, rate))
-      : 1;
+    return raw ? JSON.parse(raw)?.settings ?? null : null;
   } catch {
-    return 1;
+    return null;
   }
+}
+
+export function isSpeechEnabled(): boolean {
+  const settings = readStoredSettings();
+  return settings?.ttsEnabled !== false;
+}
+
+export function getSpeechRate(): number {
+  const rate = readStoredSettings()?.ttsRate;
+  return typeof rate === "number" && Number.isFinite(rate)
+    ? Math.min(2, Math.max(0.5, rate))
+    : 1;
 }
 
 function isEnglish(voice: SpeechSynthesisVoice): boolean {
@@ -153,7 +160,7 @@ async function speakWeb(text: string, button?: HTMLElement | null) {
 }
 
 export function speak(text: string, button?: HTMLElement | null) {
-  if (typeof window === "undefined" || !text.trim()) return;
+  if (typeof window === "undefined" || !text.trim() || !isSpeechEnabled()) return;
 
   const clean = text.replace(/\s+/g, " ").trim();
   setSpeaking(button, true);

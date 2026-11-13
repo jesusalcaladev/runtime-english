@@ -206,6 +206,10 @@
     background: color-mix(in oklab, var(--color-accent) 12%, transparent);
     color: var(--color-accent);
   }
+
+  html[data-tts="off"] [data-speak] {
+    display: none !important;
+  }
 }
 
 @layer utilities {
