@@ -1,0 +1,2267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevEng // CORE — Inglés Técnico para Desarrolladores (A1-A2 → B1-B2)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">a
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        surface: {
+                            0: '#FFFFFF',
+                            1: '#F9FAFB',
+                            2: '#F3F4F6',
+                            3: '#E5E7EB',
+                        },
+                        darksurface: {
+                            0: '#0A0A0A',
+                            1: '#141414',
+                            2: '#1E1E1E',
+                            3: '#2A2A2A',
+                        },
+                        brand: {
+                            emerald: '#10A37F',
+                            emeraldHover: '#0E8C6D',
+                            ink: '#111827',
+                            muted: '#4B5563',
+                            subtle: '#9CA3AF'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+            -webkit-font-smoothing: antialiased;
+        }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.35); border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(156, 163, 175, 0.6); }
+
+        .hairline { border: 1px solid rgba(0, 0, 0, 0.06); }
+        .dark .hairline { border: 1px solid rgba(255, 255, 255, 0.08); }
+        .hairline-b { border-bottom: 1px solid rgba(0, 0, 0, 0.06); }
+        .dark .hairline-b { border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+        .hairline-r { border-right: 1px solid rgba(0, 0, 0, 0.06); }
+        .dark .hairline-r { border-right: 1px solid rgba(255, 255, 255, 0.08); }
+        .hairline-t { border-top: 1px solid rgba(0, 0, 0, 0.06); }
+        .dark .hairline-t { border-top: 1px solid rgba(255, 255, 255, 0.08); }
+
+        @keyframes mic-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.35); }
+            50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+        }
+        .mic-recording { animation: mic-pulse 1.2s infinite; }
+
+        /* Estilos exclusivos para impresión limpia del Certificado */
+        @media print {
+            body * { visibility: hidden !important; }
+            #printable-certificate, #printable-certificate * {
+                visibility: visible !important;
+            }
+            #printable-certificate {
+                position: fixed !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                margin: 0 !important;
+                padding: 36px !important;
+                background: #FFFFFF !important;
+                color: #111827 !important;
+                border: 2px solid #111827 !important;
+                box-shadow: none !important;
+                z-index: 99999 !important;
+            }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-surface-0 text-brand-ink dark:bg-darksurface-0 dark:text-gray-100 transition-colors duration-150 min-h-screen flex flex-col">
+
+    <!-- Header Minimalista -->
+    <header class="sticky top-0 z-40 bg-surface-0/90 dark:bg-darksurface-0/90 backdrop-blur-md hairline-b no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-lg text-brand-muted dark:text-gray-400 hover:bg-surface-2 dark:hover:bg-darksurface-2 transition" aria-label="Menú">
+                    <i data-lucide="panel-left" class="w-5 h-5"></i>
+                </button>
+                <!-- Logotipo SVG Geométrico Propio: DevEng // CORE -->
+                <div onclick="app.navigate('dashboard')" class="flex items-center gap-2.5 cursor-pointer select-none group">
+                    <div id="brand-logo-slot" class="w-8 h-8 flex items-center justify-center"></div>
+                    <div class="flex items-baseline gap-1.5">
+                        <span class="font-bold text-sm sm:text-base tracking-tight">DevEng</span>
+                        <span class="font-mono text-xs font-semibold text-brand-emerald">// CORE</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controles Globales -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <!-- Selector de Velocidad TTS -->
+                <div class="hidden sm:flex items-center bg-surface-1 dark:bg-darksurface-1 rounded-lg p-0.5 hairline text-xs" title="Velocidad de pronunciación">
+                    <button id="speed-slow-btn" onclick="app.setSpeechRate(0.75)" class="px-2 py-1 rounded-md font-mono font-medium transition text-brand-muted dark:text-gray-400">0.75x</button>
+                    <button id="speed-norm-btn" onclick="app.setSpeechRate(1.0)" class="px-2 py-1 rounded-md font-mono font-medium transition bg-surface-0 dark:bg-darksurface-2 text-brand-ink dark:text-white">1.0x</button>
+                </div>
+
+                <!-- Badge de Nivel CEFR & Progreso -->
+                <div class="flex items-center gap-2 bg-surface-1 dark:bg-darksurface-1 px-3 py-1.5 rounded-lg hairline text-xs font-medium">
+                    <span id="cefr-level-pill" class="font-mono font-semibold text-brand-emerald">A1-A2</span>
+                    <span class="text-brand-subtle">·</span>
+                    <span id="global-progress-text" class="text-brand-ink dark:text-gray-200">0%</span>
+                </div>
+
+                <button id="theme-toggle" class="p-2 rounded-lg bg-surface-1 dark:bg-darksurface-1 hover:bg-surface-2 dark:hover:bg-darksurface-2 text-brand-muted dark:text-gray-300 transition hairline" title="Alternar tema">
+                    <i id="theme-icon" data-lucide="moon" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Layout Principal -->
+    <div class="flex-1 max-w-7xl w-full mx-auto flex relative">
+        <div id="sidebar-backdrop" class="fixed inset-0 bg-black/30 backdrop-blur-xs z-30 hidden lg:hidden no-print" onclick="app.toggleSidebar(false)"></div>
+
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed lg:sticky top-14 left-0 z-30 w-72 h-[calc(100vh-3.5rem)] bg-surface-1 dark:bg-darksurface-1 hairline-r overflow-y-auto transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-out flex flex-col justify-between p-3.5 no-print">
+            <div class="space-y-5">
+                <!-- Navegación Principal -->
+                <div class="space-y-0.5">
+                    <p class="px-2.5 text-[10px] font-mono font-semibold uppercase tracking-wider text-brand-subtle mb-1.5">Workspace</p>
+                    <button onclick="app.navigate('dashboard')" data-nav="dashboard" class="nav-item w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm transition text-left">
+                        <i data-lucide="layout-grid" class="w-4 h-4 shrink-0"></i>
+                        <span>Roadmap Técnico</span>
+                    </button>
+                    <button onclick="app.navigate('tools')" data-nav="tools" class="nav-item w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm transition text-left">
+                        <i data-lucide="terminal" class="w-4 h-4 shrink-0"></i>
+                        <span>Commit & Standup Lab</span>
+                    </button>
+                    <button onclick="app.navigate('youtube')" data-nav="youtube" class="nav-item w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm transition text-left">
+                        <i data-lucide="play-square" class="w-4 h-4 shrink-0"></i>
+                        <span>50 Frases YouTube Tech</span>
+                    </button>
+                    <button onclick="app.navigate('checklist')" data-nav="checklist" class="nav-item w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm transition text-left">
+                        <i data-lucide="check-square" class="w-4 h-4 shrink-0"></i>
+                        <span>Checklist 8 Semanas</span>
+                    </button>
+                    <button onclick="app.navigate('certificate')" data-nav="certificate" class="nav-item w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-sm transition text-left">
+                        <div class="flex items-center gap-2.5">
+                            <i data-lucide="award" class="w-4 h-4 shrink-0 text-brand-emerald"></i>
+                            <span>Certificado Oficial</span>
+                        </div>
+                        <span id="cert-status-badge" class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-surface-2 dark:bg-darksurface-2 text-brand-muted">A1-B2</span>
+                    </button>
+                </div>
+
+                <!-- Módulos A1-A2 -->
+                <div class="space-y-0.5">
+                    <p class="px-2.5 text-[10px] font-mono font-semibold uppercase tracking-wider text-brand-emerald mb-1.5">Nivel A1–A2 · Fundamentos</p>
+                    <nav id="nav-a1a2" class="space-y-1"></nav>
+                </div>
+
+                <!-- Módulos B1-B2 -->
+                <div class="space-y-0.5">
+                    <p class="px-2.5 text-[10px] font-mono font-semibold uppercase tracking-wider text-brand-emerald mb-1.5">Nivel B1–B2 · Producción</p>
+                    <nav id="nav-b1b2" class="space-y-1"></nav>
+                </div>
+            </div>
+
+            <!-- Panel de Diagnóstico TTS -->
+            <div class="mt-6 p-3 rounded-xl bg-surface-2/90 dark:bg-darksurface-2/90 space-y-2 hairline">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-medium flex items-center gap-1.5">
+                        <i data-lucide="volume-2" class="w-3.5 h-3.5 text-brand-emerald"></i>
+                        Motor TTS Inglés
+                    </span>
+                    <span id="tts-mode-badge" class="text-[10px] font-mono font-semibold text-brand-emerald">Listo</span>
+                </div>
+                <p id="tts-voice-info" class="text-[11px] font-mono text-brand-muted dark:text-gray-400 truncate">Inicializando motor de voz...</p>
+                <div class="flex gap-1.5">
+                    <button onclick="app.testVoice()" class="flex-1 py-1.5 px-2 rounded-lg bg-surface-0 dark:bg-darksurface-1 hover:bg-surface-2 text-[11px] font-medium transition hairline flex items-center justify-center gap-1">
+                        <i data-lucide="play" class="w-3 h-3 text-brand-emerald"></i> Probar voz
+                    </button>
+                    <button onclick="app.voice.unlockAudio(true)" class="py-1.5 px-2 rounded-lg bg-surface-0 dark:bg-darksurface-1 hover:bg-surface-2 text-[11px] font-mono transition hairline" title="Recargar voces del sistema">
+                        <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Área Principal -->
+        <main id="main-content" class="flex-1 p-4 sm:p-6 lg:p-10 max-w-full overflow-x-hidden"></main>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none no-print"></div>
+
+    <script>
+    /**
+     * =========================================================================
+     * 1. SISTEMA DE LOGOTIPOS SVG GEOMÉTRICOS (LIMPIO, SIN EMOJIS)
+     * =========================================================================
+     */
+    const SVG_LOGOS = {
+        main: `
+            <svg viewBox="0 0 32 32" fill="none" class="w-7 h-7" xmlns="http://www.w3.org/2000/svg">
+                <rect x="1.5" y="1.5" width="29" height="29" rx="7.5" class="stroke-brand-ink dark:stroke-white" stroke-width="1.75"/>
+                <path d="M11 11L7 16L11 21" stroke="#10A37F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M21 11L25 16L21 21" class="stroke-brand-ink dark:stroke-white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="17.5" y1="10" x2="14.5" y2="22" stroke="#10A37F" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        `,
+        a1Badge: `
+            <svg viewBox="0 0 40 40" fill="none" class="w-9 h-9" xmlns="http://www.w3.org/2000/svg">
+                <rect x="1" y="1" width="38" height="38" rx="9" fill="#10A37F" fill-opacity="0.08" stroke="#10A37F" stroke-width="1.2"/>
+                <polygon points="20,8 30,14 30,26 20,32 10,26 10,14" stroke="#10A37F" stroke-width="1.5" fill="none"/>
+                <circle cx="20" cy="20" r="3" fill="#10A37F"/>
+            </svg>
+        `,
+        b1Badge: `
+            <svg viewBox="0 0 40 40" fill="none" class="w-9 h-9" xmlns="http://www.w3.org/2000/svg">
+                <rect x="1" y="1" width="38" height="38" rx="9" class="stroke-brand-ink dark:stroke-white" stroke-opacity="0.2" stroke-width="1.2"/>
+                <circle cx="20" cy="20" r="11" stroke="#10A37F" stroke-width="1.5"/>
+                <path d="M15 20L18.5 23.5L25.5 16.5" stroke="#10A37F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        `,
+        certSeal: `
+            <svg viewBox="0 0 72 72" fill="none" class="w-16 h-16" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="36" cy="36" r="33" stroke="#10A37F" stroke-width="1.5" stroke-dasharray="4 3"/>
+                <circle cx="36" cy="36" r="27" stroke="#111827" stroke-width="1.5"/>
+                <path d="M27 31L22 36L27 41" stroke="#10A37F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M45 31L50 36L45 41" stroke="#111827" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="38" y1="29" x2="34" y2="43" stroke="#10A37F" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
+        `
+    };
+
+    /**
+     * =========================================================================
+     * 2. MOTOR TTS BLINDADO CON FALLBACK ACÚSTICO WEB AUDIO API
+     * =========================================================================
+     */
+    class ResilientTTSEngine {
+        constructor() {
+            this.synth = window.speechSynthesis || null;
+            this.voices = [];
+            this.enVoice = null;
+            this.rate = 1.0;
+            this.audioCtx = null;
+            this.ttsWorking = false;
+
+            this.loadVoices();
+            this.initSpeechRecognition();
+        }
+
+        loadVoices() {
+            if (!this.synth) {
+                this.updateBadge("WebAudio", "Fallback acústico activo");
+                return;
+            }
+
+            const fetchList = () => {
+                const rawVoices = this.synth.getVoices() || [];
+                if (rawVoices.length > 0) {
+                    this.voices = rawVoices;
+                    // Buscar estrictamente voces en inglés
+                    this.enVoice =
+                        rawVoices.find(v => v.lang === 'en-US' && /Google|Natural|Microsoft|Samantha|Daniel|Alex/i.test(v.name)) ||
+                        rawVoices.find(v => v.lang === 'en-US') ||
+                        rawVoices.find(v => v.lang === 'en-GB') ||
+                        rawVoices.find(v => v.lang && v.lang.toLowerCase().startsWith('en')) ||
+                        null;
+
+                    this.ttsWorking = true;
+                    const label = this.enVoice ? `${this.enVoice.name} (${this.enVoice.lang})` : `Sistema (${rawVoices[0].lang})`;
+                    this.updateBadge("TTS En-US", label);
+                } else {
+                    this.updateBadge("TTS Listo", "Haz clic en Probar voz");
+                }
+            };
+
+            fetchList();
+            if (typeof this.synth.onvoiceschanged !== 'undefined') {
+                this.synth.onvoiceschanged = fetchList;
+            }
+            // Polling de respaldo durante los primeros 3 segundos
+            [250, 750, 1500, 3000].forEach(ms => setTimeout(fetchList, ms));
+        }
+
+        updateBadge(badgeText, infoText) {
+            const b = document.getElementById('tts-mode-badge');
+            const i = document.getElementById('tts-voice-info');
+            if (b) b.textContent = badgeText;
+            if (i) i.textContent = infoText;
+        }
+
+        unlockAudio(manualToast = false) {
+            this.loadVoices();
+            if (!this.audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) this.audioCtx = new AudioContext();
+            }
+            if (this.audioCtx && this.audioCtx.state === 'suspended') {
+                this.audioCtx.resume();
+            }
+            if (manualToast) {
+                app.showToast(`Motor de audio sincronizado (${this.voices.length} voces detectadas).`, "success");
+            }
+        }
+
+        // Fallback acústico silábico limpio usando Web Audio API si el navegador bloquea speechSynthesis
+        playAcousticFallback(text) {
+            try {
+                this.unlockAudio(false);
+                if (!this.audioCtx) return;
+                const words = text.split(/\s+/).slice(0, 10);
+                const now = this.audioCtx.currentTime;
+
+                words.forEach((word, idx) => {
+                    const osc = this.audioCtx.createOscillator();
+                    const gain = this.audioCtx.createGain();
+                    const start = now + idx * (0.16 / this.rate);
+                    const dur = 0.11 / this.rate;
+
+                    // Modulación suave por longitud de palabra para simular entonación
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(240 + (word.length % 5) * 28, start);
+                    osc.frequency.exponentialRampToValueAtTime(190, start + dur);
+
+                    gain.gain.setValueAtTime(0.001, start);
+                    gain.gain.linearRampToValueAtTime(0.08, start + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.001, start + dur);
+
+                    osc.connect(gain);
+                    gain.connect(this.audioCtx.destination);
+                    osc.start(start);
+                    osc.stop(start + dur + 0.01);
+                });
+            } catch (e) {
+                console.warn("Audio fallback error:", e);
+            }
+        }
+
+        speak(rawText, btnEl = null) {
+            const clean = String(rawText || '')
+                .replace(/\/\/.*/g, '')
+                .replace(/[{}()[\]<>]/g, ' ')
+                .replace(/\//g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+
+            if (!clean) return;
+            this.unlockAudio(false);
+
+            // Resetear estado visual de botones previos
+            document.querySelectorAll('[data-tts-active="true"]').forEach(b => {
+                b.dataset.ttsActive = "false";
+                b.classList.remove('ring-1', 'ring-brand-emerald', 'text-brand-emerald');
+            });
+
+            if (btnEl) {
+                btnEl.dataset.ttsActive = "true";
+                btnEl.classList.add('ring-1', 'ring-brand-emerald', 'text-brand-emerald');
+            }
+
+            if (!this.synth) {
+                this.playAcousticFallback(clean);
+                setTimeout(() => {
+                    if (btnEl) {
+                        btnEl.dataset.ttsActive = "false";
+                        btnEl.classList.remove('ring-1', 'ring-brand-emerald', 'text-brand-emerald');
+                    }
+                }, 800);
+                return;
+            }
+
+            try {
+                this.synth.cancel();
+                if (this.voices.length === 0) {
+                    this.loadVoices();
+                }
+
+                const utter = new SpeechSynthesisUtterance(clean);
+                utter.lang = 'en-US';
+                utter.rate = this.rate;
+                utter.pitch = 1.0;
+                utter.volume = 1.0;
+
+                if (this.enVoice) {
+                    utter.voice = this.enVoice;
+                }
+
+                let started = false;
+                utter.onstart = () => {
+                    started = true;
+                    this.ttsWorking = true;
+                };
+
+                utter.onend = () => {
+                    if (btnEl) {
+                        btnEl.dataset.ttsActive = "false";
+                        btnEl.classList.remove('ring-1', 'ring-brand-emerald', 'text-brand-emerald');
+                    }
+                };
+
+                utter.onerror = () => {
+                    if (btnEl) {
+                        btnEl.dataset.ttsActive = "false";
+                        btnEl.classList.remove('ring-1', 'ring-brand-emerald', 'text-brand-emerald');
+                    }
+                    this.playAcousticFallback(clean);
+                };
+
+                this.synth.resume();
+                this.synth.speak(utter);
+
+                // Si en 450ms el navegador sandbox no arrancó speechSynthesis, activar fallback acústico
+                setTimeout(() => {
+                    if (!started && !this.synth.speaking) {
+                        this.playAcousticFallback(clean);
+                        if (btnEl) {
+                            btnEl.dataset.ttsActive = "false";
+                            btnEl.classList.remove('ring-1', 'ring-brand-emerald', 'text-brand-emerald');
+                        }
+                    }
+                }, 450);
+            } catch (err) {
+                this.playAcousticFallback(clean);
+            }
+        }
+
+        initSpeechRecognition() {
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SR) return;
+            this.recognition = new SR();
+            this.recognition.lang = 'en-US';
+            this.recognition.interimResults = true;
+            this.recognition.maxAlternatives = 1;
+        }
+
+        checkMic(onProgress, onFail) {
+            if (!this.recognition) {
+                onFail("El reconocimiento por micrófono requiere Chrome, Edge o Safari reciente.");
+                return;
+            }
+            let finalStr = '';
+            this.recognition.onresult = (ev) => {
+                let interim = '';
+                for (let i = ev.resultIndex; i < ev.results.length; i++) {
+                    if (ev.results[i].isFinal) finalStr += ev.results[i][0].transcript;
+                    else interim += ev.results[i][0].transcript;
+                }
+                onProgress(finalStr || interim, Boolean(finalStr));
+            };
+            this.recognition.onerror = (e) => {
+                onFail(e.error === 'not-allowed' ? "Permiso de micrófono bloqueado por el navegador." : "No se captó voz clara. Intenta de nuevo.");
+            };
+            try {
+                this.recognition.start();
+            } catch (e) {
+                onFail("El micrófono ya está escuchando.");
+            }
+        }
+    }
+
+    /**
+     * =========================================================================
+     * 3. CURRÍCULO TÉCNICO PARA DESARROLLADORES (A1-A2 → B1-B2)
+     * =========================================================================
+     */
+    const DEV_CURRICULUM = {
+        modules: [
+            // =================== NIVEL A1-A2 ===================
+            {
+                id: "m1",
+                level: "A1-A2",
+                code: "MOD 01",
+                title: "Cimientos Tech y Verbos Reyes",
+                shortTitle: "Verbos Reyes & 20 Tech",
+                description: "Los 10 verbos reyes en contexto de arquitectura/código y los 20 verbos técnicos diarios.",
+                lessons: [
+                    {
+                        id: "m1-l1",
+                        step: "A1 · Paso 1.1",
+                        title: "Los 10 Verbos Reyes en Contexto Técnico",
+                        summary: "Domina cómo se comportan los 10 verbos fundamentales cuando hablas de servidores, funciones y errores.",
+                        technique: {
+                            name: "Regla de la 3ª Persona en Código",
+                            desc: "En documentación y código, casi siempre hablas de 'it' (the server, the function, the API, the script). Por eso el verbo añade -S: 'The function has...', 'The error says...', 'The code goes...', 'This library needs...'."
+                        },
+                        viewType: "king_tech",
+                        items: [
+                            { verb: "to be", ctx: "ser / estar (estado del sistema)", ex: "The server is down.", es: "El servidor está caído." },
+                            { verb: "to have", ctx: "tener (características)", ex: "This function has two parameters.", es: "Esta función tiene dos parámetros." },
+                            { verb: "to do", ctx: "hacer (ejecutar acción)", ex: "The script does nothing.", es: "El script no hace nada." },
+                            { verb: "to say", ctx: "decir / especificar (logs)", ex: "The error says permission denied.", es: "El error dice permiso denegado." },
+                            { verb: "to go", ctx: "ir / moverse (flujo del código)", ex: "The code goes into the loop.", es: "El código entra en el bucle." },
+                            { verb: "can", ctx: "poder (capacidad del sistema)", ex: "This API can handle 1000 requests.", es: "Esta API puede manejar 1000 peticiones." },
+                            { verb: "to want", ctx: "querer (requerimiento)", ex: "The client wants a login page.", es: "El cliente quiere una página de inicio de sesión." },
+                            { verb: "to need", ctx: "necesitar (dependencia)", ex: "This library needs Node 18.", es: "Esta librería necesita Node 18." },
+                            { verb: "to know", ctx: "saber / conocer", ex: "I don't know why this broke.", es: "No sé por qué se rompió esto." },
+                            { verb: "to think", ctx: "pensar (debugging)", ex: "I think the issue is in the cache.", es: "Creo que el problema está en la caché." }
+                        ],
+                        pronunciation: "The server is down and the error says permission denied.",
+                        exercises: [
+                            {
+                                id: "m1-l1-e1",
+                                type: "choice",
+                                prompt: "Completa el reporte de error: 'This library _____ Node 18 to run properly.'",
+                                options: ["need", "needs", "is need", "needing"],
+                                answer: 1,
+                                explanation: "'This library' equivale a 'it' (3ª persona singular), por lo que 'need' lleva -s: 'needs'."
+                            },
+                            {
+                                id: "m1-l1-e2",
+                                type: "choice",
+                                prompt: "Elige la frase técnicamente correcta sobre capacidad de sistema:",
+                                options: ["This API cans handle 1000 requests", "This API can handles 1000 requests", "This API can handle 1000 requests", "This API is can handle 1000 requests"],
+                                answer: 2,
+                                explanation: "'can' es un modal invariable: jamás lleva -s y el verbo siguiente va en forma base ('handle')."
+                            },
+                            {
+                                id: "m1-l1-e3",
+                                type: "builder",
+                                prompt: "Construye la frase de debugging: 'Creo que el problema está en la caché'",
+                                words: ["I think", "the issue", "is in", "the cache"],
+                                explanation: "Estructura limpia: Sujeto + verbo (I think) + cláusula (the issue is in the cache)."
+                            }
+                        ]
+                    },
+                    {
+                        id: "m1-l2",
+                        step: "A1 · Paso 1.2",
+                        title: "Los 20 Verbos Técnicos Diarios",
+                        summary: "Las acciones exactas que ejecutas cada día en tu terminal, IDE y repositorio Git.",
+                        technique: {
+                            name: "Imperativo Técnico (Documentación y READMEs)",
+                            desc: "Cuando lees instrucciones en inglés ('Run npm install', 'Push your changes', 'Fetch the data'), el verbo siempre va al inicio en su forma base sin sujeto."
+                        },
+                        viewType: "tech_verbs_20",
+                        items: [
+                            { v: "run", es: "ejecutar (código, script)", ex: "Run npm install first" },
+                            { v: "build", es: "compilar / construir", ex: "The build failed" },
+                            { v: "deploy", es: "desplegar", ex: "We deploy every Friday" },
+                            { v: "push", es: "subir código", ex: "Push your changes" },
+                            { v: "pull", es: "descargar código", ex: "Pull the latest version" },
+                            { v: "commit", es: "guardar cambios", ex: "Did you commit your code?" },
+                            { v: "merge", es: "fusionar ramas", ex: "Merge the PR" },
+                            { v: "break", es: "romper / funcionar mal", ex: "This update breaks the app" },
+                            { v: "fix", es: "arreglar", ex: "Fix the bug before shipping" },
+                            { v: "test", es: "probar", ex: "Test it locally first" },
+                            { v: "debug", es: "depurar", ex: "I'm debugging this function" },
+                            { v: "log", es: "registrar / ver en consola", ex: "Log the response" },
+                            { v: "return", es: "devolver (valor)", ex: "This function returns a promise" },
+                            { v: "call", es: "llamar (función, API)", ex: "Call the API with the ID" },
+                            { v: "pass", es: "pasar (argumento)", ex: "Pass the user ID as a parameter" },
+                            { v: "throw", es: "lanzar (error)", ex: "Throw an error if invalid" },
+                            { v: "catch", es: "capturar (error)", ex: "Catch the exception" },
+                            { v: "fetch", es: "obtener (datos)", ex: "Fetch the data from the database" },
+                            { v: "handle", es: "manejar (evento/error)", ex: "Handle the click event" },
+                            { v: "update", es: "actualizar", ex: "Update the state" }
+                        ],
+                        pronunciation: "Pull the latest version, fix the bug locally, and push your changes.",
+                        exercises: [
+                            {
+                                id: "m1-l2-e1",
+                                type: "choice",
+                                prompt: "¿Qué verbo técnico significa 'obtener datos desde una API o base de datos'?",
+                                options: ["throw", "fetch", "merge", "log"],
+                                answer: 1,
+                                explanation: "'fetch' significa obtener o traer datos (ej: 'Fetch the data from the database')."
+                            },
+                            {
+                                id: "m1-l2-e2",
+                                type: "choice",
+                                prompt: "Completa la instrucción de manejo de errores: '_____ an error if the token is invalid.'",
+                                options: ["Catch", "Throw", "Merge", "Deploy"],
+                                answer: 1,
+                                explanation: "'Throw an error' significa lanzar una excepción cuando una validación falla; 'Catch' es capturarla."
+                            },
+                            {
+                                id: "m1-l2-e3",
+                                type: "builder",
+                                prompt: "Construye: 'Esta función devuelve una promesa'",
+                                words: ["This function", "returns", "a promise"],
+                                explanation: "Presente simple para describir qué hace el código: 'This function returns a promise'."
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: "m2",
+                level: "A1-A2",
+                code: "MOD 02",
+                title: "Los 4 Tiempos Verbales del Dev",
+                shortTitle: "4 Tiempos del Dev",
+                description: "Presente Simple, Presente Continuo, Pasado Simple y Futuro Simple aplicados al ciclo de desarrollo.",
+                lessons: [
+                    {
+                        id: "m2-l1",
+                        step: "A2 · Paso 2.1",
+                        title: "Los 4 Tiempos Esenciales (Sin Tiempos Innecesarios)",
+                        summary: "No necesitas Presente Perfecto ni Pluscuamperfecto para trabajar en un equipo internacional. Domina estos 4.",
+                        technique: {
+                            name: "Matriz Temporal del Sprint",
+                            desc: "1) Lo que el código HACE → Presente Simple. 2) Lo que estás HACIENDO ahora mismo → Presente Continuo (-ing). 3) Lo que YA hiciste ayer → Pasado Simple (-ed / irregular). 4) Lo que HARÁS luego → Futuro Simple (will)."
+                        },
+                        viewType: "dev_tenses",
+                        tenses: [
+                            {
+                                name: "Presente Simple",
+                                tag: "Lo que el código HACE / Rutina",
+                                formula: "This function returns a string",
+                                cases: [
+                                    "useState returns an array.",
+                                    "JavaScript is single-threaded.",
+                                    "The endpoint expects a POST request.",
+                                    "I push code every day."
+                                ]
+                            },
+                            {
+                                name: "Presente Continuo",
+                                tag: "Lo que está pasando AHORA MISMO",
+                                formula: "I am fixing the bug",
+                                cases: [
+                                    "I'm debugging the login issue.",
+                                    "The server is crashing.",
+                                    "The build is failing on CI.",
+                                    "I'm reviewing your PR right now."
+                                ]
+                            },
+                            {
+                                name: "Pasado Simple",
+                                tag: "Lo que YA hiciste / Causa del bug",
+                                formula: "Yesterday, I fixed the bug",
+                                cases: [
+                                    "I deployed version 2.0 yesterday.",
+                                    "The previous developer forgot to close the connection.",
+                                    "The database crashed at 3am.",
+                                    "I merged your PR this morning."
+                                ]
+                            },
+                            {
+                                name: "Futuro Simple",
+                                tag: "Lo que HARÁS / Próximas tareas",
+                                formula: "I will refactor this next week",
+                                cases: [
+                                    "We will migrate to TypeScript next month.",
+                                    "I will add tests tomorrow.",
+                                    "The new feature will be ready on Friday.",
+                                    "I will push a fix in 10 minutes."
+                                ]
+                            }
+                        ],
+                        pronunciation: "Yesterday I fixed the bug, now I am running tests, and tomorrow I will deploy.",
+                        exercises: [
+                            {
+                                id: "m2-l1-e1",
+                                type: "choice",
+                                prompt: "Estás en una reunión y quieres decir qué estás haciendo en este instante:",
+                                options: ["I review your PR right now", "I'm reviewing your PR right now", "I reviewed your PR right now", "I will review your PR right now"],
+                                answer: 1,
+                                explanation: "'right now' exige Presente Continuo: 'I'm reviewing your PR right now'."
+                            },
+                            {
+                                id: "m2-l1-e2",
+                                type: "choice",
+                                prompt: "Quieres explicar en una retrospectiva qué causó el fallo de ayer:",
+                                options: ["The database crashes at 3am", "The database crashed at 3am", "The database is crashing at 3am", "The database will crash at 3am"],
+                                answer: 1,
+                                explanation: "Evento ocurrido en un punto cerrado del pasado ('at 3am' ayer) → Pasado Simple ('crashed')."
+                            },
+                            {
+                                id: "m2-l1-e3",
+                                type: "builder",
+                                prompt: "Construye: 'Subiré un arreglo en 10 minutos'",
+                                words: ["I will", "push", "a fix", "in 10 minutes"],
+                                explanation: "Compromiso rápido a futuro → 'I will + verbo base (push)'."
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: "m3",
+                level: "A1-A2",
+                code: "MOD 03",
+                title: "Git, Errores de Consola y Phrasal Verbs",
+                shortTitle: "Git, Errores & Phrasal Verbs",
+                description: "Vocabulario real de terminal, mensajes de error en consola, 30 conceptos de arquitectura y Phrasal Verbs.",
+                lessons: [
+                    {
+                        id: "m3-l1",
+                        step: "A2 · Paso 3.1",
+                        title: "Git, GitHub y Mensajes de Error en Consola",
+                        summary: "Lee cualquier stack trace o flujo de Git sin tener que buscar en Google Translate.",
+                        technique: {
+                            name: "Decodificación de Stack Traces",
+                            desc: "Los errores en consola siguen patrones predecibles: 'Cannot read property X of undefined' (intentas acceder a algo nulo) o 'Port already in use' (otro servidor sigue corriendo en ese puerto)."
+                        },
+                        viewType: "git_and_errors",
+                        gitTerms: [
+                            { term: "repo", desc: "Repositorio Git", ex: "Clone the repo" },
+                            { term: "branch", desc: "Rama de desarrollo", ex: "Create a new branch for this feature" },
+                            { term: "PR (Pull Request)", desc: "Solicitud de revisión/cambios", ex: "Open a PR when you're done" },
+                            { term: "merge", desc: "Unir ramas", ex: "Merge conflict!" },
+                            { term: "commit", desc: "Guardado de cambios", ex: "Write a clear commit message" },
+                            { term: "push / pull", desc: "Subir / bajar cambios", ex: "Pull before you push" },
+                            { term: "clone / fork", desc: "Copiar local / copiar a tu cuenta", ex: "Fork the repo first" },
+                            { term: "issue", desc: "Problema o tarea", ex: "Create an issue on GitHub" }
+                        ],
+                        consoleErrors: [
+                            { err: "Syntax error", meaning: "Error de sintaxis", fix: "Revisa paréntesis, llaves y puntos y comas." },
+                            { err: "Undefined variable", meaning: "Variable no definida", fix: "Declara la variable antes de usarla." },
+                            { err: "Null pointer exception", meaning: "Usas algo que es null", fix: "Verifica que el dato no sea null." },
+                            { err: "Timeout", meaning: "Se tardó demasiado", fix: "Aumenta el tiempo de espera o optimiza la query." },
+                            { err: "Permission denied", meaning: "Sin acceso suficiente", fix: "Cambia permisos o verifica credenciales." },
+                            { err: "Port already in use", meaning: "Puerto ocupado", fix: "Mata el proceso anterior o cambia de puerto." },
+                            { err: "Cannot read property of undefined", meaning: "Objeto padre es undefined", fix: "Usa optional chaining (?.) o valida el objeto." },
+                            { err: "Module not found", meaning: "No encuentra la librería", fix: "Ejecuta npm install o revisa la ruta relativa." },
+                            { err: "Failed to fetch", meaning: "Falló la petición de red", fix: "Verifica la URL del endpoint y la conexión." },
+                            { err: "CORS error", meaning: "Bloqueo de origen cruzado", fix: "Configura los headers Access-Control-Allow-Origin en el backend." }
+                        ],
+                        pronunciation: "Pull before you push to avoid a merge conflict in the main branch.",
+                        exercises: [
+                            {
+                                id: "m3-l1-e1",
+                                type: "choice",
+                                prompt: "Te sale 'Port already in use' al ejecutar npm run dev. ¿Qué significa?",
+                                options: ["La sintaxis tiene un error", "Otro proceso ya está ocupando ese puerto", "Falta instalar node_modules", "El token expiró"],
+                                answer: 1,
+                                explanation: "'Port already in use' indica que otro servidor ya está escuchando en ese mismo puerto."
+                            },
+                            {
+                                id: "m3-l1-e2",
+                                type: "choice",
+                                prompt: "¿Qué buena práctica evita conflictos antes de subir tu código al repositorio remoto?",
+                                options: ["Fork before you clone", "Pull before you push", "Merge before you commit", "Deploy before you test"],
+                                answer: 1,
+                                explanation: "'Pull before you push' descarga los últimos cambios del equipo antes de subir los tuyos."
+                            }
+                        ]
+                    },
+                    {
+                        id: "m3-l2",
+                        step: "A2 · Paso 3.2",
+                        title: "Conceptos de Frameworks + Phrasal Verbs para Dev",
+                        summary: "Los términos de arquitectura y los 14 phrasal verbs que escucharás en cada llamada técnica.",
+                        technique: {
+                            name: "Phrasal Verbs de Acción Técnica",
+                            desc: "En inglés técnico nadie dice 'revert the deployment', dicen 'roll back'. Nadie dice 'configure the environment', dicen 'set up'. Apréndelos como comandos únicos."
+                        },
+                        viewType: "concepts_and_phrasal",
+                        concepts: [
+                            { t: "frontend / backend", d: "Interfaz de usuario / servidor y lógica" },
+                            { t: "API / endpoint", d: "Interfaz de comunicación / URL específica" },
+                            { t: "request / response", d: "Petición enviada / respuesta del servidor" },
+                            { t: "status code", d: "Código HTTP (200 OK, 404 Not Found, 500 Error)" },
+                            { t: "query / migration", d: "Consulta a BD / cambio de esquema en BD" },
+                            { t: "production / staging / local", d: "Usuarios reales / pruebas / tu máquina" },
+                            { t: "refactor / legacy code", d: "Mejorar estructura / código antiguo difícil" },
+                            { t: "dependency / env variables", d: "Librería requerida / claves secretas (.env)" }
+                        ],
+                        phrasalVerbs: [
+                            { pv: "set up", es: "configurar", ex: "Set up the development environment" },
+                            { pv: "log in / log out", es: "iniciar / cerrar sesión", ex: "Log in to the dashboard" },
+                            { pv: "sign up", es: "registrarse", ex: "Sign up for a free API key" },
+                            { pv: "run into", es: "encontrarse con (un bug)", ex: "I ran into a bug" },
+                            { pv: "figure out", es: "resolver / entender", ex: "I can't figure out this error" },
+                            { pv: "break down", es: "desglosar tarea", ex: "Break down the task into smaller pieces" },
+                            { pv: "roll back", es: "revertir versión", ex: "Roll back to the previous version" },
+                            { pv: "clear out", es: "limpiar caché/datos", ex: "Clear out the cache" },
+                            { pv: "plug in", es: "conectar / integrar", ex: "Plug in the new module" },
+                            { pv: "comment out", es: "comentar código", ex: "Comment out the console.log" },
+                            { pv: "check out", es: "cambiar de rama / revisar", ex: "Check out my new branch" },
+                            { pv: "sync up", es: "sincronizar cambios", ex: "Sync up with the latest changes" },
+                            { pv: "speed up", es: "acelerar / optimizar", ex: "This will speed up the build" },
+                            { pv: "shut down", es: "apagar servidor", ex: "The server shut down unexpectedly" }
+                        ],
+                        pronunciation: "I ran into a bug in staging, so we need to roll back to the previous version.",
+                        exercises: [
+                            {
+                                id: "m3-l2-e1",
+                                type: "choice",
+                                prompt: "El despliegue nuevo rompió producción. ¿Qué phrasal verb usas para volver a la versión anterior?",
+                                options: ["sign up", "roll back", "comment out", "plug in"],
+                                answer: 1,
+                                explanation: "'roll back' significa revertir un despliegue o cambio hacia una versión estable anterior."
+                            },
+                            {
+                                id: "m3-l2-e2",
+                                type: "choice",
+                                prompt: "Quieres desactivar temporalmente un console.log sin borrarlo:",
+                                options: ["Clear out the console.log", "Comment out the console.log", "Shut down the console.log", "Break down the console.log"],
+                                answer: 1,
+                                explanation: "'comment out' significa poner como comentario una línea o bloque de código."
+                            },
+                            {
+                                id: "m3-l2-e3",
+                                type: "builder",
+                                prompt: "Construye: 'Configura el entorno de desarrollo'",
+                                words: ["Set up", "the development", "environment"],
+                                explanation: "'Set up' es el phrasal verb universal para instalar y configurar un entorno."
+                            }
+                        ]
+                    }
+                ]
+            },
+
+            // =================== NIVEL B1-B2 ===================
+            {
+                id: "m4",
+                level: "B1-B2",
+                code: "MOD 04",
+                title: "Daily Standups y Comunicación en Vivo",
+                shortTitle: "Daily Standups & Meetings",
+                description: "Participa en reuniones diarias, reporta bloqueos, pide code reviews y debate arquitectura con seguridad.",
+                lessons: [
+                    {
+                        id: "m4-l1",
+                        step: "B1 · Paso 4.1",
+                        title: "Fórmulas Exactas para Daily Standup y Reuniones",
+                        summary: "No traduzcas mentalmente. Usa los bloques estándar de equipos ágiles internacionales.",
+                        technique: {
+                            name: "Estructura de 3 Puntos (Yesterday / Today / Blockers)",
+                            desc: "En un daily standup de 60 segundos solo necesitas tres conectores: 'Yesterday I finished...', 'Today I'm working on...', 'I'm blocked by...'."
+                        },
+                        viewType: "standup_guide",
+                        phrases: [
+                            { sit: "Empezar tu turno en daily", en: "I worked on X yesterday. Today I will work on Y. I'm blocked by Z." },
+                            { sit: "Reportar progreso", en: "I finished the API integration and I'm working on the unit tests." },
+                            { sit: "Pedir ayuda / bloqueo", en: "I'm stuck on the CORS error. I need help with the backend headers." },
+                            { sit: "Pedir revisión de código", en: "I just pushed the fix. Can someone review my PR?" },
+                            { sit: "No entendiste el acento", en: "Sorry, can you repeat that? / Could you explain that differently?" },
+                            { sit: "Te interrumpieron", en: "Let me finish my point first." },
+                            { sit: "Estar de acuerdo", en: "I agree with you. / That makes sense." },
+                            { sit: "Discrepar profesionalmente", en: "I see your point, but I think we should use caching here." },
+                            { sit: "Pedir más tiempo", en: "This is taking longer than expected. I need one more day." },
+                            { sit: "Pair programming", en: "Let's pair on the payment feature after the standup." }
+                        ],
+                        pronunciation: "I finished the API integration yesterday, and today I am working on the login tests.",
+                        exercises: [
+                            {
+                                id: "m4-l1-e1",
+                                type: "choice",
+                                prompt: "Un colega propone una arquitectura con la que no estás de acuerdo, pero quieres sonar profesional (B1-B2):",
+                                options: [
+                                    "No, your idea is bad",
+                                    "I see your point, but I have a different perspective",
+                                    "You don't know how to code",
+                                    "I don't care about that"
+                                ],
+                                answer: 1,
+                                explanation: "'I see your point, but...' valida al compañero antes de presentar tu alternativa técnica."
+                            },
+                            {
+                                id: "m4-l1-e2",
+                                type: "builder",
+                                prompt: "Construye: 'Esto está tomando más tiempo de lo esperado'",
+                                words: ["This is", "taking longer", "than expected"],
+                                explanation: "Frase indispensable para estimaciones y retrasos en sprints."
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                id: "m5",
+                level: "B1-B2",
+                code: "MOD 05",
+                title: "Commits, PRs y Stack Overflow",
+                shortTitle: "Commits, PRs & Docs",
+                description: "Redacta Conventional Commits impecables, descripciones de Pull Request y preguntas técnicas efectivas.",
+                lessons: [
+                    {
+                        id: "m5-l1",
+                        step: "B2 · Paso 5.1",
+                        title: "Conventional Commits, Pull Requests y Preguntas Técnicas",
+                        summary: "Escribe como un ingeniero senior en repositorios open-source y equipos globales.",
+                        technique: {
+                            name: "La Regla de Oro del Commit: 'This commit will...'",
+                            desc: "Nunca escribas commits en pasado ('added login') ni vagos ('fix stuff'). Escribe en presente imperativo completando mentalmente la frase 'If applied, this commit will... [add login endpoint]'."
+                        },
+                        viewType: "commits_prs",
+                        commitTypes: [
+                            { type: "feat:", use: "Nueva funcionalidad", ex: "feat: add login endpoint" },
+                            { type: "fix:", use: "Corrección de bug", ex: "fix: resolve CORS error in production" },
+                            { type: "docs:", use: "Cambios en documentación", ex: "docs: update README with setup instructions" },
+                            { type: "refactor:", use: "Mejora interna sin cambiar función", ex: "refactor: extract validation logic to separate function" },
+                            { type: "test:", use: "Agregar o modificar tests", ex: "test: add unit tests for password hashing" },
+                            { type: "chore:", use: "Mantenimiento / dependencias", ex: "chore: update npm dependencies" }
+                        ],
+                        prPhrases: [
+                            { en: "This PR fixes #123 / Closes #456", es: "Vincula y cierra automáticamente el issue" },
+                            { en: "Ready for review / Requesting review from @username", es: "Solicita revisión formal al equipo" },
+                            { en: "Addresses the comments from the last review", es: "Indica que ya aplicaste los cambios pedidos" },
+                            { en: "This is a breaking change", es: "Advierte que rompe compatibilidad anterior" }
+                        ],
+                        soTemplate: [
+                            { label: "1. Qué intentas hacer", en: "I'm trying to store the auth token in localStorage after login." },
+                            { label: "2. Qué ya intentaste", en: "I've already tried clearing the cache and checking the network tab." },
+                            { label: "3. Esperado vs Real", en: "I expected the token to persist, but it returns null after refresh." }
+                        ],
+                        pronunciation: "Fix: resolve CORS error in production and update the API documentation.",
+                        exercises: [
+                            {
+                                id: "m5-l1-e1",
+                                type: "choice",
+                                prompt: "Acabas de mejorar la legibilidad de una función de validación sin alterar lo que devuelve. ¿Qué commit es correcto?",
+                                options: [
+                                    "feat: changed validation",
+                                    "refactor: extract validation logic to separate function",
+                                    "fix: refactored validation yesterday",
+                                    "docs: new validation function"
+                                ],
+                                answer: 1,
+                                explanation: "Mejorar estructura sin cambiar funcionalidad es 'refactor:', seguido de verbo imperativo en presente ('extract')."
+                            },
+                            {
+                                id: "m5-l1-e2",
+                                type: "builder",
+                                prompt: "Construye la estructura clave de Stack Overflow: 'Esperaba que pasara X, pero pasó Y'",
+                                words: ["I expected", "X to happen,", "but Y", "happened instead"],
+                                explanation: "Esta estructura contrastiva permite que cualquier desarrollador entienda tu bug en 5 segundos."
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+
+        // 50 Frases de Tutoriales de YouTube Tech (Parte 5 completa)
+        youtube50: [
+            { en: "Let's go ahead and...", es: "Vamos a... (muletilla #1)" },
+            { en: "What we're going to do is...", es: "Lo que haremos es..." },
+            { en: "First of all...", es: "Primero que nada..." },
+            { en: "Now that we have that set up...", es: "Ahora que tenemos eso configurado..." },
+            { en: "As you can see...", es: "Como pueden ver..." },
+            { en: "The reason why we do this is...", es: "La razón por la que hacemos esto es..." },
+            { en: "Make sure you...", es: "Asegúrate de..." },
+            { en: "Don't forget to...", es: "No olvides..." },
+            { en: "Under the hood...", es: "Por dentro / internamente..." },
+            { en: "Under the hood, React does this...", es: "Por dentro, React hace esto..." },
+            { en: "What's happening here is...", es: "Lo que está pasando aquí es..." },
+            { en: "Let me explain what's going on...", es: "Déjame explicar qué está pasando..." },
+            { en: "This is a common mistake...", es: "Este es un error común..." },
+            { en: "A lot of people get confused by this...", es: "Mucha gente se confunde con esto..." },
+            { en: "The key thing to understand is...", es: "Lo clave para entender es..." },
+            { en: "In a nutshell...", es: "En resumen..." },
+            { en: "At the end of the day...", es: "Al final del día / En conclusión..." },
+            { en: "That being said...", es: "Dicho esto..." },
+            { en: "Having said that...", es: "Habiendo dicho eso..." },
+            { en: "On the other hand...", es: "Por otro lado..." },
+            { en: "In other words...", es: "En otras palabras..." },
+            { en: "Let's take a look at...", es: "Echemos un vistazo a..." },
+            { en: "Let's dive deeper into...", es: "Profundicemos en..." },
+            { en: "We'll come back to this later", es: "Volveremos a esto más tarde" },
+                            { en: "I'll show you a better way to do this", es: "Te mostraré una mejor manera de hacerlo" },
+            { en: "This is not the only way, but it's a good way", es: "No es la única forma, pero es buena" },
+            { en: "You might be wondering why...", es: "Quizás te preguntes por qué..." },
+            { en: "The short answer is...", es: "La respuesta corta es..." },
+            { en: "The long answer is...", es: "La respuesta larga es..." },
+            { en: "Let me show you an example", es: "Déjame mostrarte un ejemplo" },
+            { en: "Let's refactor this together", es: "Refactoricemos esto juntos" },
+            { en: "This is a best practice", es: "Esta es una buena práctica" },
+            { en: "You should avoid doing this", es: "Deberías evitar hacer esto" },
+            { en: "This is an anti-pattern", es: "Esto es un anti-patrón" },
+            { en: "The code speaks for itself", es: "El código habla por sí mismo" },
+            { en: "Let's run the code and see what happens", es: "Ejecutemos el código y veamos qué pasa" },
+            { en: "Oops, I made a mistake", es: "Ups, cometí un error" },
+            { en: "Let me fix that real quick", es: "Déjame arreglar eso rápidamente" },
+            { en: "There you go", es: "Ahí tienes / Listo" },
+            { en: "And that's it for this video", es: "Y eso es todo por este video" },
+            { en: "In the next video, we'll cover...", es: "En el próximo video cubriremos..." },
+            { en: "Thanks for watching", es: "Gracias por ver" },
+            { en: "Don't forget to like and subscribe", es: "No olvides dar like y suscribirte" },
+            { en: "Let's get started", es: "Empecemos" },
+            { en: "I'm going to assume you already know...", es: "Voy a asumir que ya sabes..." },
+            { en: "If you're not familiar with...", es: "Si no estás familiarizado con..." },
+            { en: "Feel free to pause the video here", es: "Siéntete libre de pausar el video aquí" },
+            { en: "I'll leave a link in the description", es: "Dejaré un link en la descripción" },
+            { en: "The documentation says...", es: "La documentación dice..." },
+            { en: "Make sure you have Node installed", es: "Asegúrate de tener Node instalado" }
+        ],
+
+        // Checklist de 8 semanas
+        checklist8Weeks: [
+            { id: "w1-1", week: "Semana 1–2 · A1-A2", text: "10 verbos reyes para tech (be, have, do, say, go, can, want, need, know, think)" },
+            { id: "w1-2", week: "Semana 1–2 · A1-A2", text: "20 verbos técnicos (run, build, deploy, push, pull, fetch, throw, catch, handle)" },
+            { id: "w1-3", week: "Semana 1–2 · A1-A2", text: "Presente Simple y Continuo para describir código y tareas actuales" },
+            { id: "w1-4", week: "Semana 1–2 · A1-A2", text: "Pasado Simple y Futuro Simple para retrospectivas y sprint planning" },
+            { id: "w3-1", week: "Semana 3–4 · A2-B1", text: "Términos de Git y GitHub (repo, branch, PR, merge, commit, push, pull, fork)" },
+            { id: "w3-2", week: "Semana 3–4 · A2-B1", text: "Mensajes de error comunes en consola (CORS, Undefined, Timeout, Port in use)" },
+            { id: "w3-3", week: "Semana 3–4 · A2-B1", text: "30 términos de frameworks y arquitectura + 14 Phrasal Verbs de dev" },
+            { id: "w3-4", week: "Semana 3–4 · A2-B1", text: "10 frases clave para Daily Standup (working on, blocked by, finished)" },
+            { id: "w5-1", week: "Semana 5–6 · B1-B2", text: "Estructura de Conventional Commits (feat:, fix:, refactor:, docs:, test:)" },
+            { id: "w5-2", week: "Semana 5–6 · B1-B2", text: "Plantilla profesional de Pull Request y Code Review" },
+            { id: "w5-3", week: "Semana 5–6 · B1-B2", text: "Cómo pedir ayuda técnica en Stack Overflow o Slack (Expected vs Actual)" },
+            { id: "w7-1", week: "Semana 7–8 · B2 Real", text: "Ver tutorial de programación de 20 min SIN subtítulos entendiendo >70%" },
+            { id: "w7-2", week: "Semana 7–8 · B2 Real", text: "Leer documentación oficial (React/Node/Python) en voz alta sin traducir" }
+        ]
+    };
+
+    /**
+     * =========================================================================
+     * 4. CONTROLADOR PRINCIPAL DEVENG // CORE
+     * =========================================================================
+     */
+    class DevEngApp {
+        constructor() {
+            this.voice = new ResilientTTSEngine();
+            this.state = this.loadState();
+            this.currentView = 'dashboard';
+            this.currentModId = 'm1';
+            this.currentLessonIdx = 0;
+
+            this.builderState = {};
+            this.exerciseFeedback = {};
+            this.pronunciationResult = null;
+            this.ytSearch = '';
+
+            // Estado para el laboratorio de Commits & Standups
+            this.commitType = 'feat';
+            this.commitScope = 'auth';
+            this.commitDesc = 'add JWT refresh token endpoint';
+            this.standupYesterday = 'finished the login API integration';
+            this.standupToday = 'writing unit tests for user authentication';
+            this.standupBlocker = 'none';
+
+            this.initLogos();
+            this.initTheme();
+            this.bindEvents();
+            this.renderSidebar();
+            this.updateTopMetrics();
+            this.navigate('dashboard');
+        }
+
+        loadState() {
+            const defaults = {
+                devName: "Developer Name",
+                darkMode: false,
+                completedExercises: {},
+                completedLessons: {},
+                checkedWeeks: [],
+                certId: `DEV-${Math.random().toString(36).substring(2, 6).toUpperCase()}-${new Date().getFullYear()}`
+            };
+            try {
+                const raw = localStorage.getItem('deveng_core_v1');
+                return raw ? { ...defaults, ...JSON.parse(raw) } : defaults;
+            } catch (e) {
+                return defaults;
+            }
+        }
+
+        saveState() {
+            try {
+                localStorage.setItem('deveng_core_v1', JSON.stringify(this.state));
+                this.updateTopMetrics();
+                this.renderSidebar();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        initLogos() {
+            const slot = document.getElementById('brand-logo-slot');
+            if (slot) slot.innerHTML = SVG_LOGOS.main;
+        }
+
+        initTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            if (this.state.darkMode) {
+                html.classList.add('dark');
+                if (icon) icon.setAttribute('data-lucide', 'sun');
+            } else {
+                html.classList.remove('dark');
+                if (icon) icon.setAttribute('data-lucide', 'moon');
+            }
+            lucide.createIcons();
+        }
+
+        bindEvents() {
+            document.getElementById('theme-toggle').addEventListener('click', () => {
+                this.state.darkMode = !this.state.darkMode;
+                this.saveState();
+                this.initTheme();
+            });
+            document.getElementById('mobile-menu-btn').addEventListener('click', () => this.toggleSidebar());
+        }
+
+        setSpeechRate(rate) {
+            this.voice.rate = rate;
+            const sBtn = document.getElementById('speed-slow-btn');
+            const nBtn = document.getElementById('speed-norm-btn');
+            if (rate < 1.0) {
+                sBtn.className = "px-2 py-1 rounded-md font-mono font-medium transition bg-surface-0 dark:bg-darksurface-2 text-brand-ink dark:text-white";
+                nBtn.className = "px-2 py-1 rounded-md font-mono font-medium transition text-brand-muted dark:text-gray-400";
+            } else {
+                nBtn.className = "px-2 py-1 rounded-md font-mono font-medium transition bg-surface-0 dark:bg-darksurface-2 text-brand-ink dark:text-white";
+                sBtn.className = "px-2 py-1 rounded-md font-mono font-medium transition text-brand-muted dark:text-gray-400";
+            }
+            this.showToast(`Velocidad TTS: ${rate}x`, 'info');
+        }
+
+        testVoice() {
+            this.voice.speak("The server is running. Pull the latest changes before you push your commit.");
+        }
+
+        speakBtn(text, label = "") {
+            const safe = text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            return `
+                <button type="button" onclick="event.stopPropagation(); app.voice.speak('${safe}', this)" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-surface-1 dark:bg-darksurface-2 hover:bg-surface-2 dark:hover:bg-darksurface-3 text-brand-ink dark:text-gray-200 text-xs font-medium transition hairline shrink-0" title="Pronunciar en inglés">
+                    <i data-lucide="volume-2" class="w-3.5 h-3.5 text-brand-emerald"></i>
+                    ${label ? `<span>${label}</span>` : ''}
+                </button>
+            `;
+        }
+
+        triggerConfetti(mode = 'normal') {
+            if (typeof confetti !== 'function') return;
+            confetti({
+                particleCount: mode === 'lesson' ? 95 : 45,
+                spread: mode === 'lesson' ? 75 : 55,
+                origin: { y: 0.68 },
+                colors: ['#10A37F', '#111827', '#34D399', '#6EE7B7']
+            });
+        }
+
+        showToast(msg, type = 'info') {
+            const c = document.getElementById('toast-container');
+            const el = document.createElement('div');
+            const ic = type === 'success' ? 'check-circle-2' : type === 'error' ? 'alert-circle' : 'terminal';
+            const col = type === 'success' ? 'text-brand-emerald' : type === 'error' ? 'text-rose-500' : 'text-brand-ink dark:text-gray-200';
+            el.className = "bg-surface-0 dark:bg-darksurface-1 text-brand-ink dark:text-gray-100 px-4 py-3 rounded-xl hairline text-xs font-medium flex items-center gap-2.5 transition-all duration-200 translate-y-2 opacity-0 pointer-events-auto";
+            el.innerHTML = `<i data-lucide="${ic}" class="w-4 h-4 ${col} shrink-0"></i><span>${msg}</span>`;
+            c.appendChild(el);
+            lucide.createIcons();
+            requestAnimationFrame(() => el.classList.remove('translate-y-2', 'opacity-0'));
+            setTimeout(() => {
+                el.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => el.remove(), 250);
+            }, 3000);
+        }
+
+        toggleSidebar(force) {
+            const sb = document.getElementById('sidebar');
+            const bd = document.getElementById('sidebar-backdrop');
+            const open = !sb.classList.contains('-translate-x-full');
+            const next = typeof force === 'boolean' ? force : !open;
+            sb.classList.toggle('-translate-x-full', !next);
+            bd.classList.toggle('hidden', !next);
+        }
+
+        getProgressStats() {
+            let totalEx = 0;
+            let a1Done = 0, a1Total = 0;
+            let b1Done = 0, b1Total = 0;
+
+            DEV_CURRICULUM.modules.forEach(m => {
+                m.lessons.forEach(l => {
+                    l.exercises.forEach(ex => {
+                        totalEx++;
+                        const done = Boolean(this.state.completedExercises[ex.id]);
+                        if (m.level === 'A1-A2') {
+                            a1Total++;
+                            if (done) a1Done++;
+                        } else {
+                            b1Total++;
+                            if (done) b1Done++;
+                        }
+                    });
+                });
+            });
+
+            const doneEx = Object.keys(this.state.completedExercises).length;
+            const pct = totalEx === 0 ? 0 : Math.min(100, Math.round((doneEx / totalEx) * 100));
+            const a1Pct = a1Total === 0 ? 0 : Math.round((a1Done / a1Total) * 100);
+            const b1Pct = b1Total === 0 ? 0 : Math.round((b1Done / b1Total) * 100);
+            const currentCefr = a1Pct === 100 && b1Pct >= 50 ? 'B1-B2' : a1Pct >= 50 ? 'A2 → B1' : 'A1-A2';
+
+            return { totalEx, doneEx, pct, a1Pct, b1Pct, currentCefr };
+        }
+
+        updateTopMetrics() {
+            const stats = this.getProgressStats();
+            document.getElementById('global-progress-text').textContent = `${stats.pct}%`;
+            document.getElementById('cefr-level-pill').textContent = stats.currentCefr;
+        }
+
+        renderSidebar() {
+            const renderList = (levelFilter) => DEV_CURRICULUM.modules
+                .filter(m => m.level === levelFilter)
+                .map(m => {
+                    const doneL = m.lessons.filter(l => this.state.completedLessons[l.id]).length;
+                    const complete = doneL === m.lessons.length;
+                    return `
+                        <button onclick="app.openModule('${m.id}', 0)" data-nav="mod-${m.id}" class="nav-item w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-sm transition text-left">
+                            <div class="flex items-center gap-2 truncate">
+                                <span class="w-4 h-4 rounded flex items-center justify-center text-[10px] font-mono font-bold shrink-0 ${complete ? 'bg-brand-emerald text-white' : 'bg-surface-2 dark:bg-darksurface-2 text-brand-muted'}">
+                                    ${complete ? '<i data-lucide="check" class="w-2.5 h-2.5"></i>' : m.id.replace('m', '')}
+                                </span>
+                                <span class="truncate">${m.shortTitle}</span>
+                            </div>
+                            <span class="text-[11px] font-mono text-brand-subtle ml-1">${doneL}/${m.lessons.length}</span>
+                        </button>
+                    `;
+                }).join('');
+
+            document.getElementById('nav-a1a2').innerHTML = renderList('A1-A2');
+            document.getElementById('nav-b1b2').innerHTML = renderList('B1-B2');
+            lucide.createIcons();
+        }
+
+        setActiveNav(key) {
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                const active = btn.dataset.nav === key;
+                btn.classList.toggle('bg-surface-2', active);
+                btn.classList.toggle('dark:bg-darksurface-2', active);
+                btn.classList.toggle('font-medium', active);
+                btn.classList.toggle('text-brand-ink', active);
+                btn.classList.toggle('dark:text-white', active);
+                btn.classList.toggle('text-brand-muted', !active);
+                btn.classList.toggle('dark:text-gray-400', !active);
+            });
+        }
+
+        navigate(view) {
+            this.currentView = view;
+            this.toggleSidebar(false);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            this.setActiveNav(view);
+
+            if (view === 'dashboard') this.renderDashboard();
+            else if (view === 'tools') this.renderToolsLab();
+            else if (view === 'youtube') this.renderYoutube50();
+            else if (view === 'checklist') this.renderChecklist();
+            else if (view === 'certificate') this.renderCertificate();
+
+            lucide.createIcons();
+        }
+
+        openModule(modId, lessonIdx = 0) {
+            this.currentView = 'module';
+            this.currentModId = modId;
+            this.currentLessonIdx = lessonIdx;
+            this.pronunciationResult = null;
+            this.toggleSidebar(false);
+            this.setActiveNav(`mod-${modId}`);
+
+            const mod = DEV_CURRICULUM.modules.find(m => m.id === modId);
+            const lesson = mod.lessons[lessonIdx];
+            lesson.exercises.forEach(ex => {
+                if (ex.type === 'builder' && !this.builderState[ex.id]) {
+                    this.builderState[ex.id] = {
+                        selected: [],
+                        pool: [...ex.words].sort(() => Math.random() - 0.5)
+                    };
+                }
+            });
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            this.renderLesson();
+            lucide.createIcons();
+        }
+
+        /**
+         * =====================================================================
+         * VISTA 1: ROADMAP TÉCNICO (A1-A2 -> B1-B2)
+         * =====================================================================
+         */
+        renderDashboard() {
+            const stats = this.getProgressStats();
+            const main = document.getElementById('main-content');
+
+            main.innerHTML = `
+                <div class="max-w-4xl mx-auto space-y-10">
+                    <!-- Hero Minimalista -->
+                    <section class="space-y-4 pt-2">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-1 dark:bg-darksurface-1 hairline text-xs font-mono text-brand-muted dark:text-gray-300">
+                            <span class="w-2 h-2 rounded-full bg-brand-emerald"></span>
+                            <span>ENGLISH FOR SOFTWARE ENGINEERS · A1-A2 → B1-B2</span>
+                        </div>
+                        <h1 class="text-3xl sm:text-4xl font-semibold tracking-tight leading-tight">
+                            Inglés técnico sin relleno: del código a la reunión diaria.
+                        </h1>
+                        <p class="text-sm sm:text-base text-brand-muted dark:text-gray-400 max-w-2xl leading-relaxed">
+                            Ignora el vocabulario de turismo y concéntrate exclusivamente en lo que necesitas para leer documentación oficial, escribir commits/PRs, entender tutoriales sin subtítulos y participar en daily standups.
+                        </p>
+                        <div class="flex flex-wrap items-center gap-3 pt-1">
+                            <button onclick="app.openModule('m1', 0)" class="px-5 py-2.5 rounded-xl bg-brand-ink dark:bg-white text-white dark:text-brand-ink text-sm font-medium hover:opacity-90 transition inline-flex items-center gap-2">
+                                <span>Iniciar Nivel A1-A2</span>
+                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="app.navigate('tools')" class="px-5 py-2.5 rounded-xl bg-surface-1 dark:bg-darksurface-1 hover:bg-surface-2 text-sm font-medium transition hairline inline-flex items-center gap-2">
+                                <i data-lucide="terminal" class="w-4 h-4 text-brand-emerald"></i>
+                                <span>Commit & Standup Generator</span>
+                            </button>
+                            <button onclick="app.navigate('certificate')" class="px-4 py-2.5 rounded-xl bg-surface-1 dark:bg-darksurface-1 hover:bg-surface-2 text-sm font-medium transition hairline inline-flex items-center gap-2">
+                                <i data-lucide="award" class="w-4 h-4 text-brand-emerald"></i>
+                                <span>Certificado</span>
+                            </button>
+                        </div>
+                    </section>
+
+                    <!-- Progreso por Nivel CEFR -->
+                    <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="p-5 rounded-2xl bg-surface-1 dark:bg-darksurface-1 hairline space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    ${SVG_LOGOS.a1Badge}
+                                    <div>
+                                        <div class="text-xs font-mono font-semibold text-brand-emerald">NIVEL A1–A2</div>
+                                        <div class="text-sm font-semibold">Cimientos Técnicos y Código</div>
+                                    </div>
+                                </div>
+                                <span class="font-mono text-sm font-semibold">${stats.a1Pct}%</span>
+                            </div>
+                            <div class="w-full h-1.5 bg-surface-2 dark:bg-darksurface-2 rounded-full overflow-hidden">
+                                <div class="h-full bg-brand-emerald transition-all duration-300" style="width: ${stats.a1Pct}%"></div>
+                            </div>
+                            <p class="text-xs text-brand-muted dark:text-gray-400">10 verbos reyes tech, 20 verbos diarios, 4 tiempos verbales, Git, errores de consola y phrasal verbs.</p>
+                        </div>
+
+                        <div class="p-5 rounded-2xl bg-surface-1 dark:bg-darksurface-1 hairline space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    ${SVG_LOGOS.b1Badge}
+                                    <div>
+                                        <div class="text-xs font-mono font-semibold text-brand-emerald">NIVEL B1–B2</div>
+                                        <div class="text-sm font-semibold">Producción, Standups y PRs</div>
+                                    </div>
+                                </div>
+                                <span class="font-mono text-sm font-semibold">${stats.b1Pct}%</span>
+                            </div>
+                            <div class="w-full h-1.5 bg-surface-2 dark:bg-darksurface-2 rounded-full overflow-hidden">
+                                <div class="h-full bg-brand-emerald transition-all duration-300" style="width: ${stats.b1Pct}%"></div>
+                            </div>
+                            <p class="text-xs text-brand-muted dark:text-gray-400">Daily standups sin traducir, Conventional Commits, Pull Requests, Stack Overflow y tutoriales sin subtítulos.</p>
+                        </div>
+                    </section>
+
+                    <!-- Módulos del Programa -->
+                    <section class="space-y-4">
+                        <h2 class="text-lg font-semibold tracking-tight">Módulos Progresivos</h2>
+                        <div class="space-y-3">
+                            ${DEV_CURRICULUM.modules.map(m => {
+                                const doneL = m.lessons.filter(l => this.state.completedLessons[l.id]).length;
+                                return `
+                                    <div class="p-5 rounded-2xl bg-surface-1 dark:bg-darksurface-1 hairline space-y-4">
+                                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                            <div>
+                                                <div class="flex items-center gap-2 mb-1">
+                                                    <span class="px-2 py-0.5 rounded bg-surface-2 dark:bg-darksurface-2 font-mono text-[11px] font-semibold text-brand-emerald">${m.level}</span>
+                                                    <span class="font-mono text-xs text-brand-muted">${m.code}</span>
+                                                </div>
+                                                <h3 class="text-base font-semibold">${m.title}</h3>
+                                                <p class="text-xs text-brand-muted dark:text-gray-400 mt-0.5">${m.description}</p>
+                                            </div>
+                                            <span class="font-mono text-xs text-brand-muted shrink-0">${doneL}/${m.lessons.length} lecciones</span>
+                                        </div>
+
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                            ${m.lessons.map((l, idx) => {
+                                                const isDone = Boolean(this.state.completedLessons[l.id]);
+                                                return `
+                                                    <button onclick="app.openModule('${m.id}', ${idx})" class="p-3.5 rounded-xl bg-surface-0 dark:bg-darksurface-2 hover:bg-surface-2 dark:hover:bg-darksurface-3 hairline text-left transition flex items-center justify-between gap-3 group">
+                                                        <div>
+                                                            <div class="font-mono text-[11px] text-brand-muted">${l.step}</div>
+                                                            <div class="text-xs sm:text-sm font-semibold mt-0.5">${l.title}</div>
+                                                        </div>
+                                                        ${isDone
+                                                            ? `<i data-lucide="check-circle-2" class="w-4 h-4 text-brand-emerald shrink-0"></i>`
+                                                            : `<i data-lucide="arrow-up-right" class="w-4 h-4 text-brand-subtle group-hover:text-brand-ink dark:group-hover:text-white shrink-0"></i>`
+                                                        }
+                                                    </button>
+                                                `;
+                                            }).join('')}
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </section>
+
+                    <!-- Lo que puedes ignorar + Rutina Diaria de 20 Minutos -->
+                    <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="p-5 rounded-2xl bg-surface-1 dark:bg-darksurface-1 hairline space-y-3">
+                            <div class="flex items-center gap-2 text-xs font-mono font-semibold text-brand-emerald">
+                                <i data-lucide="clock" class="w-4 h-4"></i>
+                                <span>RUTINA DIARIA PARA DEVS (20 MINUTOS)</span>
+                            </div>
+                            <div class="divide-y divide-black/5 dark:divide-white/5 text-xs">
+                                <div class="py-2 flex justify-between gap-2"><span class="font-mono font-semibold">5 min</span><span class="text-brand-muted dark:text-gray-300">Leer doc oficial (React/Node) en voz alta</span></div>
+                                <div class="py-2 flex justify-between gap-2"><span class="font-mono font-semibold">5 min</span><span class="text-brand-muted dark:text-gray-300">Escribir 3–5 commit messages reales en inglés</span></div>
+                                <div class="py-2 flex justify-between gap-2"><span class="font-mono font-semibold">5 min</span><span class="text-brand-muted dark:text-gray-300">Escuchar Traversy Media / Web Dev Simplified sin subtítulos</span></div>
+                                <div class="py-2 flex justify-between gap-2"><span class="font-mono font-semibold">5 min</span><span class="text-brand-muted dark:text-gray-300">Shadowing de frases de daily standup en voz alta</span></div>
+                            </div>
+                        </div>
+
+                        <div class="p-5 rounded-2xl bg-surface-1 dark:bg-darksurface-1 hairline space-y-3">
+                            <div class="flex items-center gap-2 text-xs font-mono font-semibold text-brand-muted">
+                                <i data-lucide="filter" class="w-4 h-4"></i>
+                                <span>LO QUE PUEDES IGNORAR (PARETO DEV)</span>
+                            </div>
+                            <ul class="space-y-2 text-xs text-brand-muted dark:text-gray-400">
+                                <li class="flex items-center gap-2"><i data-lucide="x" class="w-3.5 h-3.5 text-rose-500 shrink-0"></i>Vocabulario turístico de hoteles, aeropuertos o compras</li>
+                                <li class="flex items-center gap-2"><i data-lucide="x" class="w-3.5 h-3.5 text-rose-500 shrink-0"></i>Pasado Perfecto y Futuro Perfecto (usa Pasado y Futuro Simple)</li>
+                                <li class="flex items-center gap-2"><i data-lucide="x" class="w-3.5 h-3.5 text-rose-500 shrink-0"></i>Modismos literarios ("raining cats and dogs")</li>
+                                <li class="flex items-center gap-2 pt-1 text-brand-ink dark:text-gray-200 font-medium"><i data-lucide="check" class="w-3.5 h-3.5 text-brand-emerald shrink-0"></i>Enfócate 100% en: verbos tech + tiempos simples + preguntas + standups.</li>
+                            </ul>
+                        </div>
+                    </section>
+                </div>
+            `;
+        }
+
+        /**
+         * =====================================================================
+         * VISTA 2: LECCIÓN INTERACTIVA CON MASTERY LOCK Y CONFETTI
+         * =====================================================================
+         */
+        renderLesson() {
+            const mod = DEV_CURRICULUM.modules.find(m => m.id === this.currentModId);
+            const lesson = mod.lessons[this.currentLessonIdx];
+            const main = document.getElementById('main-content');
+
+            const doneCount = lesson.exercises.filter(e => this.state.completedExercises[e.id]).length;
+            const allDone = doneCount === lesson.exercises.length;
+
+            if (allDone && !this.state.completedLessons[lesson.id]) {
+                this.state.completedLessons[lesson.id] = true;
+                this.saveState();
+                this.triggerConfetti('lesson');
+            }
+
+            main.innerHTML = `
+                <div class="max-w-3xl mx-auto space-y-8 pb-16">
+                    <!-- Top Nav -->
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between text-xs text-brand-muted">
+                            <button onclick="app.navigate('dashboard')" class="inline-flex items-center gap-1.5 hover:text-brand-ink dark:hover:text-white transition">
+                                <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                                <span>Volver al Roadmap</span>
+                            </button>
+                            <span class="font-mono">${mod.level} · ${lesson.step}</span>
+                        </div>
+
+                        <div class="flex gap-2">
+                            ${mod.lessons.map((l, idx) => {
+                                const curr = idx === this.currentLessonIdx;
+                                const done = Boolean(this.state.completedLessons[l.id]);
+                                return `<button onclick="app.openModule('${mod.id}', ${idx})" class="flex-1 h-1.5 rounded-full transition ${curr ? 'bg-brand-ink dark:bg-white' : done ? 'bg-brand-emerald' : 'bg-surface-2 dark:bg-darksurface-2'}"></button>`;
+                            }).join('')}
+                        </div>
+
+                        <div class="pt-1 space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="font-mono text-xs font-semibold text-brand-emerald">${lesson.step}</span>
+                                ${allDone ? `<span class="inline-flex items-center gap-1 text-xs font-medium text-brand-emerald"><i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Completada</span>` : ''}
+                            </div>
+                            <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight">${lesson.title}</h1>
+                            <p class="text-sm text-brand-muted dark:text-gray-400">${lesson.summary}</p>
+                        </div>
+                    </div>
+
+                    <!-- Técnica Cognitiva -->
+                    <div class="p-4 sm:p-5 rounded-2xl bg-surface-1 dark:bg-darksurface-1 hairline space-y-1.5">
+                        <div class="flex items-center gap-2 text-xs font-mono font-semibold text-brand-emerald">
+                            <i data-lucide="cpu" class="w-4 h-4"></i>
+                            <span>PATRÓN COGNITIVO: ${lesson.technique.name.toUpperCase()}</span>
+                        </div>
+                        <p class="text-xs sm:text-sm text-brand-muted dark:text-gray-300 leading-relaxed">${lesson.technique.desc}</p>
+                    </div>
+
+                    <!-- Contenido Técnico de la Lección -->
+                    <div>${this.renderLessonBody(lesson)}</div>
+
+                    <!-- Laboratorio de Voz y Micrófono -->
+                    <div class="p-5 rounded-2xl bg-surface-1 dark:bg-darksurface-1 hairline space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-mono font-semibold uppercase text-brand-muted flex items-center gap-1.5">
+                                <i data-lucide="mic" class="w-3.5 h-3.5 text-brand-emerald"></i>
+                                Práctica Oral & Shadowing
+                            </span>
+                            ${this.speakBtn(lesson.pronunciation, "Escuchar frase")}
+                        </div>
+                        <p class="font-mono text-xs sm:text-sm font-medium">"${lesson.pronunciation}"</p>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <button id="mic-btn" onclick="app.runPronunciationCheck('${lesson.pronunciation.replace(/'/g, "\\'")}')" class="px-4 py-2 rounded-xl bg-surface-0 dark:bg-darksurface-2 hover:bg-surface-2 text-xs font-medium hairline inline-flex items-center gap-2 transition">
+                                <i data-lucide="mic" class="w-3.5 h-3.5 text-rose-500"></i>
+                                <span id="mic-label">Validar mi pronunciación</span>
+                            </button>
+                        </div>
+                        <div id="mic-feedback" class="${this.pronunciationResult ? '' : 'hidden'} p-3 rounded-xl bg-surface-0 dark:bg-darksurface-2 hairline text-xs">
+                            ${this.pronunciationResult || ''}
+                        </div>
+                    </div>
+
+                    <!-- Ejercicios con Mastery Lock -->
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-lg font-semibold tracking-tight">Ejercicios de Validación</h2>
+                            <span class="font-mono text-xs text-brand-muted">${doneCount}/${lesson.exercises.length} bloqueados</span>
+                        </div>
+                        <div class="space-y-4">
+                            ${lesson.exercises.map((ex, idx) => this.renderExercise(ex, idx, lesson.exercises)).join('')}
+                        </div>
+                    </div>
+
+                    ${allDone ? this.renderLessonNextBanner(mod) : ''}
+                </div>
+            `;
+        }
+
+        renderLessonBody(lesson) {
+            if (lesson.viewType === 'king_tech') {
+                return `
+                    <div class="rounded-2xl bg-surface-1 dark:bg-darksurface-1 hairline overflow-hidden">
+                        <div class="divide-y divide-black/5 dark:divide-white/5">
+                            ${lesson.items.map(it => `
+                                <div class="p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs sm:text-sm hover:bg-surface-2/40 dark:hover:bg-darksurface-2/40 transition">
+                                    <div class="space-y-0.5">
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-mono font-bold text-brand-emerald">${it.verb}</span>
+                                            <span class="text-xs text-brand-muted">— ${it.ctx}</span>
+                                        </div>
+                                        <div class="font-mono text-xs font-medium">${it.ex} <span class="font-sans text-brand-muted">(${it.es})</span></div>
+                                    </div>
+                                    ${this.speakBtn(it.ex)}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (lesson.viewType === 'tech_verbs_20') {
+                return `
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        ${lesson.items.map(it => `
+                            <div class="p-3.5 rounded-xl bg-surface-1 dark:bg-darksurface-1 hairline flex items-center justify-between gap-2 text-xs">
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-mono font-bold text-brand-emerald text-sm">${it.v}</span>
+                                        <span class="text-brand-muted">${it.es}</span>
+                                    </div>
+                                    <div class="font-mono text-[11px] mt-1">${it.ex}</div>
+                                </div>
+                                ${this.speakBtn(it.ex)}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            if (lesson.viewType === 'dev_tenses') {
+                return `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                        ${lesson.tenses.map(t => `
+                            <div class="p-4 rounded-2xl bg-surface-1 dark:bg-darksurface-1 hairline space-y-3">
+                                <div>
+                                    <div class="text-xs font-mono font-semibold text-brand-emerald">${t.tag}</div>
+                                    <h3 class="text-base font-semibold">${t.name}</h3>
+                                </div>
+                                <div class="p-2.5 rounded-xl bg-surface-0 dark:bg-darksurface-2 hairline font-mono text-xs font-semibold flex items-center justify-between gap-2">
+                                    <span>${t.formula}</span>
+                                    ${this.speakBtn(t.formula)}
+                                </div>
+                                <div class="space-y-1.5">
+                                    ${t.cases.map(c => `
+                                        <div class="flex items-center justify-between gap-2 text-xs p-2 rounded-lg bg-surface-0 dark:bg-darksurface-2 hairline">
+                                            <span class="font-mono text-[11px]">${c}</span>
+                                            ${this.speakBtn(c)}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            if (lesson.viewType === 'git_and_errors') {
+                return `
+                    <div class="space-y-4">
+                        <div class="p-4 rounded-2xl bg-surface-1 dark:bg-darksurface-1 hairline space-y-2.5">
+                            <div class="text-xs font-mono font-semibold text-brand-emerald">COMANDOS Y FLUJO GIT / GITHUB</div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                ${lesson.gitTerms.map(g => `
+                                    <div class="p-2.5 rounded-xl bg-surface-0 dark:bg-darksurface-2 hairline flex items-center justify-between gap-2 text-xs">
+                                        <div>
+                                            <span class="font-mono font-bold text-brand-emerald">${g.term}</span> <span class="text-brand-muted">(${g.desc})</span>
+                                            <div class="font-mono text-[11px] mt-0.5">${g.ex}</div>
+                                        </div>
+                                        ${this.speakBtn(g.ex)}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="rounded-2xl bg-surface-1 dark:bg-darksurface-1 hairline overflow-hidden">
+                            <div class="px-4 py-3 hairline-b text-xs font-mono font-semibold text-rose-500">MENSAJES DE ERROR EN CONSOLA</div>
+                            <div class="divide-y divide-black/5 dark:divide-white/5">
+                                ${lesson.consoleErrors.map(e => `
+                                    <div class="p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                                        <div>
+                                            <div class="font-mono font-semibold text-rose-600 dark:text-rose-400">${e.err} <span class="font-sans font-normal text-brand-muted">— ${e.meaning}</span></div>
+                                            <div class="text-brand-muted dark:text-gray-300 mt-0.5">Solución: ${e.fix}</div>
+                                        </div>
+                                        ${this.speakBtn(e.err)}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (lesson.viewType === 'concepts_and_phrasal') {
+                return `
+                    <div class="space-y-4">
+                        <div class="p-4 rounded-2xl bg-surface-1 dark:bg-darksurface-1 hairline space-y-2">
+                            <div class="text-xs font-mono font-semibold text-brand-emerald">ARQUITECTURA Y FRAMEWORKS</div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                ${lesson.concepts.map(c => `
+                                    <div class="p-2.5 rounded-xl bg-surface-0 dark:bg-darksurface-2 hairline flex items-center justify-between gap-2 text-xs">
+                                        <div>
+                                            <div class="font-mono font-semibold">${c.t}</div>
+                                            <div class="text-[11px] text-brand-muted">${c.d}</div>
+                                        </div>
+                                        ${this.speakBtn(c.t)}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="p-4 rounded-2xl bg-surface-1 dark:bg-darksurface-1 hairline space-y-2">
+                            <div class="text-xs font-mono font-semibold text-brand-emerald">14 PHRASAL VERBS ESENCIALES PARA DEV</div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                ${lesson.phrasalVerbs.map(p => `
+                                    <div class="p-2.5 rounded-xl bg-surface-0 dark:bg-darksurface-2 hairline flex items-center justify-between gap-2 text-xs">
+                                        <div>
+                                            <span class="font-mono font-bold text-brand-emerald">${p.pv}</span> <span class="text-brand-muted">(${p.es})</span>
+                                            <div class="font-mono text-[11px] mt-0.5">${p.ex}</div>
+                                        </div>
+                                        ${this.speakBtn(p.ex)}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (lesson.viewType === 'standup_guide') {
+                return `
+                    <div class="rounded-2xl bg-surface-1 dark:bg-darksurface-1 hairline divide-y divide-black/5 dark:divide-white/5">
+                        ${lesson.phrases.map(p => `
+                            <div class="p-3.5 flex items-center justify-between gap-3 text-xs sm:text-sm">
+                                <div>
+                                    <div class="text-[11px] font-mono text-brand-emerald font-semibold">${p.sit}</div>
+                                    <div class="font-mono text-xs mt-0.5">${p.en}</div>
+                                </div>
+                                ${this.speakBtn(p.en)}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            if (lesson.viewType === 'commits_prs') {
+                return `
+                    <div class="space-y-4">
+                        <div class="rounded-2xl bg-surface-1 dark:bg-darksurface-1 hairline overflow-hidden">
+                            <div class="px-4 py-3 hairline-b text-xs font-mono font-semibold text-brand-emerald">CONVENTIONAL COMMITS</div>
+                            <div class="divide-y divide-black/5 dark:divide-white/5">
+                                ${lesson.commitTypes.map(c => `
+                                    <div class="p-3 flex items-center justify-between gap-2 text-xs">
+                                        <div>
+                                            <span class="font-mono font-bold text-brand-emerald">${c.type}</span> <span class="text-brand-muted">(${c.use})</span>
+                                            <div class="font-mono mt-0.5">${c.ex}</div>
+                                        </div>
+                                        ${this.speakBtn(c.ex)}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="p-4 rounded-2xl bg-surface-1 dark:bg-darksurface-1 hairline space-y-2">
+                            <div class="text-xs font-mono font-semibold text-brand-emerald">ESTRUCTURA PARA STACK OVERFLOW / SLACK</div>
+                            ${lesson.soTemplate.map(s => `
+                                <div class="p-2.5 rounded-xl bg-surface-0 dark:bg-darksurface-2 hairline flex items-center justify-between gap-2 text-xs">
+                                    <div>
+                                        <div class="font-semibold">${s.label}</div>
+                                        <div class="font-mono text-[11px] text-brand-muted mt-0.5">${s.en}</div>
+                                    </div>
+                                    ${this.speakBtn(s.en)}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            return '';
+        }
+
+        renderExercise(ex, idx, all) {
+            const locked = Boolean(this.state.completedExercises[ex.id]);
+            const fb = this.exerciseFeedback[ex.id];
+            const nextEx = all[idx + 1];
+
+            let body = '';
+            if (ex.type === 'choice') {
+                body = `
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        ${ex.options.map((opt, oIdx) => {
+                            let cls = "bg-surface-0 dark:bg-darksurface-2 hover:bg-surface-2 dark:hover:bg-darksurface-3";
+                            if (locked) {
+                                cls = oIdx === ex.answer
+                                    ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-900 dark:text-emerald-200 font-semibold ring-1 ring-brand-emerald"
+                                    : "bg-surface-0 dark:bg-darksurface-2 opacity-40";
+                            }
+                            return `
+                                <button onclick="app.answerChoice('${ex.id}', ${oIdx})" ${locked ? 'disabled' : ''} class="p-3 rounded-xl hairline text-left text-xs font-mono transition flex items-center justify-between gap-2 ${cls} ${locked ? 'cursor-not-allowed' : ''}">
+                                    <span>${opt}</span>
+                                    ${locked && oIdx === ex.answer ? `<i data-lucide="check-circle-2" class="w-4 h-4 text-brand-emerald shrink-0"></i>` : ''}
+                                </button>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            } else if (ex.type === 'builder') {
+                const b = this.builderState[ex.id] || { selected: locked ? ex.words : [], pool: [] };
+                const words = locked ? ex.words : b.selected;
+                body = `
+                    <div class="space-y-3">
+                        <div class="min-h-[46px] p-2.5 rounded-xl bg-surface-0 dark:bg-darksurface-2 hairline flex flex-wrap gap-1.5 items-center">
+                            ${words.length === 0 ? `<span class="text-xs text-brand-subtle">Ordena los bloques en inglés...</span>` : ''}
+                            ${words.map((w, i) => `
+                                <button onclick="app.pickWord('${ex.id}', 'unpick', ${i})" ${locked ? 'disabled' : ''} class="px-3 py-1.5 rounded-lg ${locked ? 'bg-brand-emerald text-white' : 'bg-brand-ink dark:bg-white text-white dark:text-brand-ink'} font-mono text-xs font-medium ${locked ? 'cursor-not-allowed' : ''}">
+                                    ${w}
+                                </button>
+                            `).join('')}
+                        </div>
+                        ${!locked ? `
+                            <div class="flex flex-wrap gap-1.5">
+                                ${b.pool.map((w, i) => `
+                                    <button onclick="app.pickWord('${ex.id}', 'pick', ${i})" class="px-3 py-1.5 rounded-lg bg-surface-0 dark:bg-darksurface-2 hover:bg-surface-2 hairline font-mono text-xs transition">${w}</button>
+                                `).join('')}
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="app.checkBuilder('${ex.id}')" class="px-4 py-2 rounded-xl bg-brand-ink dark:bg-white text-white dark:text-brand-ink text-xs font-medium hover:opacity-90 transition">Verificar</button>
+                                <button onclick="app.resetBuilder('${ex.id}')" class="px-3 py-2 rounded-xl bg-surface-0 dark:bg-darksurface-2 hairline text-xs text-brand-muted">Reiniciar</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            return `
+                <div id="ex-box-${ex.id}" class="p-5 rounded-2xl bg-surface-1 dark:bg-darksurface-1 hairline space-y-3">
+                    <div class="flex items-center justify-between text-xs font-mono text-brand-muted">
+                        <span>TEST ${idx + 1}/${all.length}</span>
+                        ${locked
+                            ? `<span class="inline-flex items-center gap-1 text-brand-emerald font-semibold"><i data-lucide="lock" class="w-3 h-3"></i> DOMINADO</span>`
+                            : `<span>PENDIENTE</span>`
+                        }
+                    </div>
+                    <p class="text-sm font-medium">${ex.prompt}</p>
+                    ${body}
+                    ${(fb || locked) ? `
+                        <div class="p-3.5 rounded-xl ${(fb && !fb.ok && !locked) ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-900 dark:text-rose-200' : 'bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-950 dark:text-emerald-100'} hairline text-xs space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="font-semibold flex items-center gap-1.5">
+                                    <i data-lucide="${(fb && !fb.ok && !locked) ? 'alert-circle' : 'check-circle-2'}" class="w-4 h-4 ${(fb && !fb.ok && !locked) ? 'text-rose-500' : 'text-brand-emerald'}"></i>
+                                    ${(fb && !fb.ok && !locked) ? 'Revisa la regla e intenta otra vez' : 'Correcto — Ejercicio completado'}
+                                </span>
+                                ${locked ? this.speakBtn(ex.words ? ex.words.join(' ') : ex.options[ex.answer], "Oír") : ''}
+                            </div>
+                            <p class="opacity-90 leading-relaxed">${ex.explanation}</p>
+                            ${locked && nextEx ? `
+                                <button onclick="document.getElementById('ex-box-${nextEx.id}').scrollIntoView({behavior:'smooth', block:'center'})" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-emerald text-white font-medium text-xs hover:bg-brand-emeraldHover transition">
+                                    <span>Siguiente ejercicio</span>
+                                    <i data-lucide="arrow-down" class="w-3.5 h-3.5"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        renderLessonNextBanner(mod) {
+            const modIdx = DEV_CURRICULUM.modules.findIndex(m => m.id === mod.id);
+            const hasNextLesson = this.currentLessonIdx + 1 < mod.lessons.length;
+            const hasNextMod = modIdx + 1 < DEV_CURRICULUM.modules.length;
+
+            let btn = '';
+            if (hasNextLesson) {
+                btn = `<button onclick="app.openModule('${mod.id}', ${this.currentLessonIdx + 1})" class="px-5 py-2.5 rounded-xl bg-brand-emerald hover:bg-brand-emeraldHover text-white text-xs sm:text-sm font-medium inline-flex items-center gap-2 shrink-0"><span>Siguiente lección</span><i data-lucide="arrow-right" class="w-4 h-4"></i></button>`;
+            } else if (hasNextMod) {
+                const nextM = DEV_CURRICULUM.modules[modIdx + 1];
+                btn = `<button onclick="app.openModule('${nextM.id}', 0)" class="px-5 py-2.5 rounded-xl bg-brand-emerald hover:bg-brand-emeraldHover text-white text-xs sm:text-sm font-medium inline-flex items-center gap-2 shrink-0"><span>Ir a ${nextM.code} (${nextM.level})</span><i data-lucide="arrow-right" class="w-4 h-4"></i></button>`;
+            } else {
+                btn = `<button onclick="app.navigate('certificate')" class="px-5 py-2.5 rounded-xl bg-brand-emerald hover:bg-brand-emeraldHover text-white text-xs sm:text-sm font-medium inline-flex items-center gap-2 shrink-0"><span>Ver mi Certificado</span><i data-lucide="award" class="w-4 h-4"></i></button>`;
+            }
+
+            return `
+                <div class="p-6 rounded-2xl bg-surface-1 dark:bg-darksurface-1 hairline flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="space-y-1">
+                        <div class="inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-brand-emerald">
+                            <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+                            <span>LECCIÓN DOMINADA Y BLOQUEADA</span>
+                        </div>
+                        <p class="text-xs text-brand-muted dark:text-gray-400">Has completado todos los ejercicios técnicos de este paso.</p>
+                    </div>
+                    ${btn}
+                </div>
+            `;
+        }
+
+        findEx(exId) {
+            for (const m of DEV_CURRICULUM.modules) {
+                for (const l of m.lessons) {
+                    const f = l.exercises.find(e => e.id === exId);
+                    if (f) return f;
+                }
+            }
+            return null;
+        }
+
+        markExDone(exId, audioPhrase) {
+            this.state.completedExercises[exId] = true;
+            this.exerciseFeedback[exId] = { ok: true };
+            this.saveState();
+            this.triggerConfetti('normal');
+            if (audioPhrase) this.voice.speak(audioPhrase);
+            this.renderLesson();
+            lucide.createIcons();
+        }
+
+        answerChoice(exId, idx) {
+            if (this.state.completedExercises[exId]) return;
+            const ex = this.findEx(exId);
+            if (idx === ex.answer) {
+                this.markExDone(exId, ex.options[ex.answer]);
+            } else {
+                this.exerciseFeedback[exId] = { ok: false };
+                this.renderLesson();
+                lucide.createIcons();
+            }
+        }
+
+        pickWord(exId, dir, idx) {
+            if (this.state.completedExercises[exId]) return;
+            const b = this.builderState[exId];
+            if (dir === 'pick') b.selected.push(b.pool.splice(idx, 1)[0]);
+            else b.pool.push(b.selected.splice(idx, 1)[0]);
+            delete this.exerciseFeedback[exId];
+            this.renderLesson();
+            lucide.createIcons();
+        }
+
+        resetBuilder(exId) {
+            const ex = this.findEx(exId);
+            this.builderState[exId] = { selected: [], pool: [...ex.words].sort(() => Math.random() - 0.5) };
+            delete this.exerciseFeedback[exId];
+            this.renderLesson();
+            lucide.createIcons();
+        }
+
+        checkBuilder(exId) {
+            if (this.state.completedExercises[exId]) return;
+            const ex = this.findEx(exId);
+            const b = this.builderState[exId];
+            if (b.selected.join(' ') === ex.words.join(' ')) {
+                this.markExDone(exId, ex.words.join(' '));
+            } else {
+                this.exerciseFeedback[exId] = { ok: false };
+                this.renderLesson();
+                lucide.createIcons();
+            }
+        }
+
+        runPronunciationCheck(target) {
+            const btn = document.getElementById('mic-btn');
+            const lbl = document.getElementById('mic-label');
+            const box = document.getElementById('mic-feedback');
+            if (btn) btn.classList.add('mic-recording');
+            if (lbl) lbl.textContent = "Escuchando inglés...";
+
+            this.voice.checkMic(
+                (transcript, isFinal) => {
+                    if (box) {
+                        box.classList.remove('hidden');
+                        box.innerHTML = `<span class="text-brand-muted">Detectado:</span> <strong class="font-mono">"${transcript}"</strong>`;
+                    }
+                    if (isFinal) {
+                        if (btn) btn.classList.remove('mic-recording');
+                        if (lbl) lbl.textContent = "Validar mi pronunciación";
+                        const clean = s => s.toLowerCase().replace(/[^a-z0-9\s]/g, '').split(/\s+/).filter(Boolean);
+                        const tWords = clean(target);
+                        const sWords = clean(transcript);
+                        const hits = tWords.filter(w => sWords.includes(w)).length;
+                        const score = Math.round((hits / Math.max(1, tWords.length)) * 100);
+                        this.pronunciationResult = `
+                            <div class="flex items-center justify-between">
+                                <span class="font-semibold ${score >= 65 ? 'text-brand-emerald' : 'text-amber-600'}">Precisión técnica: ${score}%</span>
+                                <span class="font-mono text-[11px] text-brand-muted">"${transcript}"</span>
+                            </div>
+                        `;
+                        this.renderLesson();
+                        lucide.createIcons();
+                    }
+                },
+                (err) => {
+                    if (btn) btn.classList.remove('mic-recording');
+                    if (lbl) lbl.textContent = "Validar mi pronunciación";
+                    this.showToast(err, 'error');
+                }
+            );
+        }
+
+        /**
+         * =====================================================================
+         * VISTA 3: COMMIT & DAILY STANDUP GENERATOR (HERRAMIENTA PRÁCTICA B1-B2)
+         * =====================================================================
+         */
+        renderToolsLab() {
+            const main = document.getElementById('main-content');
+            const commitPreview = `${this.commitType}(${this.commitScope || 'core'}): ${this.commitDesc}`;
+            const standupPreview = `Yesterday, I ${this.standupYesterday}. Today, I am ${this.standupToday}. ${this.standupBlocker === 'none' ? 'I have no blockers.' : `I am blocked by ${this.standupBlocker}.`}`;
+
+            main.innerHTML = `
+                <div class="max-w-4xl mx-auto space-y-8">
+                    <div class="space-y-1">
+                        <span class="font-mono text-xs text-brand-emerald font-semibold">HERRAMIENTAS DE PRODUCCIÓN B1–B2</span>
+                        <h1 class="text-2xl font-semibold tracking-tight">Conventional Commit & Daily Standup Builder</h1>
+                        <p class="text-sm text-brand-muted dark:text-gray-400">Genera mensajes reales para tu repositorio y practica tu reporte diario en voz alta.</p>
+                    </div>
+
+                    <!-- Generador de Commits -->
+                    <div class="p-6 rounded-2xl bg-surface-1 dark:bg-darksurface-1 hairline space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-base font-semibold flex items-center gap-2"><i data-lucide="git-commit" class="w-4 h-4 text-brand-emerald"></i><span>1. Generador de Conventional Commits</span></h2>
+                            <span class="font-mono text-[11px] text-brand-muted">Regla: "This commit will..."</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-mono text-brand-muted mb-1">Tipo</label>
+                                <select onchange="app.commitType=this.value; app.renderToolsLab(); lucide.createIcons();" class="w-full px-3 py-2 rounded-xl bg-surface-0 dark:bg-darksurface-2 hairline font-mono text-xs">
+                                    ${['feat', 'fix', 'refactor', 'docs', 'test', 'chore'].map(t => `<option value="${t}" ${this.commitType === t ? 'selected' : ''}>${t}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-mono text-brand-muted mb-1">Scope (módulo)</label>
+                                <input type="text" value="${this.commitScope}" oninput="app.commitScope=this.value; document.getElementById('commit-out').textContent = app.commitType + '(' + (this.value||'core') + '): ' + app.commitDesc;" class="w-full px-3 py-2 rounded-xl bg-surface-0 dark:bg-darksurface-2 hairline font-mono text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-mono text-brand-muted mb-1">Acción (verbo presente)</label>
+                                <input type="text" value="${this.commitDesc}" oninput="app.commitDesc=this.value; document.getElementById('commit-out').textContent = app.commitType + '(' + (app.commitScope||'core') + '): ' + this.value;" class="w-full px-3 py-2 rounded-xl bg-surface-0 dark:bg-darksurface-2 hairline font-mono text-xs">
+                            </div>
+                        </div>
+
+                        <div class="p-3.5 rounded-xl bg-surface-0 dark:bg-darksurface-2 hairline flex items-center justify-between gap-3">
+                            <code id="commit-out" class="font-mono text-xs sm:text-sm font-semibold text-brand-emerald">${commitPreview}</code>
+                            <div class="flex items-center gap-2">
+                                ${this.speakBtn(commitPreview, "Oír")}
+                                <button onclick="app.copyText(document.getElementById('commit-out').textContent)" class="px-3 py-1.5 rounded-lg bg-brand-ink dark:bg-white text-white dark:text-brand-ink text-xs font-medium">Copiar</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Simulador de Daily Standup -->
+                    <div class="p-6 rounded-2xl bg-surface-1 dark:bg-darksurface-1 hairline space-y-4">
+                        <h2 class="text-base font-semibold flex items-center gap-2"><i data-lucide="users" class="w-4 h-4 text-brand-emerald"></i><span>2. Simulador de Daily Standup (60 segundos)</span></h2>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                            <div>
+                                <label class="block font-mono text-[11px] text-brand-muted mb-1">Yesterday I... (Pasado)</label>
+                                <input type="text" value="${this.standupYesterday}" oninput="app.standupYesterday=this.value; app.updateStandupPreview();" class="w-full px-3 py-2 rounded-xl bg-surface-0 dark:bg-darksurface-2 hairline font-mono text-xs">
+                            </div>
+                            <div>
+                                <label class="block font-mono text-[11px] text-brand-muted mb-1">Today I am... (Continuo)</label>
+                                <input type="text" value="${this.standupToday}" oninput="app.standupToday=this.value; app.updateStandupPreview();" class="w-full px-3 py-2 rounded-xl bg-surface-0 dark:bg-darksurface-2 hairline font-mono text-xs">
+                            </div>
+                            <div>
+                                <label class="block font-mono text-[11px] text-brand-muted mb-1">Blocked by... (Bloqueos)</label>
+                                <input type="text" value="${this.standupBlocker}" oninput="app.standupBlocker=this.value; app.updateStandupPreview();" class="w-full px-3 py-2 rounded-xl bg-surface-0 dark:bg-darksurface-2 hairline font-mono text-xs">
+                            </div>
+                        </div>
+
+                        <div class="p-4 rounded-xl bg-surface-0 dark:bg-darksurface-2 hairline space-y-2.5">
+                            <p id="standup-out" class="font-mono text-xs sm:text-sm leading-relaxed">${standupPreview}</p>
+                            <div class="flex items-center gap-2">
+                                <button onclick="app.voice.speak(document.getElementById('standup-out').textContent, this)" class="px-3.5 py-1.5 rounded-lg bg-brand-emerald text-white text-xs font-medium inline-flex items-center gap-1.5">
+                                    <i data-lucide="volume-2" class="w-3.5 h-3.5"></i> Escuchar mi standup completo
+                                </button>
+                                <button onclick="app.copyText(document.getElementById('standup-out').textContent)" class="px-3 py-1.5 rounded-lg bg-surface-1 dark:bg-darksurface-1 hairline text-xs font-medium">Copiar guion</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        updateStandupPreview() {
+            const el = document.getElementById('standup-out');
+            if (!el) return;
+            el.textContent = `Yesterday, I ${this.standupYesterday}. Today, I am ${this.standupToday}. ${this.standupBlocker === 'none' || !this.standupBlocker.trim() ? 'I have no blockers.' : `I am blocked by ${this.standupBlocker}.`}`;
+        }
+
+        copyText(text) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            this.showToast("Copiado al portapapeles.", "success");
+        }
+
+        /**
+         * =====================================================================
+         * VISTA 4: 50 FRASES DE TUTORIALES DE YOUTUBE TECH + MÉTODO 3 PASOS
+         * =====================================================================
+         */
+        renderYoutube50() {
+            const main = document.getElementById('main-content');
+            const q = this.ytSearch.toLowerCase().trim();
+            const list = DEV_CURRICULUM.youtube50.filter(item => item.en.toLowerCase().includes(q) || item.es.toLowerCase().includes(q));
+
+            main.innerHTML = `
+                <div class="max-w-4xl mx-auto space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                        <div class="space-y-1">
+                            <span class="font-mono text-xs text-brand-emerald font-semibold">LISTENING ACCELERATOR · B1–B2</span>
+                            <h1 class="text-2xl font-semibold tracking-tight">50 Frases que Todo Instructor Tech Dice</h1>
+                            <p class="text-sm text-brand-muted dark:text-gray-400">Canales recomendados: Traversy Media, Web Dev Simplified, Fireship y The Net Ninja.</p>
+                        </div>
+                        <div class="relative">
+                            <i data-lucide="search" class="w-3.5 h-3.5 text-brand-subtle absolute left-3 top-1/2 -translate-y-1/2"></i>
+                            <input type="text" value="${this.ytSearch}" oninput="app.ytSearch=this.value; app.renderYoutube50(); lucide.createIcons();" placeholder="Filtrar frase..." class="pl-8 pr-3 py-2 rounded-xl bg-surface-1 dark:bg-darksurface-1 hairline text-xs outline-hidden w-full sm:w-56">
+                        </div>
+                    </div>
+
+                    <!-- Método de 3 Pasos -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="p-4 rounded-2xl bg-surface-1 dark:bg-darksurface-1 hairline space-y-1">
+                            <div class="font-mono text-xs font-bold text-brand-emerald">PASO 1 · ESCUCHA PASIVA</div>
+                            <p class="text-xs text-brand-muted dark:text-gray-400">2 minutos a velocidad normal sin mirar la pantalla. Anota palabras técnicas reconocidas.</p>
+                        </div>
+                        <div class="p-4 rounded-2xl bg-surface-1 dark:bg-darksurface-1 hairline space-y-1">
+                            <div class="font-mono text-xs font-bold text-brand-emerald">PASO 2 · ESCUCHA + CÓDIGO</div>
+                            <p class="text-xs text-brand-muted dark:text-gray-400">Activa subtítulos EN INGLÉS y escribe el código a mano pausando cada bloque.</p>
+                        </div>
+                        <div class="p-4 rounded-2xl bg-surface-1 dark:bg-darksurface-1 hairline space-y-1">
+                            <div class="font-mono text-xs font-bold text-brand-emerald">PASO 3 · PREDICCIÓN</div>
+                            <p class="text-xs text-brand-muted dark:text-gray-400">Sin subtítulos: antes de que escriba, di en voz alta "What is he going to type next?".</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        ${list.map((item, idx) => `
+                            <div class="p-3.5 rounded-xl bg-surface-1 dark:bg-darksurface-1 hairline flex items-center justify-between gap-2 text-xs">
+                                <div>
+                                    <div class="font-mono font-semibold text-brand-ink dark:text-gray-100"><span class="text-brand-emerald mr-1.5">#${idx + 1}</span>${item.en}</div>
+                                    <div class="text-brand-muted dark:text-gray-400 mt-0.5">${item.es}</div>
+                                </div>
+                                ${this.speakBtn(item.en)}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * =====================================================================
+         * VISTA 5: CHECKLIST DE 8 SEMANAS
+         * =====================================================================
+         */
+        renderChecklist() {
+            const main = document.getElementById('main-content');
+            const total = DEV_CURRICULUM.checklist8Weeks.length;
+            const done = this.state.checkedWeeks.length;
+            const pct = Math.round((done / total) * 100);
+
+            main.innerHTML = `
+                <div class="max-w-3xl mx-auto space-y-6">
+                    <div class="p-6 rounded-2xl bg-surface-1 dark:bg-darksurface-1 hairline space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h1 class="text-xl font-semibold tracking-tight">Checklist de Dominio (Plan 8 Semanas)</h1>
+                                <p class="text-xs text-brand-muted dark:text-gray-400 mt-0.5">Marca cada competencia cuando puedas aplicarla en código o reunión sin traducir.</p>
+                            </div>
+                            <span class="font-mono text-lg font-bold text-brand-emerald">${done}/${total}</span>
+                        </div>
+                        <div class="w-full h-1.5 bg-surface-2 dark:bg-darksurface-2 rounded-full overflow-hidden">
+                            <div class="h-full bg-brand-emerald transition-all duration-300" style="width: ${pct}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="rounded-2xl bg-surface-1 dark:bg-darksurface-1 hairline divide-y divide-black/5 dark:divide-white/5">
+                        ${DEV_CURRICULUM.checklist8Weeks.map(item => {
+                            const checked = this.state.checkedWeeks.includes(item.id);
+                            return `
+                                <div onclick="app.toggleWeekCheck('${item.id}')" class="p-4 flex items-center justify-between gap-4 cursor-pointer hover:bg-surface-2/50 dark:hover:bg-darksurface-2/50 transition">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-5 h-5 rounded-md flex items-center justify-center shrink-0 ${checked ? 'bg-brand-emerald text-white' : 'bg-surface-0 dark:bg-darksurface-2 hairline'}">
+                                            ${checked ? `<i data-lucide="check" class="w-3.5 h-3.5"></i>` : ''}
+                                        </div>
+                                        <div>
+                                            <div class="font-mono text-[10px] text-brand-emerald font-semibold">${item.week}</div>
+                                            <div class="text-xs sm:text-sm ${checked ? 'line-through text-brand-subtle' : ''}">${item.text}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        toggleWeekCheck(id) {
+            const idx = this.state.checkedWeeks.indexOf(id);
+            if (idx === -1) {
+                this.state.checkedWeeks.push(id);
+                this.triggerConfetti('normal');
+            } else {
+                this.state.checkedWeeks.splice(idx, 1);
+            }
+            this.saveState();
+            this.renderChecklist();
+            lucide.createIcons();
+        }
+
+        /**
+         * =====================================================================
+         * VISTA 6: CERTIFICADO TÉCNICO OFICIAL IMPRIMIBLE (A1-A2 / B1-B2)
+         * =====================================================================
+         */
+        renderCertificate() {
+            const main = document.getElementById('main-content');
+            const stats = this.getProgressStats();
+            const weekPct = Math.round((this.state.checkedWeeks.length / DEV_CURRICULUM.checklist8Weeks.length) * 100);
+            const combinedScore = Math.max(stats.pct, weekPct);
+
+            // Determinar nivel certificado
+            const achievedLevel = (stats.a1Pct === 100 && stats.b1Pct === 100) || combinedScore >= 85
+                ? "B1–B2 (Technical Upper-Intermediate)"
+                : (stats.a1Pct >= 70 || combinedScore >= 40)
+                    ? "A1–A2 (Technical Elementary Foundation)"
+                    : "A1–A2 (In Progress Candidate)";
+
+            const dateStr = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            main.innerHTML = `
+                <div class="max-w-4xl mx-auto space-y-6">
+                    <!-- Barra de Configuración (No se imprime) -->
+                    <div class="p-5 rounded-2xl bg-surface-1 dark:bg-darksurface-1 hairline flex flex-col sm:flex-row sm:items-center justify-between gap-4 no-print">
+                        <div class="flex-1 space-y-1">
+                            <label class="block text-xs font-mono font-semibold text-brand-muted">NOMBRE DEL DESARROLLADOR EN EL CERTIFICADO</label>
+                            <input type="text" value="${this.state.devName}" oninput="app.state.devName=this.value; app.saveState(); document.getElementById('cert-holder-name').textContent = this.value || 'Developer Name';" placeholder="Escribe tu nombre completo..." class="w-full sm:max-w-sm px-3.5 py-2 rounded-xl bg-surface-0 dark:bg-darksurface-2 hairline text-sm font-medium outline-hidden focus:ring-1 focus:ring-brand-emerald">
+                        </div>
+                        <div class="flex items-center gap-2.5">
+                            <button onclick="window.print()" class="px-5 py-2.5 rounded-xl bg-brand-emerald hover:bg-brand-emeraldHover text-white text-xs sm:text-sm font-medium inline-flex items-center gap-2 transition">
+                                <i data-lucide="printer" class="w-4 h-4"></i>
+                                <span>Imprimir / Guardar PDF</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Documento Imprimible del Certificado -->
+                    <div id="printable-certificate" class="p-8 sm:p-12 rounded-2xl bg-white text-brand-ink border border-black/15 space-y-8 relative overflow-hidden">
+                        <!-- Cabecera del Certificado -->
+                        <div class="flex items-start justify-between border-b border-black/10 pb-6">
+                            <div class="flex items-center gap-3">
+                                ${SVG_LOGOS.main}
+                                <div>
+                                    <div class="font-bold text-lg tracking-tight">DevEng <span class="font-mono text-sm text-brand-emerald">// CORE</span></div>
+                                    <div class="font-mono text-[11px] text-brand-muted">TECHNICAL ENGLISH CERTIFICATION PROGRAM</div>
+                                </div>
+                            </div>
+                            <div class="text-right font-mono text-xs">
+                                <div class="text-brand-muted">CREDENTIAL ID</div>
+                                <div class="font-bold">${this.state.certId}</div>
+                            </div>
+                        </div>
+
+                        <!-- Cuerpo Central -->
+                        <div class="space-y-4 py-2">
+                            <p class="font-mono text-xs uppercase tracking-widest text-brand-emerald font-semibold">Certificado de Competencia Técnica</p>
+                            <p class="text-sm text-brand-muted">Se certifica que el desarrollador de software</p>
+                            <h2 id="cert-holder-name" class="text-3xl sm:text-4xl font-bold tracking-tight border-b border-black/10 pb-3">${this.state.devName}</h2>
+                            <p class="text-sm text-brand-muted leading-relaxed max-w-2xl">
+                                Ha completado y validado los módulos prácticos de comunicación técnica en inglés para ingeniería de software, alcanzando el nivel marco:
+                            </p>
+                            <div class="inline-block px-4 py-2 rounded-xl bg-surface-1 border border-black/10 font-mono text-sm sm:text-base font-bold text-brand-ink">
+                                CEFR LEVEL: <span class="text-brand-emerald">${achievedLevel}</span>
+                            </div>
+                        </div>
+
+                        <!-- Competencias Validadas -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs">
+                            <div class="p-3.5 rounded-xl bg-surface-1 border border-black/5 space-y-1">
+                                <div class="font-mono font-bold text-brand-ink">TRACK A1–A2 · FOUNDATIONS (${stats.a1Pct}%)</div>
+                                <p class="text-brand-muted">Verbos técnicos, 4 tiempos verbales del dev, Git/GitHub, diagnóstico de errores en consola y phrasal verbs.</p>
+                            </div>
+                            <div class="p-3.5 rounded-xl bg-surface-1 border border-black/5 space-y-1">
+                                <div class="font-mono font-bold text-brand-ink">TRACK B1–B2 · ENGINEERING FLUENCY (${stats.b1Pct}%)</div>
+                                <p class="text-brand-muted">Daily Standups, Conventional Commits, Pull Requests, Stack Overflow troubleshooting y comprensión auditiva.</p>
+                            </div>
+                        </div>
+
+                        <!-- Pie y Sello SVG -->
+                        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 pt-6 border-t border-black/10">
+                            <div class="space-y-1 text-xs">
+                                <div class="font-mono text-brand-muted">FECHA DE EMISIÓN</div>
+                                <div class="font-semibold">${dateStr}</div>
+                                <div class="font-mono text-[11px] text-brand-muted pt-2">Progreso verificado: ${stats.doneEx}/${stats.totalEx} ejercicios · ${this.state.checkedWeeks.length}/${DEV_CURRICULUM.checklist8Weeks.length} hitos</div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="text-right">
+                                    <div class="font-mono text-xs font-bold">DevEng // CORE Engine</div>
+                                    <div class="text-[11px] text-brand-muted">Curriculum Standard A1–B2</div>
+                                </div>
+                                ${SVG_LOGOS.certSeal}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        window.app = new DevEngApp();
+    });
+    </script>
+</body>
+</html>
