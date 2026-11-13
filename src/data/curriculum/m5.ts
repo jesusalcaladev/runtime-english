@@ -317,5 +317,115 @@ export const m5: Module = {
         },
       ],
     },
+    {
+      id: "m5-l4",
+      slug: "conectores-y-discourse-markers",
+      title: "Conectores y discourse markers",
+      step: "B1 · Paso 5.4",
+      cefr: "B1",
+      minutes: 10,
+      summary:
+        "Usa I mean, actually, basically y otros conectores para sonar natural, aclarar ideas y ordenar tu mensaje.",
+      objectives: [
+        "Aclarar o corregir lo que acabas de decir con marcadores naturales.",
+        "Ordenar explicaciones técnicas con conectores simples.",
+        "Evitar sonar brusco usando marcadores de cortesía y reformulación.",
+      ],
+      pronunciation:
+        "I mean, the fix is simple. Actually, we should refactor this first. Basically, the cache is stale.",
+      blocks: [
+        {
+          type: "technique",
+          name: "Los marcadores no cambian el hecho, cambian la intención",
+          desc: "En inglés hablado, palabras como 'I mean', 'actually' o 'basically' ayudan a reformular, corregir o resumir. No son relleno vacío: le dicen a la otra persona cómo interpretar lo que viene. Úsalos con moderación y con un propósito claro.",
+        },
+        {
+          type: "vocab",
+          title: "Conectores y marcadores comunes",
+          items: [
+            { en: "I mean", es: "quiero decir / o sea", example: "I mean, we can ship today if tests pass." },
+            { en: "actually", es: "en realidad / de hecho", example: "Actually, the bug is in the frontend." },
+            { en: "basically", es: "básicamente / en resumen", example: "Basically, the cache is stale." },
+            { en: "to be honest", es: "para ser honesto", example: "To be honest, I don't think this will scale." },
+            { en: "in other words", es: "en otras palabras", example: "In other words, we need to retry the request." },
+            { en: "anyway", es: "en fin / de todos modos", example: "Anyway, let's focus on the fix." },
+            { en: "you know", es: "sabes / ya sabes", example: "It's a race condition, you know?" },
+            { en: "so", es: "así que / entonces", example: "So, we should roll back." },
+          ],
+        },
+        {
+          type: "phrases",
+          title: "Cómo usarlos en contexto técnico",
+          items: [
+            { en: "I mean, it's not a blocker, but we should fix it soon.", es: "O sea, no es un bloqueador, pero deberíamos arreglarlo pronto." },
+            { en: "Actually, the issue was caused by a typo.", es: "En realidad, el problema lo causó un typo." },
+            { en: "Basically, we need to clear the cache.", es: "Básicamente, tenemos que limpiar la caché." },
+            { en: "To be honest, I'm not sure this is the right approach.", es: "Para ser honesto, no estoy seguro de que sea el enfoque correcto." },
+            { en: "In other words, the service is timing out.", es: "En otras palabras, el servicio está agotando el tiempo." },
+            { en: "Anyway, back to the main issue.", es: "En fin, volvamos al problema principal." },
+          ],
+        },
+        {
+          type: "callout",
+          tone: "tip",
+          title: "Cuidado con 'actually'",
+          body: "'Actually' corrige o introduce un contraste real; no significa 'actualmente'. Para 'actualmente' usa 'currently' o 'right now'. Ejemplo: 'Actually, it works' = en realidad funciona; 'Currently, it works' = ahora mismo funciona.",
+        },
+        {
+          type: "table",
+          title: "Qué intención transmite cada marcador",
+          columns: ["Marcador", "Intención", "Ejemplo"],
+          rows: [
+            ["I mean", "Reformular o aclarar", "I mean, we need more tests."],
+            ["Actually", "Corregir o matizar", "Actually, it's already deployed."],
+            ["Basically", "Resumir lo esencial", "Basically, the API is down."],
+            ["To be honest", "Dar una opinión directa", "To be honest, I'd refactor it."],
+            ["Anyway", "Volver al tema o cerrar", "Anyway, let's merge this."],
+          ],
+        },
+      ],
+      exercises: [
+        {
+          id: "m5-l4-e1",
+          type: "choice",
+          prompt: "Quieres corregir una idea: pensabas que el bug era del backend, pero es del frontend. ¿Qué marcador encaja mejor?",
+          options: ["I mean, the bug is in the frontend.", "Actually, the bug is in the frontend.", "Anyway, the bug is in the frontend.", "You know, the bug is in the frontend."],
+          answer: 1,
+          explanation:
+            "'Actually' se usa para corregir o contrastar con lo que se creía antes: en realidad, el bug está en el frontend.",
+        },
+        {
+          id: "m5-l4-e2",
+          type: "choice",
+          prompt: "¿Qué significa 'actually' en inglés?",
+          options: ["Actualmente", "En realidad / de hecho", "Finalmente", "A veces"],
+          answer: 1,
+          explanation:
+            "'Actually' es un false friend común: no significa 'actualmente'. Significa 'en realidad' o 'de hecho'.",
+        },
+        {
+          id: "m5-l4-e3",
+          type: "builder",
+          prompt: "Construye: 'Básicamente, tenemos que limpiar la caché.'",
+          words: ["Basically,", "we need", "to clear", "the cache."],
+          answer: "Basically, we need to clear the cache.",
+          explanation:
+            "'Basically' introduce un resumen simple de la idea principal.",
+        },
+        {
+          id: "m5-l4-e4",
+          type: "write",
+          prompt: "Escribe en inglés: 'O sea, no es un bloqueador.' (empieza con 'I mean,')",
+          answer: "I mean, it's not a blocker.",
+          accept: [
+            "I mean, it is not a blocker.",
+            "I mean it's not a blocker.",
+          ],
+          hint: "Usa 'I mean,' para reformular o aclarar.",
+          explanation:
+            "'I mean' sirve para aclarar o suavizar lo que quieres decir: 'o sea, no es un bloqueador'.",
+        },
+      ],
+    },
   ],
 };

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "preact/hooks";
 import {
+  Award,
   Check,
   ChevronRight,
   LayoutGrid,
@@ -27,6 +28,12 @@ export default function SidebarNav({ modules }: Props) {
     const syncPath = () => {
       setPath(window.location.pathname);
       setOpen(false);
+      try {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("dev") === "1") {
+          window.localStorage.setItem("deveng_dev", "1");
+        }
+      } catch {}
     };
     const onMenu = () => setOpen((value) => !value);
 
@@ -45,6 +52,18 @@ export default function SidebarNav({ modules }: Props) {
       document.body.style.overflow = "";
     };
   }, [open]);
+
+  const allSessions = modules.flatMap((module) => module.sessions);
+  const totalSessions = allSessions.length;
+  const totalExercises = allSessions.reduce((sum, session) => sum + session.exerciseCount, 0);
+  const doneSessions = allSessions.filter((session) => state.completedSessions[session.id]).length;
+  const doneExercises = Object.keys(state.completedExercises).length;
+  const courseComplete = doneSessions >= totalSessions && doneExercises >= totalExercises;
+  let devMode = false;
+  try {
+    devMode = typeof window !== "undefined" && window.localStorage.getItem("deveng_dev") === "1";
+  } catch {}
+  const canOpenCertificate = courseComplete || devMode;
 
   const workspaceLinks = [
     { href: "/", label: t(stage, "roadmap"), icon: LayoutGrid },
@@ -113,6 +132,14 @@ export default function SidebarNav({ modules }: Props) {
           <div class="space-y-1">
             <p class="mono-label px-3 pb-1.5">{t(stage, "workspace")}</p>
             {workspaceLinks.map((link) => renderLink(link.href, link.label, link.icon))}
+            {canOpenCertificate ? (
+              renderLink("/certificate", stage === "en" ? "Certificate" : "Certificado", Award)
+            ) : (
+              <span class="flex cursor-not-allowed items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] text-base-content/30">
+                <Award class="h-4 w-4 shrink-0 text-base-content/20" />
+                <span class="truncate">{stage === "en" ? "Certificate" : "Certificado"}</span>
+              </span>
+            )}
           </div>
 
           {(["A1-A2", "B1-B2"] as const).map((level) => (

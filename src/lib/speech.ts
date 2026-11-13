@@ -99,34 +99,27 @@ async function speakNative(text: string): Promise<boolean> {
   const { TextToSpeech } = await import("@capacitor-community/text-to-speech");
   await TextToSpeech.stop().catch(() => undefined);
 
-  const { supported } = await TextToSpeech.isLanguageSupported({ lang: "en-US" }).catch(() => ({
-    supported: true,
-  }));
-  if (!supported) {
-    emitToast(
-      "No hay una voz en inglés instalada. Instala una desde Ajustes de Android.",
-      "error",
-    );
-    return true;
-  }
-
   const options = {
     text,
     lang: "en-US",
     rate: getSpeechRate(),
     pitch: 1,
     volume: 1,
-    queueStrategy: 0,
-  };
+  } as const;
 
   try {
     await TextToSpeech.speak(options);
+    return true;
   } catch {
     // The Android engine can still be initializing right after launch.
-    await new Promise((resolve) => window.setTimeout(resolve, 250));
-    await TextToSpeech.speak(options);
+    try {
+      await new Promise((resolve) => window.setTimeout(resolve, 300));
+      await TextToSpeech.speak(options);
+      return true;
+    } catch {
+      return false;
+    }
   }
-  return true;
 }
 
 async function speakWeb(text: string, button?: HTMLElement | null) {
@@ -136,12 +129,20 @@ async function speakWeb(text: string, button?: HTMLElement | null) {
   }
 
   const synth = window.speechSynthesis;
-  synth.cancel();
-  if (synth.paused) synth.resume();
+  try {
+    synth.cancel();
+  } catch {}
+  try {
+    if (synth.paused) synth.resume();
+  } catch {}
 
-  // Speak immediately to preserve the user gesture; initVoices warms the cache.
   const voices = synth.getVoices();
   if (!cachedVoice) cachedVoice = pickEnglishVoice(voices);
+  if (!cachedVoice && voices.length === 0) {
+    void getWebVoices().then((loaded) => {
+      if (!cachedVoice) cachedVoice = pickEnglishVoice(loaded);
+    });
+  }
 
   await new Promise<void>((resolve) => {
     const utterance = new SpeechSynthesisUtterance(text);
@@ -151,7 +152,10 @@ async function speakWeb(text: string, button?: HTMLElement | null) {
     utterance.volume = 1;
     if (cachedVoice) utterance.voice = cachedVoice;
 
+    let finished = false;
     const finish = () => {
+      if (finished) return;
+      finished = true;
       setSpeaking(button, false);
       resolve();
     };
@@ -164,11 +168,17 @@ async function speakWeb(text: string, button?: HTMLElement | null) {
       finish();
     };
 
-    synth.speak(utterance);
-    // Some WebViews report neither start nor end; avoid leaving the button stuck.
+    try {
+      synth.speak(utterance);
+    } catch {
+      emitToast("No se pudo reproducir la voz. Revisa el volumen del dispositivo.", "error");
+      finish();
+      return;
+    }
+
     window.setTimeout(() => {
-      if (!synth.speaking && !synth.pending) finish();
-    }, 1500);
+      if (!finished && !synth.speaking && !synth.pending) finish();
+    }, Math.max(4000, text.length * 90));
   });
 }
 
@@ -183,12 +193,16 @@ export function speak(text: string, button?: HTMLElement | null) {
       const handledByNative = await speakNative(clean);
       if (handledByNative) {
         setSpeaking(button, false);
-      } else {
-        await speakWeb(clean, button);
+        return;
       }
+      await speakWeb(clean, button);
     } catch {
-      setSpeaking(button, false);
-      emitToast("No se pudo reproducir la voz. Inténtalo de nuevo.", "error");
+      try {
+        await speakWeb(clean, button);
+      } catch {
+        setSpeaking(button, false);
+        emitToast("No se pudo reproducir la voz. Inténtalo de nuevo.", "error");
+      }
     }
   })();
 }
