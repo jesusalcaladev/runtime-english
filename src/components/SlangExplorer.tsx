@@ -143,7 +143,7 @@ export default function SlangExplorer({ entries }: Props) {
       <div class="flex items-center justify-between gap-3 px-1">
         <p class="text-[12px] text-base-content/55">
           <span class="font-mono font-medium text-base-content">{filtered.length}</span> términos
-          · revisado nov 2026
+          · nov 2026
         </p>
         <p class="hidden items-center gap-1.5 text-[11px] text-base-content/50 sm:flex">
           <Bookmark class="h-3 w-3" />
@@ -244,7 +244,7 @@ export default function SlangExplorer({ entries }: Props) {
                 )}
 
                 <p class="mt-3 text-[10px] tracking-[0.08em] text-base-content/45">
-                  revisado · {entry.updated}
+                  {entry.updated}
                 </p>
               </article>
             );
