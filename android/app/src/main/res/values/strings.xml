@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">DevEng Core</string>
+    <string name="title_activity_main">DevEng Core</string>
+    <string name="package_name">com.deveng.core</string>
+    <string name="custom_url_scheme">com.deveng.core</string>
+</resources>

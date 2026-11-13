@@ -1,6 +1,6 @@
 # DevEng // CORE
 
-App web (PWA-ready) para aprender inglés técnico de A1 a B2. 17 sesiones, 68 ejercicios
+App web (PWA-ready) y Android para aprender inglés técnico de A1 a B2. 17 sesiones, 68 ejercicios
 interactivos, progreso y logros con objetivos medibles en `localStorage`, y un deck de 51 términos
 de slang actualizado a **noviembre de 2026**. Interfaz responsive con estética de workspace
 minimalista, superficies neutras y tipografía Geist.
@@ -8,6 +8,7 @@ minimalista, superficies neutras y tipografía Geist.
 ## Stack
 
 - **Astro 7** (static output) + **Preact** islands para las partes interactivas.
+- **Capacitor 8** para empaquetar el build web como app Android.
 - **Tailwind CSS 4** + **daisyUI 5** como librería de componentes/temas.
 - **Geist**, **Geist Mono** y **Geist Pixel** self-hosted con Fontsource.
 - **Lucide** (`@lucide/astro` y `lucide-preact`) para iconos.
@@ -22,6 +23,8 @@ npm run dev      # http://localhost:4321
 npm run build    # genera dist/
 npm run preview  # sirve el build
 npm run check    # typecheck de Astro + TS
+npm run android:sync  # build + copia los assets a android/
+npm run android:open  # abre el proyecto en Android Studio
 ```
 
 ## Estructura
@@ -51,7 +54,28 @@ src/
 │   └── ui/                # Button, Badge, Card, ProgressBar, Logo…
 ├── layouts/BaseLayout.astro
 └── pages/                 # /, /slang, /achievements, /settings, /session/[slug]
+
+android/                   # proyecto nativo generado por Capacitor
+capacitor.config.ts        # appId, nombre, webDir y tema del sistema
 ```
+
+## Android
+
+El proyecto usa [Capacitor](https://capacitorjs.com/) con `appId` `com.deveng.core`, tema oscuro
+`#101010`, iconos e splash propios y manejo del botón atrás de Android.
+
+Requisitos para compilar: **JDK 17+** y **Android SDK** instalados, además de Android Studio.
+
+```bash
+npm run android:sync   # genera dist/ y lo copia a android/
+npm run android:open   # abre Android Studio
+```
+
+En Android Studio: `Build > Generate Signed Bundle / APK`. Para Play Store se sube un **AAB**
+firmado con una keystore propia; esa keystore y los archivos de firma no deben commitearse.
+
+El progreso vive en el `localStorage` del WebView. El export/import JSON de Ajustes sirve como
+respaldo si se borran los datos de la app.
 
 ## Añadir una sesión
 

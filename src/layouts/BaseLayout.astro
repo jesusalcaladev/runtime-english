@@ -93,9 +93,21 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B
     <ToastHost client:only="preact" />
 
     <script>
+      import { Capacitor } from "@capacitor/core";
+      import { App } from "@capacitor/app";
       import { initVoices, speak } from "../lib/speech";
 
       initVoices();
+
+      if (Capacitor.isNativePlatform()) {
+        App.addListener("backButton", ({ canGoBack }) => {
+          if (canGoBack) {
+            window.history.back();
+          } else {
+            App.exitApp();
+          }
+        });
+      }
 
       document.addEventListener("click", (event) => {
         const target = event.target;
