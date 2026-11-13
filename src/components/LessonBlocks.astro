@@ -33,7 +33,7 @@ const { blocks } = Astro.props;
               <div class="space-y-1.5">
                 <p class="mono-label text-accent/75">Técnica clave</p>
                 <h3 class="text-[15px] font-medium tracking-tight">{block.name}</h3>
-                <p class="text-sm leading-7 text-base-content/55">{block.desc}</p>
+                <p class="text-[14px] leading-7 text-base-content/70">{block.desc}</p>
               </div>
             </div>
           </div>
@@ -42,7 +42,7 @@ const { blocks } = Astro.props;
         {block.type === "text" && (
           <div class="space-y-2">
             {block.title && <h3 class="text-[15px] font-medium tracking-tight">{block.title}</h3>}
-            <p class="max-w-3xl text-sm leading-7 text-base-content/60">{block.body}</p>
+            <p class="max-w-3xl text-[14px] leading-7 text-base-content/70">{block.body}</p>
           </div>
         )}
 
@@ -59,16 +59,16 @@ const { blocks } = Astro.props;
                 <div class="group rounded-2xl bg-base-200 p-4 transition hover:bg-base-300/60">
                   <div class="flex items-start justify-between gap-2">
                     <div>
-                      <p class="font-mono text-sm font-medium text-base-content">{item.en}</p>
-                      <p class="mt-1 text-xs leading-relaxed text-base-content/45">{item.es}</p>
+                      <p class="font-mono text-[15px] font-medium leading-relaxed text-base-content">{item.en}</p>
+                      <p class="mt-1 text-[12px] leading-relaxed text-base-content/60">{item.es}</p>
                     </div>
                     <SpeakButton text={item.example ?? item.en} />
                   </div>
                   {item.example && (
                     <div class="mt-3.5 rounded-xl bg-base-100/60 px-3 py-2.5">
-                      <p class="text-[13px] leading-relaxed text-base-content/70">{item.example}</p>
+                      <p class="text-[14px] leading-relaxed text-base-content/80">{item.example}</p>
                       {item.note && (
-                        <p class="mt-1 text-[11px] text-base-content/35">{item.note}</p>
+                        <p class="mt-1 text-[12px] leading-relaxed text-base-content/55">{item.note}</p>
                       )}
                     </div>
                   )}
@@ -99,10 +99,10 @@ const { blocks } = Astro.props;
                       {row.map((cell, cellIndex) => (
                         <td
                           class:list={[
-                            "px-4 py-3 align-top text-xs leading-relaxed",
+                            "px-4 py-3 align-top text-[13px] leading-relaxed",
                             cellIndex === 0
-                              ? "font-mono font-medium text-base-content/75"
-                              : "text-base-content/50",
+                              ? "font-mono font-medium text-base-content"
+                              : "text-base-content/65",
                           ]}
                         >
                           {cell}
@@ -126,10 +126,10 @@ const { blocks } = Astro.props;
               {block.items.map((item) => (
                 <div class="flex flex-col gap-2 rounded-2xl bg-base-200 p-4 transition hover:bg-base-300/50 sm:flex-row sm:items-center sm:justify-between">
                   <div class="space-y-1">
-                    <p class="text-[13px] font-medium leading-relaxed text-base-content/80">
+                    <p class="text-[15px] font-medium leading-relaxed text-base-content">
                       “{item.en}”
                     </p>
-                    <p class="text-[11px] leading-relaxed text-base-content/40">{item.es}</p>
+                    <p class="text-[12px] leading-relaxed text-base-content/60">{item.es}</p>
                   </div>
                   <SpeakButton text={item.en} />
                 </div>
@@ -145,7 +145,7 @@ const { blocks } = Astro.props;
                 <div class="flex flex-wrap items-start justify-between gap-2">
                   <div>
                     <h3 class="text-sm font-medium">{tense.name}</h3>
-                    <p class="mt-1 text-[11px] text-base-content/40">{tense.tag}</p>
+                    <p class="mt-1 text-[12px] text-base-content/55">{tense.tag}</p>
                   </div>
                   <span class="rounded-full bg-base-100/60 px-2.5 py-1 font-mono text-[10px] font-medium text-base-content/55">
                     {tense.formula}
@@ -153,7 +153,7 @@ const { blocks } = Astro.props;
                 </div>
                 <ul class="mt-4 space-y-2">
                   {tense.cases.map((example) => (
-                    <li class="flex items-start gap-2 text-[12px] leading-relaxed text-base-content/55">
+                    <li class="flex items-start gap-2 text-[13px] leading-relaxed text-base-content/70">
                       <span class="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-accent/60" />
                       <span>{example}</span>
                     </li>
@@ -192,10 +192,10 @@ const { blocks } = Astro.props;
                       </div>
                       <SpeakButton text={entry.term} />
                     </div>
-                    <p class="mt-2.5 text-xs leading-relaxed text-base-content/55">
+                    <p class="mt-2.5 text-[13px] leading-relaxed text-base-content/70">
                       {entry.meaningEs}
                     </p>
-                    <p class="mt-2.5 rounded-xl bg-base-100/60 px-3 py-2 text-xs italic leading-relaxed text-base-content/50">
+                    <p class="mt-2.5 rounded-xl bg-base-100/60 px-3 py-2 text-[13px] italic leading-relaxed text-base-content/80">
                       “{entry.example}”
                     </p>
                   </div>
@@ -230,7 +230,7 @@ const { blocks } = Astro.props;
             </span>
             <div class="space-y-1">
               <p class="text-[13px] font-medium">{block.title}</p>
-              <p class="text-xs leading-relaxed text-base-content/55">{block.body}</p>
+              <p class="text-[13px] leading-relaxed text-base-content/70">{block.body}</p>
             </div>
           </div>
         )}

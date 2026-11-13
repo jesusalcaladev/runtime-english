@@ -368,7 +368,7 @@ export default function ExerciseRunner({
               <TypeIcon type={exercise.type} />
             </span>
             <div class="space-y-1.5 pt-0.5">
-              <p class="text-[10px] font-medium tracking-normal text-base-content/35">
+              <p class="text-[11px] font-medium tracking-normal text-base-content/55">
                 {typeLabel(exercise, stage)}
               </p>
               <h3 class="text-balance text-[15px] font-medium leading-relaxed text-base-content/85 sm:text-base">
@@ -514,7 +514,7 @@ export default function ExerciseRunner({
                 spellcheck={false}
               />
               {exercise.hint && (
-                <p class="flex items-center gap-1.5 px-1 text-[11px] text-base-content/40">
+                <p class="flex items-center gap-1.5 px-1 text-[12px] text-base-content/55">
                   <Lightbulb class="h-3 w-3 text-warning/70" />
                   {exercise.hint}
                 </p>
@@ -553,9 +553,9 @@ export default function ExerciseRunner({
                   {tAction(stage, "answer")}
                 </button>
               </div>
-              <p class="text-xs leading-relaxed text-base-content/55">{exercise.explanation}</p>
+              <p class="text-[13px] leading-relaxed text-base-content/70">{exercise.explanation}</p>
               {status === "incorrect" && (
-                <p class="pt-0.5 font-mono text-[11px] leading-relaxed text-base-content/40">
+                <p class="pt-0.5 font-mono text-[12px] leading-relaxed text-base-content/65">
                   {tAction(stage, "correctAnswer")}: {correctAnswerText}
                 </p>
               )}

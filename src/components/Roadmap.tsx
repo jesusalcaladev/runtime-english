@@ -1,4 +1,4 @@
-import { Check, ChevronRight, Clock, Flag, Layers, Play, Sparkles } from "lucide-preact";
+import { Check, ChevronRight, Clock, Layers, Play, Sparkles } from "lucide-preact";
 import type { NavModule, NavSession } from "../data/curriculum";
 import { getUiStage, tAction } from "../lib/i18n";
 import { useProgress } from "../lib/useProgress";
@@ -183,8 +183,6 @@ export default function Roadmap({ modules, nextSessionId }: Props) {
       index: "01",
       title: tAction(stage, "foundations"),
       level: "A1–A2",
-      body: tAction(stage, "stageA1Body"),
-      outcome: tAction(stage, "stageA1Outcome"),
       modules: modules.filter((module) => module.level === "A1-A2"),
     },
     {
@@ -192,8 +190,6 @@ export default function Roadmap({ modules, nextSessionId }: Props) {
       index: "02",
       title: tAction(stage, "production"),
       level: "B1–B2",
-      body: tAction(stage, "stageB1Body"),
-      outcome: tAction(stage, "stageB1Outcome"),
       modules: modules.filter((module) => module.level === "B1-B2"),
     },
   ] as const;
@@ -208,9 +204,6 @@ export default function Roadmap({ modules, nextSessionId }: Props) {
           <h2 className="font-pixel mt-2 text-[1.8rem] leading-tight tracking-tight sm:text-[2.05rem]">
             {tAction(stage, "pathTitle")}
           </h2>
-          <p className="mt-3 max-w-xl text-[13px] leading-6 text-base-content/45">
-            {tAction(stage, "pathBody")}
-          </p>
         </div>
 
         <div className="rounded-2xl bg-base-200 px-4 py-3">
@@ -275,9 +268,6 @@ export default function Roadmap({ modules, nextSessionId }: Props) {
                       {tAction(stage, "exercises")}
                     </span>
                   </div>
-                  <p className="mt-2.5 max-w-2xl text-[12px] leading-6 text-base-content/45">
-                    {group.body}
-                  </p>
                 </div>
 
                 <span className="hidden shrink-0 font-mono text-[10px] text-base-content/30 sm:block">
@@ -295,13 +285,6 @@ export default function Roadmap({ modules, nextSessionId }: Props) {
                 <span className="w-8 text-right font-mono text-[9px] text-base-content/25">
                   {pct}%
                 </span>
-              </div>
-
-              <div className="mt-4 flex items-start gap-2.5 rounded-2xl bg-accent/[0.045] px-3.5 py-3 sm:ml-15">
-                <Flag className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent/70" />
-                <p className="text-[10px] leading-relaxed text-base-content/40">
-                  {group.outcome}
-                </p>
               </div>
 
               <div className="mt-4 space-y-3">

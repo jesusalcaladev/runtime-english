@@ -1,6 +1,6 @@
 # DevEng // CORE
 
-App web (PWA-ready) y Android para aprender inglés técnico de A1 a B2. 22 sesiones, 88 ejercicios
+App web (PWA-ready) y Android para aprender inglés técnico de A1 a B2. 24 sesiones, 96 ejercicios
 interactivos, progreso y logros con objetivos medibles en `localStorage`, y un deck de 51 términos
 de slang actualizado a **noviembre de 2026**. Interfaz responsive con estética de workspace
 minimalista, superficies neutras y tipografía Geist.
@@ -76,6 +76,9 @@ firmado con una keystore propia; esa keystore y los archivos de firma no deben c
 
 El progreso vive en el `localStorage` del WebView. El export/import JSON de Ajustes sirve como
 respaldo si se borran los datos de la app.
+
+La pronunciación usa Web Speech en navegador y el motor TTS nativo de Android dentro de la app.
+Si el dispositivo no tiene una voz en inglés instalada, la app lo avisa para instalarla.
 
 ## Añadir una sesión
 

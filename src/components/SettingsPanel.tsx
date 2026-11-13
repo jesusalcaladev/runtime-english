@@ -26,7 +26,7 @@ const IMMERSION_OPTIONS: {
     value: "auto",
     label: "Automático",
     description:
-      "Sube sola: mixta al 28 de preparación e inglés al 58, con 55% de precisión y de A1-A2.",
+      "Mixta al 28 de preparación e inglés al 58, con 55% de precisión y de A1-A2.",
   },
   {
     value: "es",
@@ -199,7 +199,7 @@ export default function SettingsPanel() {
           <SectionTitle
             icon={Languages}
             title="Inmersión progresiva"
-            description="La interfaz sube de nivel contigo."
+            description="Cambia según tu progreso."
           />
           <span class="rounded-full bg-base-100/60 px-2.5 py-1 font-mono text-[9px] text-base-content/35">
             Ahora · {STAGE_LABEL[stage]}

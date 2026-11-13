@@ -87,7 +87,7 @@ export default function SlangExplorer({ entries }: Props) {
             <button
               type="button"
               onClick={() => setOnlyNew((value) => !value)}
-              class={`flex items-center gap-1.5 rounded-full px-3 py-2 text-[11px] font-medium transition ${
+              class={`flex items-center gap-1.5 rounded-full px-3 py-2 text-[12px] font-medium transition ${
                 onlyNew
                   ? "bg-accent/12 text-accent"
                   : "text-base-content/45 hover:bg-base-300/70 hover:text-base-content/70"
@@ -100,7 +100,7 @@ export default function SlangExplorer({ entries }: Props) {
             <button
               type="button"
               onClick={() => setOnlySaved((value) => !value)}
-              class={`flex items-center gap-1.5 rounded-full px-3 py-2 text-[11px] font-medium transition ${
+              class={`flex items-center gap-1.5 rounded-full px-3 py-2 text-[12px] font-medium transition ${
                 onlySaved
                   ? "bg-accent/12 text-accent"
                   : "text-base-content/45 hover:bg-base-300/70 hover:text-base-content/70"
@@ -125,7 +125,7 @@ export default function SlangExplorer({ entries }: Props) {
                 key={item.id}
                 type="button"
                 onClick={() => setCategory(item.id)}
-                class={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium transition ${
+                class={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium transition ${
                   active
                     ? "bg-base-100 text-base-content"
                     : "text-base-content/40 hover:bg-base-300/60 hover:text-base-content/65"
@@ -141,11 +141,11 @@ export default function SlangExplorer({ entries }: Props) {
       </div>
 
       <div class="flex items-center justify-between gap-3 px-1">
-        <p class="text-[11px] text-base-content/35">
-          <span class="font-mono font-medium text-base-content/55">{filtered.length}</span> términos
+        <p class="text-[12px] text-base-content/55">
+          <span class="font-mono font-medium text-base-content">{filtered.length}</span> términos
           · revisado nov 2026
         </p>
-        <p class="hidden items-center gap-1.5 text-[10px] text-base-content/25 sm:flex">
+        <p class="hidden items-center gap-1.5 text-[11px] text-base-content/50 sm:flex">
           <Bookmark class="h-3 w-3" />
           Guarda para repasar y ganar XP
         </p>
@@ -177,7 +177,7 @@ export default function SlangExplorer({ entries }: Props) {
                 <div class="flex items-start justify-between gap-2">
                   <div class="min-w-0">
                     <div class="flex flex-wrap items-center gap-1.5">
-                      <h3 class="font-mono text-sm font-medium tracking-tight">{entry.term}</h3>
+                      <h3 class="font-mono text-[15px] font-medium tracking-tight">{entry.term}</h3>
                       <span
                         class={`rounded-full px-2 py-0.5 text-[8px] font-medium tracking-wide ${
                           entry.status === "2026"
@@ -190,7 +190,7 @@ export default function SlangExplorer({ entries }: Props) {
                         {entry.status}
                       </span>
                     </div>
-                    <p class="mt-1 text-[10px] text-base-content/30">
+                    <p class="mt-1 text-[12px] text-base-content/55">
                       {categoryLabel} · {entry.register}
                     </p>
                   </div>
@@ -223,15 +223,15 @@ export default function SlangExplorer({ entries }: Props) {
                   </div>
                 </div>
 
-                <p class="mt-3 flex-1 text-xs leading-relaxed text-base-content/55">
+                <p class="mt-3 flex-1 text-[13px] leading-relaxed text-base-content/70">
                   {entry.meaningEs}
                 </p>
 
                 <div class="mt-3 rounded-xl bg-base-100/60 px-3 py-2.5">
-                  <p class="text-[11px] italic leading-relaxed text-base-content/50">
+                  <p class="text-[13px] italic leading-relaxed text-base-content/85">
                     “{entry.example}”
                   </p>
-                  <p class="mt-1 text-[10px] leading-relaxed text-base-content/30">
+                  <p class="mt-1 text-[12px] leading-relaxed text-base-content/55">
                     {entry.exampleEs}
                   </p>
                 </div>
@@ -239,11 +239,11 @@ export default function SlangExplorer({ entries }: Props) {
                 {entry.caution && (
                   <div class="mt-2.5 flex items-start gap-1.5 px-0.5">
                     <TriangleAlert class="mt-0.5 h-3 w-3 shrink-0 text-warning/70" />
-                    <p class="text-[10px] leading-relaxed text-warning/75">{entry.caution}</p>
+                    <p class="text-[11px] leading-relaxed text-warning/90">{entry.caution}</p>
                   </div>
                 )}
 
-                <p class="mt-3 text-[9px] tracking-[0.1em] text-base-content/20">
+                <p class="mt-3 text-[10px] tracking-[0.08em] text-base-content/45">
                   revisado · {entry.updated}
                 </p>
               </article>

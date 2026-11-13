@@ -127,28 +127,8 @@ export const UI_STRINGS: Record<string, Entry> = {
   yourRoadmap: { es: "Tu roadmap", en: "Your roadmap" },
   modules: { es: "módulos", en: "modules" },
   route: { es: "Ruta", en: "Path" },
-  pathTitle: { es: "Tu camino, paso a paso", en: "Your path, one step at a time" },
-  pathBody: {
-    es: "Cada módulo suma una habilidad concreta. No tienes que memorizar todo: solo seguir la siguiente sesión.",
-    en: "Each module adds one concrete skill. You don't need to memorize everything, just take the next session.",
-  },
+  pathTitle: { es: "Ruta de aprendizaje", en: "Learning path" },
   pathDone: { es: "de la ruta completada", en: "of the path complete" },
-  stageA1Body: {
-    es: "Vocabulario, estructuras y confianza para leer, escribir y hablar de código sin traducir.",
-    en: "Vocabulary, structures and confidence to read, write and talk about code without translating.",
-  },
-  stageB1Body: {
-    es: "El inglés real de un equipo: reviews, producción, decisiones y carrera profesional.",
-    en: "The real English of a team: reviews, production, decisions and career growth.",
-  },
-  stageA1Outcome: {
-    es: "Lees errores, commits y documentación sin abrir el traductor.",
-    en: "You read errors, commits and docs without opening a translator.",
-  },
-  stageB1Outcome: {
-    es: "Participas en reviews, incidentes y entrevistas con criterio.",
-    en: "You join reviews, incidents and interviews with confidence.",
-  },
   stage: { es: "Etapa", en: "Stage" },
   session: { es: "sesión", en: "session" },
   continueHere: { es: "Continúa aquí", en: "Continue here" },

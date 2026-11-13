@@ -208,6 +208,55 @@
   }
 }
 
+@layer utilities {
+  /* Keep secondary copy readable on the dark canvas. */
+  .text-base-content\/15 {
+    color: color-mix(in oklab, var(--color-base-content) 45%, transparent);
+  }
+  .text-base-content\/20 {
+    color: color-mix(in oklab, var(--color-base-content) 55%, transparent);
+  }
+  .text-base-content\/25 {
+    color: color-mix(in oklab, var(--color-base-content) 58%, transparent);
+  }
+  .text-base-content\/30 {
+    color: color-mix(in oklab, var(--color-base-content) 60%, transparent);
+  }
+  .text-base-content\/35 {
+    color: color-mix(in oklab, var(--color-base-content) 63%, transparent);
+  }
+  .text-base-content\/40 {
+    color: color-mix(in oklab, var(--color-base-content) 66%, transparent);
+  }
+  .text-base-content\/45 {
+    color: color-mix(in oklab, var(--color-base-content) 70%, transparent);
+  }
+  .text-base-content\/50 {
+    color: color-mix(in oklab, var(--color-base-content) 72%, transparent);
+  }
+  .text-base-content\/55 {
+    color: color-mix(in oklab, var(--color-base-content) 75%, transparent);
+  }
+  .placeholder\:text-base-content\/25::placeholder {
+    color: color-mix(in oklab, var(--color-base-content) 58%, transparent);
+    opacity: 1;
+  }
+
+  /* Bump the smallest labels without changing the layout rhythm. */
+  .text-\[8px\] {
+    font-size: 9px;
+    line-height: 1.4;
+  }
+  .text-\[9px\] {
+    font-size: 10px;
+    line-height: 1.4;
+  }
+  .text-\[10px\] {
+    font-size: 11px;
+    line-height: 1.45;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
