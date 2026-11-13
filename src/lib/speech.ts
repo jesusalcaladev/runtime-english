@@ -18,6 +18,19 @@ export function isSpeechEnabled(): boolean {
   return settings?.ttsEnabled !== false;
 }
 
+export function stopSpeech() {
+  if (typeof window === "undefined") return;
+  window.speechSynthesis?.cancel();
+  void import("@capacitor/core")
+    .then(({ Capacitor }) => {
+      if (!Capacitor.isNativePlatform()) return;
+      return import("@capacitor-community/text-to-speech").then(({ TextToSpeech }) =>
+        TextToSpeech.stop(),
+      );
+    })
+    .catch(() => undefined);
+}
+
 export function getSpeechRate(): number {
   const rate = readStoredSettings()?.ttsRate;
   return typeof rate === "number" && Number.isFinite(rate)

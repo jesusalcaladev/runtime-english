@@ -13,6 +13,7 @@ import {
   Volume2,
 } from "lucide-preact";
 import { getLanguageStatus } from "../lib/i18n";
+import { stopSpeech } from "../lib/speech";
 import { progressStore, type ProgressSettings } from "../lib/progress";
 import { emitToast } from "../lib/toast";
 import { useProgress } from "../lib/useProgress";
@@ -307,9 +308,11 @@ export default function SettingsPanel() {
             role="switch"
             aria-checked={state.settings.ttsEnabled}
             aria-label="Activar o desactivar la voz"
-            onClick={() =>
-              progressStore.setSettings({ ttsEnabled: !state.settings.ttsEnabled })
-            }
+            onClick={() => {
+              const enabled = !state.settings.ttsEnabled;
+              if (!enabled) stopSpeech();
+              progressStore.setSettings({ ttsEnabled: enabled });
+            }}
             class={`relative h-6 w-11 shrink-0 rounded-full transition ${
               state.settings.ttsEnabled ? "bg-accent" : "bg-base-300"
             }`}
