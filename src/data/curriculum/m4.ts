@@ -397,5 +397,103 @@ export const m4: Module = {
         },
       ],
     },
+    {
+      id: "m4-l5",
+      slug: "pedir-ayuda-y-dar-contexto",
+      title: "Pedir ayuda y dar contexto técnico",
+      step: "B1 · Paso 4.5",
+      cefr: "B1",
+      minutes: 10,
+      summary:
+        "Pide ayuda sin sonar perdido: explica qué intentas hacer, qué probaste y qué necesitas exactamente.",
+      objectives: [
+        "Pedir ayuda con una pregunta clara y accionable.",
+        "Dar contexto técnico suficiente: objetivo, intento y resultado.",
+        "Agradecer y confirmar el siguiente paso.",
+      ],
+      pronunciation:
+        "I'm trying to fix this bug, but I'm stuck. Could you take a look when you have a minute?",
+      blocks: [
+        {
+          type: "technique",
+          name: "Pedir ayuda bien = contexto + intento + pregunta",
+          desc: "No digas solo 'it doesn't work'. Explica: 1) qué intentas lograr, 2) qué ya probaste, 3) qué pasa ahora, 4) qué ayuda necesitas. Una buena pregunta ahorra tiempo a todos y recibe mejores respuestas.",
+        },
+        {
+          type: "phrases",
+          title: "Frases para pedir ayuda",
+          items: [
+            { en: "I'm stuck on this issue.", es: "Estoy atascado con este problema." },
+            { en: "Could you take a look when you have a minute?", es: "¿Podrías echarle un vistazo cuando tengas un minuto?" },
+            { en: "I'm trying to reproduce the bug, but I can't.", es: "Estoy intentando reproducir el bug, pero no puedo." },
+            { en: "I've already tried restarting the service.", es: "Ya intenté reiniciar el servicio." },
+            { en: "What am I missing?", es: "¿Qué se me está pasando?" },
+            { en: "Any ideas on what could be causing this?", es: "¿Alguna idea de qué podría estar causando esto?" },
+          ],
+        },
+        {
+          type: "table",
+          title: "De vaga a útil",
+          columns: ["Mensaje vago", "Mensaje útil"],
+          rows: [
+            ["It doesn't work.", "The API returns 500 when I send an empty array. I've checked the logs."],
+            ["Can you help?", "Could you take a look at this PR? I'm not sure about the error handling."],
+            ["I don't get it.", "I'm trying to understand why the cache is stale. What am I missing?"],
+          ],
+        },
+      ],
+      exercises: [
+        {
+          id: "m4-l5-e1",
+          type: "choice",
+          prompt: "Necesitas ayuda con un bug. ¿Cuál mensaje es más útil?",
+          options: [
+            "Help!!!",
+            "It doesn't work.",
+            "I'm stuck on a bug: the API returns 500 with an empty array. I've checked the logs. Any ideas?",
+            "Fix this.",
+          ],
+          answer: 2,
+          explanation:
+            "Un buen pedido de ayuda incluye el problema, lo que ya probaste y una pregunta concreta.",
+        },
+        {
+          id: "m4-l5-e2",
+          type: "builder",
+          prompt: "Construye: '¿Podrías echarle un vistazo cuando tengas un minuto?'",
+          words: ["Could you take a look", "when you have", "a minute?"],
+          answer: "Could you take a look when you have a minute?",
+          explanation:
+            "'Could you take a look...?' es una forma educada y común de pedir ayuda.",
+        },
+        {
+          id: "m4-l5-e3",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Ya intenté reiniciar el servicio.'",
+          answer: "I've already tried restarting the service.",
+          accept: [
+            "I have already tried restarting the service.",
+            "I already tried restarting the service.",
+          ],
+          hint: "Usa 'I've already tried...'.",
+          explanation:
+            "Decir lo que ya probaste evita sugerencias repetidas y muestra contexto.",
+        },
+        {
+          id: "m4-l5-e4",
+          type: "choice",
+          prompt: "¿Qué significa 'What am I missing?'",
+          options: [
+            "¿Qué perdí?",
+            "¿Qué se me está pasando / qué no estoy viendo?",
+            "¿Qué falta en el calendario?",
+            "¿A quién extraño?",
+          ],
+          answer: 1,
+          explanation:
+            "'What am I missing?' pide que te señalen lo que no estás considerando en el problema.",
+        },
+      ],
+    },
   ],
 };

@@ -55,7 +55,7 @@ export default function CertificateView({ totalSessions, totalExercises }: Props
           <p class="mono-label">Completion / Certificate</p>
           <h1 class="font-pixel mt-2 text-2xl tracking-tight sm:text-3xl">Your certificate</h1>
           <p class="mt-1 text-sm text-base-content/55">
-            Ready to print. Use a white background for best results.
+            Clean, print-ready certificate. Save it as PDF from the print dialog.
           </p>
         </div>
         <button
@@ -68,55 +68,65 @@ export default function CertificateView({ totalSessions, totalExercises }: Props
         </button>
       </div>
 
-      <div class="certificate-sheet mx-auto w-full max-w-[900px] overflow-hidden rounded-[28px] bg-white p-6 text-neutral-900 shadow-sm ring-1 ring-black/5 print:max-w-none print:rounded-none print:shadow-none print:ring-0 sm:p-10">
-        <div class="relative border border-neutral-200 p-6 sm:p-10">
-          <div class="absolute inset-x-8 top-0 h-1 bg-neutral-900 sm:inset-x-12" />
-          <div class="flex flex-col items-center text-center">
-            <p class="font-mono text-[10px] font-medium uppercase tracking-[0.28em] text-neutral-500">
-              DevEng Core · Certificate of Completion
-            </p>
-            <h2 class="font-pixel mt-6 text-4xl leading-none tracking-tight text-neutral-950 sm:text-5xl">
-              English for Programmers
-            </h2>
-            <p class="mt-5 max-w-2xl text-sm leading-7 text-neutral-600 sm:text-base">
-              This certifies that
-            </p>
-            <p class="mt-3 text-balance text-3xl font-semibold tracking-tight text-neutral-950 sm:text-4xl">
-              {name}
-            </p>
-            <p class="mt-4 max-w-2xl text-sm leading-7 text-neutral-600 sm:text-base">
-              has successfully completed the DevEng Core program, demonstrating practical
-              technical English skills for software development from A1 to B2 level,
-              including reading, writing, communication, and modern developer slang.
+      <div class="certificate-sheet mx-auto w-full max-w-[920px] overflow-hidden rounded-[32px] bg-white text-neutral-900 shadow-sm print:max-w-none print:rounded-none print:shadow-none">
+        <div class="relative px-8 py-10 sm:px-14 sm:py-14">
+          <div class="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-neutral-900/[0.03]" />
+          <div class="pointer-events-none absolute -bottom-24 -left-16 h-72 w-72 rounded-full bg-neutral-900/[0.025]" />
+
+          <div class="relative mx-auto flex max-w-3xl flex-col items-center text-center">
+            <p class="font-mono text-[10px] font-semibold uppercase tracking-[0.32em] text-neutral-400">
+              DevEng Core
             </p>
 
-            <div class="mt-8 grid w-full max-w-xl grid-cols-3 gap-3 text-center">
-              <div class="rounded-2xl border border-neutral-200 px-3 py-3">
-                <p class="font-mono text-lg font-semibold text-neutral-950">{totalSessions}</p>
-                <p class="mt-1 text-[10px] uppercase tracking-wide text-neutral-500">Sessions</p>
+            <div class="mt-8 inline-flex items-center rounded-full bg-neutral-900 px-5 py-2 text-white">
+              <span class="font-mono text-sm font-semibold tracking-[0.22em] sm:text-base">A1–B2</span>
+              <span class="mx-2 text-white/35">·</span>
+              <span class="text-[10px] font-medium uppercase tracking-[0.2em] text-white/80 sm:text-[11px]">
+                English Level Achieved
+              </span>
+            </div>
+
+            <p class="mt-8 text-[11px] uppercase tracking-[0.24em] text-neutral-500">
+              Certificate of Completion
+            </p>
+            <h2 class="font-pixel mt-3 text-4xl leading-[0.95] tracking-tight text-neutral-950 sm:text-6xl">
+              English for Programmers
+            </h2>
+
+            <p class="mt-10 text-sm text-neutral-500">Awarded to</p>
+            <p class="mt-2 text-balance text-4xl font-semibold tracking-tight text-neutral-950 sm:text-5xl">
+              {name}
+            </p>
+
+            <p class="mt-6 max-w-xl text-sm leading-7 text-neutral-600 sm:text-base">
+              Completed the DevEng Core program in technical English for developers.
+            </p>
+
+            <div class="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-center">
+              <div>
+                <p class="font-mono text-xl font-semibold text-neutral-950">{totalSessions}</p>
+                <p class="mt-1 text-[10px] uppercase tracking-[0.18em] text-neutral-500">Sessions</p>
               </div>
-              <div class="rounded-2xl border border-neutral-200 px-3 py-3">
-                <p class="font-mono text-lg font-semibold text-neutral-950">{totalExercises}</p>
-                <p class="mt-1 text-[10px] uppercase tracking-wide text-neutral-500">Exercises</p>
+              <div class="h-8 w-px bg-neutral-200/80" aria-hidden="true" />
+              <div>
+                <p class="font-mono text-xl font-semibold text-neutral-950">{totalExercises}</p>
+                <p class="mt-1 text-[10px] uppercase tracking-[0.18em] text-neutral-500">Exercises</p>
               </div>
-              <div class="rounded-2xl border border-neutral-200 px-3 py-3">
-                <p class="font-mono text-lg font-semibold text-neutral-950">A1–B2</p>
-                <p class="mt-1 text-[10px] uppercase tracking-wide text-neutral-500">Level</p>
+              <div class="h-8 w-px bg-neutral-200/80" aria-hidden="true" />
+              <div>
+                <p class="font-mono text-xl font-semibold text-neutral-950">{completionDate}</p>
+                <p class="mt-1 text-[10px] uppercase tracking-[0.18em] text-neutral-500">Completed</p>
               </div>
             </div>
 
-            <div class="mt-10 flex w-full max-w-2xl flex-col items-center justify-between gap-8 sm:flex-row sm:items-end">
-              <div class="text-center sm:text-left">
-                <p class="text-[10px] uppercase tracking-[0.18em] text-neutral-500">Date of completion</p>
-                <p class="mt-1 text-sm font-medium text-neutral-900">{completionDate}</p>
+            <div class="mt-12 flex w-full items-end justify-between gap-4 text-left">
+              <div>
+                <p class="text-[10px] uppercase tracking-[0.18em] text-neutral-400">Program</p>
+                <p class="mt-1 text-sm font-medium text-neutral-800">DevEng Core · Technical English</p>
               </div>
-              <div class="text-center">
-                <div class="mx-auto mb-2 h-px w-44 bg-neutral-300" />
-                <p class="text-[10px] uppercase tracking-[0.18em] text-neutral-500">DevEng Core</p>
-              </div>
-              <div class="text-center sm:text-right">
-                <p class="text-[10px] uppercase tracking-[0.18em] text-neutral-500">Certificate ID</p>
-                <p class="mt-1 font-mono text-sm font-medium text-neutral-900">{issueId}</p>
+              <div class="text-right">
+                <p class="text-[10px] uppercase tracking-[0.18em] text-neutral-400">Certificate ID</p>
+                <p class="mt-1 font-mono text-sm font-medium text-neutral-800">{issueId}</p>
               </div>
             </div>
           </div>

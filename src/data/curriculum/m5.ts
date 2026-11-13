@@ -427,5 +427,99 @@ export const m5: Module = {
         },
       ],
     },
+    {
+      id: "m5-l5",
+      slug: "explicar-cambios-y-demos",
+      title: "Explicar cambios y dar una demo corta",
+      step: "B1 · Paso 5.5",
+      cefr: "B1",
+      minutes: 10,
+      summary:
+        "Explica qué cambiaste, por qué y cómo probarlo en una demo breve y clara.",
+      objectives: [
+        "Presentar un cambio técnico en orden: problema, solución, impacto.",
+        "Guiar una demo corta con pasos simples.",
+        "Responder preguntas sobre el cambio sin perder el hilo.",
+      ],
+      pronunciation:
+        "Let me show you what changed. Basically, we fixed the timeout issue and added a retry.",
+      blocks: [
+        {
+          type: "technique",
+          name: "Estructura simple para una demo",
+          desc: "1) Qué problema había. 2) Qué cambiaste. 3) Cómo probarlo o qué resultado esperar. Mantén la demo corta y enfócate en el valor: 'Before, users saw an error. Now, the request retries automatically.'",
+        },
+        {
+          type: "phrases",
+          title: "Frases para explicar y mostrar",
+          items: [
+            { en: "Let me walk you through the change.", es: "Déjame mostrarte el cambio paso a paso." },
+            { en: "Before this change, the app crashed on login.", es: "Antes de este cambio, la app se caía al iniciar sesión." },
+            { en: "Now, it handles the error correctly.", es: "Ahora maneja el error correctamente." },
+            { en: "You can test it by clicking this button.", es: "Puedes probarlo haciendo clic en este botón." },
+            { en: "The main impact is better performance.", es: "El impacto principal es mejor rendimiento." },
+            { en: "Let me know if anything is unclear.", es: "Avísame si algo no queda claro." },
+          ],
+        },
+        {
+          type: "callout",
+          tone: "info",
+          title: "Conecta con conectores",
+          body: "Usa marcadores para guiar: 'Basically, we added caching.' / 'Actually, the bug was in the API.' / 'In other words, users will see fewer errors.' Ayudan a que la demo sea fácil de seguir.",
+        },
+      ],
+      exercises: [
+        {
+          id: "m5-l5-e1",
+          type: "choice",
+          prompt: "Vas a empezar una demo. ¿Cuál frase es más clara?",
+          options: [
+            "Look.",
+            "Let me walk you through the change.",
+            "Things happened.",
+            "I did stuff.",
+          ],
+          answer: 1,
+          explanation:
+            "'Let me walk you through the change' introduce la demo de forma clara y profesional.",
+        },
+        {
+          id: "m5-l5-e2",
+          type: "builder",
+          prompt: "Construye: 'Antes de este cambio, la app se caía al iniciar sesión.'",
+          words: ["Before this change,", "the app", "crashed", "on login."],
+          answer: "Before this change, the app crashed on login.",
+          explanation:
+            "Comparar 'before' y 'after' ayuda a mostrar el valor del cambio.",
+        },
+        {
+          id: "m5-l5-e3",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Ahora maneja el error correctamente.'",
+          answer: "Now, it handles the error correctly.",
+          accept: [
+            "Now it handles the error correctly.",
+            "Now, it handles errors correctly.",
+          ],
+          hint: "Empieza con 'Now,'.",
+          explanation:
+            "'Now' marca el resultado actual después del cambio.",
+        },
+        {
+          id: "m5-l5-e4",
+          type: "choice",
+          prompt: "¿Cómo invitas preguntas al final de una explicación?",
+          options: [
+            "That's it.",
+            "Let me know if anything is unclear.",
+            "No questions.",
+            "Finished.",
+          ],
+          answer: 1,
+          explanation:
+            "'Let me know if anything is unclear' abre espacio a preguntas de forma amable y profesional.",
+        },
+      ],
+    },
   ],
 };
