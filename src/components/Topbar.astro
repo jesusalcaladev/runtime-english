@@ -1,0 +1,66 @@
+---
+import { PanelLeft, User } from "@lucide/astro";
+import Logo from "./ui/Logo.astro";
+import ProgressPill from "./ProgressPill";
+import ThemeToggle from "./ThemeToggle";
+
+interface Props {
+  a1SessionIds: string[];
+  b1SessionIds: string[];
+  totalSessions: number;
+  totalExercises: number;
+}
+
+const { a1SessionIds, b1SessionIds, totalSessions, totalExercises } = Astro.props;
+---
+
+<header class="sticky top-0 z-50 bg-base-100/80 backdrop-blur-xl">
+  <div class="mx-auto flex h-14 w-full max-w-[1600px] items-center justify-between gap-3 px-3 sm:px-5">
+    <div class="flex items-center gap-2.5">
+      <button
+        id="mobile-menu-btn"
+        type="button"
+        class="surface-soft flex h-9 w-9 items-center justify-center rounded-xl text-base-content/65 transition hover:bg-base-200 hover:text-base-content lg:hidden"
+        aria-label="Abrir menú"
+        onclick="window.dispatchEvent(new CustomEvent('deveng:menu'))"
+      >
+        <PanelLeft class="h-4 w-4" />
+      </button>
+
+      <a href="/" class="group flex select-none items-center gap-2.5" aria-label="DevEng Core — inicio">
+        <span class="flex h-8 w-8 items-center justify-center rounded-[10px] bg-base-content text-base-100 transition group-hover:opacity-80">
+          <Logo size={20} />
+        </span>
+        <span class="flex items-baseline gap-2">
+          <span class="font-pixel-square text-[15px] leading-none">DevEng</span>
+          <span class="font-mono text-[10px] font-medium tracking-normal text-base-content/35">
+            Core
+          </span>
+        </span>
+      </a>
+    </div>
+
+    <div class="flex items-center gap-1.5 sm:gap-2">
+      <div class="mr-1 hidden items-center gap-2 rounded-full bg-base-200 px-3 py-1.5 text-[10px] font-medium text-base-content/50 md:flex">
+        <span class="h-1.5 w-1.5 rounded-full bg-accent"></span>
+        Slang revisado · Nov 2026
+      </div>
+      <ProgressPill
+        client:only="preact"
+        a1SessionIds={a1SessionIds}
+        b1SessionIds={b1SessionIds}
+        totalSessions={totalSessions}
+        totalExercises={totalExercises}
+      />
+      <ThemeToggle client:only="preact" />
+      <a
+        href="/settings"
+        class="surface-soft flex h-9 w-9 items-center justify-center rounded-full text-base-content/60 transition hover:bg-base-300 hover:text-base-content"
+        aria-label="Ajustes de perfil"
+        title="Ajustes"
+      >
+        <User class="h-4 w-4" />
+      </a>
+    </div>
+  </div>
+</header>

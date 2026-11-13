@@ -1,0 +1,220 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme=deveng-dark], [data-theme=deveng-dark] *));
+
+@plugin "daisyui" {
+  themes: false;
+}
+
+@plugin "daisyui/theme" {
+  name: "deveng";
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+  --color-base-100: #ffffff;
+  --color-base-200: #f5f5f3;
+  --color-base-300: #ebebe8;
+  --color-base-content: #141414;
+  --color-primary: #171717;
+  --color-primary-content: #ffffff;
+  --color-secondary: #efefec;
+  --color-secondary-content: #242424;
+  --color-accent: #0b8f6d;
+  --color-accent-content: #ffffff;
+  --color-neutral: #171717;
+  --color-neutral-content: #ffffff;
+  --color-info: #2563eb;
+  --color-info-content: #ffffff;
+  --color-success: #0b8f6d;
+  --color-success-content: #ffffff;
+  --color-warning: #a16207;
+  --color-warning-content: #ffffff;
+  --color-error: #c93b3b;
+  --color-error-content: #ffffff;
+  --radius-selector: 0.5rem;
+  --radius-field: 0.75rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 0px;
+  --depth: 0;
+  --noise: 0;
+}
+
+@plugin "daisyui/theme" {
+  name: "deveng-dark";
+  default: false;
+  prefersdark: false;
+  color-scheme: dark;
+  --color-base-100: #101010;
+  --color-base-200: #171717;
+  --color-base-300: #212121;
+  --color-base-content: #ededed;
+  --color-primary: #f0f0f0;
+  --color-primary-content: #111111;
+  --color-secondary: #1c1c1c;
+  --color-secondary-content: #e6e6e6;
+  --color-accent: #58d6ad;
+  --color-accent-content: #08251c;
+  --color-neutral: #ededed;
+  --color-neutral-content: #111111;
+  --color-info: #7ab7ff;
+  --color-info-content: #071b33;
+  --color-success: #58d6ad;
+  --color-success-content: #08251c;
+  --color-warning: #f3c969;
+  --color-warning-content: #2a1d05;
+  --color-error: #f08a8a;
+  --color-error-content: #2c0808;
+  --radius-selector: 0.5rem;
+  --radius-field: 0.75rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 0px;
+  --depth: 0;
+  --noise: 0;
+}
+
+@theme {
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-display: "Geist Pixel Variable", "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --animate-fade-up: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-pop: pop 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes pop {
+    0% {
+      opacity: 0;
+      transform: scale(0.97);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    background-color: var(--color-base-100);
+  }
+
+  body {
+    @apply bg-base-100 text-base-content antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-accent) 22%, transparent);
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--color-base-content) 14%, transparent);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in oklab, var(--color-base-content) 24%, transparent);
+  }
+
+  :focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--color-accent) 65%, transparent);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .font-pixel {
+    font-family: "Geist Pixel Variable", "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+    font-variation-settings: "ELSH" 40;
+    font-weight: 400;
+    letter-spacing: -0.035em;
+  }
+
+  .font-pixel-square {
+    font-family: "Geist Pixel Variable", "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+    font-variation-settings: "ELSH" 1;
+    font-weight: 400;
+  }
+
+  .surface-soft {
+    background-color: color-mix(in oklab, var(--color-base-content) 3%, transparent);
+  }
+
+  .mono-label {
+    @apply font-mono text-[10px] font-medium tracking-[0.04em] text-base-content/45;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .btn {
+    @apply font-medium shadow-none;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .btn-primary {
+    background-color: var(--color-primary);
+    color: var(--color-primary-content);
+  }
+
+  .btn-primary:hover {
+    background-color: color-mix(in oklab, var(--color-primary) 88%, var(--color-base-content));
+  }
+
+  .btn-ghost:hover,
+  .btn-ghost:active {
+    background-color: color-mix(in oklab, var(--color-base-content) 6%, transparent);
+  }
+
+  .card {
+    @apply shadow-none;
+    border: 0;
+  }
+
+  .input,
+  .textarea,
+  .select {
+    border: 0;
+    box-shadow: none;
+  }
+
+  .speak-btn[data-speaking="true"] {
+    background: color-mix(in oklab, var(--color-accent) 12%, transparent);
+    color: var(--color-accent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

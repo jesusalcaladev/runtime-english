@@ -1,0 +1,29 @@
+---
+interface Props {
+  as?: "div" | "section" | "article";
+  padding?: "none" | "sm" | "md" | "lg";
+  tone?: "default" | "inset" | "accent";
+  class?: string;
+}
+
+const { as: Tag = "div", padding = "md", tone = "default", class: className } = Astro.props;
+
+const paddings: Record<string, string> = {
+  none: "",
+  sm: "p-4",
+  md: "p-5 sm:p-6",
+  lg: "p-6 sm:p-8",
+};
+
+const tones: Record<string, string> = {
+  default: "bg-base-200",
+  inset: "bg-base-200/60",
+  accent: "bg-accent/[0.06]",
+};
+---
+
+<Tag
+  class:list={["rounded-2xl", tones[tone], paddings[padding], className]}
+>
+  <slot />
+</Tag>

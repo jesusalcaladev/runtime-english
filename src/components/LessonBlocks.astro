@@ -1,0 +1,240 @@
+---
+import {
+  CircleCheckBig,
+  TriangleAlert,
+  Info,
+  Languages,
+  Lightbulb,
+  Table2,
+  Terminal,
+} from "@lucide/astro";
+import type { ContentBlock } from "../lib/types";
+import { getSlang } from "../data/slang";
+import SpeakButton from "./ui/SpeakButton.astro";
+
+interface Props {
+  blocks: ContentBlock[];
+}
+
+const { blocks } = Astro.props;
+---
+
+<div class="space-y-8">
+  {
+    blocks.map((block) => (
+      <section>
+        {block.type === "technique" && (
+          <div class="relative overflow-hidden rounded-3xl bg-accent/[0.055] p-5 sm:p-6">
+            <div class="pointer-events-none absolute -right-10 -top-12 h-32 w-32 rounded-full bg-accent/[0.07] blur-2xl" />
+            <div class="relative flex gap-3.5">
+              <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                <Lightbulb class="h-4 w-4" />
+              </span>
+              <div class="space-y-1.5">
+                <p class="mono-label text-accent/75">Técnica clave</p>
+                <h3 class="text-[15px] font-medium tracking-tight">{block.name}</h3>
+                <p class="text-sm leading-7 text-base-content/55">{block.desc}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {block.type === "text" && (
+          <div class="space-y-2">
+            {block.title && <h3 class="text-[15px] font-medium tracking-tight">{block.title}</h3>}
+            <p class="max-w-3xl text-sm leading-7 text-base-content/60">{block.body}</p>
+          </div>
+        )}
+
+        {block.type === "vocab" && (
+          <div class="space-y-4">
+            <div class="flex items-center gap-2">
+              <Languages class="h-4 w-4 text-accent" />
+              <h3 class="text-[15px] font-medium tracking-tight">
+                {block.title ?? "Vocabulario"}
+              </h3>
+            </div>
+            <div class="grid gap-3 sm:grid-cols-2">
+              {block.items.map((item) => (
+                <div class="group rounded-2xl bg-base-200 p-4 transition hover:bg-base-300/60">
+                  <div class="flex items-start justify-between gap-2">
+                    <div>
+                      <p class="font-mono text-sm font-medium text-base-content">{item.en}</p>
+                      <p class="mt-1 text-xs leading-relaxed text-base-content/45">{item.es}</p>
+                    </div>
+                    <SpeakButton text={item.example ?? item.en} />
+                  </div>
+                  {item.example && (
+                    <div class="mt-3.5 rounded-xl bg-base-100/60 px-3 py-2.5">
+                      <p class="text-[13px] leading-relaxed text-base-content/70">{item.example}</p>
+                      {item.note && (
+                        <p class="mt-1 text-[11px] text-base-content/35">{item.note}</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {block.type === "table" && (
+          <div class="space-y-4">
+            <div class="flex items-center gap-2">
+              <Table2 class="h-4 w-4 text-accent" />
+              <h3 class="text-[15px] font-medium tracking-tight">{block.title ?? "Referencia"}</h3>
+            </div>
+            <div class="overflow-x-auto rounded-2xl bg-base-200 p-1.5">
+              <table class="w-full min-w-[560px] border-collapse text-left text-sm">
+                <thead>
+                  <tr class="bg-base-100/60">
+                    {block.columns.map((column) => (
+                      <th class="mono-label whitespace-nowrap px-4 py-3 font-medium">{column}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {block.rows.map((row) => (
+                    <tr class="transition hover:bg-base-100/40">
+                      {row.map((cell, cellIndex) => (
+                        <td
+                          class:list={[
+                            "px-4 py-3 align-top text-xs leading-relaxed",
+                            cellIndex === 0
+                              ? "font-mono font-medium text-base-content/75"
+                              : "text-base-content/50",
+                          ]}
+                        >
+                          {cell}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {block.type === "phrases" && (
+          <div class="space-y-4">
+            <div class="flex items-center gap-2">
+              <Terminal class="h-4 w-4 text-accent" />
+              <h3 class="text-[15px] font-medium tracking-tight">{block.title ?? "Frases"}</h3>
+            </div>
+            <div class="space-y-1.5">
+              {block.items.map((item) => (
+                <div class="flex flex-col gap-2 rounded-2xl bg-base-200 p-4 transition hover:bg-base-300/50 sm:flex-row sm:items-center sm:justify-between">
+                  <div class="space-y-1">
+                    <p class="text-[13px] font-medium leading-relaxed text-base-content/80">
+                      “{item.en}”
+                    </p>
+                    <p class="text-[11px] leading-relaxed text-base-content/40">{item.es}</p>
+                  </div>
+                  <SpeakButton text={item.en} />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {block.type === "tenses" && (
+          <div class="grid gap-3 md:grid-cols-2">
+            {block.items.map((tense) => (
+              <div class="rounded-2xl bg-base-200 p-5">
+                <div class="flex flex-wrap items-start justify-between gap-2">
+                  <div>
+                    <h3 class="text-sm font-medium">{tense.name}</h3>
+                    <p class="mt-1 text-[11px] text-base-content/40">{tense.tag}</p>
+                  </div>
+                  <span class="rounded-full bg-base-100/60 px-2.5 py-1 font-mono text-[10px] font-medium text-base-content/55">
+                    {tense.formula}
+                  </span>
+                </div>
+                <ul class="mt-4 space-y-2">
+                  {tense.cases.map((example) => (
+                    <li class="flex items-start gap-2 text-[12px] leading-relaxed text-base-content/55">
+                      <span class="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-accent/60" />
+                      <span>{example}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {block.type === "slang" && (
+          <div class="space-y-4">
+            <div class="flex items-center gap-2">
+              <Languages class="h-4 w-4 text-accent" />
+              <h3 class="text-[15px] font-medium tracking-tight">{block.title ?? "Slang"}</h3>
+            </div>
+            <div class="grid gap-3 sm:grid-cols-2">
+              {block.ids.map((id) => {
+                const entry = getSlang(id);
+                if (!entry) return null;
+                return (
+                  <div class="rounded-2xl bg-base-200 p-4">
+                    <div class="flex items-start justify-between gap-2">
+                      <div class="flex flex-wrap items-center gap-1.5">
+                        <p class="font-mono text-sm font-medium">{entry.term}</p>
+                        <span
+                          class:list={[
+                            "rounded-full px-2 py-0.5 text-[8px] font-medium tracking-wide",
+                            entry.status === "2026"
+                              ? "bg-accent/10 text-accent"
+                              : "bg-base-100/60 text-base-content/40",
+                          ]}
+                        >
+                          {entry.status}
+                        </span>
+                      </div>
+                      <SpeakButton text={entry.term} />
+                    </div>
+                    <p class="mt-2.5 text-xs leading-relaxed text-base-content/55">
+                      {entry.meaningEs}
+                    </p>
+                    <p class="mt-2.5 rounded-xl bg-base-100/60 px-3 py-2 text-xs italic leading-relaxed text-base-content/50">
+                      “{entry.example}”
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {block.type === "callout" && (
+          <div
+            class:list={[
+              "flex gap-3 rounded-2xl p-4",
+              block.tone === "warning" && "bg-warning/[0.07]",
+              block.tone === "tip" && "bg-accent/[0.055]",
+              block.tone === "info" && "bg-info/[0.06]",
+            ]}
+          >
+            <span
+              class:list={[
+                "mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg",
+                block.tone === "warning"
+                  ? "bg-warning/10 text-warning"
+                  : block.tone === "info"
+                    ? "bg-info/10 text-info"
+                    : "bg-accent/10 text-accent",
+              ]}
+            >
+              {block.tone === "warning" && <TriangleAlert class="h-3.5 w-3.5" />}
+              {block.tone === "tip" && <CircleCheckBig class="h-3.5 w-3.5" />}
+              {block.tone === "info" && <Info class="h-3.5 w-3.5" />}
+            </span>
+            <div class="space-y-1">
+              <p class="text-[13px] font-medium">{block.title}</p>
+              <p class="text-xs leading-relaxed text-base-content/55">{block.body}</p>
+            </div>
+          </div>
+        )}
+      </section>
+    ))
+  }
+</div>

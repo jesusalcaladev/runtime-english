@@ -1,0 +1,49 @@
+---
+interface Props {
+  variant?: "primary" | "secondary" | "ghost" | "soft" | "danger";
+  size?: "sm" | "md" | "lg";
+  href?: string;
+  type?: "button" | "submit";
+  class?: string;
+  [key: string]: unknown;
+}
+
+const {
+  variant = "primary",
+  size = "md",
+  href,
+  type = "button",
+  class: className,
+  ...rest
+} = Astro.props as Props;
+
+const variants: Record<string, string> = {
+  primary: "btn-primary",
+  secondary: "bg-base-300 text-base-content hover:bg-base-content/10",
+  ghost: "btn-ghost text-base-content/60 hover:text-base-content",
+  soft: "bg-base-200 text-base-content/70 hover:bg-base-300 hover:text-base-content",
+  danger: "bg-error/10 text-error hover:bg-error/15",
+};
+
+const sizes: Record<string, string> = {
+  sm: "btn-sm",
+  md: "",
+  lg: "btn-lg",
+};
+
+const classes = ["btn", sizes[size], variants[variant], className]
+  .filter(Boolean)
+  .join(" ");
+---
+
+{
+  href ? (
+    <a href={href} class={classes} {...rest}>
+      <slot />
+    </a>
+  ) : (
+    <button type={type} class={classes} {...rest}>
+      <slot />
+    </button>
+  )
+}

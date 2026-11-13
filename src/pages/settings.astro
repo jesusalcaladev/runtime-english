@@ -1,0 +1,28 @@
+---
+import { Settings as SettingsIcon } from "@lucide/astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import SettingsPanel from "../components/SettingsPanel";
+import PageHeader from "../components/ui/PageHeader.astro";
+---
+
+<BaseLayout
+  title="Ajustes · DevEng Core"
+  description="Tema, inmersión progresiva en inglés, velocidad de voz y gestión de tu progreso local."
+>
+  <div class="mx-auto max-w-[840px] animate-fade-up space-y-8">
+    <PageHeader
+      eyebrow="Configuración"
+      title="Ajustes"
+      description="Personaliza cómo la app te introduce al inglés. El progreso, los logros y la configuración viven únicamente en este navegador."
+    >
+      <div class="mt-5">
+        <span class="inline-flex items-center gap-1.5 rounded-full bg-base-200 px-3 py-1.5 text-[10px] text-base-content/35">
+          <SettingsIcon class="h-3 w-3" />
+          Control local y exportable
+        </span>
+      </div>
+    </PageHeader>
+
+    <SettingsPanel client:only="preact" />
+  </div>
+</BaseLayout>

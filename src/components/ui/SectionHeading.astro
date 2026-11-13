@@ -1,0 +1,28 @@
+---
+interface Props {
+  eyebrow?: string;
+  title: string;
+  description?: string;
+  class?: string;
+}
+
+const { eyebrow, title, description, class: className } = Astro.props;
+---
+
+<div class:list={["flex flex-wrap items-end justify-between gap-4", className]}>
+  <div class="max-w-2xl space-y-2">
+    {
+      eyebrow && (
+        <p class="mono-label flex items-center gap-2">
+          <span class="h-1 w-1 rounded-full bg-accent" />
+          {eyebrow}
+        </p>
+      )
+    }
+    <h2 class="font-pixel text-balance text-[1.55rem] leading-[1.15] tracking-tight sm:text-[1.9rem]">
+      {title}
+    </h2>
+    {description && <p class="text-sm leading-relaxed text-base-content/55">{description}</p>}
+  </div>
+  <slot />
+</div>

@@ -1,0 +1,86 @@
+---
+import { Sparkles, TrendingUp, CalendarClock, Languages, TriangleAlert } from "@lucide/astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import SlangExplorer from "../components/SlangExplorer";
+import PageHeader from "../components/ui/PageHeader.astro";
+import { SLANG } from "../data/slang";
+
+const newTerms = SLANG.filter((entry) => entry.status === "2026").length;
+const rising = SLANG.filter((entry) => entry.status === "en alza").length;
+const categories = new Set(SLANG.map((entry) => entry.category)).size;
+---
+
+<BaseLayout
+  title="Slang 2026 para developers · DevEng Core"
+  description="El slang técnico y de internet más reciente: vibe coding, AI slop, workslop, meat proxy, cooked, aura farming y más."
+>
+  <div class="mx-auto max-w-[1120px] animate-fade-up space-y-8">
+    <PageHeader
+      eyebrow="Slang / Revisado noviembre 2026"
+      title="El inglés que no aparece en los libros"
+      description="Slang de IA, jerga de equipo y memes de 2026. Entiéndelo primero; úsalo solo cuando el contexto lo permita. Cada ficha indica registro, estado y advertencias."
+    >
+      <div class="mt-5 flex flex-wrap items-center gap-2">
+        <span class="flex items-center gap-1.5 rounded-full bg-accent/10 px-3 py-1.5 text-[10px] font-medium text-accent">
+          <Sparkles class="h-3 w-3" />
+          {SLANG.length} términos vivos
+        </span>
+        <span class="rounded-full bg-base-200 px-3 py-1.5 text-[10px] text-base-content/40">
+          actualizado nov 2026
+        </span>
+      </div>
+    </PageHeader>
+
+    <section class="grid gap-3 sm:grid-cols-3">
+      <div class="flex items-center gap-3 rounded-2xl bg-base-200 p-4">
+        <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-base-100/70 text-base-content/50">
+          <CalendarClock class="h-4 w-4" />
+        </span>
+        <div>
+          <p class="font-mono text-lg font-medium leading-none">{newTerms}</p>
+          <p class="mt-1 text-[10px] tracking-wide text-base-content/35">
+            términos de 2026
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3 rounded-2xl bg-base-200 p-4">
+        <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-info/10 text-info">
+          <TrendingUp class="h-4 w-4" />
+        </span>
+        <div>
+          <p class="font-mono text-lg font-medium leading-none">{rising}</p>
+          <p class="mt-1 text-[10px] tracking-wide text-base-content/35">
+            en alza ahora
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3 rounded-2xl bg-base-200 p-4">
+        <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-base-100/70 text-base-content/50">
+          <Languages class="h-4 w-4" />
+        </span>
+        <div>
+          <p class="font-mono text-lg font-medium leading-none">{categories}</p>
+          <p class="mt-1 text-[10px] tracking-wide text-base-content/35">
+            categorías de uso
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <SlangExplorer client:only="preact" entries={SLANG} />
+
+    <section class="flex gap-3 rounded-2xl bg-warning/[0.06] p-4">
+      <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-warning/10 text-warning">
+        <TriangleAlert class="h-3.5 w-3.5" />
+      </span>
+      <div>
+        <p class="text-xs font-medium text-base-content/75">Cómo usar este deck</p>
+        <p class="mt-1 max-w-3xl text-[11px] leading-relaxed text-base-content/45">
+          “Consolidado” se entiende en cualquier equipo. “En alza” es vocabulario que está entrando
+          ahora. “2026” es jerga nueva: entiéndela antes de producirla. Los términos marcados como
+          meme no pertenecen a una daily formal ni a una conversación con cliente.
+        </p>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

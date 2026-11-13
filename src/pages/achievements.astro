@@ -1,0 +1,42 @@
+---
+import { Trophy } from "@lucide/astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import AchievementsGrid from "../components/AchievementsGrid";
+import PageHeader from "../components/ui/PageHeader.astro";
+import { ACHIEVEMENTS } from "../lib/achievements";
+
+const achievements = ACHIEVEMENTS.map(({ id, title, description, icon, tier, xp }) => ({
+  id,
+  title,
+  description,
+  icon,
+  tier,
+  xp,
+}));
+const totalXp = ACHIEVEMENTS.reduce((total, achievement) => total + achievement.xp, 0);
+---
+
+<BaseLayout
+  title="Logros · DevEng Core"
+  description="Tus logros de inglés técnico: sesiones, rachas, slang y progreso A1-B2 guardados en tu navegador."
+>
+  <div class="mx-auto max-w-[1120px] animate-fade-up space-y-8">
+    <PageHeader
+      eyebrow="Progreso / Logros"
+      title="Cada hito cuenta"
+      description="Completa sesiones, mantén la racha y guarda slang para desbloquear logros. Todo se guarda en localStorage: sin cuenta y sin servidor."
+    >
+      <div class="mt-5 flex flex-wrap items-center gap-2">
+        <span class="flex items-center gap-1.5 rounded-full bg-warning/10 px-3 py-1.5 text-[10px] font-medium text-warning">
+          <Trophy class="h-3 w-3" />
+          {ACHIEVEMENTS.length} logros
+        </span>
+        <span class="rounded-full bg-base-200 px-3 py-1.5 font-mono text-[10px] text-base-content/40">
+          {totalXp} XP disponibles
+        </span>
+      </div>
+    </PageHeader>
+
+    <AchievementsGrid client:only="preact" achievements={achievements} />
+  </div>
+</BaseLayout>

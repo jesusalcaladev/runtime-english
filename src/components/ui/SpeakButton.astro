@@ -1,0 +1,25 @@
+---
+import { Volume2 } from "@lucide/astro";
+
+interface Props {
+  text: string;
+  label?: string;
+  class?: string;
+}
+
+const { text, label, class: className } = Astro.props;
+---
+
+<button
+  type="button"
+  data-speak={text}
+  class:list={[
+    "speak-btn inline-flex shrink-0 items-center gap-1.5 rounded-full bg-base-100/80 px-2.5 py-1.5 text-[11px] font-medium text-base-content/55 transition hover:bg-base-100 hover:text-base-content",
+    className,
+  ]}
+  aria-label={`Escuchar en inglés: ${text}`}
+  title="Escuchar en inglés"
+>
+  <Volume2 class="h-3.5 w-3.5" />
+  {label && <span>{label}</span>}
+</button>

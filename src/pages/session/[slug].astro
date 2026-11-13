@@ -1,0 +1,228 @@
+---
+import {
+  ArrowLeft,
+  ArrowRight,
+  ArrowDown,
+  Clock,
+  Layers,
+  Target,
+} from "@lucide/astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import LessonBlocks from "../../components/LessonBlocks.astro";
+import ExerciseRunner from "../../components/ExerciseRunner";
+import SessionProgressCard from "../../components/SessionProgressCard";
+import SpeakButton from "../../components/ui/SpeakButton.astro";
+import Badge from "../../components/ui/Badge.astro";
+import PageHeader from "../../components/ui/PageHeader.astro";
+import {
+  ALL_SESSIONS,
+  getAdjacentSession,
+  type SessionWithModule,
+} from "../../data/curriculum";
+import type { Module, Session } from "../../lib/types";
+
+interface Props {
+  session: Session;
+  module: Module;
+  previous?: SessionWithModule;
+  next?: SessionWithModule;
+}
+
+export function getStaticPaths() {
+  return ALL_SESSIONS.map(({ session, module }) => {
+    const { previous, next } = getAdjacentSession(session.id);
+    return {
+      params: { slug: session.slug },
+      props: { session, module, previous, next },
+    };
+  });
+}
+
+const { session, module, previous, next } = Astro.props as Props;
+const nextForRunner = next
+  ? { slug: next.session.slug, title: next.session.title, step: next.session.step }
+  : null;
+const position = ALL_SESSIONS.findIndex((entry) => entry.session.id === session.id) + 1;
+const exerciseIds = session.exercises.map((exercise) => exercise.id);
+---
+
+<BaseLayout title={`${session.title} · DevEng Core`} description={session.summary}>
+  <article class="mx-auto max-w-[1120px] animate-fade-up">
+    <nav
+      class="flex flex-wrap items-center gap-2 text-[10px] text-base-content/35"
+      aria-label="Breadcrumb"
+    >
+      <a href="/" class="transition hover:text-base-content/65">Roadmap</a>
+      <span class="text-base-content/20">/</span>
+      <span>{module.shortTitle}</span>
+      <span class="text-base-content/20">/</span>
+      <span class="font-mono text-base-content/50">
+        {session.step} · {position} de {ALL_SESSIONS.length}
+      </span>
+    </nav>
+
+    <PageHeader
+      eyebrow={`${module.code} / ${module.level}`}
+      title={session.title}
+      description={session.summary}
+      class="mt-5"
+    >
+      <div class="mt-5 flex flex-wrap items-center gap-2">
+        <Badge tone="primary">
+          <span class="font-mono">{session.cefr}</span>
+        </Badge>
+        <span class="flex items-center gap-1.5 rounded-full bg-base-200 px-2.5 py-1 text-[10px] text-base-content/45">
+          <Clock class="h-3 w-3" />
+          {session.minutes} min
+        </span>
+        <span class="flex items-center gap-1.5 rounded-full bg-base-200 px-2.5 py-1 text-[10px] text-base-content/45">
+          <Layers class="h-3 w-3" />
+          {session.exercises.length} ejercicios
+        </span>
+        <a
+          href="#practica"
+          class="ml-1 inline-flex items-center gap-1.5 rounded-full bg-accent/10 px-3 py-1.5 text-[10px] font-medium text-accent transition hover:bg-accent/15"
+        >
+          Ir a la práctica
+          <ArrowDown class="h-3 w-3" />
+        </a>
+      </div>
+    </PageHeader>
+
+    <div class="mt-9 grid gap-8 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
+      <div class="min-w-0">
+        <LessonBlocks blocks={session.blocks} />
+      </div>
+
+      <aside class="space-y-3 lg:sticky lg:top-20">
+        <SessionProgressCard
+          client:only="preact"
+          sessionId={session.id}
+          exerciseIds={exerciseIds}
+        />
+
+        <div class="rounded-2xl bg-base-200 p-4">
+          <p class="mono-label flex items-center gap-1.5">
+            <Target class="h-3 w-3 text-accent" />
+            Al terminar
+          </p>
+          <ul class="mt-3.5 space-y-2.5">
+            {session.objectives.map((objective) => (
+              <li class="flex items-start gap-2 text-[11px] leading-relaxed text-base-content/50">
+                <span class="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-accent/60" />
+                {objective}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {session.pronunciation && (
+          <div class="rounded-2xl bg-accent/[0.055] p-4">
+            <div class="flex items-center justify-between gap-2">
+              <p class="mono-label text-accent/75">Pronunciación</p>
+              <SpeakButton text={session.pronunciation} />
+            </div>
+            <p class="mt-3 text-[13px] leading-6 text-base-content/65">
+              “{session.pronunciation}”
+            </p>
+            <p class="mt-2 text-[10px] text-base-content/35">
+              Escúchala, repítela y úsala en tu próximo standup.
+            </p>
+          </div>
+        )}
+
+        {next && (
+          <a
+            href={`/session/${next.session.slug}`}
+            class="group block rounded-2xl bg-base-200 p-4 transition hover:bg-base-300/60"
+          >
+            <p class="mono-label">Siguiente</p>
+            <p class="mt-2 line-clamp-2 text-xs font-medium leading-relaxed text-base-content/70 group-hover:text-base-content">
+              {next.session.title}
+            </p>
+            <p class="mt-2 flex items-center gap-1 text-[10px] text-base-content/30">
+              {next.session.cefr} · {next.session.minutes} min
+              <ArrowRight class="ml-auto h-3 w-3 text-base-content/30 transition group-hover:translate-x-0.5 group-hover:text-base-content/60" />
+            </p>
+          </a>
+        )}
+      </aside>
+    </div>
+
+    <section id="practica" class="mt-14 max-w-3xl scroll-mt-20">
+      <div class="mb-5 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p class="mono-label">Ponlo a prueba</p>
+          <h2 class="font-pixel mt-2 text-[1.65rem] leading-tight tracking-tight">
+            Ejercicios de la sesión
+          </h2>
+          <p class="mt-2 max-w-xl text-xs leading-relaxed text-base-content/40">
+            Cada acierto suma XP y guarda tu avance. Navega libremente entre ejercicios; la sesión
+            solo se completa cuando los resuelves todos.
+          </p>
+        </div>
+        <span class="font-mono text-[10px] text-base-content/25">
+          {session.exercises.length} · {session.cefr}
+        </span>
+      </div>
+
+      <ExerciseRunner
+        client:only="preact"
+        sessionId={session.id}
+        sessionTitle={session.title}
+        exercises={session.exercises}
+        next={nextForRunner}
+      />
+    </section>
+
+    <nav class="mt-10 flex max-w-3xl items-center justify-between gap-2">
+      {previous ? (
+        <a
+          href={`/session/${previous.session.slug}`}
+          class="group flex min-w-0 items-center gap-2.5 rounded-2xl bg-base-200 px-3 py-2.5 text-xs text-base-content/50 transition hover:bg-base-300/60 hover:text-base-content/75"
+        >
+          <ArrowLeft class="h-3.5 w-3.5 shrink-0" />
+          <span class="min-w-0">
+            <span class="block text-[9px] tracking-normal text-base-content/25">
+              Anterior
+            </span>
+            <span class="block max-w-[180px] truncate sm:max-w-[280px]">
+              {previous.session.title}
+            </span>
+          </span>
+        </a>
+      ) : (
+        <a
+          href="/"
+          class="flex items-center gap-1.5 rounded-2xl bg-base-200 px-3 py-2.5 text-xs text-base-content/50 transition hover:bg-base-300/60 hover:text-base-content/75"
+        >
+          <ArrowLeft class="h-3.5 w-3.5" /> Roadmap
+        </a>
+      )}
+
+      {next ? (
+        <a
+          href={`/session/${next.session.slug}`}
+          class="group flex min-w-0 items-center gap-2.5 rounded-2xl bg-base-200 px-3 py-2.5 text-right text-xs text-base-content/50 transition hover:bg-base-300/60 hover:text-base-content/75"
+        >
+          <span class="min-w-0">
+            <span class="block text-[9px] tracking-normal text-base-content/25">
+              Siguiente
+            </span>
+            <span class="block max-w-[180px] truncate sm:max-w-[280px]">
+              {next.session.title}
+            </span>
+          </span>
+          <ArrowRight class="h-3.5 w-3.5 shrink-0" />
+        </a>
+      ) : (
+        <a
+          href="/"
+          class="flex items-center gap-1.5 rounded-2xl bg-base-200 px-3 py-2.5 text-xs text-base-content/50 transition hover:bg-base-300/60 hover:text-base-content/75"
+        >
+          Volver al roadmap <ArrowRight class="h-3.5 w-3.5" />
+        </a>
+      )}
+    </nav>
+  </article>
+</BaseLayout>

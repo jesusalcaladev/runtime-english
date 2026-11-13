@@ -1,0 +1,110 @@
+---
+import "@fontsource-variable/geist";
+import "@fontsource-variable/geist-mono";
+import "@fontsource-variable/geist-pixel";
+import "../styles/global.css";
+import Topbar from "../components/Topbar.astro";
+import SidebarNav from "../components/SidebarNav";
+import ToastHost from "../components/ToastHost";
+import {
+  ALL_SESSIONS,
+  TOTAL_EXERCISES,
+  TOTAL_SESSIONS,
+  getNavData,
+} from "../data/curriculum";
+
+interface Props {
+  title?: string;
+  description?: string;
+  fullWidth?: boolean;
+}
+
+const {
+  title = "DevEng // Core — Inglés técnico para developers",
+  description = "Aprende inglés técnico de A1 a B2 con sesiones cortas, ejercicios reales y el slang de 2026.",
+  fullWidth = false,
+} = Astro.props;
+
+const nav = getNavData();
+const a1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "A1-A2").map(
+  (entry) => entry.session.id,
+);
+const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B2").map(
+  (entry) => entry.session.id,
+);
+---
+
+<!doctype html>
+<html lang="es" data-theme="deveng">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#101010" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <title>{title}</title>
+
+    <script is:inline>
+      (function () {
+        try {
+          var raw = localStorage.getItem("deveng_core_v2");
+          var theme = null;
+          if (raw) {
+            var parsed = JSON.parse(raw);
+            theme = parsed && parsed.settings ? parsed.settings.theme : null;
+          }
+          if (!theme) {
+            theme = window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light";
+          }
+          document.documentElement.dataset.theme =
+            theme === "dark" ? "deveng-dark" : "deveng";
+        } catch (error) {
+          document.documentElement.dataset.theme = "deveng";
+        }
+      })();
+    </script>
+  </head>
+
+  <body class="min-h-screen bg-base-100 font-sans text-base-content">
+    <Topbar
+      a1SessionIds={a1SessionIds}
+      b1SessionIds={b1SessionIds}
+      totalSessions={TOTAL_SESSIONS}
+      totalExercises={TOTAL_EXERCISES}
+    />
+
+    <div class="mx-auto flex w-full max-w-[1600px] flex-1 items-start">
+      <SidebarNav client:only="preact" modules={nav} />
+
+      <main
+        class:list={[
+          "min-w-0 flex-1",
+          fullWidth ? "" : "px-4 pb-14 pt-6 sm:px-6 sm:pt-8 lg:px-10 lg:pt-10",
+        ]}
+      >
+        <slot />
+      </main>
+    </div>
+
+    <ToastHost client:only="preact" />
+
+    <script>
+      import { initVoices, speak } from "../lib/speech";
+
+      initVoices();
+
+      document.addEventListener("click", (event) => {
+        const target = event.target;
+        if (!(target instanceof Element)) return;
+        const button = target.closest("[data-speak]");
+        if (!(button instanceof HTMLElement)) return;
+        event.preventDefault();
+        speak(button.dataset.speak ?? "", button);
+      });
+    </script>
+  </body>
+</html>

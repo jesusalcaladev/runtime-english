@@ -1,0 +1,18 @@
+{
+  "name": "DevEng // CORE — Inglés técnico para developers",
+  "short_name": "DevEng CORE",
+  "description": "Inglés técnico A1-B2 para developers, con ejercicios, progreso y slang 2026.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#101010",
+  "theme_color": "#101010",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

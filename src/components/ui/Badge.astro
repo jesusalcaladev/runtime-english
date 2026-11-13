@@ -1,0 +1,26 @@
+---
+interface Props {
+  tone?: "primary" | "neutral" | "accent" | "warning" | "danger";
+  class?: string;
+}
+
+const { tone = "neutral", class: className } = Astro.props;
+
+const tones: Record<string, string> = {
+  primary: "bg-base-content text-base-100",
+  neutral: "bg-base-200 text-base-content/60",
+  accent: "bg-accent/10 text-accent",
+  warning: "bg-warning/10 text-warning",
+  danger: "bg-error/10 text-error",
+};
+---
+
+<span
+  class:list={[
+    "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-[10px] font-medium",
+    tones[tone],
+    className,
+  ]}
+>
+  <slot />
+</span>
