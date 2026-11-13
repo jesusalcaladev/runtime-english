@@ -205,17 +205,15 @@ export const ACHIEVEMENTS: Achievement[] = [
   {
     id: "slang-complete",
     title: "Al día con 2026",
-    description: "Completa las dos sesiones de slang.",
+    description: "Completa las cuatro sesiones de slang.",
     icon: "message-square",
     tier: "gold",
     xp: 60,
-    target: 2,
+    target: 4,
     progress: (state) =>
-      Number(Boolean(state.completedSessions["m7-l1"])) +
-      Number(Boolean(state.completedSessions["m7-l2"])),
+      ["m7-l1", "m7-l2", "m7-l3", "m7-l4"].filter((id) => state.completedSessions[id]).length,
     check: (state) =>
-      Boolean(state.completedSessions["m7-l1"]) &&
-      Boolean(state.completedSessions["m7-l2"]),
+      ["m7-l1", "m7-l2", "m7-l3", "m7-l4"].every((id) => state.completedSessions[id]),
   },
   {
     id: "immersion",
