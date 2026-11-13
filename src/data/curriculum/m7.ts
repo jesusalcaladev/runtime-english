@@ -1,8 +1,8 @@
 import type { Module } from "../../lib/types";
 
-export const m0: Module = {
-  id: "m0",
-  code: "MOD 00",
+export const m7: Module = {
+  id: "m7",
+  code: "MOD 07",
   level: "B1-B2",
   title: "Slang & Cultura 2026",
   shortTitle: "Slang 2026 · lo último",
@@ -11,11 +11,11 @@ export const m0: Module = {
   featured: true,
   sessions: [
     {
-      id: "m0-l1",
+      id: "m7-l1",
       slug: "ai-slang-2026",
       title: "El slang de IA que define 2026",
-      step: "B1 · Especial 0.1",
-      cefr: "B1",
+      step: "B2 · Especial 7.1",
+      cefr: "B2",
       minutes: 12,
       summary:
         "Vibe coding, AI slop, workslop, meat proxy: el vocabulario con el que los equipos hablan hoy de la IA.",
@@ -58,7 +58,7 @@ export const m0: Module = {
       ],
       exercises: [
         {
-          id: "m0-l1-e1",
+          id: "m7-l1-e1",
           type: "choice",
           prompt:
             "Un compañero pega en Slack una respuesta enorme de la IA sin leerla ni validarla. ¿Cómo describes ese patrón?",
@@ -73,7 +73,7 @@ export const m0: Module = {
             "'Meat proxy' describe a quien reenvía output de IA sin leerlo, entenderlo ni validarlo. No es un cumplido.",
         },
         {
-          id: "m0-l1-e2",
+          id: "m7-l1-e2",
           type: "choice",
           prompt:
             "¿Qué término describe un entregable de IA que se ve pulido pero obliga a otros a rehacerlo?",
@@ -83,7 +83,7 @@ export const m0: Module = {
             "'Workslop' es trabajo con apariencia profesional pero hueco, que genera trabajo extra a quien lo recibe.",
         },
         {
-          id: "m0-l1-e3",
+          id: "m7-l1-e3",
           type: "builder",
           prompt: "Construye: 'No seas un meat proxy. Lee el diff antes de pegarlo.'",
           words: ["Don't be", "a meat proxy.", "Read the diff", "before you paste it."],
@@ -92,7 +92,7 @@ export const m0: Module = {
             "El imperativo se usa para dar una instrucción directa: 'Don't be...' + 'Read...'.",
         },
         {
-          id: "m0-l1-e4",
+          id: "m7-l1-e4",
           type: "write",
           prompt: "Traduce al inglés: 'Ese PR es puro AI slop; nadie revisó los tests.'",
           answer: "That PR is pure AI slop; nobody reviewed the tests.",
@@ -106,11 +106,11 @@ export const m0: Module = {
       ],
     },
     {
-      id: "m0-l2",
+      id: "m7-l2",
       slug: "internet-slang-2026",
       title: "Internet slang: entiende memes y calls",
-      step: "B1 · Especial 0.2",
-      cefr: "B1",
+      step: "B2 · Especial 7.2",
+      cefr: "B2",
       minutes: 10,
       summary:
         "Cooked, aura farming, glazing, yapping, delulu, lock in: el inglés informal que se cuela en equipos remotos.",
@@ -155,7 +155,7 @@ export const m0: Module = {
       ],
       exercises: [
         {
-          id: "m0-l2-e1",
+          id: "m7-l2-e1",
           type: "choice",
           prompt:
             "Prod está caído, la base de datos corrupta y el cliente llamando. ¿Cuál es la forma más natural de decir 'estamos perdidos'?",
@@ -165,7 +165,7 @@ export const m0: Module = {
             "'Cooked' significa perdido, agotado o en un problema grave. Muy usado en equipos tech.",
         },
         {
-          id: "m0-l2-e2",
+          id: "m7-l2-e2",
           type: "choice",
           prompt:
             "En la daily, alguien habla cinco minutos sin decir nada útil. ¿Qué está haciendo?",
@@ -175,7 +175,7 @@ export const m0: Module = {
             "'Yapping' es hablar demasiado sin sustancia. 'Aura farming' es actuar para parecer genial; 'glazing' es elogiar en exceso.",
         },
         {
-          id: "m0-l2-e3",
+          id: "m7-l2-e3",
           type: "builder",
           prompt: "Construye: 'Menos yapping, más código. El sprint termina el viernes: concéntrate.'",
           words: ["Less yapping,", "more code.", "Sprint ends Friday —", "lock in."],
@@ -184,7 +184,7 @@ export const m0: Module = {
             "'Lock in' es el imperativo informal para concentrarse al máximo.",
         },
         {
-          id: "m0-l2-e4",
+          id: "m7-l2-e4",
           type: "choice",
           prompt:
             "Tu junior está refactorizando auth y va bien. ¿Qué frase le dice 'déjalo trabajar, va a hacer algo bueno'?",

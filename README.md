@@ -1,6 +1,6 @@
 # DevEng // CORE
 
-App web (PWA-ready) y Android para aprender inglés técnico de A1 a B2. 17 sesiones, 68 ejercicios
+App web (PWA-ready) y Android para aprender inglés técnico de A1 a B2. 22 sesiones, 88 ejercicios
 interactivos, progreso y logros con objetivos medibles en `localStorage`, y un deck de 51 términos
 de slang actualizado a **noviembre de 2026**. Interfaz responsive con estética de workspace
 minimalista, superficies neutras y tipografía Geist.
@@ -34,8 +34,8 @@ src/
 ├── data/
 │   ├── curriculum/
 │   │   ├── index.ts       # registro de módulos + helpers de navegación/stats
-│   │   ├── m0.ts          # Slang & IA 2026
-│   │   ├── m1.ts … m5.ts  # módulos de contenido
+│   │   ├── m1.ts … m6.ts  # ruta técnica A1–B2
+│   │   ├── m7.ts          # slang y cultura 2026 (último módulo)
 │   └── slang.ts           # deck de slang (51 términos, fuente de /slang)
 ├── lib/
 │   ├── progress.ts        # store + localStorage + XP/racha/sesiones
@@ -85,7 +85,7 @@ respaldo si se borran los datos de la app.
 
 ```ts
 {
-  id: "m6-l1",
+  id: "m8-l1",
   slug: "mi-nueva-sesion",
   title: "Mi nueva sesión",
   step: "B2 · Paso 6.1",
@@ -102,9 +102,9 @@ respaldo si se borran los datos de la app.
   ],
   pronunciation: "We deploy on Fridays.",
   exercises: [
-    { id: "m6-l1-e1", type: "choice", prompt: "…", options: ["a", "b"], answer: 0, explanation: "…" },
-    { id: "m6-l1-e2", type: "builder", prompt: "…", words: ["We", "deploy"], answer: "We deploy", explanation: "…" },
-    { id: "m6-l1-e3", type: "write", prompt: "…", answer: "We deploy on Fridays.", accept: ["We deploy Fridays."], explanation: "…" }
+    { id: "m8-l1-e1", type: "choice", prompt: "…", options: ["a", "b"], answer: 0, explanation: "…" },
+    { id: "m8-l1-e2", type: "builder", prompt: "…", words: ["We", "deploy"], answer: "We deploy", explanation: "…" },
+    { id: "m8-l1-e3", type: "write", prompt: "…", answer: "We deploy on Fridays.", accept: ["We deploy Fridays."], explanation: "…" }
   ]
 }
 ```
@@ -129,7 +129,7 @@ se completa cuando todos sus ejercicios están resueltos.
 
 ## Añadir un módulo
 
-Crea `src/data/curriculum/m6.ts` exportando un `Module` y regístralo en `MODULES`
+Crea `src/data/curriculum/m8.ts` exportando un `Module` y regístralo en `MODULES`
 (`src/data/curriculum/index.ts`). Aparecerá automáticamente agrupado por `level` (`A1-A2` o
 `B1-B2`).
 

@@ -209,9 +209,13 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: "message-square",
     tier: "gold",
     xp: 60,
+    target: 2,
+    progress: (state) =>
+      Number(Boolean(state.completedSessions["m7-l1"])) +
+      Number(Boolean(state.completedSessions["m7-l2"])),
     check: (state) =>
-      Boolean(state.completedSessions["m0-l1"]) &&
-      Boolean(state.completedSessions["m0-l2"]),
+      Boolean(state.completedSessions["m7-l1"]) &&
+      Boolean(state.completedSessions["m7-l2"]),
   },
   {
     id: "immersion",

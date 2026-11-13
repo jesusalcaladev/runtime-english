@@ -77,6 +77,32 @@ function daysBetween(a: string, b: string): number {
   return Math.round((second.getTime() - first.getTime()) / 86_400_000);
 }
 
+// El módulo de slang pasó de m0 a m7 para que la ruta técnica empiece en A1.
+// Conservamos el progreso de quien ya había completado esas sesiones.
+const LEGACY_ID_MAP: Record<string, string> = {
+  "m0-l1": "m7-l1",
+  "m0-l2": "m7-l2",
+  "m0-l1-e1": "m7-l1-e1",
+  "m0-l1-e2": "m7-l1-e2",
+  "m0-l1-e3": "m7-l1-e3",
+  "m0-l1-e4": "m7-l1-e4",
+  "m0-l2-e1": "m7-l2-e1",
+  "m0-l2-e2": "m7-l2-e2",
+  "m0-l2-e3": "m7-l2-e3",
+  "m0-l2-e4": "m7-l2-e4",
+};
+
+function migrateKeys<T>(record: Record<string, T>): Record<string, T> {
+  const next = { ...record };
+  for (const [legacyId, currentId] of Object.entries(LEGACY_ID_MAP)) {
+    if (legacyId in next) {
+      if (!(currentId in next)) next[currentId] = next[legacyId];
+      delete next[legacyId];
+    }
+  }
+  return next;
+}
+
 function mergeState(raw: unknown): ProgressState {
   const defaults = createDefaultState();
   if (!raw || typeof raw !== "object") return defaults;
@@ -84,9 +110,9 @@ function mergeState(raw: unknown): ProgressState {
   return {
     ...defaults,
     ...parsed,
-    completedExercises: parsed.completedExercises ?? {},
-    completedSessions: parsed.completedSessions ?? {},
-    attempts: parsed.attempts ?? {},
+    completedExercises: migrateKeys(parsed.completedExercises ?? {}),
+    completedSessions: migrateKeys(parsed.completedSessions ?? {}),
+    attempts: migrateKeys(parsed.attempts ?? {}),
     savedSlang: Array.isArray(parsed.savedSlang) ? parsed.savedSlang : [],
     achievements: parsed.achievements ?? {},
     streak: { ...defaults.streak, ...(parsed.streak ?? {}) },

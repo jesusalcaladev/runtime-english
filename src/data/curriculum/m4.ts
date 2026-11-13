@@ -302,5 +302,100 @@ export const m4: Module = {
         },
       ],
     },
+    {
+      id: "m4-l4",
+      slug: "estimaciones-y-plazos",
+      title: "Estimaciones, plazos y decir que no",
+      step: "B2 · Paso 4.4",
+      cefr: "B2",
+      minutes: 12,
+      summary:
+        "Da estimaciones con supuestos, negocia el alcance y di que no sin cerrar la conversación.",
+      objectives: [
+        "Dar un rango con supuestos en lugar de una cifra inventada.",
+        "Negociar alcance y prioridades ante un plazo ajustado.",
+        "Decir que no de forma profesional y constructiva.",
+      ],
+      pronunciation:
+        "My estimate is two to three days, assuming the API is stable.",
+      blocks: [
+        {
+          type: "technique",
+          name: "Estima con rango, supuesto y consecuencia",
+          desc: "Una estimación profesional tiene tres piezas: el rango ('two to three days'), el supuesto ('assuming the API is stable') y la consecuencia ('if it isn't, we'll need another day'). Así el equipo puede decidir, no solo esperar.",
+        },
+        {
+          type: "phrases",
+          title: "Frases para plazos y alcance",
+          items: [
+            { en: "My estimate is two to three days.", es: "Mi estimación es de dos a tres días." },
+            { en: "That assumes the API is stable.", es: "Eso asume que la API es estable." },
+            { en: "What's the hard deadline?", es: "¿Cuál es la fecha límite real?" },
+            { en: "I can deliver X by Friday, but Y would slip.", es: "Puedo entregar X el viernes, pero Y se retrasaría." },
+            { en: "Can we descope something?", es: "¿Podemos reducir el alcance?" },
+            { en: "I don't think that's realistic with the current scope.", es: "No creo que sea realista con el alcance actual." },
+            { en: "Let's break it down first.", es: "Primero dividámoslo en partes." },
+            { en: "Which one is the priority?", es: "¿Cuál es la prioridad?" },
+          ],
+        },
+        {
+          type: "table",
+          title: "Decir que no sin sonar bloqueado",
+          columns: ["En vez de", "Di"],
+          rows: [
+            ["No, impossible.", "I can't do both by Friday. Which one should I prioritize?"],
+            ["It will take two days.", "It will take two to three days, assuming the API is stable."],
+            ["We need more time.", "We need one more day, or we can cut the reporting part."],
+          ],
+        },
+      ],
+      exercises: [
+        {
+          id: "m4-l4-e1",
+          type: "choice",
+          prompt: "Tu lead pregunta cuánto vas a tardar. ¿Cuál es la respuesta más profesional?",
+          options: ["Two days.", "I don't know yet.", "Two to three days, assuming the API is stable.", "ASAP."],
+          answer: 2,
+          explanation:
+            "Un rango con un supuesto permite planificar y deja claro qué podría cambiarlo.",
+        },
+        {
+          id: "m4-l4-e2",
+          type: "choice",
+          prompt: "No puedes entregar dos tareas el viernes. ¿Qué dices?",
+          options: [
+            "No.",
+            "That's impossible.",
+            "I can't do both by Friday. Which one is the priority?",
+            "Ask someone else.",
+          ],
+          answer: 2,
+          explanation:
+            "Decir que no + ofrecer una decisión mantiene la conversación y protege el foco del equipo.",
+        },
+        {
+          id: "m4-l4-e3",
+          type: "builder",
+          prompt: "Construye: 'Eso asume que la API es estable.'",
+          words: ["That", "assumes", "the API", "is stable."],
+          answer: "That assumes the API is stable.",
+          explanation:
+            "'Assume' es la palabra clave para hacer explícito de qué depende tu estimación.",
+        },
+        {
+          id: "m4-l4-e4",
+          type: "write",
+          prompt: "Escribe en inglés: 'Necesitamos reducir el alcance para llegar al viernes.'",
+          answer: "We need to reduce the scope to hit Friday.",
+          accept: [
+            "We need to cut the scope to hit Friday.",
+            "We need to reduce scope to hit Friday.",
+          ],
+          hint: "Usa 'reduce the scope' o 'cut the scope'.",
+          explanation:
+            "'Hit a deadline' significa llegar a la fecha; 'scope' es el alcance del trabajo.",
+        },
+      ],
+    },
   ],
 };

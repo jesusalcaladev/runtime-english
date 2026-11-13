@@ -142,5 +142,99 @@ export const m2: Module = {
         },
       ],
     },
+    {
+      id: "m2-l2",
+      slug: "contar-un-bug",
+      title: "Cuenta un bug en pasado, presente y futuro",
+      step: "A2 · Paso 2.2",
+      cefr: "A2",
+      minutes: 11,
+      summary:
+        "Cuenta una sola historia con tres tiempos: qué encontraste, qué estás haciendo y cuándo lo vas a arreglar.",
+      objectives: [
+        "Narrar un bug con pasado simple y marcadores de tiempo.",
+        "Explicar la corrección que estás haciendo ahora.",
+        "Comprometerte a un siguiente paso con futuro simple.",
+      ],
+      pronunciation:
+        "I found a bug yesterday, I'm fixing it now, and I'll deploy the fix after the tests pass.",
+      blocks: [
+        {
+          type: "technique",
+          name: "La línea de tiempo del bug",
+          desc: "Una historia clara tiene tres partes: 'I found the bug yesterday' (pasado), 'I'm writing a test now' (presente continuo) y 'I'll deploy the fix after the tests pass' (futuro). Si mezclas los tiempos, quien te escucha no sabe si el problema sigue abierto.",
+        },
+        {
+          type: "phrases",
+          title: "Frases para narrar el bug",
+          items: [
+            { en: "I found a bug in the login flow yesterday.", es: "Encontré un bug en el flujo de login ayer." },
+            { en: "It happens when the token expires.", es: "Ocurre cuando el token caduca." },
+            { en: "I'm writing a test to reproduce it now.", es: "Estoy escribiendo un test para reproducirlo ahora." },
+            { en: "The fix is almost ready.", es: "El arreglo está casi listo." },
+            { en: "I'll deploy the fix after the tests pass.", es: "Desplegaré el arreglo cuando pasen los tests." },
+            { en: "The issue is still open.", es: "El problema sigue abierto." },
+          ],
+        },
+        {
+          type: "callout",
+          tone: "tip",
+          title: "Un tiempo por idea",
+          body: "No necesitas una frase larga. Tres frases cortas con pasado, presente y futuro comunican mejor que una frase con cuatro tiempos mezclados.",
+        },
+      ],
+      exercises: [
+        {
+          id: "m2-l2-e1",
+          type: "choice",
+          prompt: "¿Qué frase describe lo que estás haciendo ahora mismo?",
+          options: [
+            "I fixed the login bug.",
+            "I will fix the login bug.",
+            "I'm fixing the login bug.",
+            "I fix the login bug every day.",
+          ],
+          answer: 2,
+          explanation:
+            "'Now' y una acción en curso piden presente continuo: 'I'm fixing the login bug'.",
+        },
+        {
+          id: "m2-l2-e2",
+          type: "choice",
+          prompt: "¿Cuál cuenta correctamente la causa del bug en el pasado?",
+          options: [
+            "The token expires yesterday.",
+            "The token expired yesterday.",
+            "The token is expiring yesterday.",
+            "The token will expire yesterday.",
+          ],
+          answer: 1,
+          explanation:
+            "'Yesterday' cierra el evento en el pasado: 'expired'.",
+        },
+        {
+          id: "m2-l2-e3",
+          type: "builder",
+          prompt: "Construye: 'Desplegaré el arreglo cuando pasen los tests.'",
+          words: ["I'll", "deploy", "the fix", "after the tests pass."],
+          answer: "I'll deploy the fix after the tests pass.",
+          explanation:
+            "'I'll + verbo base' expresa el siguiente paso; 'after the tests pass' marca la condición.",
+        },
+        {
+          id: "m2-l2-e4",
+          type: "write",
+          prompt: "Escribe en inglés: 'Encontré un bug en el login ayer.'",
+          answer: "I found a bug in the login yesterday.",
+          accept: [
+            "Yesterday I found a bug in the login.",
+            "I found a bug in login yesterday.",
+          ],
+          hint: "'Find' es irregular: find → found.",
+          explanation:
+            "'Found' es el pasado de 'find'. Añadir 'yesterday' deja claro que la acción ya terminó.",
+        },
+      ],
+    },
   ],
 };
