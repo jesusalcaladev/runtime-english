@@ -1,2 +1,5 @@
 minimumReleaseAgeExclude:
   - daisyui@5.8.0
+  - '@capacitor/android@8.6.2'
+  - '@capacitor/cli@8.6.2'
+  - '@capacitor/core@8.6.2'

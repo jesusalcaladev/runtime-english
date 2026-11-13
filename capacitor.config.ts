@@ -12,9 +12,11 @@ const config: CapacitorConfig = {
   server: {
     androidScheme: "https",
   },
-  SystemBars: {
-    insetsHandling: "native",
-    style: "DARK",
+  plugins: {
+    SystemBars: {
+      insetsHandling: "native",
+      style: "DARK",
+    },
   },
 };
 
