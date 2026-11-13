@@ -491,5 +491,103 @@ export const m8: Module = {
         },
       ],
     },
+    {
+      id: "m8-l6",
+      slug: "emails-tickets-y-mensajes-profesionales",
+      title: "Emails, tickets y mensajes profesionales",
+      step: "B1 · Práctica guiada",
+      cefr: "B1",
+      minutes: 10,
+      summary:
+        "Escribe mensajes claros para reportar avances, pedir acciones y cerrar tareas sin ambigüedad.",
+      objectives: [
+        "Redactar mensajes cortos con contexto, acción y cierre.",
+        "Usar frases modelo para tickets, emails y chat profesional.",
+        "Confirmar entendimiento y próximos pasos por escrito.",
+      ],
+      pronunciation:
+        "Hi team, the fix is ready. Please review the ticket when you can. Let me know if you need anything else.",
+      blocks: [
+        {
+          type: "technique",
+          name: "Mensaje profesional en 3 líneas",
+          desc: "1) Contexto/estado: qué pasó o en qué punto estás. 2) Acción o petición: qué necesitas o qué harás. 3) Cierre: disponibilidad o confirmación. Ejemplo: 'The fix is deployed to staging. Please test the login flow. Let me know if you find any issues.'",
+        },
+        {
+          type: "phrases",
+          title: "Frases modelo",
+          items: [
+            { en: "Hi team, here's a quick update.", es: "Hola equipo, aquí va una actualización rápida." },
+            { en: "The issue has been fixed and deployed to staging.", es: "El problema fue arreglado y desplegado a staging." },
+            { en: "Please review the ticket when you can.", es: "Por favor revisa el ticket cuando puedas." },
+            { en: "Let me know if you need any more details.", es: "Avísame si necesitas más detalles." },
+            { en: "I'll follow up once I have more information.", es: "Haré seguimiento cuando tenga más información." },
+            { en: "Thanks for your help.", es: "Gracias por tu ayuda." },
+          ],
+        },
+        {
+          type: "table",
+          title: "Sentence frames para escribir rápido",
+          columns: ["Objetivo", "Marco"],
+          rows: [
+            ["Dar estado", "The [task/issue] is [status]."],
+            ["Pedir acción", "Please [action] when you [time/condition]."],
+            ["Cerrar", "Let me know if you need [anything/more details]."],
+          ],
+        },
+      ],
+      exercises: [
+        {
+          id: "m8-l6-e1",
+          type: "choice",
+          prompt: "Quieres empezar un mensaje de actualización de forma clara. ¿Qué eliges?",
+          options: [
+            "Hey.",
+            "Hi team, here's a quick update.",
+            "Listen.",
+            "Now read this.",
+          ],
+          answer: 1,
+          explanation:
+            "Una apertura clara y profesional prepara al lector: 'Hi team, here's a quick update.'",
+        },
+        {
+          id: "m8-l6-e2",
+          type: "builder",
+          prompt: "Construye: 'El problema fue arreglado y desplegado a staging.'",
+          words: ["The issue", "has been fixed", "and deployed", "to staging."],
+          answer: "The issue has been fixed and deployed to staging.",
+          explanation:
+            "Presente perfecto pasivo para comunicar estado/resultado: 'has been fixed and deployed'.",
+        },
+        {
+          id: "m8-l6-e3",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Avísame si necesitas más detalles.'",
+          answer: "Let me know if you need more details.",
+          accept: [
+            "Let me know if you need any more details.",
+            "Please let me know if you need more details.",
+          ],
+          hint: "Usa 'Let me know if...'",
+          explanation:
+            "Cierre útil que deja abierta la comunicación sin sonar insistente.",
+        },
+        {
+          id: "m8-l6-e4",
+          type: "choice",
+          prompt: "¿Qué mensaje cierra mejor una tarea por escrito?",
+          options: [
+            "Done.",
+            "I'll follow up once I have more information.",
+            "Whatever happens happens.",
+            "No more messages.",
+          ],
+          answer: 1,
+          explanation:
+            "Indicar el siguiente paso o seguimiento ('I'll follow up...') da claridad sobre qué esperar.",
+        },
+      ],
+    },
   ],
 };

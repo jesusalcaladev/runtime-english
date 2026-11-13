@@ -547,7 +547,7 @@ export default function ExerciseRunner({
                             current.filter((_, indexValue) => indexValue !== position),
                           )
                         }
-                        class="rounded-lg bg-base-100 px-2.5 py-1.5 text-xs font-medium text-base-content/75 transition hover:bg-base-300 disabled:opacity-60"
+                        class="rounded-lg bg-base-content px-2.5 py-1.5 text-xs font-medium text-base-100 shadow-sm transition hover:opacity-90 disabled:opacity-70"
                       >
                         {exercise.words[wordIndex]}
                       </button>
@@ -568,8 +568,8 @@ export default function ExerciseRunner({
                       onClick={() => setPicked((current) => [...current, wordIndex])}
                       class={`rounded-lg px-2.5 py-1.5 text-xs font-medium transition ${
                         used
-                          ? "bg-base-200/40 text-base-content/20"
-                          : "bg-base-200 text-base-content/65 hover:bg-base-300 hover:text-base-content"
+                          ? "bg-base-content/20 text-base-content/35 ring-1 ring-base-content/10"
+                          : "bg-base-200 text-base-content/70 hover:bg-base-300 hover:text-base-content"
                       }`}
                     >
                       {word}
