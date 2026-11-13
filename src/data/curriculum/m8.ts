@@ -7,7 +7,7 @@ export const m8: Module = {
   title: "Práctica Intensiva y Repasos",
   shortTitle: "Práctica & Repasos",
   description:
-    "Lectura de docs, pronunciación funcional, micro-repasos espaciados y drills de situaciones reales para afianzar todo.",
+    "Lectura de docs, prompts para AI agents, pronunciación funcional, micro-repasos espaciados y drills de situaciones reales para afianzar todo.",
   sessions: [
     {
       id: "m8-l1",
@@ -100,10 +100,222 @@ export const m8: Module = {
       ],
     },
     {
+      id: "m8-l7",
+      slug: "prompts-y-ai-agents",
+      title: "Prompts y trabajo con AI agents",
+      step: "B1 · Paso 8.2",
+      cefr: "B1",
+      minutes: 14,
+      summary:
+        "Ruta completa para hablarle a un AI agent en inglés claro y natural: plan del prompt, vocabulario técnico y expresiones nativas para pedir, acotar e iterar.",
+      objectives: [
+        "Estructurar prompts claros con contexto, tarea, restricciones y formato de salida.",
+        "Usar vocabulario y frases nativas comunes al trabajar con coding agents.",
+        "Pedir cambios, correcciones y sanity checks sin ambigüedad ni fricción.",
+      ],
+      pronunciation:
+        "Here's the context. Could you walk me through the fix, call out any edge cases, and keep the API the same?",
+      blocks: [
+        {
+          type: "technique",
+          name: "Ruta limpia: Contexto → Objetivo → Restricciones → Formato → Revisión",
+          desc: "Piensa el prompt como un mini brief: 1) Contexto: qué hay, dónde está y qué pasa ahora. 2) Objetivo: qué resultado quieres (refactor, debug, explain, draft). 3) Restricciones: límites claros (no breaking changes, keep it simple, out of scope). 4) Formato: cómo debe responder (steps, diff, list, JSON). 5) Revisión: pide que señale riesgos o casos borde y tú haces un sanity check final.",
+        },
+        {
+          type: "vocab",
+          title: "Vocabulario esencial de prompts y agentes",
+          items: [
+            { en: "prompt / instruction", es: "instrucción que das al modelo", example: "Write a clear prompt with enough context." },
+            { en: "context", es: "información de fondo relevante", example: "Here's the context: this endpoint times out under load." },
+            { en: "constraint", es: "restricción o límite", example: "One constraint: do not change the public API." },
+            { en: "output format", es: "formato de salida esperado", example: "Use this output format: cause, fix, and test." },
+            { en: "tool call", es: "uso de una herramienta por el agente", example: "The agent made a tool call to read the file." },
+            { en: "hallucination", es: "respuesta inventada o no fundamentada", example: "Double-check the answer for hallucinations." },
+            { en: "edge case", es: "caso límite o poco común", example: "Call out any edge cases for null input." },
+            { en: "happy path", es: "flujo normal sin errores", example: "This works on the happy path, but fails on retries." },
+            { en: "boilerplate", es: "código repetitivo/plantilla", example: "Generate the boilerplate, then I'll refine it." },
+          ],
+        },
+        {
+          type: "vocab",
+          title: "Inglés nativo para pedir y guiar (muy común)",
+          items: [
+            { en: "walk me through", es: "explícame paso a paso", example: "Can you walk me through this change?" },
+            { en: "break it down", es: "desglósalo en partes simples", example: "Break it down into smaller steps." },
+            { en: "spell out", es: "explicarlo con detalle y claridad", example: "Spell out the assumptions you're making." },
+            { en: "call out", es: "señalar o destacar algo importante", example: "Call out any breaking changes." },
+            { en: "from scratch", es: "desde cero", example: "Rewrite this function from scratch." },
+            { en: "take another pass", es: "revisarlo/hacer otra pasada", example: "Can you take another pass at the error handling?" },
+            { en: "sanity check", es: "revisión rápida para ver si tiene sentido", example: "Do a quick sanity check on this approach." },
+            { en: "keep it simple", es: "mantenlo simple", example: "Let's keep it simple for now." },
+            { en: "out of scope", es: "fuera del alcance", example: "Refactoring the database layer is out of scope." },
+          ],
+        },
+        {
+          type: "phrases",
+          title: "Frases nativas para prompts claros",
+          items: [
+            { en: "Here's the context: ...", es: "Aquí está el contexto: ..." },
+            { en: "What I'm trying to do is...", es: "Lo que intento hacer es..." },
+            { en: "Walk me through your reasoning.", es: "Explícame tu razonamiento paso a paso." },
+            { en: "Call out any edge cases or trade-offs.", es: "Señala cualquier caso borde o trade-off." },
+            { en: "Keep the existing behavior the same.", es: "Mantén el comportamiento existente igual." },
+            { en: "Let's keep this out of scope for now.", es: "Dejemos esto fuera del alcance por ahora." },
+            { en: "Can you take another pass and simplify it?", es: "¿Puedes revisarlo otra vez y simplificarlo?" },
+            { en: "Explain it in plain English.", es: "Explícalo en inglés sencillo." },
+          ],
+        },
+        {
+          type: "table",
+          title: "De vago a nativo y claro",
+          columns: ["En vez de...", "Di mejor...", "Por qué funciona"],
+          rows: [
+            ["Fix this.", "Here's the bug and expected behavior. Can you fix it without changing the API?", "Da contexto, objetivo y restricción."],
+            ["Explain.", "Can you walk me through this step by step?", "Pide una explicación guiada y natural."],
+            ["Is this okay?", "Can you do a quick sanity check and call out any edge cases?", "Pide revisión concreta, no un sí/no vago."],
+            ["Rewrite it.", "Can you take another pass and keep it simple?", "Suena natural e indica estilo deseado."],
+            ["Anything else?", "Is there anything out of scope or risky here?", "Ayuda a descubrir riesgos y límites."],
+          ],
+        },
+        {
+          type: "callout",
+          tone: "tip",
+          title: "Sonar nativo = sonar claro",
+          body: "No necesitas slang para sonar natural. Frases simples como 'walk me through', 'call out', 'keep it simple' o 'from scratch' son inglés nativo cotidiano en equipos tech. Usa un tono directo y amable: pide, acota y revisa.",
+        },
+        {
+          type: "callout",
+          tone: "warning",
+          title: "Verifica antes de confiar",
+          body: "Aunque el agente explique con seguridad, haz un sanity check: ejecuta tests, revisa edge cases y confirma que no inventó APIs o detalles (hallucinations).",
+        },
+      ],
+      exercises: [
+        {
+          id: "m8-l7-e1",
+          type: "choice",
+          prompt: "Quieres que el agente no cambie la API pública. ¿Qué parte del prompt es?",
+          options: ["Una restricción (constraint)", "El formato de salida", "Un ejemplo", "Un saludo"],
+          answer: 0,
+          explanation:
+            "Es una restricción: define un límite claro ('do not change the public API').",
+        },
+        {
+          id: "m8-l7-e2",
+          type: "choice",
+          prompt: "De forma nativa, ¿cómo pides que te expliquen algo paso a paso?",
+          options: [
+            "Can you walk me through it?",
+            "Can you road me it?",
+            "Do a walking to me.",
+            "You explain me walking.",
+          ],
+          answer: 0,
+          explanation:
+            "'Walk me through it' es una frase nativa muy común para pedir una explicación guiada.",
+        },
+        {
+          id: "m8-l7-e3",
+          type: "builder",
+          prompt: "Construye: 'Señala cualquier caso borde o trade-off.'",
+          words: ["Call out", "any edge cases", "or trade-offs."],
+          answer: "Call out any edge cases or trade-offs.",
+          explanation:
+            "'Call out' significa señalar o destacar; es muy natural en revisiones técnicas.",
+        },
+        {
+          id: "m8-l7-e4",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Explícame tu razonamiento paso a paso.'",
+          answer: "Walk me through your reasoning.",
+          accept: [
+            "Walk me through your reasoning step by step.",
+            "Can you walk me through your reasoning?",
+            "Could you walk me through your reasoning?",
+          ],
+          hint: "Usa 'Walk me through...'",
+          explanation:
+            "Forma nativa y clara de pedir que desglosen el razonamiento.",
+        },
+        {
+          id: "m8-l7-e5",
+          type: "choice",
+          prompt: "¿Qué significa 'take another pass at the error handling'?",
+          options: [
+            "Ignorar el manejo de errores",
+            "Revisarlo/mejorarlo otra vez",
+            "Borrarlo desde cero sin razón",
+            "Pasarlo a otro equipo",
+          ],
+          answer: 1,
+          explanation:
+            "'Take another pass' es hacer otra revisión o intento para mejorarlo.",
+        },
+        {
+          id: "m8-l7-e6",
+          type: "builder",
+          prompt: "Construye: 'Mantén el comportamiento existente igual.'",
+          words: ["Keep the", "existing behavior", "the same."],
+          answer: "Keep the existing behavior the same.",
+          explanation:
+            "Restricción clave y muy natural para evitar regresiones.",
+        },
+        {
+          id: "m8-l7-e7",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Haz una revisión rápida y señala cualquier caso borde.'",
+          answer: "Do a quick sanity check and call out any edge cases.",
+          accept: [
+            "Do a quick sanity check and call out any edge cases",
+            "Can you do a quick sanity check and call out any edge cases?",
+          ],
+          hint: "Usa 'sanity check' y 'call out'.",
+          explanation:
+            "Combina dos expresiones nativas muy usadas para pedir revisión concreta.",
+        },
+        {
+          id: "m8-l7-e8",
+          type: "choice",
+          prompt: "Quieres decir que algo no forma parte del trabajo ahora. ¿Qué dices?",
+          options: [
+            "It's out of scope for now.",
+            "It's out of road for now.",
+            "It's off the scope path.",
+            "It's without scope never.",
+          ],
+          answer: 0,
+          explanation:
+            "'Out of scope' es la forma estándar y nativa de decir que algo queda fuera del alcance.",
+        },
+        {
+          id: "m8-l7-e9",
+          type: "builder",
+          prompt: "Construye: 'Explícalo en inglés sencillo.'",
+          words: ["Explain it", "in plain", "English."],
+          answer: "Explain it in plain English.",
+          explanation:
+            "'In plain English' pide una explicación simple y directa, sin jerga innecesaria.",
+        },
+        {
+          id: "m8-l7-e10",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Reescribe esta función desde cero, pero mantenlo simple.'",
+          answer: "Rewrite this function from scratch, but keep it simple.",
+          accept: [
+            "Rewrite this function from scratch but keep it simple.",
+            "Rewrite this function from scratch, but keep it simple",
+          ],
+          hint: "Usa 'from scratch' y 'keep it simple'.",
+          explanation:
+            "'From scratch' (desde cero) y 'keep it simple' son expresiones nativas muy comunes.",
+        },
+      ],
+    },
+    {
       id: "m8-l2",
       slug: "pronunciacion-funcional-devs",
       title: "Pronunciación funcional para developers",
-      step: "A2 · Paso 8.2",
+      step: "A2 · Paso 8.3",
       cefr: "A2",
       minutes: 8,
       summary:
@@ -202,7 +414,7 @@ export const m8: Module = {
       id: "m8-l3",
       slug: "micro-repaso-fundamentos",
       title: "Micro-repaso: fundamentos A1-A2",
-      step: "A2 · Repaso rápido",
+      step: "A2 · Paso 8.4 · Repaso",
       cefr: "A2",
       minutes: 8,
       summary:
@@ -289,7 +501,7 @@ export const m8: Module = {
       id: "m8-l4",
       slug: "micro-repaso-comunicacion-b1-b2",
       title: "Micro-repaso: comunicación B1-B2",
-      step: "B1 · Repaso rápido",
+      step: "B1 · Paso 8.5 · Repaso",
       cefr: "B1",
       minutes: 10,
       summary:
@@ -384,7 +596,7 @@ export const m8: Module = {
       id: "m8-l5",
       slug: "drills-situaciones-reales",
       title: "Drills: cómo dirías y escríbelo",
-      step: "B1 · Práctica guiada",
+      step: "B1 · Paso 8.6 · Práctica guiada",
       cefr: "B1",
       minutes: 12,
       summary:
@@ -495,7 +707,7 @@ export const m8: Module = {
       id: "m8-l6",
       slug: "emails-tickets-y-mensajes-profesionales",
       title: "Emails, tickets y mensajes profesionales",
-      step: "B1 · Práctica guiada",
+      step: "B1 · Paso 8.7 · Práctica guiada",
       cefr: "B1",
       minutes: 10,
       summary:

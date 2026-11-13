@@ -47,6 +47,23 @@ export const m4: Module = {
             { en: "Let's pair on the payment feature after the standup.", es: "Proponer pair programming." },
           ],
         },
+        {
+          type: "table",
+          title: "Marco rápido para tu turno",
+          columns: ["Momento", "Frame"],
+          rows: [
+            ["Ayer", "Yesterday, I [finished/worked on]..."],
+            ["Hoy", "Today, I'm working on..."],
+            ["Bloqueo", "I'm blocked by... / I need help with..."],
+            ["Cierre", "No blockers. / I'll follow up after the standup."],
+          ],
+        },
+        {
+          type: "callout",
+          tone: "tip",
+          title: "Flujo nativo y claro",
+          body: "Habla en frases cortas y concretas: qué hiciste, qué harás y qué te bloquea. Si no hay bloqueo, dilo explícitamente: 'No blockers on my side.' Suena natural, profesional y ahorra tiempo al equipo.",
+        },
       ],
       exercises: [
         {

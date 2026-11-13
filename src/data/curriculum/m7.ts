@@ -245,6 +245,12 @@ export const m7: Module = {
             { en: "Let's put that in the parking lot.", es: "Aparquemos ese tema para luego." },
           ],
         },
+        {
+          type: "callout",
+          tone: "tip",
+          title: "Registro y claridad",
+          body: "Estas frases son jerga profesional y suenan naturales en reuniones. Úsalas con un propósito claro (aparcar, retomar, pedir capacidad). Si hablas con alguien externo o no técnico, prefiere formas neutras como 'Can we discuss this later?' o 'I don't have time this week.'",
+        },
       ],
       exercises: [
         {
@@ -343,6 +349,12 @@ export const m7: Module = {
             { en: "Tests pass. Ship it.", es: "Los tests pasan. Adelante." },
             { en: "Good catch, thanks.", es: "Buen hallazgo, gracias." },
           ],
+        },
+        {
+          type: "callout",
+          tone: "tip",
+          title: "Tono en reviews",
+          body: "Marca la intención: 'nit' para algo menor, 'blocking' solo si impide mergear. Reconoce lo bueno ('Good catch, thanks') y evita etiquetas vagas. Así el feedback es claro, nativo y fácil de actuar.",
         },
       ],
       exercises: [
