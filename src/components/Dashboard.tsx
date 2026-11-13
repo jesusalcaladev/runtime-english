@@ -1,6 +1,7 @@
 import {
   ArrowRight,
   ArrowUpRight,
+  Award,
   Clock,
   Flame,
   Layers,
@@ -43,6 +44,7 @@ export default function Dashboard({
   const doneExercises = Object.keys(state.completedExercises).length;
   const pct = totalExercises === 0 ? 0 : Math.round((doneExercises / totalExercises) * 100);
   const unlockedAchievements = Object.keys(state.achievements).length;
+  const courseComplete = doneSessions >= totalSessions && doneExercises >= totalExercises;
   const xpLevel = Math.max(1, Math.floor(state.xp / 150) + 1);
   const intoLevel = state.xp % 150;
   const levelLabel = LEVEL_LABELS[Math.min(LEVEL_LABELS.length - 1, xpLevel - 1)];
@@ -248,16 +250,22 @@ export default function Dashboard({
         </a>
 
         <a
-          href="/slang"
+          href={courseComplete ? "/certificate" : "/slang"}
           class="group flex items-center justify-between gap-4 rounded-3xl bg-accent/[0.055] p-5 transition hover:bg-accent/[0.085]"
         >
           <div class="flex items-center gap-3.5">
             <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-accent/10 text-accent">
-              <Sparkles class="h-4.5 w-4.5" />
+              {courseComplete ? <Award class="h-4.5 w-4.5" /> : <Sparkles class="h-4.5 w-4.5" />}
             </span>
             <div>
-              <p class="text-[13px] font-medium">{tAction(stage, "slangTitle")}</p>
-              <p class="mt-0.5 text-[11px] text-base-content/40">{tAction(stage, "slangBody")}</p>
+              <p class="text-[13px] font-medium">
+                {courseComplete ? "Certificate ready" : tAction(stage, "slangTitle")}
+              </p>
+              <p class="mt-0.5 text-[11px] text-base-content/40">
+                {courseComplete
+                  ? "Print your English for Programmers certificate"
+                  : tAction(stage, "slangBody")}
+              </p>
             </div>
           </div>
           <ArrowRight class="h-4 w-4 text-accent/60 transition group-hover:translate-x-0.5" />

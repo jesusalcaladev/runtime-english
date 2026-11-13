@@ -4,6 +4,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import AchievementsGrid from "../components/AchievementsGrid";
 import PageHeader from "../components/ui/PageHeader.astro";
 import { ACHIEVEMENTS } from "../lib/achievements";
+import { TOTAL_EXERCISES, TOTAL_SESSIONS } from "../data/curriculum";
 
 const achievements = ACHIEVEMENTS.map(({ id, title, description, icon, tier, xp }) => ({
   id,
@@ -37,6 +38,11 @@ const totalXp = ACHIEVEMENTS.reduce((total, achievement) => total + achievement.
       </div>
     </PageHeader>
 
-    <AchievementsGrid client:only="preact" achievements={achievements} />
+    <AchievementsGrid
+      client:only="preact"
+      achievements={achievements}
+      totalSessions={TOTAL_SESSIONS}
+      totalExercises={TOTAL_EXERCISES}
+    />
   </div>
 </BaseLayout>

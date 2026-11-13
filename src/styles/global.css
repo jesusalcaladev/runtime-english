@@ -283,3 +283,33 @@
     scroll-behavior: auto !important;
   }
 }
+
+@media print {
+  html,
+  body {
+    background: #ffffff !important;
+    color: #111111 !important;
+  }
+
+  header,
+  aside,
+  nav,
+  [data-toast-host],
+  .no-print {
+    display: none !important;
+  }
+
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: none !important;
+  }
+
+  .certificate-sheet {
+    margin: 0 auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+}

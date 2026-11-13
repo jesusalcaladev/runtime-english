@@ -1,5 +1,6 @@
 import { useState } from "preact/hooks";
 import {
+  Award,
   Bookmark,
   CalendarCheck,
   CheckCheck,
@@ -12,6 +13,7 @@ import {
   Layers,
   Lock,
   MessageSquare,
+  Printer,
   Target,
   Terminal,
   Trophy,
@@ -33,6 +35,8 @@ export interface AchievementMeta {
 
 interface Props {
   achievements: AchievementMeta[];
+  totalSessions: number;
+  totalExercises: number;
 }
 
 const ICONS: Record<string, typeof Trophy> = {
@@ -86,7 +90,7 @@ function progressOf(achievement: AchievementMeta, state: ProgressState): number 
   return Math.min(achievement.target, Math.max(0, achievement.progress(state)));
 }
 
-export default function AchievementsGrid({ achievements }: Props) {
+export default function AchievementsGrid({ achievements, totalSessions, totalExercises }: Props) {
   const state = useProgress();
   const [filter, setFilter] = useState<Filter>("all");
   const unlocked = achievements.filter((achievement) => state.achievements[achievement.id]);
@@ -101,9 +105,44 @@ export default function AchievementsGrid({ achievements }: Props) {
   });
   const xpFromAchievements = unlocked.reduce((total, achievement) => total + achievement.xp, 0);
   const pct = Math.round((unlocked.length / Math.max(achievements.length, 1)) * 100);
+  const doneSessions = Object.keys(state.completedSessions).length;
+  const doneExercises = Object.keys(state.completedExercises).length;
+  const courseComplete = doneSessions >= totalSessions && doneExercises >= totalExercises;
 
   return (
     <div class="space-y-6">
+      <a
+        href="/certificate"
+        class={`group flex items-center justify-between gap-4 rounded-3xl p-5 transition ${
+          courseComplete
+            ? "bg-accent/[0.08] hover:bg-accent/[0.12]"
+            : "bg-base-200/70 hover:bg-base-200"
+        }`}
+      >
+        <div class="flex items-center gap-3.5">
+          <span
+            class={`flex h-11 w-11 items-center justify-center rounded-2xl ${
+              courseComplete ? "bg-accent/15 text-accent" : "bg-base-100/70 text-base-content/40"
+            }`}
+          >
+            <Award class="h-5 w-5" />
+          </span>
+          <div>
+            <p class="text-[13px] font-medium">
+              {courseComplete ? "Certificate unlocked" : "Completion certificate"}
+            </p>
+            <p class="mt-0.5 text-[11px] text-base-content/45">
+              {courseComplete
+                ? "Print your English for Programmers certificate."
+                : `Finish everything to unlock it · ${doneSessions}/${totalSessions} sessions, ${doneExercises}/${totalExercises} exercises`}
+            </p>
+          </div>
+        </div>
+        <span class="flex items-center gap-1.5 text-[11px] font-medium text-base-content/45 transition group-hover:text-base-content/70">
+          <Printer class="h-4 w-4" />
+          Open
+        </span>
+      </a>
       <div class="grid gap-3 sm:grid-cols-3">
         {[
           { label: "Desbloqueados", value: `${unlocked.length}/${achievements.length}` },

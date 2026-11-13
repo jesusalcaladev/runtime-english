@@ -1,0 +1,36 @@
+---
+import { Award } from "@lucide/astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import CertificateView from "../components/CertificateView";
+import PageHeader from "../components/ui/PageHeader.astro";
+import { TOTAL_EXERCISES, TOTAL_SESSIONS } from "../data/curriculum";
+---
+
+<BaseLayout
+  title="Certificate · DevEng Core"
+  description="Print your English for Programmers completion certificate from DevEng Core."
+  fullWidth={false}
+>
+  <div class="mx-auto max-w-[1120px] animate-fade-up space-y-6 print:max-w-none">
+    <div class="print:hidden">
+      <PageHeader
+        eyebrow="Completion / Certificate"
+        title="English for Programmers"
+        description="Finish every session and exercise to unlock a printable certificate in English with your name."
+      >
+        <div class="mt-5 flex flex-wrap items-center gap-2">
+          <span class="flex items-center gap-1.5 rounded-full bg-accent/10 px-3 py-1.5 text-[10px] font-medium text-accent">
+            <Award class="h-3 w-3" />
+            {TOTAL_SESSIONS} sessions · {TOTAL_EXERCISES} exercises
+          </span>
+        </div>
+      </PageHeader>
+    </div>
+
+    <CertificateView
+      client:only="preact"
+      totalSessions={TOTAL_SESSIONS}
+      totalExercises={TOTAL_EXERCISES}
+    />
+  </div>
+</BaseLayout>

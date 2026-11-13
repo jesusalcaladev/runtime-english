@@ -88,7 +88,7 @@ export default function SidebarNav({ modules }: Props) {
       />
 
       <aside
-        class={`fixed bottom-0 left-0 top-14 z-40 flex w-[286px] flex-col bg-base-100 transition-transform duration-200 lg:sticky lg:h-[calc(100vh-3.5rem)] lg:translate-x-0 lg:bg-transparent ${
+        class={`fixed bottom-0 left-0 top-[calc(3.5rem+env(safe-area-inset-top,0px))] z-40 flex w-[286px] flex-col bg-base-100 pb-[env(safe-area-inset-bottom,0px)] transition-transform duration-200 print:hidden lg:sticky lg:top-[calc(3.5rem+env(safe-area-inset-top,0px))] lg:h-[calc(100vh-3.5rem-env(safe-area-inset-top,0px))] lg:translate-x-0 lg:bg-transparent ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
