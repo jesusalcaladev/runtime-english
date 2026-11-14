@@ -81,8 +81,9 @@ function markKokoroCached(ready: boolean) {
   } catch {}
 }
 
-let kokoroTTS: any = null;
-let kokoroPromise: Promise<any> | null = null;
+let kokoroWorker: Worker | null = null;
+let kokoroPromise: Promise<boolean> | null = null;
+let kokoroReady = false;
 let kokoroStatus: KokoroStatus = {
   state: "idle",
   progress: 0,
@@ -96,6 +97,8 @@ let kokoroSpeakingButton: HTMLElement | null = null;
 let kokoroAbort: AbortController | null = null;
 const kokoroAudioCache = new Map<string, string>();
 let kokoroAutoInitStarted = false;
+let kokoroGenSeq = 0;
+const kokoroPendingGen = new Map<number, { resolve: (v: { buffer: ArrayBuffer; mime: string }) => void; reject: (e: any) => void }>();
 
 function getKokoroCacheKey(text: string, speed: number): string {
   return `${speed}|af_heart|${text}`;
@@ -104,31 +107,22 @@ function getKokoroCacheKey(text: string, speed: number): string {
 function cacheKokoroAudio(key: string, url: string) {
   const prev = kokoroAudioCache.get(key);
   if (prev && prev !== url) {
-    try {
-      URL.revokeObjectURL(prev);
-    } catch {}
+    try { URL.revokeObjectURL(prev); } catch {}
   }
   kokoroAudioCache.set(key, url);
-  // Limit cache size
   while (kokoroAudioCache.size > 12) {
     const oldest = kokoroAudioCache.keys().next().value as string | undefined;
     if (!oldest) break;
     const oldUrl = kokoroAudioCache.get(oldest);
     kokoroAudioCache.delete(oldest);
-    if (oldUrl) {
-      try {
-        URL.revokeObjectURL(oldUrl);
-      } catch {}
-    }
+    if (oldUrl) { try { URL.revokeObjectURL(oldUrl); } catch {} }
   }
 }
 
 function emitKokoroStatus(patch: Partial<KokoroStatus>) {
   kokoroStatus = { ...kokoroStatus, ...patch };
   for (const fn of kokoroListeners) {
-    try {
-      fn(kokoroStatus);
-    } catch {}
+    try { fn(kokoroStatus); } catch {}
   }
 }
 
@@ -138,17 +132,18 @@ export function getKokoroStatus(): KokoroStatus {
 
 export function subscribeKokoroStatus(listener: (s: KokoroStatus) => void): () => void {
   kokoroListeners.add(listener);
-  try {
-    listener(kokoroStatus);
-  } catch {}
+  try { listener(kokoroStatus); } catch {}
   return () => kokoroListeners.delete(listener);
 }
 
 function stopKokoroPlayback() {
-  try {
-    kokoroAbort?.abort();
-  } catch {}
+  try { kokoroAbort?.abort(); } catch {}
   kokoroAbort = null;
+  // Reject pending generations so callers can fall back/stop waiting
+  for (const [, p] of kokoroPendingGen) {
+    try { p.reject(new Error("aborted")); } catch {}
+  }
+  kokoroPendingGen.clear();
   if (kokoroAudio) {
     try {
       kokoroAudio.onended = null;
@@ -158,7 +153,6 @@ function stopKokoroPlayback() {
     } catch {}
     kokoroAudio = null;
   }
-  // Do not revoke kokoroAudioUrl: it may come from cache for reuse
   kokoroAudioUrl = null;
   if (kokoroSpeakingButton) {
     setSpeaking(kokoroSpeakingButton, false);
@@ -177,354 +171,229 @@ async function detectKokoroDevice(): Promise<"webgpu" | "wasm"> {
   return "wasm";
 }
 
-export async function loadKokoro(): Promise<boolean> {
-  if (typeof window === "undefined") return false;
-  if (kokoroTTS && kokoroStatus.state === "ready") return true;
-  if (kokoroPromise) {
-    try {
-      await kokoroPromise;
-      return kokoroStatus.state === "ready";
-    } catch {
-      return false;
-    }
-  }
+function ensureKokoroWorker(): Worker {
+  if (kokoroWorker) return kokoroWorker;
+  const w = new Worker(new URL("./kokoro.worker.ts", import.meta.url), { type: "module" });
+  kokoroWorker = w;
+  // Progress aggregation state (main thread)
+  let targetProgress = 0;
+  let displayedProgress = 0;
+  let progressAnim: ReturnType<typeof setInterval> | null = null;
+  let stallTimer: ReturnType<typeof setTimeout> | null = null;
+  let settled = false;
+  const fileBytes: Record<string, { loaded: number; total: number }> = {};
+  const STALL_MS = 30000;
+  const FINALIZE_STALL_MS = 180000;
+  const deviceRef = { current: "wasm" as "webgpu" | "wasm" };
+  const cachedHint = isKokoroMarkedCached();
 
-  let thisLoad!: Promise<any>;
-  thisLoad = (async () => {
-    const device = await detectKokoroDevice();
-    const cachedHint = isKokoroMarkedCached();
-    let stallTimer: ReturnType<typeof setTimeout> | null = null;
-    let settled = false;
-    const STALL_MS = 30000;
-    const FINALIZE_STALL_MS = 180000; // Final initialization/compilation can take a while without events
-
-    let targetProgress = 0; // Actual computed progress (0-99)
-    let displayedProgress = 0; // Smoothed progress shown to the user
-    let progressAnim: ReturnType<typeof setInterval> | null = null;
-
-    const stopProgressAnim = () => {
-      if (progressAnim) {
-        clearInterval(progressAnim);
-        progressAnim = null;
-      }
-    };
-    const startProgressAnim = () => {
-      if (progressAnim || settled) return;
-      progressAnim = setInterval(() => {
-        if (settled) {
-          stopProgressAnim();
-          return;
-        }
-        const target = targetProgress;
-        if (displayedProgress >= target) {
-          if (target >= 99) stopProgressAnim();
-          return;
-        }
-        // Gradual progress toward the target to avoid jumps and show perceived real loading progress
-        const remaining = target - displayedProgress;
-        const step = Math.max(0.25, remaining * 0.18);
-        displayedProgress = Math.min(target, displayedProgress + step);
-        const shown = Math.max(0, Math.min(99, Math.round(displayedProgress)));
-        emitKokoroStatus({
-          state: "loading",
-          progress: shown,
-          message:
-            target >= 99 && shown >= 99
-              ? "Inicializando modelo de voz…"
-              : cachedHint
-                ? `Cargando voz HQ desde caché… ${shown}%`
-                : `Descargando voz HQ… ${shown}%`,
-          device,
-        });
-      }, 120);
-    };
-
-    const clearStall = () => {
-      if (stallTimer) {
-        clearTimeout(stallTimer);
-        stallTimer = null;
-      }
-    };
-    const bumpStall = (ms = STALL_MS) => {
-      if (settled) return;
-      clearStall();
-      stallTimer = setTimeout(() => {
-        if (settled || kokoroStatus.state !== "loading") return;
-        const finalizing = targetProgress >= 95;
-        // No activity/progress for a while: mark error to unblock the UI and allow retry
-        settled = true;
-        stopProgressAnim();
-        kokoroTTS = null;
-        if (kokoroPromise === thisLoad) kokoroPromise = null;
-        emitKokoroStatus({
-          state: "error",
-          progress: Math.round(displayedProgress),
-          message: finalizing ? "La inicialización está tardando demasiado" : "La descarga parece detenida",
-          device,
-          error: finalizing
-            ? "La descarga terminó pero el modelo no se pudo iniciar a tiempo. Vuelve a intentar (los archivos suelen quedar en caché)."
-            : "No hubo progreso durante un rato. Revisa tu conexión y vuelve a intentar (lo descargado puede quedar en caché).",
-        });
-      }, ms);
-    };
-
-    emitKokoroStatus({
-      state: "loading",
-      progress: 0,
-      message: cachedHint ? "Cargando voz HQ desde caché…" : "Descargando modelo de voz HQ…",
-      device,
-      error: undefined,
-    });
-    bumpStall();
-
-    try {
-      // Configure ONNX Runtime (via transformers.js) for environments without cross-origin isolation:
-      // Single-thread mode avoids depending on SharedArrayBuffer/COOP+COEP in web and WebViews.
-      try {
-        const { env } = await import("@huggingface/transformers");
-        const wasm = (env as any)?.backends?.onnx?.wasm;
-        if (wasm) wasm.numThreads = 1;
-        // Allow remote model download from Hugging Face (expected behavior)
-        if ((env as any).allowRemoteModels === false) (env as any).allowRemoteModels = true;
-      } catch {}
-
-      let KokoroTTS: any;
-      try {
-        ({ KokoroTTS } = await import("kokoro-js"));
-      } catch (e) {
-        console.warn("kokoro-js import failed, retrying once...", e);
-        await new Promise((r) => setTimeout(r, 250));
-        ({ KokoroTTS } = await import("kokoro-js"));
-      }
-      const model_id = "onnx-community/Kokoro-82M-v1.0-ONNX";
-      const dtype = device === "webgpu" ? "fp32" : "q8";
-
-      // Aggregate byte progress across all files to avoid jumps
-      // (e.g. small files reaching 100% and inflating the average before the large file appears).
-      const fileBytes: Record<string, { loaded: number; total: number }> = {};
-      const updateAggregateProgress = (label?: string) => {
-        if (settled) return;
-        let loadedSum = 0;
-        let totalSum = 0;
-        for (const f of Object.values(fileBytes)) {
-          if (f.total > 0) {
-            totalSum += f.total;
-            loadedSum += Math.min(f.loaded, f.total);
-          }
-        }
-        let overall = 0;
-        if (totalSum > 0) {
-          overall = (loadedSum / totalSum) * 100;
-        } else {
-          const values = Object.values(fileBytes).map((f) =>
-            f.total > 0 ? (f.loaded / f.total) * 100 : 0,
-          );
-          overall = values.length ? values.reduce((a, b) => a + b, 0) / values.length : 0;
-        }
-        // Never go backwards and reserve 100% for the actual "ready" state
-        const pct = Math.max(targetProgress, Math.min(99, overall));
-        const progressed = pct > targetProgress;
-        targetProgress = pct;
-
-        // Immediate status/message (the bar animates smoothly toward the target)
-        if (label) {
-          const shown = Math.max(0, Math.min(99, Math.round(displayedProgress)));
-          emitKokoroStatus({
-            state: "loading",
-            progress: shown,
-            message: label,
-            device,
-          });
-        } else if (!progressAnim && displayedProgress < targetProgress) {
-          const shown = Math.max(0, Math.min(99, Math.round(displayedProgress)));
-          emitKokoroStatus({
-            state: "loading",
-            progress: shown,
-            message: `Descargando voz HQ… ${shown}%`,
-            device,
-          });
-        }
-        if (targetProgress > displayedProgress) startProgressAnim();
-
-        // Reset watchdog on activity/progress; allow more time at the end (initialization)
-        if (progressed || label) bumpStall(targetProgress >= 95 ? FINALIZE_STALL_MS : STALL_MS);
-      };
-
-      const loadWith = async (dev: "webgpu" | "wasm", dt: "fp32" | "fp16" | "q8" | "q4" | "q4f16") =>
-        KokoroTTS.from_pretrained(model_id, {
-          dtype: dt,
-          device: dev,
-          progress_callback: (info: any) => {
-          try {
-            if (!info || settled) return;
-            bumpStall();
-            const file = info.file as string | undefined;
-            if (info.status === "progress" && file) {
-              const total =
-                typeof info.total === "number" && Number.isFinite(info.total) && info.total > 0
-                  ? info.total
-                  : (fileBytes[file]?.total ?? 0);
-              let loaded =
-                typeof info.loaded === "number" && Number.isFinite(info.loaded)
-                  ? info.loaded
-                  : undefined;
-              if (loaded == null && typeof info.progress === "number" && total > 0) {
-                // info.progress may be 0-100 or 0-1 depending on the emitter
-                const ratio = info.progress > 1 ? info.progress / 100 : info.progress;
-                loaded = ratio * total;
-              }
-              if (loaded == null) loaded = fileBytes[file]?.loaded ?? 0;
-              // Register/update known totals; if total is unknown yet, use a
-              // provisional estimate so aggregate progress advances smoothly until known.
-              const effectiveTotal = total > 0 ? total : Math.max(loaded, fileBytes[file]?.total ?? 1);
-              fileBytes[file] = { loaded, total: effectiveTotal };
-              updateAggregateProgress();
-            } else if (info.status === "initiate") {
-              if (file && !fileBytes[file]) fileBytes[file] = { loaded: 0, total: 0 };
-              emitKokoroStatus({
-                state: "loading",
-                progress: Math.max(0, Math.min(99, Math.round(displayedProgress))),
-                message: "Preparando descarga de voz HQ…",
-                device,
-              });
-              bumpStall(targetProgress >= 95 ? FINALIZE_STALL_MS : STALL_MS);
-            } else if (info.status === "download" || info.status === "done") {
-              if (file && fileBytes[file] && fileBytes[file].total > 0) {
-                fileBytes[file].loaded = fileBytes[file].total;
-              }
-              // "done" may be per-file; keep <100% until the full load completes
-              if (info.status === "done") updateAggregateProgress("Finalizando descarga…");
-              if (targetProgress >= 95) bumpStall(FINALIZE_STALL_MS);
-            } else if (info.status === "ready") {
-              targetProgress = Math.max(targetProgress, 99);
-              if (displayedProgress < 99) startProgressAnim();
-              emitKokoroStatus({
-                state: "loading",
-                progress: Math.max(0, Math.min(99, Math.round(displayedProgress))),
-                message: "Inicializando modelo de voz (puede tardar unos segundos, no cierres la pestaña)…",
-                device,
-              });
-              // Compilation/initialization can take time without emitting progress
-              bumpStall(FINALIZE_STALL_MS);
-            }
-          } catch {}
-        },
-      } as any);
-
-      let tts: any;
-      let usedDevice: "webgpu" | "wasm" = device;
-      // Ceder el hilo antes de la inicialización pesada para que el navegador pinte la UI
-      // y reduzca la probabilidad del diálogo "Wait/Cancel" al llegar al 99%.
+  const stopProgressAnim = () => { if (progressAnim) { clearInterval(progressAnim); progressAnim = null; } };
+  const clearStall = () => { if (stallTimer) { clearTimeout(stallTimer); stallTimer = null; } };
+  const bumpStall = (ms = STALL_MS) => {
+    if (settled) return;
+    clearStall();
+    stallTimer = setTimeout(() => {
+      if (settled || kokoroStatus.state !== "loading") return;
+      const finalizing = targetProgress >= 95;
+      settled = true;
+      stopProgressAnim();
+      kokoroReady = false;
+      emitKokoroStatus({
+        state: "error",
+        progress: Math.round(displayedProgress),
+        message: finalizing ? "La inicialización está tardando demasiado" : "La descarga parece detenida",
+        device: deviceRef.current,
+        error: finalizing
+          ? "La descarga terminó pero el modelo no se pudo iniciar a tiempo. Vuelve a intentar (los archivos suelen quedar en caché)."
+          : "No hubo progreso durante un rato. Revisa tu conexión y vuelve a intentar (lo descargado puede quedar en caché).",
+      });
+    }, ms);
+  };
+  const startProgressAnim = () => {
+    if (progressAnim || settled) return;
+    progressAnim = setInterval(() => {
+      if (settled) { stopProgressAnim(); return; }
+      if (displayedProgress >= targetProgress) { if (targetProgress >= 99) stopProgressAnim(); return; }
+      const remaining = targetProgress - displayedProgress;
+      const step = Math.max(0.25, remaining * 0.18);
+      displayedProgress = Math.min(targetProgress, displayedProgress + step);
+      const shown = Math.max(0, Math.min(99, Math.round(displayedProgress)));
       emitKokoroStatus({
         state: "loading",
-        progress: Math.max(0, Math.min(99, Math.round(displayedProgress))),
-        message: targetProgress >= 95 ? "Inicializando modelo de voz (puede tardar unos segundos)…" : (cachedHint ? "Cargando voz HQ desde caché…" : "Descargando voz HQ…"),
-        device,
+        progress: shown,
+        message: targetProgress >= 99 && shown >= 99
+          ? "Inicializando modelo de voz (puede tardar unos segundos, no cierres la pestaña)…"
+          : cachedHint ? `Cargando voz HQ desde caché… ${shown}%` : `Descargando voz HQ… ${shown}%`,
+        device: deviceRef.current,
       });
-      await new Promise((r) => setTimeout(r, 60));
-      try {
-        tts = await loadWith(device, dtype);
-      } catch (e) {
-        // If WebGPU fails (common in WebViews/devices without stable support), retry with WASM
-        if (device === "webgpu" && !settled) {
-          usedDevice = "wasm";
-          emitKokoroStatus({
-            state: "loading",
-            progress: Math.max(0, Math.min(99, Math.round(displayedProgress))),
-            message: "WebGPU no disponible, usando WASM…",
-            device: usedDevice,
-          });
-          await new Promise((r) => setTimeout(r, 60));
-          tts = await loadWith("wasm", "q8");
-        } else {
-          throw e;
+    }, 120);
+  };
+  const updateAggregateProgress = (label?: string) => {
+    if (settled) return;
+    let loadedSum = 0, totalSum = 0;
+    for (const f of Object.values(fileBytes)) {
+      if (f.total > 0) { totalSum += f.total; loadedSum += Math.min(f.loaded, f.total); }
+    }
+    let overall = 0;
+    if (totalSum > 0) overall = (loadedSum / totalSum) * 100;
+    else {
+      const values = Object.values(fileBytes).map((f) => (f.total > 0 ? (f.loaded / f.total) * 100 : 0));
+      overall = values.length ? values.reduce((a, b) => a + b, 0) / values.length : 0;
+    }
+    const pct = Math.max(targetProgress, Math.min(99, overall));
+    const progressed = pct > targetProgress;
+    targetProgress = pct;
+    if (label) {
+      emitKokoroStatus({ state: "loading", progress: Math.max(0, Math.min(99, Math.round(displayedProgress))), message: label, device: deviceRef.current });
+    } else if (!progressAnim && displayedProgress < targetProgress) {
+      emitKokoroStatus({ state: "loading", progress: Math.max(0, Math.min(99, Math.round(displayedProgress))), message: `Descargando voz HQ… ${Math.max(0, Math.min(99, Math.round(displayedProgress)))}%`, device: deviceRef.current });
+    }
+    if (targetProgress > displayedProgress) startProgressAnim();
+    if (progressed || label) bumpStall(targetProgress >= 95 ? FINALIZE_STALL_MS : STALL_MS);
+  };
+
+  // expose helpers for loadKokoro to init/reset state via closure? simpler: attach
+  (w as any).__kokoroUi = { reset(device: "webgpu"|"wasm") {
+      deviceRef.current = device; targetProgress = 0; displayedProgress = 0; settled = false;
+      for (const k of Object.keys(fileBytes)) delete fileBytes[k];
+      stopProgressAnim(); clearStall();
+      emitKokoroStatus({ state: "loading", progress: 0, message: cachedHint ? "Cargando voz HQ desde caché…" : "Descargando modelo de voz HQ…", device, error: undefined });
+      bumpStall();
+    },
+    settleReady(device: "webgpu"|"wasm") {
+      if (settled) return; deviceRef.current = device; clearStall(); stopProgressAnim();
+      settled = true; displayedProgress = 100; targetProgress = 100;
+      kokoroReady = true; markKokoroCached(true);
+      emitKokoroStatus({ state: "ready", progress: 100, message: "Voz HQ lista", device, error: undefined });
+    },
+    settleError(message: string) {
+      if (settled) return; clearStall(); stopProgressAnim(); settled = true; kokoroReady = false;
+      emitKokoroStatus({ state: "error", progress: Math.round(displayedProgress), message: "Error al cargar la voz HQ", device: deviceRef.current, error: message });
+    },
+    setStatusMessage(message: string) {
+      if (settled) return; bumpStall(targetProgress >= 95 ? FINALIZE_STALL_MS : STALL_MS);
+      emitKokoroStatus({ state: "loading", progress: Math.max(0, Math.min(99, Math.round(displayedProgress))), message, device: deviceRef.current });
+    },
+    handleProgress(info: any) {
+      if (!info || settled) return; bumpStall();
+      const file = info.file as string | undefined;
+      if (info.status === "progress" && file) {
+        const total = typeof info.total === "number" && Number.isFinite(info.total) && info.total > 0 ? info.total : (fileBytes[file]?.total ?? 0);
+        let loaded = typeof info.loaded === "number" && Number.isFinite(info.loaded) ? info.loaded : undefined;
+        if (loaded == null && typeof info.progress === "number" && total > 0) {
+          const ratio = info.progress > 1 ? info.progress / 100 : info.progress; loaded = ratio * total;
         }
+        if (loaded == null) loaded = fileBytes[file]?.loaded ?? 0;
+        const effectiveTotal = total > 0 ? total : Math.max(loaded, fileBytes[file]?.total ?? 1);
+        fileBytes[file] = { loaded, total: effectiveTotal };
+        updateAggregateProgress();
+      } else if (info.status === "initiate") {
+        if (file && !fileBytes[file]) fileBytes[file] = { loaded: 0, total: 0 };
+        emitKokoroStatus({ state: "loading", progress: Math.max(0, Math.min(99, Math.round(displayedProgress))), message: "Preparando descarga de voz HQ…", device: deviceRef.current });
+        bumpStall(targetProgress >= 95 ? FINALIZE_STALL_MS : STALL_MS);
+      } else if (info.status === "download" || info.status === "done") {
+        if (file && fileBytes[file] && fileBytes[file].total > 0) fileBytes[file].loaded = fileBytes[file].total;
+        if (info.status === "done") updateAggregateProgress("Finalizando descarga…");
+        if (targetProgress >= 95) bumpStall(FINALIZE_STALL_MS);
+      } else if (info.status === "ready") {
+        targetProgress = Math.max(targetProgress, 99);
+        if (displayedProgress < 99) startProgressAnim();
+        emitKokoroStatus({ state: "loading", progress: Math.max(0, Math.min(99, Math.round(displayedProgress))), message: "Inicializando modelo de voz (puede tardar unos segundos, no cierres la pestaña)…", device: deviceRef.current });
+        bumpStall(FINALIZE_STALL_MS);
       }
+    }
+  };
 
-      if (settled) return kokoroTTS;
-      clearStall();
-      stopProgressAnim();
-      settled = true;
-      displayedProgress = 100;
-      targetProgress = 100;
-      kokoroTTS = tts;
-      markKokoroCached(true);
-      emitKokoroStatus({
-        state: "ready",
-        progress: 100,
-        message: "Voz HQ lista",
-        device: usedDevice,
+  w.onmessage = (ev: MessageEvent<any>) => {
+    const data = ev.data || {};
+    const ui = (w as any).__kokoroUi;
+    if (data.type === "progress") { ui.handleProgress(data.info); return; }
+    if (data.type === "status") { ui.setStatusMessage(data.message || "Cargando…"); return; }
+    if (data.type === "ready") { ui.settleReady(data.device || "wasm"); return; }
+    if (data.type === "error") { ui.settleError(data.error || "Error"); return; }
+    if (data.type === "audio") {
+      const p = kokoroPendingGen.get(data.id);
+      if (p) { kokoroPendingGen.delete(data.id); p.resolve({ buffer: data.buffer, mime: data.mime || "audio/wav" }); }
+      return;
+    }
+    if (data.type === "gen-error") {
+      const p = kokoroPendingGen.get(data.id);
+      if (p) { kokoroPendingGen.delete(data.id); p.reject(new Error(data.error || "generate error")); }
+      return;
+    }
+  };
+  w.onerror = () => {
+    const ui = (w as any).__kokoroUi;
+    ui?.settleError?.("El worker de voz HQ falló.");
+  };
+  return w;
+}
+
+export async function loadKokoro(): Promise<boolean> {
+  if (typeof window === "undefined") return false;
+  if (kokoroReady && kokoroStatus.state === "ready") return true;
+  if (kokoroPromise) return kokoroPromise;
+
+  kokoroPromise = (async () => {
+    try {
+      const device = await detectKokoroDevice();
+      const w = ensureKokoroWorker();
+      (w as any).__kokoroUi.reset(device);
+      w.postMessage({ type: "load", device });
+      // Wait until ready or error
+      await new Promise<void>((resolve, reject) => {
+        const off = subscribeKokoroStatus((st) => {
+          if (st.state === "ready") { off(); resolve(); }
+          else if (st.state === "error") { off(); reject(new Error(st.error || st.message)); }
+        });
       });
-
-      // Pre-generate the test phrase in the background so "Test voice" is instant.
-      // Defer to avoid competing with UI right after initialization and to reduce freezes.
+      // Pre-generate sample in background (in worker) without blocking UI
       try {
         const sample = "The server is running. Pull the latest changes before you push.";
         const speed = 1;
         const key = getKokoroCacheKey(sample, speed);
-        if (!kokoroAudioCache.has(key)) {
+        if (!kokoroAudioCache.has(key) && kokoroReady) {
           setTimeout(() => {
             void (async () => {
               try {
-                if (!kokoroTTS || kokoroStatus.state !== "ready") return;
-                await new Promise((r) => setTimeout(r, 400));
-                const audio = await kokoroTTS.generate(sample, { voice: "af_heart", speed });
-                const blob: Blob =
-                  typeof audio?.toBlob === "function"
-                    ? audio.toBlob()
-                    : new Blob([audio.toWav()], { type: "audio/wav" });
+                const { buffer, mime } = await kokoroGenerateInWorker(sample, speed);
+                const blob = new Blob([buffer], { type: mime || "audio/wav" });
                 const url = URL.createObjectURL(blob);
                 cacheKokoroAudio(key, url);
-              } catch (e) {
-                console.warn("Kokoro sample pre-generation failed", e);
-              }
+              } catch {}
             })();
           }, 1200);
         }
       } catch {}
-
-      return tts;
-    } catch (err) {
-      clearStall();
-      stopProgressAnim();
-      if (settled) throw err; // ya manejado por watchdog como "stalled"
-      settled = true;
-      const message = err instanceof Error ? err.message : "No se pudo cargar la voz HQ";
-      kokoroTTS = null;
-      emitKokoroStatus({
-        state: "error",
-        progress: Math.round(displayedProgress),
-        message: "Error al cargar la voz HQ",
-        device,
-        error: message,
-      });
-      throw err;
+      return true;
+    } catch {
+      return false;
     } finally {
-      clearStall();
-      stopProgressAnim();
-      if (kokoroPromise === thisLoad) kokoroPromise = null;
+      kokoroPromise = null;
     }
   })();
+  return kokoroPromise;
+}
 
-  kokoroPromise = thisLoad;
-
-  try {
-    await kokoroPromise;
-    return true;
-  } catch {
-    return false;
-  }
+function kokoroGenerateInWorker(text: string, speed: number): Promise<{ buffer: ArrayBuffer; mime: string }> {
+  const w = ensureKokoroWorker();
+  const id = ++kokoroGenSeq;
+  return new Promise((resolve, reject) => {
+    kokoroPendingGen.set(id, { resolve, reject });
+    try {
+      w.postMessage({ type: "generate", id, text, speed });
+    } catch (e) {
+      kokoroPendingGen.delete(id);
+      reject(e);
+    }
+  });
 }
 
 function splitSpeechChunks(text: string, maxLen = 180): string[] {
   const clean = text.replace(/\s+/g, " ").trim();
   if (!clean) return [];
   if (clean.length <= maxLen) return [clean];
-  // Split by sentence/clause boundaries first, then fall back to word chunks
-  const parts = clean
-    .split(/(?<=[.!?;:])\s+|\n+/)
-    .map((p) => p.trim())
-    .filter(Boolean);
+  const parts = clean.split(/(?<=[.!?;:])\s+|\n+/).map((p) => p.trim()).filter(Boolean);
   const chunks: string[] = [];
   let cur = "";
   const pushCur = () => { if (cur.trim()) { chunks.push(cur.trim()); cur = ""; } };
@@ -562,7 +431,7 @@ async function playAudioUrl(url: string): Promise<void> {
 
 async function speakKokoro(text: string, button?: HTMLElement | null): Promise<boolean> {
   if (typeof window === "undefined") return false;
-  if (!kokoroTTS || kokoroStatus.state !== "ready") return false;
+  if (!kokoroReady || kokoroStatus.state !== "ready") return false;
   const abort = new AbortController();
   kokoroAbort = abort;
   kokoroSpeakingButton = button ?? null;
@@ -578,23 +447,15 @@ async function speakKokoro(text: string, button?: HTMLElement | null): Promise<b
       let url = kokoroAudioCache.get(cacheKey) ?? null;
 
       if (!url) {
-        // Yield to the main thread so the UI can paint "speaking" state before heavy inference
-        await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-        await new Promise<void>((resolve) => setTimeout(resolve, 30));
         if (abort.signal.aborted) return true;
-        // Generation runs on the main thread and may briefly freeze the UI.
-        const audio = await kokoroTTS.generate(chunk, { voice: "af_heart", speed: rate });
+        const { buffer, mime } = await kokoroGenerateInWorker(chunk, rate);
         if (abort.signal.aborted) return true;
-        const blob: Blob =
-          typeof audio?.toBlob === "function"
-            ? audio.toBlob()
-            : new Blob([audio.toWav()], { type: "audio/wav" });
+        const blob = new Blob([buffer], { type: mime || "audio/wav" });
         url = URL.createObjectURL(blob);
         cacheKokoroAudio(cacheKey, url);
       }
 
       if (abort.signal.aborted) return true;
-      // Stop previous chunk playback (without revoking cached URLs)
       if (kokoroAudio) {
         try { kokoroAudio.onended = null; kokoroAudio.onerror = null; kokoroAudio.pause(); kokoroAudio.src = ""; } catch {}
         kokoroAudio = null;
@@ -606,7 +467,7 @@ async function speakKokoro(text: string, button?: HTMLElement | null): Promise<b
     }
     return true;
   } catch (err) {
-    if ((err as any)?.name === "AbortError") return true;
+    if ((err as any)?.name === "AbortError" || abort.signal.aborted) return true;
     console.warn("Kokoro TTS failed, falling back to system voice", err);
     return false;
   } finally {
@@ -851,7 +712,7 @@ export function speak(text: string, button?: HTMLElement | null) {
   stopSpeech(); // stop previous (clears speaking state; we'll set it again)
 
   const engine = getSpeechEngine();
-  if (engine === "kokoro" && kokoroTTS && kokoroStatus.state === "ready") {
+  if (engine === "kokoro" && kokoroReady && kokoroStatus.state === "ready") {
     void speakKokoro(clean, button).then((handled) => {
       if (!handled) {
         if (isNativePlatform()) {
@@ -888,7 +749,7 @@ export function speak(text: string, button?: HTMLElement | null) {
   void speakWeb(clean, button).then(async (ok) => {
     if (ok) return;
     // Fallback: si la voz del navegador falla (p.ej. Brave sin voces), usar Kokoro si ya está listo
-    if (kokoroTTS && kokoroStatus.state === "ready") {
+    if (kokoroReady && kokoroStatus.state === "ready") {
       setSpeaking(button, true);
       const handled = await speakKokoro(clean, button).catch(() => false);
       if (handled) return;
@@ -1008,7 +869,7 @@ export function speechMatchScore(expected: string, heard: string): number {
 export function maybeAutoLoadKokoro() {
   if (typeof window === "undefined") return;
   if (kokoroAutoInitStarted) return;
-  if (kokoroTTS || kokoroPromise || kokoroStatus.state === "loading") return;
+  if (kokoroReady || kokoroPromise || kokoroStatus.state === "loading") return;
   const engine = getSpeechEngine();
   // Si ya está descargado en caché, cargar en segundo plano para usarlo sin volver a descargar
   // (y permitir fallback instantáneo aunque el motor seleccionado sea "system").
