@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createDefaultState, todayKey } from "./progress";
+import { createDefaultState } from "./progress";
 import {
   getConsistencyFeedback,
   getConsistencyStats,
