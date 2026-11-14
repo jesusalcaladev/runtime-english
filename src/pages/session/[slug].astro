@@ -19,6 +19,7 @@ import {
   getAdjacentSession,
   type SessionWithModule,
 } from "../../data/curriculum";
+import { route } from "../../lib/routes";
 import type { Module, Session } from "../../lib/types";
 
 interface Props {
@@ -46,13 +47,13 @@ const position = ALL_SESSIONS.findIndex((entry) => entry.session.id === session.
 const exerciseIds = session.exercises.map((exercise) => exercise.id);
 ---
 
-<BaseLayout title={`${session.title} · DevEng Core`} description={session.summary}>
+<BaseLayout title={`${session.title} · DevLingo`} description={session.summary}>
   <article class="mx-auto max-w-[1120px] animate-fade-up">
     <nav
       class="flex flex-wrap items-center gap-2 text-[10px] text-base-content/35"
       aria-label="Breadcrumb"
     >
-      <a href="/" class="transition hover:text-base-content/65">Roadmap</a>
+      <a href={route("/")} class="transition hover:text-base-content/65">Roadmap</a>
       <span class="text-base-content/20">/</span>
       <span>{module.shortTitle}</span>
       <span class="text-base-content/20">/</span>
@@ -101,7 +102,7 @@ const exerciseIds = session.exercises.map((exercise) => exercise.id);
           exerciseIds={exerciseIds}
         />
 
-        <div class="rounded-2xl bg-base-200 p-4">
+        <div class="mt-4 rounded-2xl bg-base-200 p-4">
           <p class="mono-label flex items-center gap-1.5">
             <Target class="h-3 w-3 text-accent" />
             Al terminar
@@ -133,7 +134,7 @@ const exerciseIds = session.exercises.map((exercise) => exercise.id);
 
         {next && (
           <a
-            href={`/session/${next.session.slug}`}
+            href={route(`/session/${next.session.slug}`)}
             class="group block rounded-2xl bg-base-200 p-4 transition hover:bg-base-300/60"
           >
             <p class="mono-label">Siguiente</p>
@@ -153,12 +154,11 @@ const exerciseIds = session.exercises.map((exercise) => exercise.id);
       <div class="mb-5 flex flex-wrap items-end justify-between gap-4">
         <div>
           <p class="mono-label">Ponlo a prueba</p>
-          <h2 class="font-pixel mt-2 text-[1.65rem] leading-tight tracking-tight">
+          <h2 class="font-pixel mt-2 text-[1.85rem] leading-tight tracking-tight">
             Ejercicios de la sesión
           </h2>
           <p class="mt-2 max-w-xl text-xs leading-relaxed text-base-content/40">
-            Cada acierto suma XP y guarda tu avance. Navega libremente entre ejercicios; la sesión
-            solo se completa cuando los resuelves todos.
+            Cada acierto suma XP, guarda tu avance y <span class="font-medium text-base-content/60">actualiza automáticamente tu diccionario</span> con las frases/respuestas correctas para repaso con flashcards. La sesión se completa cuando los resuelves todos.
           </p>
         </div>
         <span class="font-mono text-[10px] text-base-content/25">
@@ -178,7 +178,7 @@ const exerciseIds = session.exercises.map((exercise) => exercise.id);
     <nav class="mt-10 flex max-w-3xl items-center justify-between gap-2">
       {previous ? (
         <a
-          href={`/session/${previous.session.slug}`}
+          href={route(`/session/${previous.session.slug}`)}
           class="group flex min-w-0 items-center gap-2.5 rounded-2xl bg-base-200 px-3 py-2.5 text-xs text-base-content/50 transition hover:bg-base-300/60 hover:text-base-content/75"
         >
           <ArrowLeft class="h-3.5 w-3.5 shrink-0" />
@@ -193,7 +193,7 @@ const exerciseIds = session.exercises.map((exercise) => exercise.id);
         </a>
       ) : (
         <a
-          href="/"
+          href={route("/")}
           class="flex items-center gap-1.5 rounded-2xl bg-base-200 px-3 py-2.5 text-xs text-base-content/50 transition hover:bg-base-300/60 hover:text-base-content/75"
         >
           <ArrowLeft class="h-3.5 w-3.5" /> Roadmap
@@ -202,7 +202,7 @@ const exerciseIds = session.exercises.map((exercise) => exercise.id);
 
       {next ? (
         <a
-          href={`/session/${next.session.slug}`}
+          href={route(`/session/${next.session.slug}`)}
           class="group flex min-w-0 items-center gap-2.5 rounded-2xl bg-base-200 px-3 py-2.5 text-right text-xs text-base-content/50 transition hover:bg-base-300/60 hover:text-base-content/75"
         >
           <span class="min-w-0">
@@ -217,7 +217,7 @@ const exerciseIds = session.exercises.map((exercise) => exercise.id);
         </a>
       ) : (
         <a
-          href="/"
+          href={route("/")}
           class="flex items-center gap-1.5 rounded-2xl bg-base-200 px-3 py-2.5 text-xs text-base-content/50 transition hover:bg-base-300/60 hover:text-base-content/75"
         >
           Volver al roadmap <ArrowRight class="h-3.5 w-3.5" />
