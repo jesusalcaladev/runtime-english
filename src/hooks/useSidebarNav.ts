@@ -11,23 +11,23 @@ export function useSidebarNav() {
       try {
         const params = new URLSearchParams(window.location.search);
         if (params.get("dev") === "1") {
-          window.localStorage.setItem("devlingo_dev", "1");
+          window.localStorage.setItem("runtimeenglish_dev", "1");
         }
         if (
-          !window.localStorage.getItem("devlingo_dev") &&
+          !window.localStorage.getItem("runtimeenglish_dev") &&
           window.localStorage.getItem("deveng_dev") === "1"
         ) {
-          window.localStorage.setItem("devlingo_dev", "1");
+          window.localStorage.setItem("runtimeenglish_dev", "1");
         }
       } catch {}
     };
     const onMenu = () => setOpen((value) => !value);
 
     syncPath();
-    window.addEventListener("devlingo:menu", onMenu);
+    window.addEventListener("runtimeenglish:menu", onMenu);
     document.addEventListener("astro:page-load", syncPath);
     return () => {
-      window.removeEventListener("devlingo:menu", onMenu);
+      window.removeEventListener("runtimeenglish:menu", onMenu);
       document.removeEventListener("astro:page-load", syncPath);
     };
   }, []);

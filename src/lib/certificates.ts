@@ -54,7 +54,7 @@ function normalizeCert(row: any): CertificateRecord {
     id: String(row.id || "").toUpperCase(),
     name: row.name || "",
     issued_at: row.issued_at || new Date().toISOString(),
-    program: row.program ?? "DevLingo",
+    program: row.program ?? "RuntimeEnglish",
     level: row.level ?? "A1 — B2",
     status: row.status ?? "valid",
     user_id: row.user_id ?? null,
@@ -77,14 +77,17 @@ export interface IssueResult {
   mode?: "server" | "skipped";
 }
 
-// "Official" issuance: uses an endpoint/Edge Function with a service role and, if there is a session, links it to the account.
+// "Official" issuance: calls the hardened Edge Function (requires authenticated session + server-side eligibility).
 export async function issueCertificate(input: IssueInput): Promise<IssueResult> {
   const endpoint = import.meta.env.PUBLIC_CERTIFICATE_ISSUE_URL as string | undefined;
   if (!endpoint) return { ok: false, error: "issue_endpoint_not_configured", mode: "skipped" };
 
   try {
     const headers: Record<string, string> = { "Content-Type": "application/json" };
-    // Attach token if the user is authenticated to link issuance to the account
+    const anonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY as string | undefined;
+    if (anonKey) headers["apikey"] = anonKey;
+
+    // Attach JWT (requerido en producción) para vincular y validar emisión
     if (supabase) {
       const { data } = await supabase.auth.getSession();
       const token = data.session?.access_token;
@@ -99,7 +102,7 @@ export async function issueCertificate(input: IssueInput): Promise<IssueResult> 
         name: input.name,
         issued_at: input.issued_at,
         completion_date: input.completion_date || null,
-        program: input.program ?? "DevLingo",
+        program: input.program ?? "RuntimeEnglish",
         level: input.level ?? "A1 — B2",
       }),
     });

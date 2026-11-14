@@ -184,7 +184,7 @@ export default function SettingsPanel() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `devlingo-progress-${new Date().toISOString().slice(0, 10)}.json`;
+    link.download = `runtimeenglish-progress-${new Date().toISOString().slice(0, 10)}.json`;
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -202,7 +202,7 @@ export default function SettingsPanel() {
       emitToast("Progreso importado y migrado al esquema actual. Recargando…", "success");
       setTimeout(() => window.location.reload(), 700);
     } catch {
-      emitToast("El archivo no es un respaldo válido de DevLingo (o está dañado).", "error");
+      emitToast("El archivo no es un respaldo válido de RuntimeEnglish (o está dañado).", "error");
       input.value = "";
     }
   }

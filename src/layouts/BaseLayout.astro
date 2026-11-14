@@ -22,7 +22,7 @@ interface Props {
 }
 
 const {
-  title = "DevLingo — Inglés técnico para developers",
+  title = "RuntimeEnglish — Inglés técnico para developers",
   description = "Aprende inglés técnico de A1 a B2 con sesiones cortas, ejercicios reales y el slang de 2026.",
   fullWidth = false,
 } = Astro.props;
@@ -37,7 +37,7 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B
 ---
 
 <!doctype html>
-<html lang="es" data-theme="devlingo">
+<html lang="es" data-theme="runtimeenglish">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -53,7 +53,7 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B
       (function () {
         function applyStoredPreferences() {
           try {
-            var raw = localStorage.getItem("devlingo_v2");
+            var raw = localStorage.getItem("runtimeenglish_v2");
             var theme = null;
             var parsed = null;
             if (raw) {
@@ -66,12 +66,12 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B
                 : "light";
             }
             document.documentElement.dataset.theme =
-              theme === "dark" ? "devlingo-dark" : "devlingo";
+              theme === "dark" ? "runtimeenglish-dark" : "runtimeenglish";
             var ttsEnabled =
               parsed && parsed.settings ? parsed.settings.ttsEnabled : true;
             document.documentElement.dataset.tts = ttsEnabled === false ? "off" : "on";
           } catch (error) {
-            document.documentElement.dataset.theme = "devlingo";
+            document.documentElement.dataset.theme = "runtimeenglish";
             document.documentElement.dataset.tts = "on";
           }
         }
@@ -130,7 +130,7 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B
               .keys()
               .then(function (keys) {
                 keys.forEach(function (key) {
-                  if (key.indexOf("devlingo") === 0) {
+                  if (key.indexOf("runtimeenglish") === 0 || key.indexOf("devlingo") === 0) {
                     caches.delete(key);
                   }
                 });
@@ -163,14 +163,14 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B
       }
 
       const nativeWindow = window as Window & {
-        __devlingoBackBound?: boolean;
-        __devlingoSpeechBound?: boolean;
-        __devlingoAuthBound?: boolean;
+        __runtimeenglishBackBound?: boolean;
+        __runtimeenglishSpeechBound?: boolean;
+        __runtimeenglishAuthBound?: boolean;
       };
 
       // Manejo del botón atrás en Android/Capacitor
-      if (Capacitor.isNativePlatform() && !nativeWindow.__devlingoBackBound) {
-        nativeWindow.__devlingoBackBound = true;
+      if (Capacitor.isNativePlatform() && !nativeWindow.__runtimeenglishBackBound) {
+        nativeWindow.__runtimeenglishBackBound = true;
         App.addListener("backButton", ({ canGoBack }) => {
           if (canGoBack) {
             window.history.back();
@@ -181,10 +181,10 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B
       }
 
       // Retorno de OAuth nativo (Supabase PKCE) vía deep link
-      if (Capacitor.isNativePlatform() && !nativeWindow.__devlingoAuthBound) {
-        nativeWindow.__devlingoAuthBound = true;
+      if (Capacitor.isNativePlatform() && !nativeWindow.__runtimeenglishAuthBound) {
+        nativeWindow.__runtimeenglishAuthBound = true;
         void App.addListener("appUrlOpen", async ({ url }) => {
-          if (!url.startsWith("com.devlingo.core://login-callback")) return;
+          if (!url.startsWith("com.runtimeenglish.core://login-callback")) return;
           try {
             await Browser.close();
           } catch {}
@@ -225,8 +225,8 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B
       }
 
       // Delegación de TTS para botones con data-speak
-      if (!nativeWindow.__devlingoSpeechBound) {
-        nativeWindow.__devlingoSpeechBound = true;
+      if (!nativeWindow.__runtimeenglishSpeechBound) {
+        nativeWindow.__runtimeenglishSpeechBound = true;
         document.addEventListener("click", (event) => {
           const target = event.target;
           if (!(target instanceof Element)) return;

@@ -70,7 +70,7 @@ export default function CertificateView({ totalSessions, totalExercises }: Props
   const doneExercises = Object.keys(state.completedExercises).length;
   let devMode = false;
   try {
-    devMode = typeof window !== "undefined" && (window.localStorage.getItem("devlingo_dev") === "1" || window.localStorage.getItem("deveng_dev") === "1");
+    devMode = typeof window !== "undefined" && (window.localStorage.getItem("runtimeenglish_dev") === "1" || window.localStorage.getItem("deveng_dev") === "1");
   } catch {}
   const complete = devMode || (doneSessions >= totalSessions && doneExercises >= totalExercises);
 
@@ -280,7 +280,7 @@ export default function CertificateView({ totalSessions, totalExercises }: Props
 
           <header class="relative z-10 flex flex-col items-center text-center pt-1 sm:pt-2">
             <div class="flex items-center gap-2.5 mb-4 sm:mb-5">
-              <span class="text-[11px] sm:text-xs font-semibold tracking-[0.35em] uppercase text-secondary-theme">DEVLINGO</span>
+              <span class="text-[11px] sm:text-xs font-semibold tracking-[0.35em] uppercase text-secondary-theme">RUNTIMEENGLISH</span>
             </div>
             <div class="level-badge px-4 py-1 rounded-full">
               <span class="font-mono-tech text-[11px] sm:text-xs font-medium tracking-[0.2em]">A1 — B2</span>
@@ -302,7 +302,7 @@ export default function CertificateView({ totalSessions, totalExercises }: Props
             <div class="text-left">
               <p class="text-[9px] sm:text-[10px] font-semibold tracking-[0.22em] uppercase text-muted-theme mb-1">ISSUED ON</p>
               <p class="text-xs sm:text-sm font-medium text-primary-theme">{displayDate}</p>
-              <p class="text-[10px] sm:text-xs text-muted-theme mt-0.5">Program: <span class="text-secondary-theme font-medium">DevLingo</span></p>
+              <p class="text-[10px] sm:text-xs text-muted-theme mt-0.5">Program: <span class="text-secondary-theme font-medium">RuntimeEnglish</span></p>
             </div>
             <div class="flex flex-col items-center justify-center">
               <div class="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center mb-1.5">

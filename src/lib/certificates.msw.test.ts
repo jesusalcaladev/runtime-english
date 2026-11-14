@@ -15,7 +15,7 @@ const server = setupServer(
         id: "msw123",
         name: "MSW User",
         issued_at: "2026-01-01T00:00:00.000Z",
-        program: "DevLingo",
+        program: "RuntimeEnglish",
         level: "A1 — B2",
         status: "valid",
       },

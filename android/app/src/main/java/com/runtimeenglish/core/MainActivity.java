@@ -1,4 +1,4 @@
-package com.devlingo.core;
+package com.runtimeenglish.core;
 
 import com.getcapacitor.BridgeActivity;
 

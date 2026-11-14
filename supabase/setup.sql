@@ -1,4 +1,4 @@
--- DevLingo — Configuración completa de Supabase
+-- RuntimeEnglish — Configuración completa de Supabase
 -- Ejecuta este script en el SQL Editor de tu proyecto Supabase.
 -- Incluye: certificados (verificación pública por ID, emisión vinculada a cuenta) y progreso de usuario (auth + sync).
 
@@ -12,7 +12,7 @@ create table if not exists public.certificates (
   name text not null,                          -- nombre del titular
   issued_at timestamptz not null default now(),-- fecha de emisión
   completion_date text,                        -- fecha legible de finalización
-  program text not null default 'DevLingo',
+  program text not null default 'RuntimeEnglish',
   level text not null default 'A1 — B2',
   status text not null default 'valid',        -- valid | revoked
   user_id uuid references auth.users(id) on delete set null,
@@ -155,6 +155,7 @@ create policy "user_progress_delete_own"
 -- 2. Authentication → URL Configuration:
 --    - Site URL: URL de tu app (ej. https://tudominio.com o http://localhost:4321)
 --    - Redirect URLs: añade las URLs donde corre la app.
--- 3. Edge Function issue-certificate: despliega con `supabase functions deploy issue-certificate`.
---    - Si el cliente envía Authorization Bearer (sesión), el certificado se vincula al usuario (user_id).
---    - Para producción se recomienda exigir JWT y validar elegibilidad en servidor.
+-- 3. Edge Function issue-certificate (endurecida para producción): despliega con `supabase functions deploy issue-certificate`.
+--    - Exige Authorization Bearer (JWT de usuario autenticado) y vincula el certificado al usuario (user_id). No permite emisión abierta.
+--    - Valida elegibilidad en servidor contra public.user_progress antes de emitir.
+--    - Configura en la función: ALLOWED_ORIGINS (CORS), CERT_REQUIRED_SESSIONS y CERT_REQUIRED_EXERCISES (política de elegibilidad, fail-closed si faltan).

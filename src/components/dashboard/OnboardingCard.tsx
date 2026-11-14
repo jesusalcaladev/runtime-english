@@ -96,7 +96,7 @@ export default function OnboardingCard() {
       <div class="flex flex-wrap items-start justify-between gap-4">
         <div class="max-w-2xl">
           <p class="mono-label flex items-center gap-2 text-accent/90">
-            <Sparkles class="h-3.5 w-3.5" /> Bienvenido a DevLingo
+            <Sparkles class="h-3.5 w-3.5" /> Bienvenido a RuntimeEnglish
           </p>
           <h2 class="font-pixel mt-3 text-[1.7rem] tracking-tight sm:text-[2.1rem]">Onboarding guiado</h2>
           <p class="mt-2 text-sm leading-6 text-base-content/55">

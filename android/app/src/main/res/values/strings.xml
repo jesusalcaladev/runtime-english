@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">DevLingo</string>
-    <string name="title_activity_main">DevLingo</string>
-    <string name="package_name">com.devlingo.core</string>
-    <string name="custom_url_scheme">com.devlingo.core</string>
+    <string name="app_name">RuntimeEnglish</string>
+    <string name="title_activity_main">RuntimeEnglish</string>
+    <string name="package_name">com.runtimeenglish.core</string>
+    <string name="custom_url_scheme">com.runtimeenglish.core</string>
 </resources>

@@ -13,8 +13,8 @@ export default defineConfig({
       injectRegister: null,
       includeAssets: ["favicon.svg"],
       manifest: {
-        name: "DevLingo — Inglés técnico para developers",
-        short_name: "DevLingo",
+        name: "RuntimeEnglish — Inglés técnico para developers",
+        short_name: "RuntimeEnglish",
         description: "Inglés técnico A1-B2 para developers, con ejercicios, progreso y slang 2026.",
         start_url: "/",
         display: "standalone",
@@ -43,7 +43,7 @@ export default defineConfig({
               url.pathname.endsWith(".html"),
             handler: "NetworkFirst",
             options: {
-              cacheName: "devlingo-pages",
+              cacheName: "runtimeenglish-pages",
               networkTimeoutSeconds: 3,
             },
           },
@@ -52,7 +52,7 @@ export default defineConfig({
               sameOrigin && ["style", "script", "image", "font"].includes(request.destination),
             handler: "CacheFirst",
             options: {
-              cacheName: "devlingo-assets",
+              cacheName: "runtimeenglish-assets",
               expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 },
             },
           },

@@ -37,7 +37,7 @@ export default function SidebarNav({ modules }: Props) {
   try {
     devMode =
       typeof window !== "undefined" &&
-      (window.localStorage.getItem("devlingo_dev") === "1" ||
+      (window.localStorage.getItem("runtimeenglish_dev") === "1" ||
         window.localStorage.getItem("deveng_dev") === "1");
   } catch {}
   const canOpenCertificate = courseComplete || devMode;
@@ -94,7 +94,7 @@ export default function SidebarNav({ modules }: Props) {
       >
         <div class="flex items-center justify-between px-4 py-3 lg:hidden">
           <div class="flex items-center gap-2">
-            <span class="font-pixel-square text-base">DevLingo</span>
+            <span class="font-pixel-square text-base">RuntimeEnglish</span>
             <span class="font-mono text-[9px] tracking-normal text-base-content/35">
               Core
             </span>

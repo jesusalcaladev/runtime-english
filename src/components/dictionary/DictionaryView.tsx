@@ -28,7 +28,7 @@ import { useDictionary } from "../../hooks/useDictionary";
 function speakText(text: string) {
   if (typeof window === "undefined") return;
   try {
-    window.dispatchEvent(new CustomEvent("devlingo:speak", { detail: { text } }));
+    window.dispatchEvent(new CustomEvent("runtimeenglish:speak", { detail: { text } }));
   } catch {}
   try {
     const synth = window.speechSynthesis;

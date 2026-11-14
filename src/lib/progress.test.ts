@@ -69,7 +69,7 @@ describe("progress", () => {
   it("mergeState unwraps export envelope format", () => {
     const base = createDefaultState();
     base.xp = 77;
-    const merged = mergeState({ format: "devlingo-progress", schemaVersion: 3, state: base } as any);
+    const merged = mergeState({ format: "runtimeenglish-progress", schemaVersion: 3, state: base } as any);
     expect(merged.xp).toBe(77);
     expect(merged.errorEvents).toEqual([]);
   });

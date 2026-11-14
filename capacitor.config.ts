@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: "com.devlingo.core",
-  appName: "DevLingo",
+  appId: "com.runtimeenglish.core",
+  appName: "RuntimeEnglish",
   webDir: "dist",
   backgroundColor: "#101010",
   android: {

@@ -1,4 +1,4 @@
-const CACHE = "devlingo-v2";
+const CACHE = "runtimeenglish-v2";
 const PRECACHE = ["/", "/index.html", "/manifest.webmanifest", "/favicon.svg"];
 
 self.addEventListener("install", (event) => {

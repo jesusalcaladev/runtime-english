@@ -21,7 +21,7 @@ export default function SessionProgressCard({ sessionId, exerciseIds }: Props) {
 
   function replay() {
     window.dispatchEvent(
-      new CustomEvent("devlingo:restart-session", { detail: { sessionId } }),
+      new CustomEvent("runtimeenglish:restart-session", { detail: { sessionId } }),
     );
     scrollToPractice();
   }

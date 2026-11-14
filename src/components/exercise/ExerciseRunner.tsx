@@ -267,8 +267,8 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
       const detail = (event as CustomEvent<{ sessionId?: string }>).detail;
       if (detail?.sessionId === sessionId) restart();
     };
-    window.addEventListener("devlingo:restart-session", onRestart);
-    return () => window.removeEventListener("devlingo:restart-session", onRestart);
+    window.addEventListener("runtimeenglish:restart-session", onRestart);
+    return () => window.removeEventListener("runtimeenglish:restart-session", onRestart);
   }, [sessionId]);
 
   useEffect(() => {

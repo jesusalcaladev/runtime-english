@@ -1,4 +1,4 @@
-# DevLingo
+# RuntimeEnglish
 
 App web (PWA-ready) y Android para aprender inglés técnico de A1 a B2. 42 sesiones, 219 ejercicios
 interactivos, progreso y logros con objetivos medibles en `localStorage`, y un deck de 51 términos
@@ -63,7 +63,7 @@ capacitor.config.ts        # appId, nombre, webDir y tema del sistema
 
 ## Android
 
-El proyecto usa [Capacitor](https://capacitorjs.com/) con `appId` `com.devlingo.core`, tema oscuro
+El proyecto usa [Capacitor](https://capacitorjs.com/) con `appId` `com.runtimeenglish.core`, tema oscuro
 `#101010`, iconos e splash propios y manejo del botón atrás de Android.
 
 Requisitos para compilar: **JDK 17+** y **Android SDK** instalados, además de Android Studio.
@@ -71,8 +71,8 @@ Requisitos para compilar: **JDK 17+** y **Android SDK** instalados, además de A
 ```bash
 npm run android:sync   # genera dist/ y lo copia a android/
 npm run android:open   # abre Android Studio
-npm run android:apk    # compila debug y deja apks/DevLingo-v<version>-debug.apk
-npm run android:apk:release # compila release y deja apks/DevLingo-v<version>-release.apk
+npm run android:apk    # compila debug y deja apks/RuntimeEnglish-v<version>-debug.apk
+npm run android:apk:release # compila release y deja apks/RuntimeEnglish-v<version>-release.apk
 ```
 
 El build de Gradle copia automáticamente los APK a `apks/` en la raíz del proyecto. También
@@ -145,7 +145,7 @@ Crea `src/data/curriculum/m8.ts` exportando un `Module` y regístralo en `MODULE
 
 ## Logros y progreso
 
-- Clave de localStorage: `devlingo_v2`.
+- Clave de localStorage: `runtimeenglish_v2`.
 - Se guardan: XP, ejercicios y sesiones completadas, intentos, racha, slang guardado, logros y
   ajustes (tema, inmersión, velocidad TTS, nombre).
 - Para crear un logro: añade una entrada a `ACHIEVEMENTS` en `src/lib/achievements.ts` con un

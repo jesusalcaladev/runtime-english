@@ -23,17 +23,17 @@ const { a1SessionIds, b1SessionIds, totalSessions, totalExercises } = Astro.prop
         type="button"
         class="surface-soft flex h-9 w-9 items-center justify-center rounded-xl text-base-content/65 transition hover:bg-base-200 hover:text-base-content lg:hidden"
         aria-label="Abrir menú"
-        onclick="window.dispatchEvent(new CustomEvent('devlingo:menu'))"
+        onclick="window.dispatchEvent(new CustomEvent('runtimeenglish:menu'))"
       >
         <PanelLeft class="h-4 w-4" />
       </button>
 
-      <a href={route("/")} class="group flex select-none items-center gap-2.5" aria-label="DevLingo — inicio">
+      <a href={route("/")} class="group flex select-none items-center gap-2.5" aria-label="RuntimeEnglish — inicio">
         <span class="flex h-8 w-8 items-center justify-center rounded-[10px] bg-base-content text-base-100 transition group-hover:opacity-80">
           <Logo size={20} />
         </span>
         <span class="flex items-baseline gap-2">
-          <span class="font-pixel-square text-[17px] leading-none">DevLingo</span>
+          <span class="font-pixel-square text-[17px] leading-none">RuntimeEnglish</span>
           <span class="font-mono text-[10px] font-medium tracking-normal text-base-content/35">
             Core
           </span>

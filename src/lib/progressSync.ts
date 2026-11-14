@@ -4,7 +4,7 @@ import { parseCompactState } from "./progressSchema";
 import { supabase } from "./supabase";
 
 const TABLE = "user_progress";
-const SYNC_META_KEY = "devlingo_sync_meta_v1";
+const SYNC_META_KEY = "runtimeenglish_sync_meta_v1";
 const SYNC_HISTORY_MAX = 30;
 const BASE_RETRY_MS = 5000;
 const MAX_RETRY_MS = 120000;
@@ -538,7 +538,7 @@ function scheduleRetry(delay: number) {
     notify();
     // Consumer should trigger sync/push via events; emit status so the UI can react
     try {
-      if (isBrowser()) window.dispatchEvent(new CustomEvent("devlingo-sync-retry"));
+      if (isBrowser()) window.dispatchEvent(new CustomEvent("runtimeenglish-sync-retry"));
     } catch {}
   }, delay);
 }
@@ -639,7 +639,7 @@ if (isBrowser()) {
     updateMeta({ lastError: null });
     pushHistory("pull", true, "Conexión restablecida. Reintentando sincronización...");
     try {
-      window.dispatchEvent(new CustomEvent("devlingo-sync-retry"));
+      window.dispatchEvent(new CustomEvent("runtimeenglish-sync-retry"));
     } catch {}
   });
   window.addEventListener("offline", () => {

@@ -12,7 +12,7 @@ type StoredSpeechSettings = {
 function readStoredSettings(): StoredSpeechSettings | null {
   if (typeof window === "undefined") return null;
   try {
-    const raw = window.localStorage.getItem("devlingo_v2");
+    const raw = window.localStorage.getItem("runtimeenglish_v2");
     return raw ? JSON.parse(raw)?.settings ?? null : null;
   } catch {
     return null;
@@ -54,7 +54,7 @@ export type KokoroStatus = {
   error?: string;
 };
 
-const KOKORO_CACHED_KEY = "devlingo_kokoro_cached_v1";
+const KOKORO_CACHED_KEY = "runtimeenglish_kokoro_cached_v1";
 
 function isKokoroMarkedCached(): boolean {
   if (typeof window === "undefined") return false;

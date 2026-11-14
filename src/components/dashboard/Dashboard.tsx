@@ -271,7 +271,7 @@ export default function Dashboard({
             <div class="min-w-0">
               <p class="mono-label flex items-center gap-2 text-base-content/50">
                 <span class="h-1.5 w-1.5 rounded-full bg-accent" />
-                {t(stage, "workspace")} · DevLingo
+                {t(stage, "workspace")} · RuntimeEnglish
               </p>
               <h1 class="font-pixel mt-2 text-[2.2rem] leading-[1.02] tracking-tight sm:text-[3rem]">
                 {greeting}

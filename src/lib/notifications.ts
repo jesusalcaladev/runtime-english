@@ -42,7 +42,7 @@ export async function syncStreakReminder(settings: ProgressSettings): Promise<vo
       notifications: [
         {
           id: REMINDER_ID,
-          title: "No pierdas tu racha en DevLingo",
+          title: "No pierdas tu racha en RuntimeEnglish",
           body: "Dedica unos minutos hoy: una sesión corta o práctica rápida.",
           schedule: { on: { hour, minute }, allowWhileIdle: true },
           smallIcon: "ic_stat_icon_config_sample",

@@ -130,15 +130,15 @@ export interface ProgressState {
 }
 
 export interface ProgressExportEnvelope {
-  format: "devlingo-progress";
+  format: "runtimeenglish-progress";
   schemaVersion: number;
   exportedAt: string;
   app: { name: string; version?: string };
   state: ProgressState;
 }
 
-export const STORAGE_KEY = "devlingo_v3";
-const LEGACY_STORAGE_KEYS = ["devlingo_v2", "deveng_core_v2"];
+export const STORAGE_KEY = "runtimeenglish_v3";
+const LEGACY_STORAGE_KEYS = ["runtimeenglish_v2", "devlingo_v3", "devlingo_v2", "deveng_core_v2"];
 export const PROGRESS_SCHEMA_VERSION = 3;
 
 function preferredTheme(): "light" | "dark" {
@@ -307,7 +307,7 @@ function seedExerciseSrs(state: ProgressState): Record<string, ExerciseSrs> {
 
 function applyDocumentSettings(settings: ProgressSettings) {
   if (!isBrowser()) return;
-  document.documentElement.dataset.theme = settings.theme === "dark" ? "devlingo-dark" : "devlingo";
+  document.documentElement.dataset.theme = settings.theme === "dark" ? "runtimeenglish-dark" : "runtimeenglish";
   document.documentElement.dataset.tts = settings.ttsEnabled ? "on" : "off";
 }
 
@@ -460,7 +460,7 @@ export function readProgress(): ProgressState {
       migratedFromLegacy ||
       (raw &&
         parsed &&
-        (parsed.version !== PROGRESS_SCHEMA_VERSION || parsed.format === "devlingo-progress"))
+        (parsed.version !== PROGRESS_SCHEMA_VERSION || parsed.format === "runtimeenglish-progress" || parsed.format === "devlingo-progress"))
     ) {
       try {
         window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -512,7 +512,7 @@ class ProgressStore {
         }
       });
       if (isBrowser()) {
-        window.addEventListener("devlingo-sync-retry", () => {
+        window.addEventListener("runtimeenglish-sync-retry", () => {
           if (getCurrentUserId()) void this.syncWithCloud(false);
         });
       }
@@ -1037,7 +1037,7 @@ function upsertPhrase(
 
 function unwrapProgressInput(raw: any): any {
   if (!raw || typeof raw !== "object") return raw;
-  if (raw.format === "devlingo-progress" && raw.state && typeof raw.state === "object")
+  if ((raw.format === "runtimeenglish-progress" || raw.format === "devlingo-progress") && raw.state && typeof raw.state === "object")
     return raw.state;
   if (raw.state && typeof raw.state === "object" && (raw.schemaVersion || raw.exportedAt))
     return raw.state;
@@ -1046,10 +1046,10 @@ function unwrapProgressInput(raw: any): any {
 
 function exportProgressEnvelope(state: ProgressState): ProgressExportEnvelope {
   return {
-    format: "devlingo-progress",
+    format: "runtimeenglish-progress",
     schemaVersion: PROGRESS_SCHEMA_VERSION,
     exportedAt: new Date().toISOString(),
-    app: { name: "DevLingo" },
+    app: { name: "RuntimeEnglish" },
     state,
   };
 }
@@ -1107,7 +1107,7 @@ function backfillPhrasebookState(state: ProgressState): Record<string, Phraseboo
   return phrasebook;
 }
 
-const globalKey = "__devlingo_progress_store__";
+const globalKey = "__runtimeenglish_progress_store__";
 export const progressStore: ProgressStore =
   (globalThis as any)[globalKey] ?? ((globalThis as any)[globalKey] = new ProgressStore());
 

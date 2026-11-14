@@ -5,7 +5,7 @@ import { supabase } from "./supabase";
 
 export type AuthUser = User;
 
-const NATIVE_REDIRECT = "com.devlingo.core://login-callback";
+const NATIVE_REDIRECT = "com.runtimeenglish.core://login-callback";
 
 export async function getSession(): Promise<Session | null> {
   if (!supabase) return null;

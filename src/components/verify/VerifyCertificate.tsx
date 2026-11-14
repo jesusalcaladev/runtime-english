@@ -75,10 +75,10 @@ export default function VerifyCertificate() {
   return (
     <div class="mx-auto max-w-2xl space-y-6">
       <div class="rounded-3xl bg-base-200 p-6 sm:p-8">
-        <p class="mono-label">DevLingo / Verify</p>
+        <p class="mono-label">RuntimeEnglish / Verify</p>
         <h1 class="font-pixel mt-2 text-[2.1rem] tracking-tight">Verificar certificado</h1>
         <p class="mt-2 text-sm leading-7 text-base-content/60">
-          Comprueba la validez de un certificado oficial de DevLingo mediante su <span class="font-medium text-base-content/80">Certificate ID</span>.
+          Comprueba la validez de un certificado oficial de RuntimeEnglish mediante su <span class="font-medium text-base-content/80">Certificate ID</span>.
         </p>
 
         <form
@@ -137,8 +137,8 @@ export default function VerifyCertificate() {
               <dd class="mt-1 font-medium">{state.cert.program} · {state.cert.level} · {state.cert.status || "valid"}</dd>
             </div>
           </dl>
-          {state.cert.user_id && <p class="mt-4 text-[11px] text-emerald-300/80">Este certificado está vinculado a una cuenta verificada en DevLingo.</p>}
-          <p class="mt-2 text-[11px] text-base-content/50">Resultado obtenido del registro verificable de DevLingo.</p>
+          {state.cert.user_id && <p class="mt-4 text-[11px] text-emerald-300/80">Este certificado está vinculado a una cuenta verificada en RuntimeEnglish.</p>}
+          <p class="mt-2 text-[11px] text-base-content/50">Resultado obtenido del registro verificable de RuntimeEnglish.</p>
         </div>
       )}
 

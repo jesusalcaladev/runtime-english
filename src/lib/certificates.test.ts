@@ -30,7 +30,7 @@ describe("certificates", () => {
             id: "abc123",
             name: "Test User",
             issued_at: "2026-01-01T00:00:00.000Z",
-            program: "DevLingo",
+            program: "RuntimeEnglish",
             level: "A1 — B2",
             status: "valid",
             user_id: null,
