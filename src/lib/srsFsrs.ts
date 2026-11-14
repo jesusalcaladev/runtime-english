@@ -1,54 +1,64 @@
-import { type Card, type CardInput, createEmptyCard, fsrs, Rating, State } from "ts-fsrs";
+import { dateChrono, defineScheduler, Rating, State } from "ts-fsrs";
+import {
+  schedulerDesiredRetentionMiddleware,
+  schedulerLearningStepsMiddleware,
+  schedulerMaximumIntervalMiddleware,
+} from "ts-fsrs/middlewares";
+import { FSRS7_DEFAULT_WEIGHTS, FSRS7Model } from "ts-fsrs/models/fsrs-7";
 import type { ExerciseSrs } from "./progress";
 
-// Fine-tuned FSRS scheduler for short language practice sessions:
-// - target retention around 90%
-// - short-term learning steps enabled for quick recovery after mistakes
-// - bounded maximum interval to keep reviews relevant
-// - deterministic scheduling (no fuzz) for predictable due times/tests
-const scheduler = fsrs({
-  request_retention: 0.9,
-  maximum_interval: 365,
-  enable_fuzz: false,
-  enable_short_term: true,
-});
+// Fine-tuned FSRS-7 scheduler for short language practice sessions:
+// - ~90% target retention
+// - short-term learning/relearning steps for quick recovery after mistakes
+// - bounded maximum interval and deterministic scheduling (no fuzz)
+const scheduler = defineScheduler({
+  model: FSRS7Model,
+  chrono: dateChrono,
+})
+  .use(schedulerDesiredRetentionMiddleware)
+  .use(schedulerLearningStepsMiddleware)
+  .use(schedulerMaximumIntervalMiddleware)
+  .create({
+    config: {
+      weights: FSRS7_DEFAULT_WEIGHTS,
+      fractionalDays: true,
+      desiredRetention: 0.9,
+      maximumInterval: 365,
+      enableShortTerm: true,
+      learningSteps: ["1m", "10m"],
+      relearningSteps: ["10m"],
+    },
+  });
 
 function clampBox(box: number): number {
   if (!Number.isFinite(box)) return 0;
   return Math.max(0, Math.min(10, Math.round(box)));
 }
 
-function toCardInput(prev: ExerciseSrs | undefined, now: Date): CardInput {
+type FsrsCard = ReturnType<typeof scheduler.newCard>;
+
+function toSchedulerCard(prev: ExerciseSrs | undefined, now: Date): FsrsCard {
   if (!prev) {
-    const empty = createEmptyCard(now);
-    return empty as unknown as CardInput;
+    return scheduler.newCard({ now });
   }
 
-  const due = new Date(prev.due);
-  const last = new Date(prev.last);
   const reps = Math.max(0, prev.correctStreak || 0);
-  const lapses = prev.box === 0 && prev.correctStreak === 0 ? 1 : 0;
-  const elapsedDays = Math.max(0, (now.getTime() - prev.last) / 86_400_000);
-  const scheduledDays = Math.max(0, (prev.due - prev.last) / 86_400_000);
-  const state =
-    prev.correctStreak <= 0 ? State.Learning : reps >= 2 ? State.Review : State.Learning;
-
-  // Approximate stability/difficulty from retained progress to smooth migration.
-  const stability = Math.max(0.4, 0.6 + prev.box * 1.4 + Math.min(reps, 5) * 0.25);
-  const difficulty = Math.min(9.5, Math.max(1.5, 6.8 - prev.box * 0.45));
+  const box = clampBox(prev.box ?? 0);
+  const stability = Math.max(0.4, 0.6 + box * 1.4 + Math.min(reps, 5) * 0.25);
+  const difficulty = Math.min(9.5, Math.max(1.5, 6.8 - box * 0.45));
+  const state = reps <= 0 ? State.Learning : reps >= 2 ? State.Review : State.Learning;
+  const scheduleStatus = reps <= 0 ? "learning" : "review";
 
   return {
-    due,
     stability,
+    stabilityFast: Math.max(0.4, stability * 0.8),
     difficulty,
-    elapsed_days: elapsedDays,
-    scheduled_days: scheduledDays,
-    reps,
-    lapses,
-    learning_steps: 0,
     state,
-    last_review: last,
-  } as unknown as CardInput;
+    scheduleStatus,
+    dueAt: new Date(prev.due),
+    lastReviewAt: new Date(prev.last),
+    learningStep: reps <= 0 ? 0 : 0,
+  } as unknown as FsrsCard;
 }
 
 export interface NextSrsOptions {
@@ -62,16 +72,16 @@ export function nextSrsFsrs(
   options: NextSrsOptions = {},
 ): ExerciseSrs {
   const now = new Date(nowMs);
-  const card = toCardInput(prev, now);
-  const rating = !correct ? Rating.Again : options.struggled ? Rating.Hard : Rating.Good;
+  const card = toSchedulerCard(prev, now);
+  const grade = !correct ? Rating.Again : options.struggled ? Rating.Hard : Rating.Good;
 
-  const result = scheduler.next(card as unknown as Card, now, rating);
-  const nextCard = result.card;
+  const result = scheduler.review({ card, grade, now });
+  const nextCard = result.card as any;
 
   if (!correct) {
     return {
       box: 0,
-      due: nextCard.due.getTime(),
+      due: (nextCard.dueAt as Date).getTime(),
       last: nowMs,
       correctStreak: 0,
     };
@@ -81,7 +91,7 @@ export function nextSrsFsrs(
   const step = options.struggled ? 0 : 1;
   return {
     box: clampBox(prevBox + step),
-    due: nextCard.due.getTime(),
+    due: (nextCard.dueAt as Date).getTime(),
     last: nowMs,
     correctStreak: (prev?.correctStreak ?? 0) + 1,
   };
