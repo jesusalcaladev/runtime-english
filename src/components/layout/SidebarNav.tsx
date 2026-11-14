@@ -1,4 +1,3 @@
-import { useEffect, useState } from "preact/hooks";
 import {
   Award,
   BookText,
@@ -14,6 +13,7 @@ import {
   X,
 } from "lucide-preact";
 import type { NavModule } from "../../data/curriculum";
+import { useSidebarNav } from "../../hooks/useSidebarNav";
 import { getUiStage, t, tAction } from "../../lib/i18n";
 import { route } from "../../lib/routes";
 import { useProgress } from "../../lib/useProgress";
@@ -25,40 +25,7 @@ interface Props {
 export default function SidebarNav({ modules }: Props) {
   const state = useProgress();
   const stage = getUiStage(state);
-  const [open, setOpen] = useState(false);
-  const [path, setPath] = useState("");
-
-  useEffect(() => {
-    const syncPath = () => {
-      setPath(window.location.pathname);
-      setOpen(false);
-      try {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get("dev") === "1") {
-          window.localStorage.setItem("devlingo_dev", "1");
-        }
-        if (!window.localStorage.getItem("devlingo_dev") && window.localStorage.getItem("deveng_dev") === "1") {
-          window.localStorage.setItem("devlingo_dev", "1");
-        }
-      } catch {}
-    };
-    const onMenu = () => setOpen((value) => !value);
-
-    syncPath();
-    document.addEventListener("astro:page-load", syncPath);
-    window.addEventListener("devlingo:menu", onMenu);
-    return () => {
-      document.removeEventListener("astro:page-load", syncPath);
-      window.removeEventListener("devlingo:menu", onMenu);
-    };
-  }, []);
-
-  useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [open]);
+  const { open, setOpen, path } = useSidebarNav();
 
   const allSessions = modules.flatMap((module) => module.sessions);
   const totalSessions = allSessions.length;
