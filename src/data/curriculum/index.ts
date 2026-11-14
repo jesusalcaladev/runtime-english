@@ -7,12 +7,13 @@ import { m5 } from "./m5";
 import { m6 } from "./m6";
 import { m7 } from "./m7";
 import { m8 } from "./m8";
+import { m9 } from "./m9";
 
 /**
  * Añadir un módulo nuevo = crear su archivo y sumarlo a esta lista.
  * La ruta empieza en A1 y termina con práctica intensiva y repasos.
  */
-export const MODULES: Module[] = [m1, m2, m3, m4, m5, m6, m7, m8];
+export const MODULES: Module[] = [m1, m2, m3, m4, m5, m6, m7, m8, m9];
 
 export interface SessionWithModule {
   session: Session;

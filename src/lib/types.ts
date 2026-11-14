@@ -33,6 +33,7 @@ export interface ChoiceExercise {
   options: string[];
   answer: number;
   explanation: string;
+  audio?: string;
 }
 
 export interface BuilderExercise {
@@ -54,7 +55,84 @@ export interface WriteExercise {
   explanation: string;
 }
 
-export type Exercise = ChoiceExercise | BuilderExercise | WriteExercise;
+/** Dictation/listening: audio (or text TTS) is played and the user types what they hear. */
+export interface ListenExercise {
+  id: string;
+  type: "listen";
+  prompt: string;
+  audioText: string;
+  answer: string;
+  accept?: string[];
+  hint?: string;
+  explanation: string;
+}
+
+/** Speaking practice: the user pronounces the phrase and it is compared using speech recognition. */
+export interface SpeakExercise {
+  id: string;
+  type: "speak";
+  prompt: string;
+  answer: string;
+  accept?: string[];
+  hint?: string;
+  explanation: string;
+}
+
+/** Fill in blanks in context. Use ___ (three underscores) for each blank in `template`. */
+export interface FillBlankExercise {
+  id: string;
+  type: "fill-blank";
+  prompt: string;
+  template: string;
+  blanks: string[]; // respuesta(s) correcta(s) en orden; usar | para alternativas en un hueco
+  hint?: string;
+  explanation: string;
+}
+
+/** Put dialogue lines in order. */
+export interface DialogueOrderExercise {
+  id: string;
+  type: "dialogue-order";
+  prompt: string;
+  lines: string[]; // líneas en orden correcto
+  explanation: string;
+}
+
+/** Correct an error in a sentence. */
+export interface FixErrorExercise {
+  id: string;
+  type: "fix-error";
+  prompt: string;
+  sentence: string; // frase con el error
+  answer: string; // frase corregida
+  accept?: string[];
+  hint?: string;
+  explanation: string;
+}
+
+/** Guided role-play: the user responds in context (open answer with a reference). */
+export interface RoleplayExercise {
+  id: string;
+  type: "roleplay";
+  prompt: string;
+  scenario: string;
+  goal: string;
+  answer: string;
+  accept?: string[];
+  hint?: string;
+  explanation: string;
+}
+
+export type Exercise =
+  | ChoiceExercise
+  | BuilderExercise
+  | WriteExercise
+  | ListenExercise
+  | SpeakExercise
+  | FillBlankExercise
+  | DialogueOrderExercise
+  | FixErrorExercise
+  | RoleplayExercise;
 
 export interface Session {
   id: string;

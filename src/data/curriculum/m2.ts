@@ -140,6 +140,29 @@ export const m2: Module = {
           explanation:
             "El pasado simple con un marcador temporal ('yesterday') es la forma más clara de reportar algo terminado en una retrospectiva.",
         },
+        {
+          id: "m2-l1-e5",
+          type: "choice",
+          prompt: "Quieres describir lo que hace tu código en general: 'Esta función devuelve un string.' ¿Qué tiempo usas?",
+          options: [
+            "Presente simple: 'This function returns a string.'",
+            "Presente continuo: 'This function is returning a string.'",
+            "Pasado simple: 'This function returned a string.'",
+            "Futuro simple: 'This function will return a string.'",
+          ],
+          answer: 0,
+          explanation:
+            "Para describir comportamiento habitual o lo que el código hace, usa presente simple: es claro y suena natural en docs y reviews.",
+        },
+        {
+          id: "m2-l1-e6",
+          type: "builder",
+          prompt: "Construye: 'Estoy revisando tu PR ahora mismo.'",
+          words: ["I'm reviewing", "your PR", "right now."],
+          answer: "I'm reviewing your PR right now.",
+          explanation:
+            "Presente continuo + 'right now' comunica lo que está pasando en este momento, sin sonar robótico.",
+        },
       ],
     },
     {
@@ -233,6 +256,185 @@ export const m2: Module = {
           hint: "'Find' es irregular: find → found.",
           explanation:
             "'Found' es el pasado de 'find'. Añadir 'yesterday' deja claro que la acción ya terminó.",
+        },
+        {
+          id: "m2-l2-e5",
+          type: "choice",
+          prompt: "Quieres sonar claro y tranquilo en un update: 'El problema sigue abierto.' ¿Cuál eliges?",
+          options: [
+            "The issue is still open.",
+            "The issue still opens.",
+            "The issue opened still.",
+            "The issue is still opening.",
+          ],
+          answer: 0,
+          explanation:
+            "'Is still open' describe el estado actual de forma simple y natural. No necesitas una frase complicada para comunicar bien.",
+        },
+        {
+          id: "m2-l2-e6",
+          type: "builder",
+          prompt: "Construye una línea de tiempo cómoda: 'Encontré el bug ayer, lo estoy arreglando ahora y lo desplegaré mañana.'",
+          words: ["I found the bug yesterday,", "I'm fixing it now,", "and I'll deploy it tomorrow."],
+          answer: "I found the bug yesterday, I'm fixing it now, and I'll deploy it tomorrow.",
+          explanation:
+            "Pasado, presente continuo y futuro en una sola historia: así tu update fluye y todos entienden el estado real.",
+        },
+        {
+          id: "m2-l2-e7",
+          type: "listen",
+          prompt: "Escucha el update y escríbelo.",
+          audioText: "I'm fixing the bug now and I'll deploy the fix tomorrow.",
+          answer: "I'm fixing the bug now and I'll deploy the fix tomorrow.",
+          accept: ["I am fixing the bug now and I will deploy the fix tomorrow."],
+          hint: "Dos partes: ahora (I'm fixing...) y mañana (I'll deploy...).",
+          explanation:
+            "Listening en contexto real: updates cortos combinando presente continuo y futuro.",
+        },
+        {
+          id: "m2-l2-e8",
+          type: "fill-blank",
+          prompt: "Completa la historia del bug con los tiempos correctos.",
+          template: "I ___ the bug yesterday, I'm ___ it now, and I'll ___ the fix tomorrow.",
+          blanks: ["found", "fixing", "deploy"],
+          hint: "Pasado de find, forma -ing, y verbo base tras will.",
+          explanation:
+            "Una narrativa clara: pasado (found), presente continuo (fixing) y futuro con will (deploy).",
+        },
+        {
+          id: "m2-l2-e9",
+          type: "roleplay",
+          prompt: "Responde como en un standup real.",
+          scenario: "Tu lead pregunta: 'Any update on the login bug?'",
+          goal: "Explica qué pasó, qué haces ahora y cuándo estará listo.",
+          answer: "I found the bug yesterday. I'm fixing it now, and I'll deploy the fix tomorrow.",
+          accept: [
+            "I found the bug yesterday, I'm fixing it now, and I'll deploy the fix tomorrow.",
+            "Yesterday I found the bug. I'm fixing it now and I will deploy the fix tomorrow.",
+          ],
+          hint: "Usa pasado + presente continuo + futuro.",
+          explanation:
+            "Role-play: practica una respuesta breve y clara con los tres tiempos clave del día a día.",
+        },
+      ],
+    },
+    {
+      id: "m8-l2",
+      slug: "pronunciacion-funcional-devs",
+      title: "Pronunciación funcional para developers",
+      step: "A2 · Paso 2.3 · Pronunciación",
+      cefr: "A2",
+      minutes: 8,
+      summary:
+        "Practica palabras técnicas que se confunden al hablar: query, cache, route, queue, height y más.",
+      objectives: [
+        "Reconocer y practicar la pronunciación de términos técnicos comunes.",
+        "Escuchar y repetir frases cortas con vocabulario de desarrollo.",
+        "Ganar confianza al decir palabras frecuentes en reuniones y demos.",
+      ],
+      pronunciation:
+        "Run the query, clear the cache, and check the route. The queue is empty and the height is fixed.",
+      blocks: [
+        {
+          type: "technique",
+          name: "Pronunciación funcional, no perfecta",
+          desc: "El objetivo es que te entiendan en el trabajo. Practica las palabras que más usas (query, cache, route, schema, issue) en frases completas. Escucha, repite en voz alta y prioriza claridad sobre acento perfecto.",
+        },
+        {
+          type: "vocab",
+          title: "Palabras que conviene practicar",
+          items: [
+            { en: "query", es: "consulta (QUÍ-ri)", example: "Run the query again." },
+            { en: "cache", es: "caché (cash)", example: "Clear the cache." },
+            { en: "route", es: "ruta (rut/root)", example: "Check the route." },
+            { en: "queue", es: "cola (kiú)", example: "The queue is empty." },
+            { en: "schema", es: "esquema (SKÍ-ma)", example: "Update the schema." },
+            { en: "issue", es: "incidencia/problema (Í-shu)", example: "Open an issue." },
+            { en: "height / width", es: "alto / ancho", example: "Set the height and width." },
+            { en: "deploy", es: "desplegar (di-PLÓI)", example: "Deploy to production." },
+          ],
+        },
+        {
+          type: "phrases",
+          title: "Repite en voz alta",
+          items: [
+            { en: "Run the query and clear the cache.", es: "Ejecuta la consulta y limpia la caché." },
+            { en: "This route returns a 404 error.", es: "Esta ruta devuelve un error 404." },
+            { en: "The queue is processing the jobs.", es: "La cola está procesando los trabajos." },
+            { en: "We need to update the database schema.", es: "Necesitamos actualizar el esquema de la base de datos." },
+            { en: "I opened an issue for this bug.", es: "Abrí un issue para este bug." },
+          ],
+        },
+        {
+          type: "callout",
+          tone: "tip",
+          title: "Usa el botón de voz",
+          body: "Toca el ícono de volumen en las frases y palabras para escuchar y repetir. Practicar en frases cortas es más efectivo que memorizar palabras sueltas.",
+        },
+      ],
+      exercises: [
+        {
+          id: "m8-l2-e1",
+          type: "choice",
+          prompt: "¿Cómo dirías 'Limpia la caché' en inglés?",
+          options: ["Clear the cache.", "Clean the catch.", "Delete the cash.", "Clear the cage."],
+          answer: 0,
+          explanation:
+            "'Cache' (caché) se escribe cache y en inglés suele sonar como 'cash': 'Clear the cache.'",
+        },
+        {
+          id: "m8-l2-e2",
+          type: "builder",
+          prompt: "Construye: 'Ejecuta la consulta otra vez.'",
+          words: ["Run", "the query", "again."],
+          answer: "Run the query again.",
+          explanation:
+            "'Query' es consulta; una frase común es 'run the query'.",
+        },
+        {
+          id: "m8-l2-e3",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'La cola está vacía.'",
+          answer: "The queue is empty.",
+          accept: ["The queue is empty"],
+          hint: "Usa 'queue'.",
+          explanation:
+            "'Queue' significa cola (de trabajos, mensajes, etc.).",
+        },
+        {
+          id: "m8-l2-e4",
+          type: "choice",
+          prompt: "¿Qué par de palabras suele confundirse por sonido/escritura?",
+          options: [
+            "height y width",
+            "bug y fix",
+            "code y test",
+            "user y admin",
+          ],
+          answer: 0,
+          explanation:
+            "'Height' (alto) y 'width' (ancho) se confunden seguido al hablar; conviene practicarlas juntas.",
+        },
+        {
+          id: "m8-l2-e5",
+          type: "listen",
+          prompt: "Escucha y escribe la frase (dictado técnico).",
+          audioText: "Run the query and clear the cache.",
+          answer: "Run the query and clear the cache.",
+          accept: ["Run the query and clear the cache"],
+          hint: "Dos acciones: run the query / clear the cache.",
+          explanation:
+            "Listening con vocabulario de pronunciación frecuente: query y cache.",
+        },
+        {
+          id: "m8-l2-e6",
+          type: "speak",
+          prompt: "Practica la pronunciación en voz alta.",
+          answer: "The queue is empty and the route is correct.",
+          accept: ["The queue is empty and the route is correct"],
+          hint: "queue suena como 'cue', route como 'root/rut' según contexto.",
+          explanation:
+            "Speaking funcional: claridad en términos que suelen causar confusión en reuniones.",
         },
       ],
     },

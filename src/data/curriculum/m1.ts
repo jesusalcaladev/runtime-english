@@ -103,6 +103,49 @@ export const m1: Module = {
           explanation:
             "Tercera persona singular: 'The function has two parameters'. Este es el patrón que usarás en documentación y code reviews.",
         },
+        {
+          id: "m1-l1-e5",
+          type: "choice",
+          prompt: "Completa: 'The script _____ nothing when I click the button.'",
+          options: ["do", "does", "is do", "doing"],
+          answer: 1,
+          explanation:
+            "'The script' es tercera persona singular, así que usa 'does': 'The script does nothing'. Es una forma simple y muy común de reportar un fallo.",
+        },
+        {
+          id: "m1-l1-e6",
+          type: "write",
+          prompt: "Escríbelo en inglés de forma natural: 'No sé por qué se rompió esto.'",
+          answer: "I don't know why this broke.",
+          accept: [
+            "I do not know why this broke.",
+            "I don't know why this is broken.",
+          ],
+          hint: "Usa 'I don't know why...'",
+          explanation:
+            "Frase honesta y muy útil en debugging. Sonar natural también es admitir con claridad lo que no sabes.",
+        },
+        {
+          id: "m1-l1-e7",
+          type: "listen",
+          prompt: "Escucha y escribe la frase (listening/dictado).",
+          audioText: "The server is down.",
+          answer: "The server is down.",
+          accept: ["The server is down"],
+          hint: "Empieza con 'The server...'",
+          explanation:
+            "Práctica de listening: escucha la frase y escríbela. Presta atención a 'is' (estado actual del servidor).",
+        },
+        {
+          id: "m1-l1-e8",
+          type: "fill-blank",
+          prompt: "Completa los espacios con las formas correctas.",
+          template: "I ___ the issue is in the cache because the function ___ two parameters.",
+          blanks: ["think", "has"],
+          hint: "Primera persona: 'think'. Tercera persona: 'has'.",
+          explanation:
+            "Repaso en contexto: 'I think...' (opinión/debugging) y 'the function has...' (tercera persona singular).",
+        },
       ],
     },
     {
@@ -153,6 +196,12 @@ export const m1: Module = {
             { en: "update", es: "actualizar", example: "Update the state." },
           ],
         },
+        {
+          type: "callout",
+          tone: "tip",
+          title: "Aprende cómodo: verbo + objeto",
+          body: "No memorices listas sueltas. Aprende bloques naturales: 'run the tests', 'push the changes', 'open a PR', 'fetch the data'. Si piensas en chunks, hablas más rápido y con menos esfuerzo.",
+        },
       ],
       exercises: [
         {
@@ -196,6 +245,57 @@ export const m1: Module = {
           hint: "Empieza con el verbo en forma base: 'Run...'.",
           explanation:
             "El imperativo técnico va al inicio y sin sujeto. 'Before you deploy' deja claro el orden de las acciones.",
+        },
+        {
+          id: "m1-l2-e5",
+          type: "choice",
+          prompt: "Quieres decir 'trae los últimos cambios del remoto'. ¿Qué verbo usas?",
+          options: ["push", "pull", "commit", "throw"],
+          answer: 1,
+          explanation:
+            "'Pull' trae cambios desde el remoto; 'push' los envía. Confundirlos es muy común al principio, así que fija el par: pull = traer, push = subir.",
+        },
+        {
+          id: "m1-l2-e6",
+          type: "builder",
+          prompt: "Construye: 'Trae los últimos cambios y ejecuta los tests.'",
+          words: ["Pull", "the latest changes", "and run", "the tests."],
+          answer: "Pull the latest changes and run the tests.",
+          explanation:
+            "Dos imperativos conectados con 'and': instrucciones claras y naturales, igual que en un README.",
+        },
+        {
+          id: "m1-l2-e7",
+          type: "speak",
+          prompt: "Pronuncia esta instrucción técnica en voz alta.",
+          answer: "Run the tests before you deploy.",
+          accept: ["Run tests before you deploy."],
+          hint: "Enfócate en el ritmo: Run the tests / before you deploy.",
+          explanation:
+            "Práctica de speaking: decir instrucciones claras es clave en trabajo en equipo. Usa el micrófono o escribe si no está disponible.",
+        },
+        {
+          id: "m1-l2-e8",
+          type: "dialogue-order",
+          prompt: "Ordena este mini diálogo de trabajo.",
+          lines: [
+            "Can you pull the latest changes?",
+            "Sure. I pulled them and I'm running the tests now.",
+            "Great. Let me know if the build passes.",
+          ],
+          explanation:
+            "Diálogos claros: petición → confirmación con estado actual → seguimiento. Útil para chat y llamadas.",
+        },
+        {
+          id: "m1-l2-e9",
+          type: "fix-error",
+          prompt: "Corrige el error en esta instrucción de README.",
+          sentence: "Please to run the tests before deploy.",
+          answer: "Please run the tests before deploying.",
+          accept: ["Please run the tests before you deploy."],
+          hint: "Imperativo: 'run' sin 'to'. Revisa la segunda parte.",
+          explanation:
+            "En imperativos no usamos 'to' antes del verbo ('run', no 'to run'). 'Before deploying' o 'before you deploy' son naturales.",
         },
       ],
     },
@@ -293,6 +393,33 @@ export const m1: Module = {
           explanation:
             "'Was released' es pasado simple en voz pasiva; 'on' acompaña al día concreto.",
         },
+        {
+          id: "m1-l3-e5",
+          type: "choice",
+          prompt: "¿Cómo dices 'la reunión es a las 10:30 a. m.' de forma natural?",
+          options: [
+            "The meeting is in ten thirty a.m.",
+            "The meeting is at ten thirty a.m.",
+            "The meeting is on ten thirty a.m.",
+            "The meeting is to ten thirty a.m.",
+          ],
+          answer: 1,
+          explanation:
+            "Para horas usamos 'at': 'at ten thirty a.m.'. Preposiciones pequeñas, pero hacen que suenes mucho más natural.",
+        },
+        {
+          id: "m1-l3-e6",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'La tasa de acierto de caché es 50%.'",
+          answer: "The cache hit rate is fifty percent.",
+          accept: [
+            "The cache hit rate is 50 percent.",
+            "The cache hit rate is 50%.",
+          ],
+          hint: "Puedes escribir 'fifty percent' o '50%'.",
+          explanation:
+            "Decir porcentajes con calma ('fifty percent') te ayuda a comunicar números con claridad en una call.",
+        },
       ],
     },
     {
@@ -389,6 +516,123 @@ export const m1: Module = {
           hint: "Empieza con 'How do I...?' y usa 'run the tests'.",
           explanation:
             "'How do I + verbo?' es la estructura básica para preguntar por un procedimiento.",
+        },
+        {
+          id: "m1-l4-e5",
+          type: "builder",
+          prompt: "Construye: 'Déjame confirmar: desplegamos el viernes, ¿verdad?'",
+          words: ["Let me confirm:", "we deploy", "on Friday,", "right?"],
+          answer: "Let me confirm: we deploy on Friday, right?",
+          explanation:
+            "Confirmar en voz alta evita malentendidos. 'Right?' al final suena natural y cómodo, no agresivo.",
+        },
+        {
+          id: "m1-l4-e6",
+          type: "write",
+          prompt: "Escríbelo en inglés con amabilidad: '¿Podrías deletrearlo, por favor?'",
+          answer: "Could you spell that, please?",
+          accept: [
+            "Could you spell that please?",
+            "Can you spell that, please?",
+          ],
+          hint: "Usa 'Could you spell that...?'",
+          explanation:
+            "Pedir que deletreen es totalmente normal, sobre todo con nombres de variables, ramas o servicios.",
+        },
+      ],
+    },
+    {
+      id: "m1-l5",
+      slug: "checkpoint-fundamentos",
+      title: "Checkpoint: fundamentos en uso real",
+      step: "A2 · Paso 1.5 · Checkpoint",
+      cefr: "A2",
+      minutes: 7,
+      summary:
+        "Recupera lo esencial del módulo sin releer: verbos, acciones técnicas, números y cómo pedir aclaración.",
+      objectives: [
+        "Usar verbos clave en frases cortas y correctas.",
+        "Decir versiones/números y pedir aclaración con naturalidad.",
+        "Detectar qué tema conviene repasar antes de seguir.",
+      ],
+      pronunciation:
+        "The API needs a token. Could you explain that again? Version two point zero was released today.",
+      blocks: [
+        {
+          type: "technique",
+          name: "Recuperación activa",
+          desc: "Responde primero desde memoria. Si fallas, vuelve a la sesión del tema (verbos, números o aclaraciones), corrige y continúa. Recordar activamente fija mejor que volver a leer.",
+        },
+        {
+          type: "phrases",
+          title: "Chunks útiles para recordar",
+          items: [
+            { en: "The function returns a value.", es: "La función devuelve un valor." },
+            { en: "Pull the latest changes.", es: "Trae los últimos cambios." },
+            { en: "Version 2.0", es: "Versión 2.0 (two point zero)." },
+            { en: "Could you explain that again?", es: "¿Podrías explicarlo otra vez?" },
+          ],
+        },
+      ],
+      exercises: [
+        {
+          id: "m1-l5-e1",
+          type: "choice",
+          prompt: "Elige la frase correcta para describir lo que necesita el sistema:",
+          options: [
+            "The API need a token.",
+            "The API needs a token.",
+            "The API needing a token.",
+            "The API is need a token.",
+          ],
+          answer: 1,
+          explanation:
+            "Con 'the API' (tercera persona singular) el verbo lleva -s: 'needs'.",
+        },
+        {
+          id: "m1-l5-e2",
+          type: "builder",
+          prompt: "Construye: 'Trae los últimos cambios y ejecuta los tests.'",
+          words: ["Pull", "the latest changes", "and run", "the tests."],
+          answer: "Pull the latest changes and run the tests.",
+          explanation:
+            "Imperativos en secuencia: instrucciones claras como en un README.",
+        },
+        {
+          id: "m1-l5-e3",
+          type: "choice",
+          prompt: "¿Cómo se lee 'v2.0' en inglés técnico?",
+          options: [
+            "version two comma zero",
+            "version two point zero",
+            "version twenty",
+            "version two zero point",
+          ],
+          answer: 1,
+          explanation:
+            "En versiones y decimales se usa 'point': 'two point zero'.",
+        },
+        {
+          id: "m1-l5-e4",
+          type: "write",
+          prompt: "Escribe en inglés: '¿Podrías explicarlo otra vez, por favor?'",
+          answer: "Could you explain that again, please?",
+          accept: [
+            "Could you explain that again please?",
+            "Can you explain that again, please?",
+          ],
+          hint: "Usa 'Could you explain that again...?'",
+          explanation:
+            "Frase de rescate muy útil para pedir aclaración con cortesía.",
+        },
+        {
+          id: "m1-l5-e5",
+          type: "builder",
+          prompt: "Construye: 'Creo que el problema está en la caché.'",
+          words: ["I think", "the issue", "is in", "the cache."],
+          answer: "I think the issue is in the cache.",
+          explanation:
+            "'I think' + cláusula es una forma simple de compartir tu hipótesis en debugging.",
         },
       ],
     },

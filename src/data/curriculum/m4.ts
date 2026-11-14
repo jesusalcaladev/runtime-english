@@ -118,6 +118,29 @@ export const m4: Module = {
           explanation:
             "Es una forma profesional y directa de ajustar una estimación sin excusas vagas.",
         },
+        {
+          id: "m4-l1-e5",
+          type: "builder",
+          prompt: "Construye un update cómodo y claro: 'Ayer terminé la integración. Hoy estoy trabajando en los tests. No tengo bloqueos.'",
+          words: ["Yesterday I finished the integration.", "Today I'm working on the tests.", "No blockers on my side."],
+          answer: "Yesterday I finished the integration. Today I'm working on the tests. No blockers on my side.",
+          explanation:
+            "Estructura clásica del daily: ayer, hoy y estado de bloqueos. Frases cortas te ayudan a hablar con confianza.",
+        },
+        {
+          id: "m4-l1-e6",
+          type: "choice",
+          prompt: "Quieres sonar natural al pedir ayuda en la daily. ¿Qué opción es mejor?",
+          options: [
+            "I'm stuck on the CORS error. Could someone help me with the headers?",
+            "I have problem. Help.",
+            "CORS is impossible for me.",
+            "Someone must fix my bug now.",
+          ],
+          answer: 0,
+          explanation:
+            "Nombrar el bloqueo y pedir ayuda de forma específica ('Could someone help me with...') es claro, educado y muy natural.",
+        },
       ],
     },
     {

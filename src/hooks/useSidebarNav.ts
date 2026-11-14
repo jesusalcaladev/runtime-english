@@ -13,7 +13,10 @@ export function useSidebarNav() {
         if (params.get("dev") === "1") {
           window.localStorage.setItem("devlingo_dev", "1");
         }
-        if (!window.localStorage.getItem("devlingo_dev") && window.localStorage.getItem("deveng_dev") === "1") {
+        if (
+          !window.localStorage.getItem("devlingo_dev") &&
+          window.localStorage.getItem("deveng_dev") === "1"
+        ) {
           window.localStorage.setItem("devlingo_dev", "1");
         }
       } catch {}

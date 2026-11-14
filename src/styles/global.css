@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where([data-theme=deveng-dark], [data-theme=deveng-dark] *));
+@custom-variant dark (&:where([data-theme=devlingo-dark], [data-theme=devlingo-dark] *));
 
 @plugin "daisyui" {
   themes: false;
 }
 
 @plugin "daisyui/theme" {
-  name: "deveng";
+  name: "devlingo";
   default: true;
   prefersdark: false;
   color-scheme: light;
@@ -42,7 +42,7 @@
 }
 
 @plugin "daisyui/theme" {
-  name: "deveng-dark";
+  name: "devlingo-dark";
   default: false;
   prefersdark: false;
   color-scheme: dark;

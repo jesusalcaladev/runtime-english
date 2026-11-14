@@ -22,7 +22,7 @@ export const m7: Module = {
       objectives: [
         "Entender los términos de IA que ya se usan en Slack y en PRs.",
         "Distinguir cuándo un término es profesional y cuándo es un meme.",
-        "Usar el slang sin sonar ofensivo en el trabajo.",
+        "Usar el slang sin sonar ofensivo en el trabajo."
       ],
       pronunciation:
         "Don't be a meat proxy. Read the diff before you paste it.",
@@ -46,7 +46,7 @@ export const m7: Module = {
             "context-rot",
             "prompt-debt",
             "hallucination",
-            "sycophancy",
+            "sycophancy"
           ],
         },
         {
@@ -54,7 +54,7 @@ export const m7: Module = {
           tone: "warning",
           title: "Regla de oro con el slang",
           body: "Entender el slang es obligatorio; usarlo depende del contexto. 'Meat proxy' o 'clanker' pueden sonar como insulto: úsalos para describir un patrón, nunca para señalar a una persona en público.",
-        },
+        }
       ],
       exercises: [
         {
@@ -66,7 +66,7 @@ export const m7: Module = {
             "He is a meat proxy",
             "He is a canary release",
             "He is rubber ducking",
-            "He is shipping it",
+            "He is shipping it"
           ],
           answer: 0,
           explanation:
@@ -98,11 +98,11 @@ export const m7: Module = {
           answer: "That PR is pure AI slop; nobody reviewed the tests.",
           accept: [
             "That PR is pure AI slop. Nobody reviewed the tests.",
-            "That PR is pure AI slop, nobody reviewed the tests.",
+            "That PR is pure AI slop, nobody reviewed the tests."
           ],
           explanation:
             "'Pure' funciona como intensificador. 'Review' se usa tanto para code review como para revisar tests.",
-        },
+        }
       ],
     },
     {
@@ -117,7 +117,7 @@ export const m7: Module = {
       objectives: [
         "Entender el slang que aparece en memes, chats y reuniones informales.",
         "Reconocer qué términos son solo para conversación casual.",
-        "Responder con naturalidad sin sonar forzado.",
+        "Responder con naturalidad sin sonar forzado."
       ],
       pronunciation:
         "Less yapping, more code. Sprint ends Friday — lock in.",
@@ -143,7 +143,7 @@ export const m7: Module = {
             "6-7",
             "no-cap",
             "w",
-            "brainrot",
+            "brainrot"
           ],
         },
         {
@@ -151,7 +151,7 @@ export const m7: Module = {
           tone: "tip",
           title: "¿Cuándo usarlo?",
           body: "En un canal de equipo con confianza: 'cooked', 'lock in', 'let him cook'. En una daily formal o con un cliente: mejor inglés neutro. '6-7' y 'brainrot' son memes: solo para entenderlos.",
-        },
+        }
       ],
       exercises: [
         {
@@ -192,7 +192,7 @@ export const m7: Module = {
           answer: 1,
           explanation:
             "'Let him cook' = déjalo trabajar, confía en el proceso. Se usa también con 'her/them'.",
-        },
+        }
       ],
     },
     {
@@ -207,7 +207,7 @@ export const m7: Module = {
       objectives: [
         "Pedir aparcar un tema sin cortar la conversación.",
         "Expresar falta de tiempo o capacidad sin sonar evasivo.",
-        "Distinguir jerga profesional de relleno de reunión.",
+        "Distinguir jerga profesional de relleno de reunión."
       ],
       pronunciation:
         "Let's take this offline and circle back after the standup. I don't have the bandwidth today.",
@@ -228,7 +228,7 @@ export const m7: Module = {
             { en: "blocker", es: "algo que impide avanzar", example: "The API access is my only blocker." },
             { en: "align", es: "ponerse de acuerdo", example: "Let's align on the scope." },
             { en: "action item", es: "tarea acordada", example: "I'll add it as an action item." },
-            { en: "parking lot", es: "temas aparcados para después", example: "Put it in the parking lot." },
+            { en: "parking lot", es: "temas aparcados para después", example: "Put it in the parking lot." }
           ],
         },
         {
@@ -242,7 +242,7 @@ export const m7: Module = {
             { en: "What's the blocker?", es: "¿Qué te está bloqueando?" },
             { en: "Let's align on the next step.", es: "Pongámonos de acuerdo en el siguiente paso." },
             { en: "I'll own that action item.", es: "Yo me encargo de esa tarea." },
-            { en: "Let's put that in the parking lot.", es: "Aparquemos ese tema para luego." },
+            { en: "Let's put that in the parking lot.", es: "Aparquemos ese tema para luego." }
           ],
         },
         {
@@ -250,7 +250,7 @@ export const m7: Module = {
           tone: "tip",
           title: "Registro y claridad",
           body: "Estas frases son jerga profesional y suenan naturales en reuniones. Úsalas con un propósito claro (aparcar, retomar, pedir capacidad). Si hablas con alguien externo o no técnico, prefiere formas neutras como 'Can we discuss this later?' o 'I don't have time this week.'",
-        },
+        }
       ],
       exercises: [
         {
@@ -261,7 +261,7 @@ export const m7: Module = {
             "Let's take it offline.",
             "Let's yap about it.",
             "That's cooked.",
-            "Ship it.",
+            "Ship it."
           ],
           answer: 0,
           explanation:
@@ -275,7 +275,7 @@ export const m7: Module = {
             "No tengo internet esta semana.",
             "No tengo tiempo o capacidad esta semana.",
             "No tengo reuniones esta semana.",
-            "No tengo feedback esta semana.",
+            "No tengo feedback esta semana."
           ],
           answer: 1,
           explanation:
@@ -299,7 +299,7 @@ export const m7: Module = {
           hint: "Usa 'heads-up'.",
           explanation:
             "'Heads-up' es un aviso previo, normalmente informal pero profesional.",
-        },
+        }
       ],
     },
     {
@@ -314,7 +314,7 @@ export const m7: Module = {
       objectives: [
         "Distinguir un bloqueo real de un detalle menor en un review.",
         "Nombrar deuda técnica y discusiones triviales con precisión.",
-        "Responder a un review con el tono adecuado.",
+        "Responder a un review con el tono adecuado."
       ],
       pronunciation:
         "LGTM with one nit. Ship it, and we'll pay down the tech debt next sprint.",
@@ -335,7 +335,7 @@ export const m7: Module = {
             { en: "ship it", es: "adelante, publícalo", example: "Tests pass, ship it." },
             { en: "rubber duck", es: "explicar el problema a un pato para pensar", example: "I rubber-ducked the bug and found it." },
             { en: "spaghetti code", es: "código enredado y difícil de seguir", example: "That module is spaghetti code." },
-            { en: "workslop", es: "trabajo con apariencia de calidad pero poco valor", example: "The dashboard is pure workslop." },
+            { en: "workslop", es: "trabajo con apariencia de calidad pero poco valor", example: "The dashboard is pure workslop." }
           ],
         },
         {
@@ -347,7 +347,7 @@ export const m7: Module = {
             { en: "Can we avoid bikeshedding this?", es: "¿Podemos evitar discutir este detalle trivial?" },
             { en: "This can wait; it's tech debt.", es: "Esto puede esperar; es deuda técnica." },
             { en: "Tests pass. Ship it.", es: "Los tests pasan. Adelante." },
-            { en: "Good catch, thanks.", es: "Buen hallazgo, gracias." },
+            { en: "Good catch, thanks.", es: "Buen hallazgo, gracias." }
           ],
         },
         {
@@ -355,7 +355,7 @@ export const m7: Module = {
           tone: "tip",
           title: "Tono en reviews",
           body: "Marca la intención: 'nit' para algo menor, 'blocking' solo si impide mergear. Reconoce lo bueno ('Good catch, thanks') y evita etiquetas vagas. Así el feedback es claro, nativo y fácil de actuar.",
-        },
+        }
       ],
       exercises: [
         {
@@ -366,7 +366,7 @@ export const m7: Module = {
             "Hay un error grave que bloquea el merge.",
             "Está aprobado, con un detalle menor.",
             "No se puede mergear todavía.",
-            "Falta documentación obligatoria.",
+            "Falta documentación obligatoria."
           ],
           answer: 1,
           explanation:
@@ -380,7 +380,7 @@ export const m7: Module = {
             "Discutir detalles triviales mientras lo importante espera.",
             "Un bug relacionado con bicicletas.",
             "Un problema de rendimiento.",
-            "La falta de tests unitarios.",
+            "La falta de tests unitarios."
           ],
           answer: 0,
           explanation:
@@ -402,284 +402,14 @@ export const m7: Module = {
           answer: "We need to pay down the tech debt before adding more features.",
           accept: [
             "We need to pay off the tech debt before adding more features.",
-            "We need to reduce the tech debt before adding more features.",
+            "We need to reduce the tech debt before adding more features."
           ],
           hint: "Usa 'pay down the tech debt'.",
           explanation:
             "'Pay down debt' se usa tanto para dinero como para deuda técnica: reducirla de forma progresiva.",
-        },
+        }
       ],
-    },
-    {
-      id: "m7-l5",
-      slug: "repaso-final-practica-extra",
-      title: "Repaso final: práctica extra",
-      step: "Extra · Repaso completo",
-      cefr: "B1",
-      minutes: 25,
-      summary:
-        "Una sesión larga e intuitiva para repasar todo: cómo dirías esto, escríbelo, arma frases y elige la mejor opción.",
-      objectives: [
-        "Repasar vocabulario y frases clave de todo el curso en situaciones reales.",
-        "Practicar cómo decir y escribir ideas comunes de trabajo técnico.",
-        "Ganar fluidez combinando verbos, tiempos, conectores y comunicación profesional.",
-      ],
-      pronunciation:
-        "I mean, the build failed, but I fixed it. Actually, we should add a test before we merge.",
-      blocks: [
-        {
-          type: "technique",
-          name: "Cómo usar este repaso",
-          desc: "Piensa primero en la idea en español y luego elige la forma más simple y clara en inglés. Si dudas, usa estructuras cortas: sujeto + verbo + complemento. No busques sonar complejo; busca sonar claro. Repite en voz alta las frases correctas para ganar ritmo.",
-        },
-        {
-          type: "callout",
-          tone: "tip",
-          title: "Fórmula rápida para responder bien",
-          body: "1) Di el contexto: 'I mean...' / 'Actually...' / 'Basically...'. 2) Di el hecho: qué pasa o qué hiciste. 3) Di el siguiente paso: 'I will fix it', 'Can you review it?', 'We should test it'.",
-        },
-        {
-          type: "phrases",
-          title: "Frases útiles para repasar",
-          items: [
-            { en: "How would you say this in English?", es: "¿Cómo dirías esto en inglés?" },
-            { en: "Could you clarify what you mean?", es: "¿Podrías aclarar a qué te refieres?" },
-            { en: "I fixed the bug and pushed the changes.", es: "Arreglé el bug y subí los cambios." },
-            { en: "The build failed, but I'm looking into it.", es: "El build falló, pero lo estoy revisando." },
-            { en: "I mean, it's not a blocker.", es: "O sea, no es un bloqueador." },
-            { en: "Actually, the issue is in the frontend.", es: "En realidad, el problema está en el frontend." },
-            { en: "Can you review this PR when you have a minute?", es: "¿Puedes revisar este PR cuando tengas un minuto?" },
-            { en: "Do you have an ETA for the fix?", es: "¿Tienes una estimación para el arreglo?" },
-          ],
-        },
-        {
-          type: "table",
-          title: "Repaso rápido: idea → inglés",
-          columns: ["Quieres decir...", "Puedes decir..."],
-          rows: [
-            ["Estoy trabajando en esto", "I'm working on it."],
-            ["Ya lo arreglé", "I fixed it."],
-            ["El deploy falló", "The deployment failed."],
-            ["¿Puedes revisarlo?", "Can you review it?"],
-            ["En realidad es otro problema", "Actually, it's a different issue."],
-            ["Básicamente falta un test", "Basically, we're missing a test."],
-          ],
-        },
-        {
-          type: "vocab",
-          title: "Palabras y conectores clave",
-          items: [
-            { en: "fix / fixed", es: "arreglar / arreglé", example: "I fixed the bug." },
-            { en: "deploy / deployment", es: "desplegar / despliegue", example: "The deployment failed." },
-            { en: "review", es: "revisar / revisión", example: "Can you review my PR?" },
-            { en: "merge", es: "fusionar cambios", example: "Let's merge it after the review." },
-            { en: "I mean", es: "o sea / quiero decir", example: "I mean, we need more time." },
-            { en: "actually", es: "en realidad / de hecho", example: "Actually, it works now." },
-          ],
-        },
-      ],
-      exercises: [
-        {
-          id: "m7-l5-e1",
-          type: "choice",
-          prompt: "¿Cómo dirías: 'Estoy trabajando en el bug ahora'?",
-          options: [
-            "I work on the bug now.",
-            "I'm working on the bug now.",
-            "I worked on the bug now.",
-            "I am work on the bug now.",
-          ],
-          answer: 1,
-          explanation:
-            "Para algo que estás haciendo en este momento, usa presente continuo: 'I'm working on...'.",
-        },
-        {
-          id: "m7-l5-e2",
-          type: "write",
-          prompt: "Escríbelo en inglés: 'Arreglé el bug ayer.'",
-          answer: "I fixed the bug yesterday.",
-          accept: ["I fixed the bug yesterday"],
-          hint: "Pasado simple de 'fix' = 'fixed'.",
-          explanation:
-            "Acción terminada en el pasado: 'I fixed the bug yesterday.'",
-        },
-        {
-          id: "m7-l5-e3",
-          type: "choice",
-          prompt: "¿Cómo dirías con claridad: '¿Puedes aclarar a qué te refieres?'",
-          options: [
-            "Can you clarify what you mean?",
-            "You clarify what you mean?",
-            "Can you clarifying what you mean?",
-            "Do you can clarify what you mean?",
-          ],
-          answer: 0,
-          explanation:
-            "Pregunta educada y natural: 'Can you clarify what you mean?'.",
-        },
-        {
-          id: "m7-l5-e4",
-          type: "write",
-          prompt: "Escríbelo en inglés: 'El despliegue falló, pero ya lo estoy revisando.'",
-          answer: "The deployment failed, but I'm looking into it.",
-          accept: [
-            "The deployment failed, but I am looking into it.",
-            "The deploy failed, but I'm looking into it.",
-            "The deploy failed, but I am looking into it.",
-          ],
-          hint: "Usa 'failed' y 'I'm looking into it'.",
-          explanation:
-            "Combinas pasado simple (lo que pasó) con presente continuo (lo que haces ahora): 'failed, but I'm looking into it'.",
-        },
-        {
-          id: "m7-l5-e5",
-          type: "builder",
-          prompt: "Construye: '¿Puedes revisar este PR cuando tengas un minuto?'",
-          words: ["Can you review", "this PR", "when you have", "a minute?"],
-          answer: "Can you review this PR when you have a minute?",
-          explanation:
-            "Petición amable y común en trabajo asíncrono: 'when you have a minute'.",
-        },
-        {
-          id: "m7-l5-e6",
-          type: "choice",
-          prompt: "Quieres corregir algo que dijiste antes. ¿Cuál suena más natural?",
-          options: [
-            "Actually, the issue is in the frontend.",
-            "Currently, the issue is in the frontend.",
-            "Yesterday, the issue is in the frontend.",
-            "Maybe actually currently frontend.",
-          ],
-          answer: 0,
-          explanation:
-            "'Actually' corrige o aclara: 'en realidad, el problema está en el frontend'.",
-        },
-        {
-          id: "m7-l5-e7",
-          type: "write",
-          prompt: "Escríbelo en inglés: 'O sea, no es un bloqueador, pero deberíamos arreglarlo pronto.'",
-          answer: "I mean, it's not a blocker, but we should fix it soon.",
-          accept: [
-            "I mean, it is not a blocker, but we should fix it soon.",
-          ],
-          hint: "Empieza con 'I mean,'.",
-          explanation:
-            "'I mean' reformula o suaviza la idea; 'we should fix it soon' propone el siguiente paso.",
-        },
-        {
-          id: "m7-l5-e8",
-          type: "builder",
-          prompt: "Construye: 'Básicamente, necesitamos limpiar la caché.'",
-          words: ["Basically,", "we need", "to clear", "the cache."],
-          answer: "Basically, we need to clear the cache.",
-          explanation:
-            "'Basically' resume la idea principal de forma simple.",
-        },
-        {
-          id: "m7-l5-e9",
-          type: "choice",
-          prompt: "En un daily, ¿cuál opción es clara y profesional?",
-          options: [
-            "Yesterday I fixed the login bug. Today I'm working on tests. I'm blocked by API access.",
-            "Bug fixed. Tests. Blocked.",
-            "I do things and maybe blocked.",
-            "Yesterday today blocked yes.",
-          ],
-          answer: 0,
-          explanation:
-            "Una buena actualización dice qué hiciste, qué harás y si tienes un bloqueo, con frases completas y claras.",
-        },
-        {
-          id: "m7-l5-e10",
-          type: "write",
-          prompt: "Escríbelo en inglés: '¿Tienes una estimación para el arreglo?'",
-          answer: "Do you have an ETA for the fix?",
-          accept: [
-            "Do you have an ETA for the fix",
-            "Do you have an ETA on the fix?",
-          ],
-          hint: "Usa 'ETA for the fix'.",
-          explanation:
-            "'ETA' (estimated time of arrival/time) es muy común para pedir una estimación de tiempo.",
-        },
-        {
-          id: "m7-l5-e11",
-          type: "choice",
-          prompt: "¿Cómo dirías: 'Hice push de los cambios y abrí un PR'?",
-          options: [
-            "I pushed the changes and opened a PR.",
-            "I push the changes and open a PR yesterday.",
-            "I pushing the changes and opened a PR.",
-            "I have push the changes and opened a PR.",
-          ],
-          answer: 0,
-          explanation:
-            "Dos acciones completadas en pasado: 'pushed' y 'opened'.",
-        },
-        {
-          id: "m7-l5-e12",
-          type: "write",
-          prompt: "Escríbelo en inglés: 'Nunca subas secretos al repositorio.'",
-          answer: "Never commit secrets to the repository.",
-          accept: [
-            "Never commit secrets to the repo.",
-            "Never push secrets to the repository.",
-            "Never push secrets to the repo.",
-          ],
-          hint: "Imperativo negativo: 'Never commit...'.",
-          explanation:
-            "Regla de seguridad básica expresada con imperativo: 'Never commit secrets...'.",
-        },
-        {
-          id: "m7-l5-e13",
-          type: "builder",
-          prompt: "Construye: 'Los tests pasan. Adelante, podemos hacer merge.'",
-          words: ["The tests pass.", "Ship it,", "we can merge."],
-          answer: "The tests pass. Ship it, we can merge.",
-          explanation:
-            "Repaso de revisión: confirmar que los tests pasan y dar luz verde para mergear.",
-        },
-        {
-          id: "m7-l5-e14",
-          type: "write",
-          prompt: "Escríbelo en inglés: 'En otras palabras, el servicio no responde.'",
-          answer: "In other words, the service is not responding.",
-          accept: [
-            "In other words, the service isn't responding.",
-            "In other words, the service is down.",
-          ],
-          hint: "Empieza con 'In other words,'.",
-          explanation:
-            "'In other words' reformula la idea para que sea más clara.",
-        },
-        {
-          id: "m7-l5-e15",
-          type: "choice",
-          prompt: "¿Cómo dirías: 'Podemos volver a este tema después del standup'?",
-          options: [
-            "We can circle back after the standup.",
-            "We can circle after the standup back.",
-            "We can back circle after the standup.",
-            "We can standup circle after.",
-          ],
-          answer: 0,
-          explanation:
-            "'Circle back' significa retomar un tema más tarde: frase muy común en equipos.",
-        },
-        {
-          id: "m7-l5-e16",
-          type: "write",
-          prompt: "Escríbelo en inglés: 'Para ser honesto, creo que deberíamos agregar más tests.'",
-          answer: "To be honest, I think we should add more tests.",
-          accept: [
-            "To be honest, I think we should add more tests",
-            "Honestly, I think we should add more tests.",
-          ],
-          hint: "Empieza con 'To be honest,'.",
-          explanation:
-            "'To be honest' introduce una opinión directa de forma natural; 'we should add more tests' da una recomendación clara.",
-        },
-      ],
-    },
+    }
+    
   ],
 };

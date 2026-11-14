@@ -817,5 +817,116 @@ export const m5: Module = {
         },
       ],
     },
+    {
+      id: "m8-l4",
+      slug: "micro-repaso-comunicacion-b1-b2",
+      title: "Micro-repaso: comunicación B1-B2",
+      step: "B1 · Paso 5.9 · Checkpoint",
+      cefr: "B1",
+      minutes: 10,
+      summary:
+        "Repaso mixto de PRs, async, incidentes, conectores y estimaciones con drills rápidos.",
+      objectives: [
+        "Practicar frases profesionales en situaciones reales de equipo.",
+        "Usar conectores y estructuras claras bajo presión.",
+        "Reforzar vocabulario de reviews, bloqueos y estimaciones."
+      ],
+      pronunciation:
+        "LGTM once tests pass. I'm blocked by API access. Basically, we need to reduce the scope.",
+      blocks: [
+        {
+          type: "technique",
+          name: "Mezcla intencional",
+          desc: "Este repaso mezcla temas (PR, async, incidentes, conectores) para simular el trabajo real. Responde con la estructura más simple: contexto, hecho, siguiente paso. Si te trabas, baja la velocidad: claridad primero, velocidad después.",
+        },
+        {
+          type: "phrases",
+          title: "Frases cortas que siempre funcionan",
+          items: [
+            { en: "Status: in progress. Next step: open the PR.", es: "Estado: en progreso. Próximo paso: abrir el PR." },
+            { en: "I'm blocked by API access. Could you help me?", es: "Estoy bloqueado por el acceso a la API. ¿Podrías ayudarme?" },
+            { en: "Basically, we need to fix the root cause first.", es: "Básicamente, necesitamos arreglar la causa raíz primero." },
+            { en: "Actually, the issue is on the frontend.", es: "En realidad, el problema está en el frontend." }
+          ],
+        },
+        {
+          type: "table",
+          title: "Sentence frames útiles",
+          columns: ["Situación", "Marco"],
+          rows: [
+            ["Estado", "Status: [estado]. Next step: [acción]."],
+            ["Bloqueo", "I'm blocked by [causa]. I need [ayuda]."],
+            ["Estimación", "It will take [rango], assuming [supuesto]."],
+            ["PR", "This might break when [caso]. Could you [acción]?"]
+          ],
+        },
+        {
+          type: "callout",
+          tone: "tip",
+          title: "Repasar cómodo",
+          body: "No intentes sonar perfecto. Usa marcos simples y repítelos hasta que salgan solos. Equivocarse en práctica es parte de aprender inglés bien y con confianza.",
+        }
+      ],
+      exercises: [
+        {
+          id: "m8-l4-e1",
+          type: "choice",
+          prompt: "Quieres aprobar un PR condicionado a que pasen los tests. ¿Qué dices?",
+          options: ["Ship now.", "LGTM once the tests pass.", "It is bad.", "No merge."],
+          answer: 1,
+          explanation: "'LGTM once the tests pass' aprueba con una condición clara.",
+        },
+        {
+          id: "m8-l4-e2",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Estoy bloqueado por el acceso a la API.'",
+          answer: "I'm blocked by API access.",
+          accept: ["I am blocked by API access.", "I'm blocked by access to the API."],
+          hint: "Usa 'I'm blocked by...'",
+          explanation: "Comunica el bloqueo y su causa de forma directa.",
+        },
+        {
+          id: "m8-l4-e3",
+          type: "builder",
+          prompt: "Construye: 'Básicamente, necesitamos reducir el alcance.'",
+          words: ["Basically,", "we need", "to reduce", "the scope."],
+          answer: "Basically, we need to reduce the scope.",
+          explanation: "'Basically' resume la idea principal; 'reduce the scope' es reducir alcance.",
+        },
+        {
+          id: "m8-l4-e4",
+          type: "choice",
+          prompt: "Quieres corregir algo: el problema no es backend, es frontend. ¿Qué dices?",
+          options: [
+            "Anyway, it's the frontend.",
+            "Actually, the issue is in the frontend.",
+            "Currently, the issue is in the frontend.",
+            "I mean backend frontend."
+          ],
+          answer: 1,
+          explanation: "'Actually' se usa para corregir: 'en realidad, el problema está en el frontend'.",
+        },
+        {
+          id: "m8-l4-e5",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Tomará dos o tres días, suponiendo que la API sea estable.'",
+          answer: "It will take two to three days, assuming the API is stable.",
+          accept: [
+            "It'll take two to three days, assuming the API is stable.",
+            "It will take two to three days assuming the API is stable."
+          ],
+          hint: "Usa 'It will take...' y 'assuming...'",
+          explanation: "Rango + supuesto es la forma profesional de estimar.",
+        },
+        {
+          id: "m8-l4-e6",
+          type: "builder",
+          prompt: "Construye: 'Esto podría fallar cuando la entrada es null. ¿Podrías agregar una validación?'",
+          words: ["This might break", "when the input is null.", "Could you add", "a validation?"],
+          answer: "This might break when the input is null. Could you add a validation?",
+          explanation: "Feedback de PR útil: riesgo concreto + sugerencia accionable.",
+        }
+      ],
+    },
   ],
 };

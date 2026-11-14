@@ -4,10 +4,10 @@ export const m8: Module = {
   id: "m8",
   code: "MOD 08",
   level: "B1-B2",
-  title: "Práctica Intensiva y Repasos",
-  shortTitle: "Práctica & Repasos",
+  title: "Práctica Aplicada y Repaso Final",
+  shortTitle: "Práctica Aplicada",
   description:
-    "Lectura de docs, prompts para AI agents, pronunciación funcional, micro-repasos espaciados y drills de situaciones reales para afianzar todo.",
+    "Lectura de docs, prompts para AI agents, drills de situaciones reales, mensajes profesionales y repaso final integrado.",
   sessions: [
     {
       id: "m8-l1",
@@ -21,7 +21,7 @@ export const m8: Module = {
       objectives: [
         "Reconocer palabras clave como must, should, required y optional.",
         "Extraer la acción principal de una especificación o documentación.",
-        "Resumir un requisito técnico en una frase clara.",
+        "Resumir un requisito técnico en una frase clara."
       ],
       pronunciation:
         "The client must send a token. You should retry on failure. This field is optional.",
@@ -40,7 +40,7 @@ export const m8: Module = {
             { en: "may / optional", es: "opcional", example: "This field is optional." },
             { en: "deprecated", es: "obsoleto, se eliminará", example: "This endpoint is deprecated." },
             { en: "breaking change", es: "cambio incompatible", example: "Version 2 includes a breaking change." },
-            { en: "caveat", es: "advertencia o limitación", example: "One caveat: this only works on Linux." },
+            { en: "caveat", es: "advertencia o limitación", example: "One caveat: this only works on Linux." }
           ],
         },
         {
@@ -50,9 +50,9 @@ export const m8: Module = {
             { en: "In short, we must send an API key.", es: "En resumen, debemos enviar una API key." },
             { en: "The main requirement is to validate the input.", es: "El requisito principal es validar la entrada." },
             { en: "This is optional, so we can skip it for now.", es: "Esto es opcional, así que podemos omitirlo por ahora." },
-            { en: "According to the docs, this endpoint is deprecated.", es: "Según la documentación, este endpoint está obsoleto." },
+            { en: "According to the docs, this endpoint is deprecated.", es: "Según la documentación, este endpoint está obsoleto." }
           ],
-        },
+        }
       ],
       exercises: [
         {
@@ -72,7 +72,7 @@ export const m8: Module = {
             "Es el más nuevo y recomendado.",
             "Está obsoleto y puede eliminarse en el futuro.",
             "Es obligatorio usarlo.",
-            "Funciona solo en producción.",
+            "Funciona solo en producción."
           ],
           answer: 1,
           explanation:
@@ -96,7 +96,7 @@ export const m8: Module = {
           answer: "This field is optional, so we can skip it for now.",
           explanation:
             "'Optional' indica que no es requerido; 'skip it for now' comunica la decisión práctica.",
-        },
+        }
       ],
     },
     {
@@ -111,7 +111,7 @@ export const m8: Module = {
       objectives: [
         "Estructurar prompts claros con contexto, tarea, restricciones y formato de salida.",
         "Usar vocabulario y frases nativas comunes al trabajar con coding agents.",
-        "Pedir cambios, correcciones y sanity checks sin ambigüedad ni fricción.",
+        "Pedir cambios, correcciones y sanity checks sin ambigüedad ni fricción."
       ],
       pronunciation:
         "Here's the context. Could you walk me through the fix, call out any edge cases, and keep the API the same?",
@@ -133,7 +133,7 @@ export const m8: Module = {
             { en: "hallucination", es: "respuesta inventada o no fundamentada", example: "Double-check the answer for hallucinations." },
             { en: "edge case", es: "caso límite o poco común", example: "Call out any edge cases for null input." },
             { en: "happy path", es: "flujo normal sin errores", example: "This works on the happy path, but fails on retries." },
-            { en: "boilerplate", es: "código repetitivo/plantilla", example: "Generate the boilerplate, then I'll refine it." },
+            { en: "boilerplate", es: "código repetitivo/plantilla", example: "Generate the boilerplate, then I'll refine it." }
           ],
         },
         {
@@ -148,7 +148,7 @@ export const m8: Module = {
             { en: "take another pass", es: "revisarlo/hacer otra pasada", example: "Can you take another pass at the error handling?" },
             { en: "sanity check", es: "revisión rápida para ver si tiene sentido", example: "Do a quick sanity check on this approach." },
             { en: "keep it simple", es: "mantenlo simple", example: "Let's keep it simple for now." },
-            { en: "out of scope", es: "fuera del alcance", example: "Refactoring the database layer is out of scope." },
+            { en: "out of scope", es: "fuera del alcance", example: "Refactoring the database layer is out of scope." }
           ],
         },
         {
@@ -162,7 +162,7 @@ export const m8: Module = {
             { en: "Keep the existing behavior the same.", es: "Mantén el comportamiento existente igual." },
             { en: "Let's keep this out of scope for now.", es: "Dejemos esto fuera del alcance por ahora." },
             { en: "Can you take another pass and simplify it?", es: "¿Puedes revisarlo otra vez y simplificarlo?" },
-            { en: "Explain it in plain English.", es: "Explícalo en inglés sencillo." },
+            { en: "Explain it in plain English.", es: "Explícalo en inglés sencillo." }
           ],
         },
         {
@@ -174,7 +174,7 @@ export const m8: Module = {
             ["Explain.", "Can you walk me through this step by step?", "Pide una explicación guiada y natural."],
             ["Is this okay?", "Can you do a quick sanity check and call out any edge cases?", "Pide revisión concreta, no un sí/no vago."],
             ["Rewrite it.", "Can you take another pass and keep it simple?", "Suena natural e indica estilo deseado."],
-            ["Anything else?", "Is there anything out of scope or risky here?", "Ayuda a descubrir riesgos y límites."],
+            ["Anything else?", "Is there anything out of scope or risky here?", "Ayuda a descubrir riesgos y límites."]
           ],
         },
         {
@@ -188,7 +188,7 @@ export const m8: Module = {
           tone: "warning",
           title: "Verifica antes de confiar",
           body: "Aunque el agente explique con seguridad, haz un sanity check: ejecuta tests, revisa edge cases y confirma que no inventó APIs o detalles (hallucinations).",
-        },
+        }
       ],
       exercises: [
         {
@@ -208,7 +208,7 @@ export const m8: Module = {
             "Can you walk me through it?",
             "Can you road me it?",
             "Do a walking to me.",
-            "You explain me walking.",
+            "You explain me walking."
           ],
           answer: 0,
           explanation:
@@ -231,7 +231,7 @@ export const m8: Module = {
           accept: [
             "Walk me through your reasoning step by step.",
             "Can you walk me through your reasoning?",
-            "Could you walk me through your reasoning?",
+            "Could you walk me through your reasoning?"
           ],
           hint: "Usa 'Walk me through...'",
           explanation:
@@ -245,7 +245,7 @@ export const m8: Module = {
             "Ignorar el manejo de errores",
             "Revisarlo/mejorarlo otra vez",
             "Borrarlo desde cero sin razón",
-            "Pasarlo a otro equipo",
+            "Pasarlo a otro equipo"
           ],
           answer: 1,
           explanation:
@@ -267,7 +267,7 @@ export const m8: Module = {
           answer: "Do a quick sanity check and call out any edge cases.",
           accept: [
             "Do a quick sanity check and call out any edge cases",
-            "Can you do a quick sanity check and call out any edge cases?",
+            "Can you do a quick sanity check and call out any edge cases?"
           ],
           hint: "Usa 'sanity check' y 'call out'.",
           explanation:
@@ -281,7 +281,7 @@ export const m8: Module = {
             "It's out of scope for now.",
             "It's out of road for now.",
             "It's off the scope path.",
-            "It's without scope never.",
+            "It's without scope never."
           ],
           answer: 0,
           explanation:
@@ -303,295 +303,17 @@ export const m8: Module = {
           answer: "Rewrite this function from scratch, but keep it simple.",
           accept: [
             "Rewrite this function from scratch but keep it simple.",
-            "Rewrite this function from scratch, but keep it simple",
+            "Rewrite this function from scratch, but keep it simple"
           ],
           hint: "Usa 'from scratch' y 'keep it simple'.",
           explanation:
             "'From scratch' (desde cero) y 'keep it simple' son expresiones nativas muy comunes.",
-        },
+        }
       ],
     },
-    {
-      id: "m8-l2",
-      slug: "pronunciacion-funcional-devs",
-      title: "Pronunciación funcional para developers",
-      step: "A2 · Paso 8.3",
-      cefr: "A2",
-      minutes: 8,
-      summary:
-        "Practica palabras técnicas que se confunden al hablar: query, cache, route, queue, height y más.",
-      objectives: [
-        "Reconocer y practicar la pronunciación de términos técnicos comunes.",
-        "Escuchar y repetir frases cortas con vocabulario de desarrollo.",
-        "Ganar confianza al decir palabras frecuentes en reuniones y demos.",
-      ],
-      pronunciation:
-        "Run the query, clear the cache, and check the route. The queue is empty and the height is fixed.",
-      blocks: [
-        {
-          type: "technique",
-          name: "Pronunciación funcional, no perfecta",
-          desc: "El objetivo es que te entiendan en el trabajo. Practica las palabras que más usas (query, cache, route, schema, issue) en frases completas. Escucha, repite en voz alta y prioriza claridad sobre acento perfecto.",
-        },
-        {
-          type: "vocab",
-          title: "Palabras que conviene practicar",
-          items: [
-            { en: "query", es: "consulta (QUÍ-ri)", example: "Run the query again." },
-            { en: "cache", es: "caché (cash)", example: "Clear the cache." },
-            { en: "route", es: "ruta (rut/root)", example: "Check the route." },
-            { en: "queue", es: "cola (kiú)", example: "The queue is empty." },
-            { en: "schema", es: "esquema (SKÍ-ma)", example: "Update the schema." },
-            { en: "issue", es: "incidencia/problema (Í-shu)", example: "Open an issue." },
-            { en: "height / width", es: "alto / ancho", example: "Set the height and width." },
-            { en: "deploy", es: "desplegar (di-PLÓI)", example: "Deploy to production." },
-          ],
-        },
-        {
-          type: "phrases",
-          title: "Repite en voz alta",
-          items: [
-            { en: "Run the query and clear the cache.", es: "Ejecuta la consulta y limpia la caché." },
-            { en: "This route returns a 404 error.", es: "Esta ruta devuelve un error 404." },
-            { en: "The queue is processing the jobs.", es: "La cola está procesando los trabajos." },
-            { en: "We need to update the database schema.", es: "Necesitamos actualizar el esquema de la base de datos." },
-            { en: "I opened an issue for this bug.", es: "Abrí un issue para este bug." },
-          ],
-        },
-        {
-          type: "callout",
-          tone: "tip",
-          title: "Usa el botón de voz",
-          body: "Toca el ícono de volumen en las frases y palabras para escuchar y repetir. Practicar en frases cortas es más efectivo que memorizar palabras sueltas.",
-        },
-      ],
-      exercises: [
-        {
-          id: "m8-l2-e1",
-          type: "choice",
-          prompt: "¿Cómo dirías 'Limpia la caché' en inglés?",
-          options: ["Clear the cache.", "Clean the catch.", "Delete the cash.", "Clear the cage."],
-          answer: 0,
-          explanation:
-            "'Cache' (caché) se escribe cache y en inglés suele sonar como 'cash': 'Clear the cache.'",
-        },
-        {
-          id: "m8-l2-e2",
-          type: "builder",
-          prompt: "Construye: 'Ejecuta la consulta otra vez.'",
-          words: ["Run", "the query", "again."],
-          answer: "Run the query again.",
-          explanation:
-            "'Query' es consulta; una frase común es 'run the query'.",
-        },
-        {
-          id: "m8-l2-e3",
-          type: "write",
-          prompt: "Escríbelo en inglés: 'La cola está vacía.'",
-          answer: "The queue is empty.",
-          accept: ["The queue is empty"],
-          hint: "Usa 'queue'.",
-          explanation:
-            "'Queue' significa cola (de trabajos, mensajes, etc.).",
-        },
-        {
-          id: "m8-l2-e4",
-          type: "choice",
-          prompt: "¿Qué par de palabras suele confundirse por sonido/escritura?",
-          options: [
-            "height y width",
-            "bug y fix",
-            "code y test",
-            "user y admin",
-          ],
-          answer: 0,
-          explanation:
-            "'Height' (alto) y 'width' (ancho) se confunden seguido al hablar; conviene practicarlas juntas.",
-        },
-      ],
-    },
-    {
-      id: "m8-l3",
-      slug: "micro-repaso-fundamentos",
-      title: "Micro-repaso: fundamentos A1-A2",
-      step: "A2 · Paso 8.4 · Repaso",
-      cefr: "A2",
-      minutes: 8,
-      summary:
-        "Repaso corto y espaciado de lo esencial: verbos, errores simples, aclarar y acciones diarias.",
-      objectives: [
-        "Recordar estructuras básicas usadas en el trabajo técnico.",
-        "Responder rápido con frases claras y correctas.",
-        "Detectar huecos para volver a sesiones anteriores si hace falta.",
-      ],
-      pronunciation:
-        "I fixed the bug. I'm working on it now. Could you clarify what you mean?",
-      blocks: [
-        {
-          type: "technique",
-          name: "Repaso espaciado: poco, claro y frecuente",
-          desc: "Un micro-repaso mezcla temas ya vistos para reforzar memoria. Si fallas en algo, vuelve a la sesión original, corrige y sigue. La meta es fluidez y claridad, no perfección.",
-        },
-        {
-          type: "phrases",
-          title: "Frases núcleo",
-          items: [
-            { en: "I fixed the bug.", es: "Arreglé el bug." },
-            { en: "I'm working on it now.", es: "Estoy trabajando en eso ahora." },
-            { en: "It doesn't work.", es: "No funciona." },
-            { en: "Could you clarify what you mean?", es: "¿Podrías aclarar a qué te refieres?" },
-            { en: "I pushed the changes.", es: "Subí los cambios." },
-          ],
-        },
-      ],
-      exercises: [
-        {
-          id: "m8-l3-e1",
-          type: "choice",
-          prompt: "¿Cómo dirías que estás trabajando en algo ahora mismo?",
-          options: ["I work on it now.", "I'm working on it now.", "I worked on it now.", "I working on it."],
-          answer: 1,
-          explanation: "Acción en curso: presente continuo 'I'm working on it now.'",
-        },
-        {
-          id: "m8-l3-e2",
-          type: "write",
-          prompt: "Escríbelo en inglés: 'Arreglé el bug.'",
-          answer: "I fixed the bug.",
-          accept: ["I fixed the bug"],
-          hint: "Pasado simple: 'fixed'.",
-          explanation: "Acción terminada: 'I fixed the bug.'",
-        },
-        {
-          id: "m8-l3-e3",
-          type: "builder",
-          prompt: "Construye: '¿Podrías aclarar a qué te refieres?'",
-          words: ["Could you clarify", "what you", "mean?"],
-          answer: "Could you clarify what you mean?",
-          explanation: "Frase clave para pedir aclaración con cortesía.",
-        },
-        {
-          id: "m8-l3-e4",
-          type: "choice",
-          prompt: "¿Qué frase reporta un problema de forma simple y clara?",
-          options: ["Is bad.", "It doesn't work.", "Broken thing.", "No good code."],
-          answer: 1,
-          explanation: "'It doesn't work.' es simple, claro y muy usado.",
-        },
-        {
-          id: "m8-l3-e5",
-          type: "write",
-          prompt: "Escríbelo en inglés: 'Subí los cambios.'",
-          answer: "I pushed the changes.",
-          accept: ["I pushed the changes"],
-          hint: "Pasado de 'push' = 'pushed'.",
-          explanation: "En git, 'push the changes' es la forma común de decir subir los cambios.",
-        },
-        {
-          id: "m8-l3-e6",
-          type: "choice",
-          prompt: "Te piden repetir. ¿Qué dices?",
-          options: ["No.", "Could you say that again, please?", "Listen better.", "Again now."],
-          answer: 1,
-          explanation: "Pedir repetición con cortesía: 'Could you say that again, please?'",
-        },
-      ],
-    },
-    {
-      id: "m8-l4",
-      slug: "micro-repaso-comunicacion-b1-b2",
-      title: "Micro-repaso: comunicación B1-B2",
-      step: "B1 · Paso 8.5 · Repaso",
-      cefr: "B1",
-      minutes: 10,
-      summary:
-        "Repaso mixto de PRs, async, incidentes, conectores y estimaciones con drills rápidos.",
-      objectives: [
-        "Practicar frases profesionales en situaciones reales de equipo.",
-        "Usar conectores y estructuras claras bajo presión.",
-        "Reforzar vocabulario de reviews, bloqueos y estimaciones.",
-      ],
-      pronunciation:
-        "LGTM once tests pass. I'm blocked by API access. Basically, we need to reduce the scope.",
-      blocks: [
-        {
-          type: "technique",
-          name: "Mezcla intencional",
-          desc: "Este repaso mezcla temas (PR, async, incidentes, conectores) para simular el trabajo real. Responde con la estructura más simple: contexto, hecho, siguiente paso.",
-        },
-        {
-          type: "table",
-          title: "Sentence frames útiles",
-          columns: ["Situación", "Marco"],
-          rows: [
-            ["Estado", "Status: [estado]. Next step: [acción]."],
-            ["Bloqueo", "I'm blocked by [causa]. I need [ayuda]."],
-            ["Estimación", "It will take [rango], assuming [supuesto]."],
-            ["PR", "This might break when [caso]. Could you [acción]?"],
-          ],
-        },
-      ],
-      exercises: [
-        {
-          id: "m8-l4-e1",
-          type: "choice",
-          prompt: "Quieres aprobar un PR condicionado a que pasen los tests. ¿Qué dices?",
-          options: ["Ship now.", "LGTM once the tests pass.", "It is bad.", "No merge."],
-          answer: 1,
-          explanation: "'LGTM once the tests pass' aprueba con una condición clara.",
-        },
-        {
-          id: "m8-l4-e2",
-          type: "write",
-          prompt: "Escríbelo en inglés: 'Estoy bloqueado por el acceso a la API.'",
-          answer: "I'm blocked by API access.",
-          accept: ["I am blocked by API access.", "I'm blocked by access to the API."],
-          hint: "Usa 'I'm blocked by...'",
-          explanation: "Comunica el bloqueo y su causa de forma directa.",
-        },
-        {
-          id: "m8-l4-e3",
-          type: "builder",
-          prompt: "Construye: 'Básicamente, necesitamos reducir el alcance.'",
-          words: ["Basically,", "we need", "to reduce", "the scope."],
-          answer: "Basically, we need to reduce the scope.",
-          explanation: "'Basically' resume la idea principal; 'reduce the scope' es reducir alcance.",
-        },
-        {
-          id: "m8-l4-e4",
-          type: "choice",
-          prompt: "Quieres corregir algo: el problema no es backend, es frontend. ¿Qué dices?",
-          options: [
-            "Anyway, it's the frontend.",
-            "Actually, the issue is in the frontend.",
-            "Currently, the issue is in the frontend.",
-            "I mean backend frontend.",
-          ],
-          answer: 1,
-          explanation: "'Actually' se usa para corregir: 'en realidad, el problema está en el frontend'.",
-        },
-        {
-          id: "m8-l4-e5",
-          type: "write",
-          prompt: "Escríbelo en inglés: 'Tomará dos o tres días, suponiendo que la API sea estable.'",
-          answer: "It will take two to three days, assuming the API is stable.",
-          accept: [
-            "It'll take two to three days, assuming the API is stable.",
-            "It will take two to three days assuming the API is stable.",
-          ],
-          hint: "Usa 'It will take...' y 'assuming...'",
-          explanation: "Rango + supuesto es la forma profesional de estimar.",
-        },
-        {
-          id: "m8-l4-e6",
-          type: "builder",
-          prompt: "Construye: 'Esto podría fallar cuando la entrada es null. ¿Podrías agregar una validación?'",
-          words: ["This might break", "when the input is null.", "Could you add", "a validation?"],
-          answer: "This might break when the input is null. Could you add a validation?",
-          explanation: "Feedback de PR útil: riesgo concreto + sugerencia accionable.",
-        },
-      ],
-    },
+    
+    
+    
     {
       id: "m8-l5",
       slug: "drills-situaciones-reales",
@@ -604,7 +326,7 @@ export const m8: Module = {
       objectives: [
         "Responder rápido a situaciones comunes con inglés claro.",
         "Practicar el patrón 'cómo dirías / escríbelo' con contexto.",
-        "Usar frases modelo y adaptarlas a tu caso.",
+        "Usar frases modelo y adaptarlas a tu caso."
       ],
       pronunciation:
         "I found the root cause. Let me walk you through the fix. Could you take a look when you have a minute?",
@@ -623,7 +345,7 @@ export const m8: Module = {
             { en: "Let me walk you through the fix.", es: "Déjame mostrarte el arreglo paso a paso." },
             { en: "Could you take a look when you have a minute?", es: "¿Podrías echarle un vistazo cuando tengas un minuto?" },
             { en: "Status: done. Next step: deploy to staging.", es: "Estado: listo. Próximo paso: desplegar a staging." },
-            { en: "In other words, we need to retry the request.", es: "En otras palabras, necesitamos reintentar la petición." },
+            { en: "In other words, we need to retry the request.", es: "En otras palabras, necesitamos reintentar la petición." }
           ],
         },
         {
@@ -631,7 +353,7 @@ export const m8: Module = {
           tone: "info",
           title: "Glosario en contexto",
           body: "Aprende términos dentro de frases reales: 'root cause' (causa raíz), 'retry' (reintentar), 'walk you through' (explicar paso a paso), 'staging' (entorno de pruebas). Así se fijan más rápido que en listas sueltas.",
-        },
+        }
       ],
       exercises: [
         {
@@ -641,7 +363,7 @@ export const m8: Module = {
           answer: "I found the root cause: the token had expired.",
           accept: [
             "I found the root cause: the token was expired.",
-            "I found the root cause: the token expired.",
+            "I found the root cause: the token expired."
           ],
           hint: "Usa 'I found the root cause...'",
           explanation: "Nombrar la causa raíz es claro y profesional en incidentes y debugging.",
@@ -654,7 +376,7 @@ export const m8: Module = {
             "Add test.",
             "I suggest adding a test for this case.",
             "Test missing bad.",
-            "You forgot test.",
+            "You forgot test."
           ],
           answer: 1,
           explanation: "'I suggest adding...' es una sugerencia clara y respetuosa.",
@@ -683,7 +405,7 @@ export const m8: Module = {
           answer: "In other words, we need to retry the request.",
           accept: [
             "In other words, we need to retry the request",
-            "In other words we need to retry the request.",
+            "In other words we need to retry the request."
           ],
           hint: "Empieza con 'In other words,'.",
           explanation: "'In other words' reformula la idea con otras palabras más claras.",
@@ -696,11 +418,11 @@ export const m8: Module = {
             "Help me now.",
             "Could you take a look when you have a minute?",
             "Fix this ASAP!!!",
-            "You must check this.",
+            "You must check this."
           ],
           answer: 1,
           explanation: "Petición educada y realista para trabajo asíncrono.",
-        },
+        }
       ],
     },
     {
@@ -715,7 +437,7 @@ export const m8: Module = {
       objectives: [
         "Redactar mensajes cortos con contexto, acción y cierre.",
         "Usar frases modelo para tickets, emails y chat profesional.",
-        "Confirmar entendimiento y próximos pasos por escrito.",
+        "Confirmar entendimiento y próximos pasos por escrito."
       ],
       pronunciation:
         "Hi team, the fix is ready. Please review the ticket when you can. Let me know if you need anything else.",
@@ -734,7 +456,7 @@ export const m8: Module = {
             { en: "Please review the ticket when you can.", es: "Por favor revisa el ticket cuando puedas." },
             { en: "Let me know if you need any more details.", es: "Avísame si necesitas más detalles." },
             { en: "I'll follow up once I have more information.", es: "Haré seguimiento cuando tenga más información." },
-            { en: "Thanks for your help.", es: "Gracias por tu ayuda." },
+            { en: "Thanks for your help.", es: "Gracias por tu ayuda." }
           ],
         },
         {
@@ -744,9 +466,9 @@ export const m8: Module = {
           rows: [
             ["Dar estado", "The [task/issue] is [status]."],
             ["Pedir acción", "Please [action] when you [time/condition]."],
-            ["Cerrar", "Let me know if you need [anything/more details]."],
+            ["Cerrar", "Let me know if you need [anything/more details]."]
           ],
-        },
+        }
       ],
       exercises: [
         {
@@ -757,7 +479,7 @@ export const m8: Module = {
             "Hey.",
             "Hi team, here's a quick update.",
             "Listen.",
-            "Now read this.",
+            "Now read this."
           ],
           answer: 1,
           explanation:
@@ -779,7 +501,7 @@ export const m8: Module = {
           answer: "Let me know if you need more details.",
           accept: [
             "Let me know if you need any more details.",
-            "Please let me know if you need more details.",
+            "Please let me know if you need more details."
           ],
           hint: "Usa 'Let me know if...'",
           explanation:
@@ -793,11 +515,282 @@ export const m8: Module = {
             "Done.",
             "I'll follow up once I have more information.",
             "Whatever happens happens.",
-            "No more messages.",
+            "No more messages."
           ],
           answer: 1,
           explanation:
             "Indicar el siguiente paso o seguimiento ('I'll follow up...') da claridad sobre qué esperar.",
+        }
+      ],
+    },
+    {
+      id: "m7-l5",
+      slug: "repaso-final-practica-extra",
+      title: "Repaso final: práctica extra",
+      step: "Extra · Repaso completo",
+      cefr: "B1",
+      minutes: 25,
+      summary:
+        "Una sesión larga e intuitiva para repasar todo: cómo dirías esto, escríbelo, arma frases y elige la mejor opción.",
+      objectives: [
+        "Repasar vocabulario y frases clave de todo el curso en situaciones reales.",
+        "Practicar cómo decir y escribir ideas comunes de trabajo técnico.",
+        "Ganar fluidez combinando verbos, tiempos, conectores y comunicación profesional.",
+      ],
+      pronunciation:
+        "I mean, the build failed, but I fixed it. Actually, we should add a test before we merge.",
+      blocks: [
+        {
+          type: "technique",
+          name: "Cómo usar este repaso",
+          desc: "Piensa primero en la idea en español y luego elige la forma más simple y clara en inglés. Si dudas, usa estructuras cortas: sujeto + verbo + complemento. No busques sonar complejo; busca sonar claro. Repite en voz alta las frases correctas para ganar ritmo.",
+        },
+        {
+          type: "callout",
+          tone: "tip",
+          title: "Fórmula rápida para responder bien",
+          body: "1) Di el contexto: 'I mean...' / 'Actually...' / 'Basically...'. 2) Di el hecho: qué pasa o qué hiciste. 3) Di el siguiente paso: 'I will fix it', 'Can you review it?', 'We should test it'.",
+        },
+        {
+          type: "phrases",
+          title: "Frases útiles para repasar",
+          items: [
+            { en: "How would you say this in English?", es: "¿Cómo dirías esto en inglés?" },
+            { en: "Could you clarify what you mean?", es: "¿Podrías aclarar a qué te refieres?" },
+            { en: "I fixed the bug and pushed the changes.", es: "Arreglé el bug y subí los cambios." },
+            { en: "The build failed, but I'm looking into it.", es: "El build falló, pero lo estoy revisando." },
+            { en: "I mean, it's not a blocker.", es: "O sea, no es un bloqueador." },
+            { en: "Actually, the issue is in the frontend.", es: "En realidad, el problema está en el frontend." },
+            { en: "Can you review this PR when you have a minute?", es: "¿Puedes revisar este PR cuando tengas un minuto?" },
+            { en: "Do you have an ETA for the fix?", es: "¿Tienes una estimación para el arreglo?" },
+          ],
+        },
+        {
+          type: "table",
+          title: "Repaso rápido: idea → inglés",
+          columns: ["Quieres decir...", "Puedes decir..."],
+          rows: [
+            ["Estoy trabajando en esto", "I'm working on it."],
+            ["Ya lo arreglé", "I fixed it."],
+            ["El deploy falló", "The deployment failed."],
+            ["¿Puedes revisarlo?", "Can you review it?"],
+            ["En realidad es otro problema", "Actually, it's a different issue."],
+            ["Básicamente falta un test", "Basically, we're missing a test."],
+          ],
+        },
+        {
+          type: "vocab",
+          title: "Palabras y conectores clave",
+          items: [
+            { en: "fix / fixed", es: "arreglar / arreglé", example: "I fixed the bug." },
+            { en: "deploy / deployment", es: "desplegar / despliegue", example: "The deployment failed." },
+            { en: "review", es: "revisar / revisión", example: "Can you review my PR?" },
+            { en: "merge", es: "fusionar cambios", example: "Let's merge it after the review." },
+            { en: "I mean", es: "o sea / quiero decir", example: "I mean, we need more time." },
+            { en: "actually", es: "en realidad / de hecho", example: "Actually, it works now." },
+          ],
+        },
+      ],
+      exercises: [
+        {
+          id: "m7-l5-e1",
+          type: "choice",
+          prompt: "¿Cómo dirías: 'Estoy trabajando en el bug ahora'?",
+          options: [
+            "I work on the bug now.",
+            "I'm working on the bug now.",
+            "I worked on the bug now.",
+            "I am work on the bug now.",
+          ],
+          answer: 1,
+          explanation:
+            "Para algo que estás haciendo en este momento, usa presente continuo: 'I'm working on...'.",
+        },
+        {
+          id: "m7-l5-e2",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Arreglé el bug ayer.'",
+          answer: "I fixed the bug yesterday.",
+          accept: ["I fixed the bug yesterday"],
+          hint: "Pasado simple de 'fix' = 'fixed'.",
+          explanation:
+            "Acción terminada en el pasado: 'I fixed the bug yesterday.'",
+        },
+        {
+          id: "m7-l5-e3",
+          type: "choice",
+          prompt: "¿Cómo dirías con claridad: '¿Puedes aclarar a qué te refieres?'",
+          options: [
+            "Can you clarify what you mean?",
+            "You clarify what you mean?",
+            "Can you clarifying what you mean?",
+            "Do you can clarify what you mean?",
+          ],
+          answer: 0,
+          explanation:
+            "Pregunta educada y natural: 'Can you clarify what you mean?'.",
+        },
+        {
+          id: "m7-l5-e4",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'El despliegue falló, pero ya lo estoy revisando.'",
+          answer: "The deployment failed, but I'm looking into it.",
+          accept: [
+            "The deployment failed, but I am looking into it.",
+            "The deploy failed, but I'm looking into it.",
+            "The deploy failed, but I am looking into it.",
+          ],
+          hint: "Usa 'failed' y 'I'm looking into it'.",
+          explanation:
+            "Combinas pasado simple (lo que pasó) con presente continuo (lo que haces ahora): 'failed, but I'm looking into it'.",
+        },
+        {
+          id: "m7-l5-e5",
+          type: "builder",
+          prompt: "Construye: '¿Puedes revisar este PR cuando tengas un minuto?'",
+          words: ["Can you review", "this PR", "when you have", "a minute?"],
+          answer: "Can you review this PR when you have a minute?",
+          explanation:
+            "Petición amable y común en trabajo asíncrono: 'when you have a minute'.",
+        },
+        {
+          id: "m7-l5-e6",
+          type: "choice",
+          prompt: "Quieres corregir algo que dijiste antes. ¿Cuál suena más natural?",
+          options: [
+            "Actually, the issue is in the frontend.",
+            "Currently, the issue is in the frontend.",
+            "Yesterday, the issue is in the frontend.",
+            "Maybe actually currently frontend.",
+          ],
+          answer: 0,
+          explanation:
+            "'Actually' corrige o aclara: 'en realidad, el problema está en el frontend'.",
+        },
+        {
+          id: "m7-l5-e7",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'O sea, no es un bloqueador, pero deberíamos arreglarlo pronto.'",
+          answer: "I mean, it's not a blocker, but we should fix it soon.",
+          accept: [
+            "I mean, it is not a blocker, but we should fix it soon.",
+          ],
+          hint: "Empieza con 'I mean,'.",
+          explanation:
+            "'I mean' reformula o suaviza la idea; 'we should fix it soon' propone el siguiente paso.",
+        },
+        {
+          id: "m7-l5-e8",
+          type: "builder",
+          prompt: "Construye: 'Básicamente, necesitamos limpiar la caché.'",
+          words: ["Basically,", "we need", "to clear", "the cache."],
+          answer: "Basically, we need to clear the cache.",
+          explanation:
+            "'Basically' resume la idea principal de forma simple.",
+        },
+        {
+          id: "m7-l5-e9",
+          type: "choice",
+          prompt: "En un daily, ¿cuál opción es clara y profesional?",
+          options: [
+            "Yesterday I fixed the login bug. Today I'm working on tests. I'm blocked by API access.",
+            "Bug fixed. Tests. Blocked.",
+            "I do things and maybe blocked.",
+            "Yesterday today blocked yes.",
+          ],
+          answer: 0,
+          explanation:
+            "Una buena actualización dice qué hiciste, qué harás y si tienes un bloqueo, con frases completas y claras.",
+        },
+        {
+          id: "m7-l5-e10",
+          type: "write",
+          prompt: "Escríbelo en inglés: '¿Tienes una estimación para el arreglo?'",
+          answer: "Do you have an ETA for the fix?",
+          accept: [
+            "Do you have an ETA for the fix",
+            "Do you have an ETA on the fix?",
+          ],
+          hint: "Usa 'ETA for the fix'.",
+          explanation:
+            "'ETA' (estimated time of arrival/time) es muy común para pedir una estimación de tiempo.",
+        },
+        {
+          id: "m7-l5-e11",
+          type: "choice",
+          prompt: "¿Cómo dirías: 'Hice push de los cambios y abrí un PR'?",
+          options: [
+            "I pushed the changes and opened a PR.",
+            "I push the changes and open a PR yesterday.",
+            "I pushing the changes and opened a PR.",
+            "I have push the changes and opened a PR.",
+          ],
+          answer: 0,
+          explanation:
+            "Dos acciones completadas en pasado: 'pushed' y 'opened'.",
+        },
+        {
+          id: "m7-l5-e12",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Nunca subas secretos al repositorio.'",
+          answer: "Never commit secrets to the repository.",
+          accept: [
+            "Never commit secrets to the repo.",
+            "Never push secrets to the repository.",
+            "Never push secrets to the repo.",
+          ],
+          hint: "Imperativo negativo: 'Never commit...'.",
+          explanation:
+            "Regla de seguridad básica expresada con imperativo: 'Never commit secrets...'.",
+        },
+        {
+          id: "m7-l5-e13",
+          type: "builder",
+          prompt: "Construye: 'Los tests pasan. Adelante, podemos hacer merge.'",
+          words: ["The tests pass.", "Ship it,", "we can merge."],
+          answer: "The tests pass. Ship it, we can merge.",
+          explanation:
+            "Repaso de revisión: confirmar que los tests pasan y dar luz verde para mergear.",
+        },
+        {
+          id: "m7-l5-e14",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'En otras palabras, el servicio no responde.'",
+          answer: "In other words, the service is not responding.",
+          accept: [
+            "In other words, the service isn't responding.",
+            "In other words, the service is down.",
+          ],
+          hint: "Empieza con 'In other words,'.",
+          explanation:
+            "'In other words' reformula la idea para que sea más clara.",
+        },
+        {
+          id: "m7-l5-e15",
+          type: "choice",
+          prompt: "¿Cómo dirías: 'Podemos volver a este tema después del standup'?",
+          options: [
+            "We can circle back after the standup.",
+            "We can circle after the standup back.",
+            "We can back circle after the standup.",
+            "We can standup circle after.",
+          ],
+          answer: 0,
+          explanation:
+            "'Circle back' significa retomar un tema más tarde: frase muy común en equipos.",
+        },
+        {
+          id: "m7-l5-e16",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Para ser honesto, creo que deberíamos agregar más tests.'",
+          answer: "To be honest, I think we should add more tests.",
+          accept: [
+            "To be honest, I think we should add more tests",
+            "Honestly, I think we should add more tests.",
+          ],
+          hint: "Empieza con 'To be honest,'.",
+          explanation:
+            "'To be honest' introduce una opinión directa de forma natural; 'we should add more tests' da una recomendación clara.",
         },
       ],
     },

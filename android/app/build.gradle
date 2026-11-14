@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "com.deveng.core"
+    namespace = "com.devlingo.core"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.deveng.core"
+        applicationId "com.devlingo.core"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 2
@@ -28,7 +28,8 @@ def apksDirectory = rootProject.file("../apks")
 
 android.applicationVariants.all { variant ->
     variant.outputs.all { output ->
-        outputFileName = "deveng-core-${variant.name}.apk"
+        def version = variant.versionName ?: android.defaultConfig.versionName
+        outputFileName = "DevLingo-v${version}-${variant.name}.apk"
     }
 }
 

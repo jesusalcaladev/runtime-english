@@ -16,15 +16,15 @@ export interface LanguageStatus {
 }
 
 /**
- * La inmersión combina tres señales:
- * - 55%: avance de las sesiones A1-A2.
- * - 15%: precisión (ejercicios completados / intentos).
- * - 20%: ejercicios resueltos del currículo.
- * - 10%: avance en B1-B2.
+ * Immersion combines three signals:
+ * - 55%: A1-A2 session progress.
+ * - 15%: accuracy (completed exercises / attempts).
+ * - 20%: curriculum exercises solved.
+ * - 10%: B1-B2 progress.
  *
- * La interfaz pasa a mixta a partir de 28 puntos y a inglés a partir de 58,
- * pero inglés exige además 55% de A1-A2 y 55% de precisión. Así no se adelanta
- * el idioma a quien solo está completando sesiones sin consolidar.
+ * The UI switches to mixed at 28 points and to English at 58,
+ * but English also requires 55% A1-A2 progress and 55% accuracy, so the UI does not switch
+ * too early for users who only complete sessions without consolidating.
  */
 export function getLanguageStatus(state: ProgressState): LanguageStatus {
   const a1 = levelStats("A1-A2", state.completedSessions);
@@ -203,7 +203,7 @@ export function t(stage: UiStage, key: keyof typeof UI_STRINGS | string): string
   return entry[stage];
 }
 
-/** Acciones compactas: en mixto ya usan inglés para empujar la inmersión. */
+/** Compact actions: in mixed mode they already use English to encourage immersion. */
 export function tAction(stage: UiStage, key: keyof typeof UI_STRINGS | string): string {
   const entry = UI_STRINGS[key];
   if (!entry) return key;

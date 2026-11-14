@@ -1,8 +1,8 @@
-import type { Exercise } from "./types";
-import { evaluateAchievements } from "./achievements";
-import { emitToast } from "./toast";
+import { differenceInCalendarDays, format } from "date-fns";
 import { ALL_SESSIONS, getAllExerciseIds, levelStats } from "../data/curriculum";
+import { evaluateAchievements } from "./achievements";
 import { onAuthStateChange } from "./auth";
+import { sanitizeCertificate, sanitizeSettings, sanitizeStreak } from "./progressSchema";
 import {
   expandState,
   getCurrentUserId,
@@ -12,6 +12,9 @@ import {
   syncNow,
   withRemoteApply,
 } from "./progressSync";
+import { nextSrsFsrs } from "./srsFsrs";
+import { emitToast } from "./toast";
+import type { Exercise } from "./types";
 
 export interface ReminderSettings {
   enabled: boolean;
@@ -72,7 +75,7 @@ export interface PhrasebookEntry {
   userExample?: string;
   tags?: string[];
   difficulty?: "easy" | "normal" | "hard";
-  // SRS propio del diccionario (flashcards / repaso)
+  // Dictionary-specific SRS (flashcards/review)
   box: number;
   due: number;
   last: number;
@@ -186,20 +189,17 @@ function isBrowser(): boolean {
 }
 
 export function todayKey(date = new Date()): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  return format(date, "yyyy-MM-dd");
 }
 
 function daysBetween(a: string, b: string): number {
   const first = new Date(`${a}T00:00:00`);
   const second = new Date(`${b}T00:00:00`);
-  return Math.round((second.getTime() - first.getTime()) / 86_400_000);
+  return differenceInCalendarDays(second, first);
 }
 
-// El módulo de slang pasó de m0 a m7 para que la ruta técnica empiece en A1.
-// Conservamos el progreso de quien ya había completado esas sesiones.
+// The slang module moved from m0 to m7 so the technical path starts at A1.
+// Preserve progress for users who had already completed those sessions.
 const LEGACY_ID_MAP: Record<string, string> = {
   "m0-l1": "m7-l1",
   "m0-l2": "m7-l2",
@@ -244,9 +244,7 @@ function normalizeSrsEntry(raw: unknown, fallbackLast = Date.now()): ExerciseSrs
   const box = clampSrsBox(typeof r.box === "number" ? r.box : 0);
   const last = typeof r.last === "number" && Number.isFinite(r.last) ? r.last : fallbackLast;
   const due =
-    typeof r.due === "number" && Number.isFinite(r.due)
-      ? r.due
-      : last + SRS_INTERVALS_MS[box];
+    typeof r.due === "number" && Number.isFinite(r.due) ? r.due : last + SRS_INTERVALS_MS[box];
   const correctStreak =
     typeof r.correctStreak === "number" && Number.isFinite(r.correctStreak)
       ? Math.max(0, Math.round(r.correctStreak))
@@ -255,13 +253,7 @@ function normalizeSrsEntry(raw: unknown, fallbackLast = Date.now()): ExerciseSrs
 }
 
 function nextSrs(prev: ExerciseSrs | undefined, correct: boolean, now = Date.now()): ExerciseSrs {
-  const base = prev ?? { box: 0, due: now, last: now, correctStreak: 0 };
-  if (!correct) {
-    return { box: 0, due: now + SRS_INTERVALS_MS[0], last: now, correctStreak: 0 };
-  }
-  const box = clampSrsBox(base.box + 1);
-  const due = now + SRS_INTERVALS_MS[box];
-  return { box, due, last: now, correctStreak: base.correctStreak + 1 };
+  return nextSrsFsrs(prev, correct, now);
 }
 
 function seedExerciseSrs(state: ProgressState): Record<string, ExerciseSrs> {
@@ -278,32 +270,44 @@ function seedExerciseSrs(state: ProgressState): Record<string, ExerciseSrs> {
     const doneAt = state.completedExercises[id];
     const done = Boolean(doneAt);
     if (attempts <= 0) continue;
+
     if (!done) {
       seeded[id] = { box: 0, due: now, last: doneAt ?? now, correctStreak: 0 };
-    } else if (attempts > 1) {
-      // Correct but struggled: review sooner
-      seeded[id] = { box: 1, due: now, last: doneAt ?? now, correctStreak: 1 };
-    } else {
-      // Correct first try: schedule based on age
-      const age = now - (doneAt ?? now);
-      const day = 24 * 60 * 60 * 1000;
-      let box = 1;
-      if (age > 21 * day) box = 4;
-      else if (age > 10 * day) box = 3;
-      else if (age > 4 * day) box = 2;
-      else if (age > 1 * day) box = 1;
-      else box = 1;
-      const due = (doneAt ?? now) + SRS_INTERVALS_MS[box];
-      seeded[id] = { box, due, last: doneAt ?? now, correctStreak: box };
+      continue;
     }
+
+    const last = doneAt ?? now;
+    if (attempts > 1) {
+      // Correct but struggled: schedule a near-term FSRS review (Hard-like).
+      seeded[id] = nextSrsFsrs(undefined, true, last, { struggled: true });
+      // If overdue/migrated long ago, keep it due now for review.
+      if (seeded[id].due < now) seeded[id] = { ...seeded[id], due: now };
+      continue;
+    }
+
+    // Correct on first try: simulate FSRS progression based on age for smoother migration.
+    const age = Math.max(0, now - last);
+    const day = 24 * 60 * 60 * 1000;
+    let reviews = 1;
+    if (age > 21 * day) reviews = 4;
+    else if (age > 10 * day) reviews = 3;
+    else if (age > 4 * day) reviews = 2;
+    else if (age > 1 * day) reviews = 1;
+
+    let srs = nextSrsFsrs(undefined, true, last);
+    let t = Math.max(last + 60_000, Math.min(now, srs.due));
+    for (let i = 1; i < reviews; i++) {
+      srs = nextSrsFsrs(srs, true, t);
+      t = Math.max(t + 60_000, Math.min(now, srs.due));
+    }
+    seeded[id] = srs;
   }
   return seeded;
 }
 
 function applyDocumentSettings(settings: ProgressSettings) {
   if (!isBrowser()) return;
-  document.documentElement.dataset.theme =
-    settings.theme === "dark" ? "devlingo-dark" : "devlingo";
+  document.documentElement.dataset.theme = settings.theme === "dark" ? "devlingo-dark" : "devlingo";
   document.documentElement.dataset.tts = settings.ttsEnabled ? "on" : "off";
 }
 
@@ -311,8 +315,10 @@ export function mergeState(raw: unknown): ProgressState {
   const defaults = createDefaultState();
   if (!raw || typeof raw !== "object") return defaults;
   const unwrapped = unwrapProgressInput(raw);
-  const parsed = (unwrapped && typeof unwrapped === "object" ? unwrapped : raw) as Partial<ProgressState> & Record<string, any>;
-  // Si viene en formato compacto de sync (v/ce/cs/se/...), expandir primero
+  const parsed = (
+    unwrapped && typeof unwrapped === "object" ? unwrapped : raw
+  ) as Partial<ProgressState> & Record<string, any>;
+  // If input is in compact sync format (v/ce/cs/se/...), expand it first
   const base =
     "v" in parsed || "ce" in parsed || "se" in parsed
       ? expandState(parsed, defaults)
@@ -326,8 +332,10 @@ export function mergeState(raw: unknown): ProgressState {
     if (n) normalizedSrs[id] = n;
   }
 
-  const rawPhrasebook =
-    ((base as any).phrasebook ?? (parsed as any).phrasebook ?? {}) as Record<string, any>;
+  const rawPhrasebook = ((base as any).phrasebook ?? (parsed as any).phrasebook ?? {}) as Record<
+    string,
+    any
+  >;
   const phrasebook: Record<string, PhrasebookEntry> = {};
   if (rawPhrasebook && typeof rawPhrasebook === "object" && !Array.isArray(rawPhrasebook)) {
     for (const [id, val] of Object.entries(rawPhrasebook)) {
@@ -336,14 +344,20 @@ export function mergeState(raw: unknown): ProgressState {
       if (!en.trim()) continue;
       const es = typeof (val as any).es === "string" ? (val as any).es : "";
       const tags = Array.isArray((val as any).tags)
-        ? (val as any).tags.filter((t: any) => typeof t === "string" && t.trim()).map((t: string) => t.trim().slice(0, 24)).slice(0, 8)
+        ? (val as any).tags
+            .filter((t: any) => typeof t === "string" && t.trim())
+            .map((t: string) => t.trim().slice(0, 24))
+            .slice(0, 8)
         : [];
       const diff = (val as any).difficulty;
       const addedAt = typeof (val as any).addedAt === "number" ? (val as any).addedAt : Date.now();
-      const updatedAt = typeof (val as any).updatedAt === "number" ? (val as any).updatedAt : addedAt;
+      const updatedAt =
+        typeof (val as any).updatedAt === "number" ? (val as any).updatedAt : addedAt;
       const correct = typeof (val as any).correct === "number" ? (val as any).correct : 0;
       const box = clampSrsBox(
-        typeof (val as any).box === "number" ? (val as any).box : Math.min(correct, SRS_INTERVALS_MS.length - 1),
+        typeof (val as any).box === "number"
+          ? (val as any).box
+          : Math.min(correct, SRS_INTERVALS_MS.length - 1),
       );
       const last = typeof (val as any).last === "number" ? (val as any).last : updatedAt;
       const due =
@@ -358,35 +372,25 @@ export function mergeState(raw: unknown): ProgressState {
         seen: typeof (val as any).seen === "number" ? (val as any).seen : 0,
         correct,
         saved: Boolean((val as any).saved),
-        notes: typeof (val as any).notes === "string" ? (val as any).notes.slice(0, 500) : undefined,
-        userExample: typeof (val as any).userExample === "string" ? (val as any).userExample.slice(0, 300) : undefined,
+        notes:
+          typeof (val as any).notes === "string" ? (val as any).notes.slice(0, 500) : undefined,
+        userExample:
+          typeof (val as any).userExample === "string"
+            ? (val as any).userExample.slice(0, 300)
+            : undefined,
         tags: tags.length ? tags : undefined,
         difficulty: diff === "easy" || diff === "hard" || diff === "normal" ? diff : undefined,
         box,
         due,
         last,
-        correctStreak: typeof (val as any).correctStreak === "number" ? (val as any).correctStreak : box,
+        correctStreak:
+          typeof (val as any).correctStreak === "number" ? (val as any).correctStreak : box,
       };
     }
   }
 
   const rawCert = (base as any).certificate ?? (parsed as any).certificate ?? null;
-  const certificate =
-    rawCert && typeof rawCert === "object" && typeof rawCert.id === "string" && rawCert.id.trim()
-      ? ({
-          id: String(rawCert.id).trim().toUpperCase(),
-          name: typeof rawCert.name === "string" ? rawCert.name : "",
-          issuedAt:
-            typeof rawCert.issuedAt === "string" ? rawCert.issuedAt : new Date().toISOString(),
-          completionDate: typeof rawCert.completionDate === "string" ? rawCert.completionDate : "",
-          status: typeof rawCert.status === "string" ? (rawCert.status as any) : "local",
-          userId: typeof rawCert.userId === "string" ? rawCert.userId : (rawCert.userId === null ? null : undefined),
-          issuedBy: (rawCert.issuedBy === "server" ? "server" : rawCert.issuedBy === "local" ? "local" : undefined) as "local" | "server" | undefined,
-          lastVerifiedAt: typeof rawCert.lastVerifiedAt === "string" ? rawCert.lastVerifiedAt : null,
-          shareUrl: typeof rawCert.shareUrl === "string" ? rawCert.shareUrl : null,
-          lastError: typeof rawCert.lastError === "string" ? rawCert.lastError : null,
-        } as CertificateState)
-      : null;
+  const certificate = sanitizeCertificate(rawCert) as CertificateState | null;
 
   const rawErrorEvents = Array.isArray((base as any).errorEvents ?? (parsed as any).errorEvents)
     ? ((base as any).errorEvents ?? (parsed as any).errorEvents)
@@ -402,7 +406,9 @@ export function mergeState(raw: unknown): ProgressState {
       prompt: typeof e.prompt === "string" ? e.prompt.slice(0, 240) : "",
       userAnswer: typeof e.userAnswer === "string" ? e.userAnswer.slice(0, 240) : "",
       correctAnswer: typeof e.correctAnswer === "string" ? e.correctAnswer.slice(0, 240) : "",
-      skills: Array.isArray(e.skills) ? e.skills.filter((s: any) => typeof s === "string").slice(0, 6) : [],
+      skills: Array.isArray(e.skills)
+        ? e.skills.filter((s: any) => typeof s === "string").slice(0, 6)
+        : [],
       at: typeof e.at === "number" ? e.at : Date.now(),
     }));
 
@@ -419,32 +425,15 @@ export function mergeState(raw: unknown): ProgressState {
     phrasebook,
     certificate,
     achievements: base.achievements ?? {},
-    streak: { ...defaults.streak, ...(base.streak ?? {}) },
+    streak: sanitizeStreak(base.streak ?? defaults.streak, defaults.streak),
     dictionaryBackfilledAt:
-      typeof (base as any).dictionaryBackfilledAt === "number" ? (base as any).dictionaryBackfilledAt : null,
-    settings: {
-      ...defaults.settings,
-      ...(base.settings ?? {}),
-      onboarded: Boolean((base.settings as any)?.onboarded ?? ((base.settings as any)?.name ? true : false)),
-      goal: ((base.settings as any)?.goal as ProgressSettings["goal"]) ?? defaults.settings.goal,
-      ttsEngine: (base.settings as any)?.ttsEngine === "kokoro" ? "kokoro" : "system",
-      diagnostic: (base.settings as any)?.diagnostic ?? (defaults.settings as any).diagnostic ?? null,
-      plan: (base.settings as any)?.plan ?? (defaults.settings as any).plan ?? null,
-      reminders: {
-        ...defaults.settings.reminders,
-        ...(((base.settings as any)?.reminders ?? {}) as Partial<ReminderSettings>),
-        enabled: Boolean((base.settings as any)?.reminders?.enabled),
-        time:
-          typeof (base.settings as any)?.reminders?.time === "string" &&
-          /^\d{2}:\d{2}$/.test((base.settings as any).reminders.time)
-            ? (base.settings as any).reminders.time
-            : defaults.settings.reminders.time,
-        lastNudgeDate:
-          typeof (base.settings as any)?.reminders?.lastNudgeDate === "string"
-            ? (base.settings as any).reminders.lastNudgeDate
-            : null,
-      },
-    },
+      typeof (base as any).dictionaryBackfilledAt === "number"
+        ? (base as any).dictionaryBackfilledAt
+        : null,
+    settings: sanitizeSettings(
+      { ...defaults.settings, ...(base.settings ?? {}) },
+      defaults.settings as any,
+    ) as ProgressSettings,
   };
   merged.exerciseSrs = seedExerciseSrs(merged);
   return merged;
@@ -467,8 +456,15 @@ export function readProgress(): ProgressState {
     }
     const parsed = raw ? JSON.parse(raw) : null;
     const state = mergeState(parsed);
-    if (migratedFromLegacy || (raw && parsed && (parsed.version !== PROGRESS_SCHEMA_VERSION || parsed.format === "devlingo-progress"))) {
-      try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {}
+    if (
+      migratedFromLegacy ||
+      (raw &&
+        parsed &&
+        (parsed.version !== PROGRESS_SCHEMA_VERSION || parsed.format === "devlingo-progress"))
+    ) {
+      try {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch {}
     }
     return state;
   } catch {
@@ -482,8 +478,8 @@ class ProgressStore {
   private state: ProgressState = createDefaultState();
   private listeners = new Set<Listener>();
   private hydrated = false;
-  private authUnsub: (() => void) | null = null;
   private syncing = false;
+  private authUnsub: (() => void) | null = null;
 
   constructor() {
     if (isBrowser()) {
@@ -496,7 +492,7 @@ class ProgressStore {
         }
       });
       this.initCloudSync();
-      // Backfill inicial del diccionario una vez (importa vocab/frases del contenido y aprendidas previas)
+      // One-time dictionary backfill (imports content vocabulary/phrases and previously learned items)
       if (!this.state.dictionaryBackfilledAt) {
         try {
           this.backfillPhrasebook();
@@ -521,7 +517,7 @@ class ProgressStore {
         });
       }
     } catch {
-      // Supabase no configurado o error de init: funciona solo local
+      // Supabase not configured or init error: works locally only
     }
   }
 
@@ -597,7 +593,7 @@ class ProgressStore {
     let next = state;
     const unlocked: ReturnType<typeof evaluateAchievements> = [];
 
-    // Los logros dan XP, y esa XP puede desbloquear otro logro en cadena.
+    // Achievements grant XP, and that XP can unlock another achievement in a chain.
     for (let round = 0; round < 4; round++) {
       const found = evaluateAchievements(next);
       if (found.length === 0) break;
@@ -640,16 +636,18 @@ class ProgressStore {
       const now = Date.now();
       const previousAttempts = state.attempts[exercise.id] ?? 0;
       const attempts = { ...state.attempts, [exercise.id]: previousAttempts + 1 };
+      const struggled = correct && previousAttempts > 0;
       const exerciseSrs = {
         ...state.exerciseSrs,
-        [exercise.id]: nextSrs(state.exerciseSrs[exercise.id], correct, now),
+        [exercise.id]: nextSrsFsrs(state.exerciseSrs[exercise.id], correct, now, { struggled }),
       };
 
       let phrasebook = state.phrasebook;
       if (correct) {
         let en = "";
         if (exercise.type === "choice") en = exercise.options[exercise.answer] ?? "";
-        else if ("answer" in exercise && typeof (exercise as any).answer === "string") en = (exercise as any).answer;
+        else if ("answer" in exercise && typeof (exercise as any).answer === "string")
+          en = (exercise as any).answer;
         else if (exercise.type === "dialogue-order") en = exercise.lines.join(" / ");
         else if (exercise.type === "fill-blank") en = exercise.template;
         const es = (exercise as any).explanation || (exercise as any).prompt || "";
@@ -674,7 +672,7 @@ class ProgressStore {
           prompt: (exercise.prompt || "").slice(0, 240),
           userAnswer: (detail?.userAnswer || "").slice(0, 240),
           correctAnswer: (detail?.correctAnswer || "").slice(0, 240),
-          skills: Array.isArray(detail?.skills) ? detail!.skills.slice(0, 6) : [],
+          skills: Array.isArray(detail?.skills) ? detail?.skills.slice(0, 6) : [],
           at: now,
         };
         errorEvents = [...errorEvents, event].slice(-300);
@@ -806,7 +804,9 @@ class ProgressStore {
 
   updatePhrase(
     id: string,
-    patch: Partial<Pick<PhrasebookEntry, "es" | "notes" | "userExample" | "tags" | "difficulty" | "saved">>,
+    patch: Partial<
+      Pick<PhrasebookEntry, "es" | "notes" | "userExample" | "tags" | "difficulty" | "saved">
+    >,
   ) {
     this.update((state) => {
       const prev = state.phrasebook[id];
@@ -815,19 +815,20 @@ class ProgressStore {
         ...prev,
         ...patch,
         es: patch.es !== undefined ? patch.es : prev.es,
-        notes: patch.notes !== undefined ? (patch.notes || "").slice(0, 500) || undefined : prev.notes,
+        notes:
+          patch.notes !== undefined ? (patch.notes || "").slice(0, 500) || undefined : prev.notes,
         userExample:
           patch.userExample !== undefined
             ? (patch.userExample || "").slice(0, 300) || undefined
             : prev.userExample,
         tags:
           patch.tags !== undefined
-            ? patch.tags.filter((t) => t && t.trim()).map((t) => t.trim().slice(0, 24)).slice(0, 8)
+            ? patch.tags
+                .filter((t) => t?.trim())
+                .map((t) => t.trim().slice(0, 24))
+                .slice(0, 8)
             : prev.tags,
-        difficulty:
-          patch.difficulty !== undefined
-            ? patch.difficulty
-            : prev.difficulty,
+        difficulty: patch.difficulty !== undefined ? patch.difficulty : prev.difficulty,
         saved: patch.saved !== undefined ? patch.saved : prev.saved,
         updatedAt: Date.now(),
       };
@@ -870,9 +871,7 @@ class ProgressStore {
     const settings = this.getState().settings;
     applyDocumentSettings(settings);
     if (isBrowser() && "reminders" in patch) {
-      void import("./notifications")
-        .then((m) => m.syncStreakReminder(settings))
-        .catch(() => {});
+      void import("./notifications").then((m) => m.syncStreakReminder(settings)).catch(() => {});
     }
   }
 
@@ -882,7 +881,12 @@ class ProgressStore {
     if (!candidate || typeof candidate !== "object") return false;
     const looksLikeState =
       typeof candidate.xp === "number" ||
-      candidate.completedExercises || candidate.completedSessions || candidate.settings || candidate.v || candidate.ce || candidate.cs;
+      candidate.completedExercises ||
+      candidate.completedSessions ||
+      candidate.settings ||
+      candidate.v ||
+      candidate.ce ||
+      candidate.cs;
     if (!looksLikeState) return false;
     const next = mergeState(raw);
     if (!Number.isFinite(next.xp) || next.xp < 0) next.xp = 0;
@@ -972,13 +976,14 @@ function hashString(value: string): number {
 
 function nextPhraseSrs(prev: PhrasebookEntry | undefined, correct: boolean, now = Date.now()) {
   const base = prev
-    ? { box: prev.box ?? 0, last: prev.last ?? now, correctStreak: prev.correctStreak ?? 0 }
-    : { box: 0, last: now, correctStreak: 0 };
-  if (!correct) {
-    return { box: 0, due: now + SRS_INTERVALS_MS[0], last: now, correctStreak: 0 };
-  }
-  const box = clampSrsBox(base.box + 1);
-  return { box, due: now + SRS_INTERVALS_MS[box], last: now, correctStreak: base.correctStreak + 1 };
+    ? {
+        box: prev.box ?? 0,
+        due: prev.due ?? now,
+        last: prev.last ?? now,
+        correctStreak: prev.correctStreak ?? 0,
+      }
+    : undefined;
+  return nextSrsFsrs(base, correct, now);
 }
 
 function upsertPhrase(
@@ -1004,14 +1009,13 @@ function upsertPhrase(
   const next: PhrasebookEntry = {
     id,
     en: prev?.en && prev.en.length >= en.length ? prev.en : en,
-    es:
-      !prev?.es
-        ? incomingEs
-        : !incomingEs
-          ? prev.es
-          : incomingEs.length >= prev.es.length
-            ? incomingEs
-            : prev.es,
+    es: !prev?.es
+      ? incomingEs
+      : !incomingEs
+        ? prev.es
+        : incomingEs.length >= prev.es.length
+          ? incomingEs
+          : prev.es,
     source: input.source || prev?.source || "",
     addedAt: prev?.addedAt ?? now,
     updatedAt: now,
@@ -1033,8 +1037,10 @@ function upsertPhrase(
 
 function unwrapProgressInput(raw: any): any {
   if (!raw || typeof raw !== "object") return raw;
-  if (raw.format === "devlingo-progress" && raw.state && typeof raw.state === "object") return raw.state;
-  if (raw.state && typeof raw.state === "object" && (raw.schemaVersion || raw.exportedAt)) return raw.state;
+  if (raw.format === "devlingo-progress" && raw.state && typeof raw.state === "object")
+    return raw.state;
+  if (raw.state && typeof raw.state === "object" && (raw.schemaVersion || raw.exportedAt))
+    return raw.state;
   return raw;
 }
 
@@ -1096,7 +1102,7 @@ function backfillPhrasebookState(state: ProgressState): Record<string, Phraseboo
       }
     }
   } catch {
-    // ignore backfill errors
+    // Ignore backfill errors
   }
   return phrasebook;
 }
@@ -1108,7 +1114,7 @@ export const progressStore: ProgressStore =
 export function isExerciseDue(state: ProgressState, exerciseId: string, now = Date.now()): boolean {
   const srs = state.exerciseSrs[exerciseId];
   if (!srs) {
-    // Si se intentó pero no tiene srs sembrado aún, considerarlo due
+    // If attempted but SRS is not seeded yet, consider it due
     return (state.attempts[exerciseId] ?? 0) > 0 && !state.completedExercises[exerciseId];
   }
   return srs.due <= now;
@@ -1168,7 +1174,6 @@ export function isExerciseDone(state: ProgressState, exerciseId: string): boolea
   return Boolean(state.completedExercises[exerciseId]);
 }
 
-
 export function isPhraseDue(entry: PhrasebookEntry, now = Date.now()): boolean {
   return (entry.due ?? 0) <= now;
 }
@@ -1176,16 +1181,18 @@ export function isPhraseDue(entry: PhrasebookEntry, now = Date.now()): boolean {
 export function getDuePhraseEntries(state: ProgressState, now = Date.now()): PhrasebookEntry[] {
   return Object.values(state.phrasebook ?? {})
     .filter((e) => isPhraseDue(e, now))
-    .sort((a, b) => (a.due - b.due) || (a.correct - b.correct));
+    .sort((a, b) => a.due - b.due || a.correct - b.correct);
 }
 
 export function getWeakPhraseEntries(state: ProgressState, limit = 20): PhrasebookEntry[] {
   return Object.values(state.phrasebook ?? {})
     .filter((e) => (e.seen ?? 0) > 0 || e.saved || (e.correct ?? 0) > 0)
     .sort((a, b) => {
-      const sa = (a.correct ?? 0) / Math.max(1, a.seen || a.correct || 1) + (isPhraseDue(a) ? -1 : 0);
-      const sb = (b.correct ?? 0) / Math.max(1, b.seen || b.correct || 1) + (isPhraseDue(b) ? -1 : 0);
-      return sa - sb || (a.updatedAt - b.updatedAt);
+      const sa =
+        (a.correct ?? 0) / Math.max(1, a.seen || a.correct || 1) + (isPhraseDue(a) ? -1 : 0);
+      const sb =
+        (b.correct ?? 0) / Math.max(1, b.seen || b.correct || 1) + (isPhraseDue(b) ? -1 : 0);
+      return sa - sb || a.updatedAt - b.updatedAt;
     })
     .slice(0, limit);
 }

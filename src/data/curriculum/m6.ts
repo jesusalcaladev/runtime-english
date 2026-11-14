@@ -326,5 +326,115 @@ export const m6: Module = {
         },
       ],
     },
+    {
+      id: "m6-l4",
+      slug: "checkpoint-arquitectura-seguridad-performance",
+      title: "Checkpoint: seguridad, arquitectura y performance",
+      step: "B2 · Paso 6.4 · Checkpoint",
+      cefr: "B2",
+      minutes: 8,
+      summary:
+        "Recuperación activa de lo esencial: secretos, trade-offs, cuellos de botella y métricas antes de optimizar.",
+      objectives: [
+        "Recordar acciones clave ante una credencial expuesta.",
+        "Explicar un trade-off y un cuello de botella con lenguaje claro.",
+        "Aplicar el hábito de medir antes de optimizar.",
+      ],
+      pronunciation:
+        "We rotated the leaked key, identified the database as the bottleneck, and measured p95 latency before optimizing.",
+      blocks: [
+        {
+          type: "technique",
+          name: "Recupera, no releas",
+          desc: "Intenta responder desde memoria: qué harías, qué término usarías y por qué. Si dudas, vuelve a la sesión específica y repite el ejercicio. Este checkpoint mezcla seguridad, system design y performance para fijar lo aprendido.",
+        },
+        {
+          type: "phrases",
+          title: "Frases clave para recordar",
+          items: [
+            { en: "We need to rotate the leaked key.", es: "Necesitamos rotar la clave filtrada." },
+            { en: "Apply least privilege.", es: "Aplica mínimo privilegio." },
+            { en: "The database is the bottleneck.", es: "La base de datos es el cuello de botella." },
+            { en: "This is a trade-off between latency and complexity.", es: "Es un trade-off entre latencia y complejidad." },
+            { en: "Let's measure and profile before we optimize.", es: "Midamos y hagamos profiling antes de optimizar." },
+          ],
+        },
+      ],
+      exercises: [
+        {
+          id: "m6-l4-e1",
+          type: "choice",
+          prompt: "Una clave aparece en logs públicos. ¿Qué acción es prioritaria?",
+          options: [
+            "Rotate the key immediately",
+            "Document it and wait",
+            "Share the key to debug faster",
+            "Ignore it if the app still works",
+          ],
+          answer: 0,
+          explanation:
+            "Una credencial expuesta debe rotarse de inmediato; luego se revisa impacto y se corrige la causa de la filtración.",
+        },
+        {
+          id: "m6-l4-e2",
+          type: "builder",
+          prompt: "Construye: 'La base de datos es el cuello de botella.'",
+          words: ["The database", "is", "the bottleneck."],
+          answer: "The database is the bottleneck.",
+          explanation:
+            "'Bottleneck' nombra el punto que limita el rendimiento del sistema.",
+        },
+        {
+          id: "m6-l4-e3",
+          type: "write",
+          prompt: "Escribe en inglés: 'Midamos antes de optimizar.'",
+          answer: "Let's measure before we optimize.",
+          accept: [
+            "Let's measure before optimizing.",
+            "Let us measure before we optimize.",
+          ],
+          hint: "Usa 'Let's measure...'",
+          explanation:
+            "Medir primero evita optimizaciones basadas en suposiciones.",
+        },
+        {
+          id: "m6-l4-e4",
+          type: "choice",
+          prompt: "'A single point of failure' significa:",
+          options: [
+            "Un componente cuya caída tumba el sistema",
+            "Un error que solo ocurre una vez",
+            "Un test que falla en CI",
+            "Una métrica de latencia",
+          ],
+          answer: 0,
+          explanation:
+            "Es un componente crítico sin redundancia: si falla, todo el sistema se ve afectado.",
+        },
+        {
+          id: "m6-l4-e5",
+          type: "builder",
+          prompt: "Construye: 'Deberíamos aplicar mínimo privilegio.'",
+          words: ["We should", "apply", "least privilege."],
+          answer: "We should apply least privilege.",
+          explanation:
+            "'Least privilege' limita permisos al mínimo necesario y reduce el impacto de una filtración.",
+        },
+        {
+          id: "m6-l4-e6",
+          type: "write",
+          prompt: "Escribe en inglés: 'La latencia p95 aumentó después del despliegue.'",
+          answer: "The p95 latency increased after the deploy.",
+          accept: [
+            "The p95 latency increased after deployment.",
+            "P95 latency increased after the deploy.",
+            "The p95 latency went up after the deploy.",
+          ],
+          hint: "Usa 'p95 latency increased...'",
+          explanation:
+            "Describir la regresión con una métrica concreta (p95) hace el reporte útil y accionable.",
+        },
+      ],
+    },
   ],
 };

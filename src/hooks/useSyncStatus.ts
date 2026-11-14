@@ -1,22 +1,11 @@
-import { useEffect, useState } from "preact/hooks";
-import { getSyncStatus, subscribeSyncStatus, type SyncStatus } from "../lib/progressSync";
+import { useStore } from "@nanostores/preact";
+import { useEffect } from "preact/hooks";
+import type { SyncStatus } from "../lib/progressSync";
+import { initSyncStatusStore, syncStatusAtom } from "../lib/stores";
 
 export function useSyncStatus(): SyncStatus {
-  const [syncStatus, setSyncStatus] = useState<SyncStatus>(() => {
-    try {
-      return getSyncStatus();
-    } catch {
-      return { phase: "idle", pending: false, lastSyncedAt: null, lastError: null, nextRetryAt: null, history: [] } as any;
-    }
-  });
-
   useEffect(() => {
-    try {
-      return subscribeSyncStatus(setSyncStatus);
-    } catch {
-      return;
-    }
+    initSyncStatusStore();
   }, []);
-
-  return syncStatus;
+  return useStore(syncStatusAtom);
 }

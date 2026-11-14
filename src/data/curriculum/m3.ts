@@ -62,6 +62,12 @@ export const m3: Module = {
             ["CORS error", "Bloqueo de origen cruzado", "Configura Access-Control-Allow-Origin en el backend."],
           ],
         },
+        {
+          type: "callout",
+          tone: "tip",
+          title: "Lee el error con calma",
+          body: "No hace falta entender todo el stack trace de golpe. Busca primero el mensaje clave ('Module not found', 'Permission denied') y la línea donde ocurre. Paso a paso suenas más seguro y aprendes más rápido.",
+        },
       ],
       exercises: [
         {
@@ -111,6 +117,33 @@ export const m3: Module = {
           answer: "Kill the previous process and change the port.",
           explanation:
             "Dos imperativos unidos con 'and'. Es la instrucción típica cuando 'Port already in use' bloquea el arranque.",
+        },
+        {
+          id: "m3-l1-e5",
+          type: "choice",
+          prompt: "Ves 'Module not found'. ¿Qué haces primero de forma natural?",
+          options: [
+            "Run npm install or check the import path.",
+            "Delete the repository.",
+            "Change the language.",
+            "Ignore it and deploy.",
+          ],
+          answer: 0,
+          explanation:
+            "Cuando falta un módulo, lo normal es instalar dependencias o revisar la ruta. Un diagnóstico simple y tranquilo funciona mejor.",
+        },
+        {
+          id: "m3-l1-e6",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Abre un PR cuando termines.'",
+          answer: "Open a PR when you're done.",
+          accept: [
+            "Open a PR when you are done.",
+            "Open a pull request when you're done.",
+          ],
+          hint: "Usa el imperativo 'Open a PR...'",
+          explanation:
+            "Instrucción clara y muy común en equipos: cuándo abrir el pull request.",
         },
       ],
     },
@@ -171,6 +204,12 @@ export const m3: Module = {
             ["shut down", "apagar servidor", "The server shut down unexpectedly."],
           ],
         },
+        {
+          type: "callout",
+          tone: "tip",
+          title: "Phrasal verbs: aprende el bloque completo",
+          body: "No traduzcas palabra por palabra. Memoriza la combinación como una unidad: 'run into a bug', 'roll back the deploy', 'figure it out'. Así suenas más natural y te cuesta menos en conversaciones reales.",
+        },
       ],
       exercises: [
         {
@@ -215,6 +254,33 @@ export const m3: Module = {
           answer: "I can't figure out this error.",
           explanation:
             "'Figure out' significa entender o resolver. Es una de las formas más naturales de pedir ayuda con un bug.",
+        },
+        {
+          id: "m3-l2-e5",
+          type: "choice",
+          prompt: "Estás depurando y encontraste un problema inesperado. ¿Cómo lo dices naturalmente?",
+          options: [
+            "I ran into a bug.",
+            "I ran to a bug.",
+            "I ran inside a bug.",
+            "I run intoed a bug.",
+          ],
+          answer: 0,
+          explanation:
+            "'Run into' significa encontrarse con un problema o bug. Es muy común y suena natural en equipos de desarrollo.",
+        },
+        {
+          id: "m3-l2-e6",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Sincronízate con los últimos cambios.'",
+          answer: "Sync up with the latest changes.",
+          accept: [
+            "Sync with the latest changes.",
+            "Sync up with the latest changes",
+          ],
+          hint: "Usa 'Sync up with...'",
+          explanation:
+            "'Sync up' es una forma natural y frecuente de pedir que alguien actualice su trabajo con lo más reciente.",
         },
       ],
     },
@@ -264,6 +330,12 @@ export const m3: Module = {
             ["End-to-end", "Un flujo completo de usuario", "Falla de forma intermitente"],
           ],
         },
+        {
+          type: "callout",
+          tone: "tip",
+          title: "Habla de calidad sin estrés",
+          body: "Frases simples funcionan muy bien: 'The tests pass', 'This test is flaky', 'We need a regression test'. Ser claro y específico vale más que usar términos complejos.",
+        },
       ],
       exercises: [
         {
@@ -306,6 +378,29 @@ export const m3: Module = {
           hint: "'We're going to + verbo' expresa un plan.",
           explanation:
             "'Going to' es natural para un plan ya decidido; 'fix it' se refiere al test.",
+        },
+        {
+          id: "m3-l3-e5",
+          type: "builder",
+          prompt: "Construye: 'Agrega un test unitario para esta función.'",
+          words: ["Add", "a unit test", "for this", "function."],
+          answer: "Add a unit test for this function.",
+          explanation:
+            "Petición directa y natural en un PR o tarea de equipo.",
+        },
+        {
+          id: "m3-l3-e6",
+          type: "choice",
+          prompt: "¿Qué significa 'edge case'?",
+          options: [
+            "El caso principal y más común",
+            "Un caso límite o poco común",
+            "Un error de compilación",
+            "Una prueba borrada",
+          ],
+          answer: 1,
+          explanation:
+            "'Edge case' es un caso límite. Pensar en edge cases te ayuda a escribir software más sólido y a comunicarte con precisión.",
         },
       ],
     },
@@ -356,6 +451,12 @@ export const m3: Module = {
             { en: "cache", es: "caché", example: "The response is stored in the cache." },
           ],
         },
+        {
+          type: "callout",
+          tone: "tip",
+          title: "Describe el problema en orden",
+          body: "Para sonar claro: endpoint/método → status code → causa probable. Ej.: 'The POST /login endpoint returns 401 because the token is missing.' Orden simple, mensaje potente.",
+        },
       ],
       exercises: [
         {
@@ -402,6 +503,24 @@ export const m3: Module = {
           hint: "Usa 'failed because' + pasado simple.",
           explanation:
             "'Expired' es pasado simple; 'had expired' también funciona si quieres marcar que ocurrió antes de la petición.",
+        },
+        {
+          id: "m3-l4-e5",
+          type: "choice",
+          prompt: "Quieres decir que falta autenticación. ¿Qué status code encaja?",
+          options: ["401 Unauthorized", "403 Forbidden", "200 OK", "409 Conflict"],
+          answer: 0,
+          explanation:
+            "401 significa que no estás autenticado (falta o es inválido el token). 403 es cuando sí estás autenticado pero no tienes permiso.",
+        },
+        {
+          id: "m3-l4-e6",
+          type: "builder",
+          prompt: "Construye: 'Ejecuta la migración antes de desplegar.'",
+          words: ["Run", "the migration", "before", "deploying."],
+          answer: "Run the migration before deploying.",
+          explanation:
+            "Instrucción práctica y muy común en flujos de backend. 'Before deploying' indica el orden correcto.",
         },
       ],
     },
@@ -462,6 +581,12 @@ export const m3: Module = {
             ["permission denied", "The process doesn't have permission to access that file."],
           ],
         },
+        {
+          type: "callout",
+          tone: "tip",
+          title: "Pedir ayuda es una habilidad",
+          body: "Comparte el error exacto, el archivo/línea y lo que ya probaste. No es molestia: es información útil. En inglés, frases como 'I'm getting this error...' y 'I've already checked...' suenan naturales y colaborativas.",
+        },
       ],
       exercises: [
         {
@@ -514,6 +639,116 @@ export const m3: Module = {
           explanation:
             "Error + ubicación + expectativa + intentos previos es la fórmula más rápida para recibir ayuda.",
         },
+        {
+          id: "m3-l5-e5",
+          type: "builder",
+          prompt: "Construye: 'El stack trace apunta a la función de login.'",
+          words: ["The stack trace", "points to", "the login function."],
+          answer: "The stack trace points to the login function.",
+          explanation:
+            "'Points to' es una forma natural de decir dónde parece originarse el problema.",
+        },
+        {
+          id: "m3-l5-e6",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Ya revisé los logs.'",
+          answer: "I've already checked the logs.",
+          accept: [
+            "I have already checked the logs.",
+            "I've already checked the logs",
+            "I already checked the logs.",
+          ],
+          hint: "Usa 'I've already checked...'",
+          explanation:
+            "Decir lo que ya intentaste ahorra tiempo y muestra iniciativa. Es una frase muy útil y natural al pedir ayuda.",
+        },
+      ],
+    },
+    {
+      id: "m8-l3",
+      slug: "micro-repaso-fundamentos",
+      title: "Micro-repaso: fundamentos A1-A2",
+      step: "A2 · Paso 3.6 · Checkpoint",
+      cefr: "A2",
+      minutes: 8,
+      summary:
+        "Repaso corto y espaciado de lo esencial: verbos, errores simples, aclarar y acciones diarias.",
+      objectives: [
+        "Recordar estructuras básicas usadas en el trabajo técnico.",
+        "Responder rápido con frases claras y correctas.",
+        "Detectar huecos para volver a sesiones anteriores si hace falta."
+      ],
+      pronunciation:
+        "I fixed the bug. I'm working on it now. Could you clarify what you mean?",
+      blocks: [
+        {
+          type: "technique",
+          name: "Repaso espaciado: poco, claro y frecuente",
+          desc: "Un micro-repaso mezcla temas ya vistos para reforzar memoria. Si fallas en algo, vuelve a la sesión original, corrige y sigue. La meta es fluidez y claridad, no perfección.",
+        },
+        {
+          type: "phrases",
+          title: "Frases núcleo",
+          items: [
+            { en: "I fixed the bug.", es: "Arreglé el bug." },
+            { en: "I'm working on it now.", es: "Estoy trabajando en eso ahora." },
+            { en: "It doesn't work.", es: "No funciona." },
+            { en: "Could you clarify what you mean?", es: "¿Podrías aclarar a qué te refieres?" },
+            { en: "I pushed the changes.", es: "Subí los cambios." }
+          ],
+        }
+      ],
+      exercises: [
+        {
+          id: "m8-l3-e1",
+          type: "choice",
+          prompt: "¿Cómo dirías que estás trabajando en algo ahora mismo?",
+          options: ["I work on it now.", "I'm working on it now.", "I worked on it now.", "I working on it."],
+          answer: 1,
+          explanation: "Acción en curso: presente continuo 'I'm working on it now.'",
+        },
+        {
+          id: "m8-l3-e2",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Arreglé el bug.'",
+          answer: "I fixed the bug.",
+          accept: ["I fixed the bug"],
+          hint: "Pasado simple: 'fixed'.",
+          explanation: "Acción terminada: 'I fixed the bug.'",
+        },
+        {
+          id: "m8-l3-e3",
+          type: "builder",
+          prompt: "Construye: '¿Podrías aclarar a qué te refieres?'",
+          words: ["Could you clarify", "what you", "mean?"],
+          answer: "Could you clarify what you mean?",
+          explanation: "Frase clave para pedir aclaración con cortesía.",
+        },
+        {
+          id: "m8-l3-e4",
+          type: "choice",
+          prompt: "¿Qué frase reporta un problema de forma simple y clara?",
+          options: ["Is bad.", "It doesn't work.", "Broken thing.", "No good code."],
+          answer: 1,
+          explanation: "'It doesn't work.' es simple, claro y muy usado.",
+        },
+        {
+          id: "m8-l3-e5",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Subí los cambios.'",
+          answer: "I pushed the changes.",
+          accept: ["I pushed the changes"],
+          hint: "Pasado de 'push' = 'pushed'.",
+          explanation: "En git, 'push the changes' es la forma común de decir subir los cambios.",
+        },
+        {
+          id: "m8-l3-e6",
+          type: "choice",
+          prompt: "Te piden repetir. ¿Qué dices?",
+          options: ["No.", "Could you say that again, please?", "Listen better.", "Again now."],
+          answer: 1,
+          explanation: "Pedir repetición con cortesía: 'Could you say that again, please?'",
+        }
       ],
     },
   ],
