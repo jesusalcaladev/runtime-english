@@ -145,6 +145,7 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
   const [shuffledWords, setShuffledWords] = useState<number[]>([]);
   const [micState, setMicState] = useState<"idle" | "listening" | "done">("idle");
   const [heardText, setHeardText] = useState("");
+  const [micError, setMicError] = useState<string | null>(null);
 
   const exercise = exercises[index];
   const total = exercises.length;
@@ -184,6 +185,7 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
     setAttempted(false);
     setMicState("idle");
     setHeardText("");
+    setMicError(null);
     if (exercise?.type === "builder") setShuffledWords(shuffleIndices(exercise.words.length));
     if (exercise?.type === "dialogue-order") setShuffledDialogue(shuffleIndices(exercise.lines.length));
   }
@@ -244,21 +246,24 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
     if (exercise?.type === "choice") setSelected(null);
     if (exercise?.type === "builder") { setPicked([]); setShuffledWords(shuffleIndices(exercise.words.length)); }
     if (exercise?.type === "write" || exercise?.type === "listen" || exercise?.type === "fix-error" || exercise?.type === "roleplay") setText("");
-    if (exercise?.type === "speak") { setText(""); setHeardText(""); setMicState("idle"); }
+    if (exercise?.type === "speak") { setText(""); setHeardText(""); setMicState("idle"); setMicError(null); }
     if (exercise?.type === "fill-blank") setBlankValues(Array(exercise.blanks.length).fill(""));
     if (exercise?.type === "dialogue-order") { setDialoguePicked([]); setShuffledDialogue(shuffleIndices(exercise.lines.length)); }
   }
 
   async function startSpeaking() {
     if (exercise?.type !== "speak") return;
+    setMicError(null);
     setMicState("listening");
-    const res = await recognizeOnce("en-US", 8000);
+    const res = await recognizeOnce("en-US", 9000);
     setMicState("done");
     if (res.transcript) {
       setHeardText(res.transcript);
       setText(res.transcript);
-    } else if (res.error) {
+      setMicError(null);
+    } else {
       setHeardText("");
+      setMicError(res.error || "No se pudo reconocer la voz. Intenta de nuevo.");
     }
   }
 
@@ -455,6 +460,8 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
                 </div>
               </div>
               {heardText && <p class="text-[12px] text-base-content/60">Detectado: <span class="font-mono text-base-content/80">{heardText}</span></p>}
+              {micError && <p class="text-[12px] text-error/80">{micError}</p>}
+              {!micSupported && <p class="text-[12px] text-base-content/45">Tu navegador no soporta reconocimiento de voz. Puedes escribir tu respuesta o usar un navegador compatible (Chrome/Edge) en HTTPS/localhost.</p>}
               <textarea value={text} disabled={status === "correct"} onInput={(event) => setText((event.target as HTMLTextAreaElement).value)} rows={2} placeholder="O escribe lo que dirías…" class="w-full resize-none rounded-2xl bg-base-200 px-4 py-3.5 font-mono text-sm text-base-content placeholder:text-base-content/25 disabled:opacity-70" spellcheck={false} />
               {(exercise as any).hint && (<p class="flex items-center gap-1.5 px-1 text-[12px] text-base-content/55"><Lightbulb class="h-3 w-3 text-warning/70" />{(exercise as any).hint}</p>)}
             </div>
