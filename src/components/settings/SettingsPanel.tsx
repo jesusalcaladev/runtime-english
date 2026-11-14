@@ -23,11 +23,245 @@ import {
   Volume2,
 } from "lucide-preact";
 
-function GoogleIcon(props: { class?: string }) {
-  return (
-    <svg  xmlnsXlink="http://www.w3.org/1999/xlink" xmlSpace="preserve" overflow="hidden" viewBox="0 0 268.152 273.883" aria-hidden="true" class={props.class}><defs><linearGradient id="google__a"><stop offset="0" stopColor="#0fbc5c"/><stop offset="1" stopColor="#0cba65"/></linearGradient><linearGradient id="google__g"><stop offset=".231" stopColor="#0fbc5f"/><stop offset=".312" stopColor="#0fbc5f"/><stop offset=".366" stopColor="#0fbc5e"/><stop offset=".458" stopColor="#0fbc5d"/><stop offset=".54" stopColor="#12bc58"/><stop offset=".699" stopColor="#28bf3c"/><stop offset=".771" stopColor="#38c02b"/><stop offset=".861" stopColor="#52c218"/><stop offset=".915" stopColor="#67c30f"/><stop offset="1" stopColor="#86c504"/></linearGradient><linearGradient id="google__h"><stop offset=".142" stopColor="#1abd4d"/><stop offset=".248" stopColor="#6ec30d"/><stop offset=".312" stopColor="#8ac502"/><stop offset=".366" stopColor="#a2c600"/><stop offset=".446" stopColor="#c8c903"/><stop offset=".54" stopColor="#ebcb03"/><stop offset=".616" stopColor="#f7cd07"/><stop offset=".699" stopColor="#fdcd04"/><stop offset=".771" stopColor="#fdce05"/><stop offset=".861" stopColor="#ffce0a"/></linearGradient><linearGradient id="google__f"><stop offset=".316" stopColor="#ff4c3c"/><stop offset=".604" stopColor="#ff692c"/><stop offset=".727" stopColor="#ff7825"/><stop offset=".885" stopColor="#ff8d1b"/><stop offset="1" stopColor="#ff9f13"/></linearGradient><linearGradient id="google__b"><stop offset=".231" stopColor="#ff4541"/><stop offset=".312" stopColor="#ff4540"/><stop offset=".458" stopColor="#ff4640"/><stop offset=".54" stopColor="#ff473f"/><stop offset=".699" stopColor="#ff5138"/><stop offset=".771" stopColor="#ff5b33"/><stop offset=".861" stopColor="#ff6c29"/><stop offset="1" stopColor="#ff8c18"/></linearGradient><linearGradient id="google__d"><stop offset=".408" stopColor="#fb4e5a"/><stop offset="1" stopColor="#ff4540"/></linearGradient><linearGradient id="google__c"><stop offset=".132" stopColor="#0cba65"/><stop offset=".21" stopColor="#0bb86d"/><stop offset=".297" stopColor="#09b479"/><stop offset=".396" stopColor="#08ad93"/><stop offset=".477" stopColor="#0aa6a9"/><stop offset=".568" stopColor="#0d9cc6"/><stop offset=".667" stopColor="#1893dd"/><stop offset=".769" stopColor="#258bf1"/><stop offset=".859" stopColor="#3086ff"/></linearGradient><linearGradient id="google__e"><stop offset=".366" stopColor="#ff4e3a"/><stop offset=".458" stopColor="#ff8a1b"/><stop offset=".54" stopColor="#ffa312"/><stop offset=".616" stopColor="#ffb60c"/><stop offset=".771" stopColor="#ffcd0a"/><stop offset=".861" stopColor="#fecf0a"/><stop offset=".915" stopColor="#fecf08"/><stop offset="1" stopColor="#fdcd01"/></linearGradient><linearGradient xlinkHref="#google__a" id="google__s" x1="219.7" x2="254.467" y1="329.535" y2="329.535" gradientUnits="userSpaceOnUse"/><radialGradient xlinkHref="#google__b" id="google__m" cx="109.627" cy="135.862" r="71.46" fx="109.627" fy="135.862" gradientTransform="matrix(-1.93688 1.043 1.45573 2.55542 290.525 -400.634)" gradientUnits="userSpaceOnUse"/><radialGradient xlinkHref="#google__c" id="google__n" cx="45.259" cy="279.274" r="71.46" fx="45.259" fy="279.274" gradientTransform="matrix(-3.5126 -4.45809 -1.69255 1.26062 870.8 191.554)" gradientUnits="userSpaceOnUse"/><radialGradient xlinkHref="#google__d" id="google__l" cx="304.017" cy="118.009" r="47.854" fx="304.017" fy="118.009" gradientTransform="matrix(2.06435 0 0 2.59204 -297.679 -151.747)" gradientUnits="userSpaceOnUse"/><radialGradient xlinkHref="#google__e" id="google__o" cx="181.001" cy="177.201" r="71.46" fx="181.001" fy="177.201" gradientTransform="matrix(-.24858 2.08314 2.96249 .33417 -255.146 -331.164)" gradientUnits="userSpaceOnUse"/><radialGradient xlinkHref="#google__f" id="google__p" cx="207.673" cy="108.097" r="41.102" fx="207.673" fy="108.097" gradientTransform="matrix(-1.2492 1.34326 -3.89684 -3.4257 880.501 194.905)" gradientUnits="userSpaceOnUse"/><radialGradient xlinkHref="#google__g" id="google__r" cx="109.627" cy="135.862" r="71.46" fx="109.627" fy="135.862" gradientTransform="matrix(-1.93688 -1.043 1.45573 -2.55542 290.525 838.683)" gradientUnits="userSpaceOnUse"/><radialGradient xlinkHref="#google__h" id="google__j" cx="154.87" cy="145.969" r="71.46" fx="154.87" fy="145.969" gradientTransform="matrix(-.0814 -1.93722 2.92674 -.11625 -215.135 632.86)" gradientUnits="userSpaceOnUse"/><filter id="google__q" x="-.048" y="-.058" colorInterpolationFilters="sRGB"><feGaussianBlur stdDeviation="1.701"/></filter><filter id="google__k" x="-.017" y="-.01" colorInterpolationFilters="sRGB"><feGaussianBlur stdDeviation=".242"/></filter><clipPath id="google__i" clipPathUnits="userSpaceOnUse"><path d="M371.378 193.24H237.083v53.438h77.167c-1.241 7.563-4.026 15.003-8.105 21.786-4.674 7.773-10.451 13.69-16.373 18.196-17.74 13.498-38.42 16.258-52.783 16.258-36.283 0-67.283-23.286-79.285-54.928-.484-1.149-.805-2.335-1.197-3.507a81.115 81.115 0 0 1-4.101-25.448c0-9.226 1.569-18.057 4.43-26.398 11.285-32.897 42.985-57.467 80.179-57.467 7.481 0 14.685.884 21.517 2.648a77.668 77.668 0 0 1 33.425 18.25l40.834-39.712c-24.839-22.616-57.219-36.32-95.844-36.32-30.878 0-59.386 9.553-82.748 25.7-18.945 13.093-34.483 30.625-44.97 50.985-9.753 18.879-15.094 39.8-15.094 62.294 0 22.495 5.35 43.633 15.103 62.337v.126c10.302 19.857 25.368 36.954 43.678 49.988 15.997 11.386 44.68 26.551 84.031 26.551 22.63 0 42.687-4.051 60.375-11.644 12.76-5.478 24.065-12.622 34.301-21.804 13.525-12.132 24.117-27.139 31.347-44.404 7.23-17.265 11.097-36.79 11.097-57.957 0-9.858-.998-19.87-2.689-28.968Z"/></clipPath></defs><g clipPath="url(#google__i)" transform="matrix(.95792 0 0 .98525 -90.174 -78.856)"><path fill="url(#google__j)" d="M92.076 219.958c.148 22.14 6.501 44.983 16.117 63.424v.127c6.949 13.392 16.445 23.97 27.26 34.452l65.327-23.67c-12.36-6.235-14.246-10.055-23.105-17.026-9.054-9.066-15.802-19.473-20.004-31.677h-.17l.17-.127c-2.765-8.058-3.037-16.613-3.14-25.503Z" filter="url(#google__k)"/><path fill="url(#google__l)" d="M237.083 79.025c-6.456 22.526-3.988 44.421 0 57.161 7.457.006 14.64.888 21.45 2.647a77.662 77.662 0 0 1 33.424 18.25l41.88-40.726c-24.81-22.59-54.667-37.297-96.754-37.332Z" filter="url(#google__k)"/><path fill="url(#google__m)" d="M236.943 78.847c-31.67 0-60.91 9.798-84.871 26.359a145.533 145.533 0 0 0-24.332 21.15c-1.904 17.744 14.257 39.551 46.262 39.37 15.528-17.936 38.495-29.542 64.056-29.542l.07.002-1.044-57.335c-.048 0-.093-.004-.14-.004Z" filter="url(#google__k)"/><path fill="url(#google__n)" d="m341.475 226.379-28.268 19.285c-1.24 7.562-4.028 15.002-8.107 21.786-4.674 7.772-10.45 13.69-16.373 18.196-17.702 13.47-38.328 16.244-52.687 16.255-14.842 25.102-17.444 37.675 1.043 57.934 22.877-.016 43.157-4.117 61.046-11.796 12.931-5.551 24.388-12.792 34.761-22.097 13.706-12.295 24.442-27.503 31.769-45 7.327-17.497 11.245-37.282 11.245-58.734Z" filter="url(#google__k)"/><path fill="#3086ff" d="M234.996 191.21v57.498h136.006c1.196-7.874 5.152-18.064 5.152-26.5 0-9.858-.996-21.899-2.687-30.998Z" filter="url(#google__k)"/><path fill="url(#google__o)" d="M128.39 124.327c-8.394 9.119-15.564 19.326-21.249 30.364-9.753 18.879-15.094 41.83-15.094 64.324 0 .317.026.627.029.944 4.32 8.224 59.666 6.649 62.456 0-.004-.31-.039-.613-.039-.924 0-9.226 1.57-16.026 4.43-24.367 3.53-10.289 9.056-19.763 16.123-27.926 1.602-2.031 5.875-6.397 7.121-9.016.475-.997-.862-1.557-.937-1.908-.083-.393-1.876-.077-2.277-.37-1.275-.929-3.8-1.414-5.334-1.845-3.277-.921-8.708-2.953-11.725-5.06-9.536-6.658-24.417-14.612-33.505-24.216Z" filter="url(#google__k)"/><path fill="url(#google__p)" d="M162.099 155.857c22.112 13.301 28.471-6.714 43.173-12.977l-25.574-52.664a144.74 144.74 0 0 0-26.543 14.504c-12.316 8.512-23.192 18.9-32.176 30.72Z" filter="url(#google__q)"/><path fill="url(#google__r)" d="M171.099 290.222c-29.683 10.641-34.33 11.023-37.062 29.29a144.806 144.806 0 0 0 16.792 13.984c15.996 11.386 46.766 26.551 86.118 26.551.046 0 .09-.004.137-.004v-59.157l-.094.002c-14.736 0-26.512-3.843-38.585-10.527-2.977-1.648-8.378 2.777-11.123.799-3.786-2.729-12.9 2.35-16.183-.938Z" filter="url(#google__k)"/><path fill="url(#google__s)" d="M219.7 299.023v59.996c5.506.64 11.236 1.028 17.247 1.028 6.026 0 11.855-.307 17.52-.872v-59.748a105.119 105.119 0 0 1-17.477 1.461c-5.932 0-11.7-.686-17.29-1.865Z" filter="url(#google__k)" opacity=".5"/></g></svg>
-  );
-}
+const GoogleIcon = (props: { class?: string }) => (
+  <svg
+    {...props}
+    xmlnsXlink="http://www.w3.org/1999/xlink"
+    xmlSpace="preserve"
+    overflow="hidden"
+    viewBox="0 0 268.152 273.883"
+  >
+    <defs>
+      <linearGradient id="google__a">
+        <stop offset="0" stopColor="#0fbc5c" />
+        <stop offset="1" stopColor="#0cba65" />
+      </linearGradient>
+      <linearGradient id="google__g">
+        <stop offset=".231" stopColor="#0fbc5f" />
+        <stop offset=".312" stopColor="#0fbc5f" />
+        <stop offset=".366" stopColor="#0fbc5e" />
+        <stop offset=".458" stopColor="#0fbc5d" />
+        <stop offset=".54" stopColor="#12bc58" />
+        <stop offset=".699" stopColor="#28bf3c" />
+        <stop offset=".771" stopColor="#38c02b" />
+        <stop offset=".861" stopColor="#52c218" />
+        <stop offset=".915" stopColor="#67c30f" />
+        <stop offset="1" stopColor="#86c504" />
+      </linearGradient>
+      <linearGradient id="google__h">
+        <stop offset=".142" stopColor="#1abd4d" />
+        <stop offset=".248" stopColor="#6ec30d" />
+        <stop offset=".312" stopColor="#8ac502" />
+        <stop offset=".366" stopColor="#a2c600" />
+        <stop offset=".446" stopColor="#c8c903" />
+        <stop offset=".54" stopColor="#ebcb03" />
+        <stop offset=".616" stopColor="#f7cd07" />
+        <stop offset=".699" stopColor="#fdcd04" />
+        <stop offset=".771" stopColor="#fdce05" />
+        <stop offset=".861" stopColor="#ffce0a" />
+      </linearGradient>
+      <linearGradient id="google__f">
+        <stop offset=".316" stopColor="#ff4c3c" />
+        <stop offset=".604" stopColor="#ff692c" />
+        <stop offset=".727" stopColor="#ff7825" />
+        <stop offset=".885" stopColor="#ff8d1b" />
+        <stop offset="1" stopColor="#ff9f13" />
+      </linearGradient>
+      <linearGradient id="google__b">
+        <stop offset=".231" stopColor="#ff4541" />
+        <stop offset=".312" stopColor="#ff4540" />
+        <stop offset=".458" stopColor="#ff4640" />
+        <stop offset=".54" stopColor="#ff473f" />
+        <stop offset=".699" stopColor="#ff5138" />
+        <stop offset=".771" stopColor="#ff5b33" />
+        <stop offset=".861" stopColor="#ff6c29" />
+        <stop offset="1" stopColor="#ff8c18" />
+      </linearGradient>
+      <linearGradient id="google__d">
+        <stop offset=".408" stopColor="#fb4e5a" />
+        <stop offset="1" stopColor="#ff4540" />
+      </linearGradient>
+      <linearGradient id="google__c">
+        <stop offset=".132" stopColor="#0cba65" />
+        <stop offset=".21" stopColor="#0bb86d" />
+        <stop offset=".297" stopColor="#09b479" />
+        <stop offset=".396" stopColor="#08ad93" />
+        <stop offset=".477" stopColor="#0aa6a9" />
+        <stop offset=".568" stopColor="#0d9cc6" />
+        <stop offset=".667" stopColor="#1893dd" />
+        <stop offset=".769" stopColor="#258bf1" />
+        <stop offset=".859" stopColor="#3086ff" />
+      </linearGradient>
+      <linearGradient id="google__e">
+        <stop offset=".366" stopColor="#ff4e3a" />
+        <stop offset=".458" stopColor="#ff8a1b" />
+        <stop offset=".54" stopColor="#ffa312" />
+        <stop offset=".616" stopColor="#ffb60c" />
+        <stop offset=".771" stopColor="#ffcd0a" />
+        <stop offset=".861" stopColor="#fecf0a" />
+        <stop offset=".915" stopColor="#fecf08" />
+        <stop offset="1" stopColor="#fdcd01" />
+      </linearGradient>
+      <linearGradient
+        xlinkHref="#google__a"
+        id="google__s"
+        x1="219.7"
+        x2="254.467"
+        y1="329.535"
+        y2="329.535"
+        gradientUnits="userSpaceOnUse"
+      />
+      <radialGradient
+        xlinkHref="#google__b"
+        id="google__m"
+        cx="109.627"
+        cy="135.862"
+        r="71.46"
+        fx="109.627"
+        fy="135.862"
+        gradientTransform="matrix(-1.93688 1.043 1.45573 2.55542 290.525 -400.634)"
+        gradientUnits="userSpaceOnUse"
+      />
+      <radialGradient
+        xlinkHref="#google__c"
+        id="google__n"
+        cx="45.259"
+        cy="279.274"
+        r="71.46"
+        fx="45.259"
+        fy="279.274"
+        gradientTransform="matrix(-3.5126 -4.45809 -1.69255 1.26062 870.8 191.554)"
+        gradientUnits="userSpaceOnUse"
+      />
+      <radialGradient
+        xlinkHref="#google__d"
+        id="google__l"
+        cx="304.017"
+        cy="118.009"
+        r="47.854"
+        fx="304.017"
+        fy="118.009"
+        gradientTransform="matrix(2.06435 0 0 2.59204 -297.679 -151.747)"
+        gradientUnits="userSpaceOnUse"
+      />
+      <radialGradient
+        xlinkHref="#google__e"
+        id="google__o"
+        cx="181.001"
+        cy="177.201"
+        r="71.46"
+        fx="181.001"
+        fy="177.201"
+        gradientTransform="matrix(-.24858 2.08314 2.96249 .33417 -255.146 -331.164)"
+        gradientUnits="userSpaceOnUse"
+      />
+      <radialGradient
+        xlinkHref="#google__f"
+        id="google__p"
+        cx="207.673"
+        cy="108.097"
+        r="41.102"
+        fx="207.673"
+        fy="108.097"
+        gradientTransform="matrix(-1.2492 1.34326 -3.89684 -3.4257 880.501 194.905)"
+        gradientUnits="userSpaceOnUse"
+      />
+      <radialGradient
+        xlinkHref="#google__g"
+        id="google__r"
+        cx="109.627"
+        cy="135.862"
+        r="71.46"
+        fx="109.627"
+        fy="135.862"
+        gradientTransform="matrix(-1.93688 -1.043 1.45573 -2.55542 290.525 838.683)"
+        gradientUnits="userSpaceOnUse"
+      />
+      <radialGradient
+        xlinkHref="#google__h"
+        id="google__j"
+        cx="154.87"
+        cy="145.969"
+        r="71.46"
+        fx="154.87"
+        fy="145.969"
+        gradientTransform="matrix(-.0814 -1.93722 2.92674 -.11625 -215.135 632.86)"
+        gradientUnits="userSpaceOnUse"
+      />
+      <filter
+        id="google__q"
+        width="1.097"
+        height="1.116"
+        x="-.048"
+        y="-.058"
+        colorInterpolationFilters="sRGB"
+      >
+        <feGaussianBlur stdDeviation="1.701" />
+      </filter>
+      <filter
+        id="google__k"
+        width="1.033"
+        height="1.02"
+        x="-.017"
+        y="-.01"
+        colorInterpolationFilters="sRGB"
+      >
+        <feGaussianBlur stdDeviation=".242" />
+      </filter>
+      <clipPath id="google__i" clipPathUnits="userSpaceOnUse">
+        <path d="M371.378 193.24H237.083v53.438h77.167c-1.241 7.563-4.026 15.003-8.105 21.786-4.674 7.773-10.451 13.69-16.373 18.196-17.74 13.498-38.42 16.258-52.783 16.258-36.283 0-67.283-23.286-79.285-54.928-.484-1.149-.805-2.335-1.197-3.507a81.115 81.115 0 0 1-4.101-25.448c0-9.226 1.569-18.057 4.43-26.398 11.285-32.897 42.985-57.467 80.179-57.467 7.481 0 14.685.884 21.517 2.648a77.668 77.668 0 0 1 33.425 18.25l40.834-39.712c-24.839-22.616-57.219-36.32-95.844-36.32-30.878 0-59.386 9.553-82.748 25.7-18.945 13.093-34.483 30.625-44.97 50.985-9.753 18.879-15.094 39.8-15.094 62.294 0 22.495 5.35 43.633 15.103 62.337v.126c10.302 19.857 25.368 36.954 43.678 49.988 15.997 11.386 44.68 26.551 84.031 26.551 22.63 0 42.687-4.051 60.375-11.644 12.76-5.478 24.065-12.622 34.301-21.804 13.525-12.132 24.117-27.139 31.347-44.404 7.23-17.265 11.097-36.79 11.097-57.957 0-9.858-.998-19.87-2.689-28.968Z" />
+      </clipPath>
+    </defs>
+    <g clipPath="url(#google__i)" transform="matrix(.95792 0 0 .98525 -90.174 -78.856)">
+      <path
+        fill="url(#google__j)"
+        d="M92.076 219.958c.148 22.14 6.501 44.983 16.117 63.424v.127c6.949 13.392 16.445 23.97 27.26 34.452l65.327-23.67c-12.36-6.235-14.246-10.055-23.105-17.026-9.054-9.066-15.802-19.473-20.004-31.677h-.17l.17-.127c-2.765-8.058-3.037-16.613-3.14-25.503Z"
+        filter="url(#google__k)"
+      />
+      <path
+        fill="url(#google__l)"
+        d="M237.083 79.025c-6.456 22.526-3.988 44.421 0 57.161 7.457.006 14.64.888 21.45 2.647a77.662 77.662 0 0 1 33.424 18.25l41.88-40.726c-24.81-22.59-54.667-37.297-96.754-37.332Z"
+        filter="url(#google__k)"
+      />
+      <path
+        fill="url(#google__m)"
+        d="M236.943 78.847c-31.67 0-60.91 9.798-84.871 26.359a145.533 145.533 0 0 0-24.332 21.15c-1.904 17.744 14.257 39.551 46.262 39.37 15.528-17.936 38.495-29.542 64.056-29.542l.07.002-1.044-57.335c-.048 0-.093-.004-.14-.004Z"
+        filter="url(#google__k)"
+      />
+      <path
+        fill="url(#google__n)"
+        d="m341.475 226.379-28.268 19.285c-1.24 7.562-4.028 15.002-8.107 21.786-4.674 7.772-10.45 13.69-16.373 18.196-17.702 13.47-38.328 16.244-52.687 16.255-14.842 25.102-17.444 37.675 1.043 57.934 22.877-.016 43.157-4.117 61.046-11.796 12.931-5.551 24.388-12.792 34.761-22.097 13.706-12.295 24.442-27.503 31.769-45 7.327-17.497 11.245-37.282 11.245-58.734Z"
+        filter="url(#google__k)"
+      />
+      <path
+        fill="#3086ff"
+        d="M234.996 191.21v57.498h136.006c1.196-7.874 5.152-18.064 5.152-26.5 0-9.858-.996-21.899-2.687-30.998Z"
+        filter="url(#google__k)"
+      />
+      <path
+        fill="url(#google__o)"
+        d="M128.39 124.327c-8.394 9.119-15.564 19.326-21.249 30.364-9.753 18.879-15.094 41.83-15.094 64.324 0 .317.026.627.029.944 4.32 8.224 59.666 6.649 62.456 0-.004-.31-.039-.613-.039-.924 0-9.226 1.57-16.026 4.43-24.367 3.53-10.289 9.056-19.763 16.123-27.926 1.602-2.031 5.875-6.397 7.121-9.016.475-.997-.862-1.557-.937-1.908-.083-.393-1.876-.077-2.277-.37-1.275-.929-3.8-1.414-5.334-1.845-3.277-.921-8.708-2.953-11.725-5.06-9.536-6.658-24.417-14.612-33.505-24.216Z"
+        filter="url(#google__k)"
+      />
+      <path
+        fill="url(#google__p)"
+        d="M162.099 155.857c22.112 13.301 28.471-6.714 43.173-12.977l-25.574-52.664a144.74 144.74 0 0 0-26.543 14.504c-12.316 8.512-23.192 18.9-32.176 30.72Z"
+        filter="url(#google__q)"
+      />
+      <path
+        fill="url(#google__r)"
+        d="M171.099 290.222c-29.683 10.641-34.33 11.023-37.062 29.29a144.806 144.806 0 0 0 16.792 13.984c15.996 11.386 46.766 26.551 86.118 26.551.046 0 .09-.004.137-.004v-59.157l-.094.002c-14.736 0-26.512-3.843-38.585-10.527-2.977-1.648-8.378 2.777-11.123.799-3.786-2.729-12.9 2.35-16.183-.938Z"
+        filter="url(#google__k)"
+      />
+      <path
+        fill="url(#google__s)"
+        d="M219.7 299.023v59.996c5.506.64 11.236 1.028 17.247 1.028 6.026 0 11.855-.307 17.52-.872v-59.748a105.119 105.119 0 0 1-17.477 1.461c-5.932 0-11.7-.686-17.29-1.865Z"
+        filter="url(#google__k)"
+        opacity=".5"
+      />
+    </g>
+  </svg>
+);
 
 function GitHubIcon(props: { class?: string }) {
   return (
@@ -62,7 +296,11 @@ const IMMERSION_OPTIONS: {
   },
   { value: "es", label: "Español", description: "Navegación y botones siempre en español." },
   { value: "mixed", label: "Mixto", description: "Etiquetas bilingües: español · English." },
-  { value: "en", label: "English", description: "Interfaz en inglés. El contenido sigue bilingüe." },
+  {
+    value: "en",
+    label: "English",
+    description: "Interfaz en inglés. El contenido sigue bilingüe.",
+  },
 ];
 
 const STAGE_LABEL = { es: "Español", mixed: "Mixto", en: "English" } as const;
@@ -107,7 +345,11 @@ function SectionCard({
         </div>
         <div class="flex shrink-0 items-center gap-2">
           {badge}
-          {open ? <ChevronUp class="h-4 w-4 text-base-content/40" /> : <ChevronDown class="h-4 w-4 text-base-content/40" />}
+          {open ? (
+            <ChevronUp class="h-4 w-4 text-base-content/40" />
+          ) : (
+            <ChevronDown class="h-4 w-4 text-base-content/40" />
+          )}
         </div>
       </button>
       {open && <div class="px-4 pb-4 pt-1 sm:px-5 sm:pb-5">{children}</div>}
@@ -139,13 +381,20 @@ function SyncStatusBar({ syncStatus }: { syncStatus: SyncStatus }) {
               ? "Sincronizado"
               : "Listo para sincronizar";
   return (
-    <div class={`flex flex-wrap items-center justify-between gap-2 rounded-2xl px-4 py-3 text-[12px] ring-1 ${tone}`}>
+    <div
+      class={`flex flex-wrap items-center justify-between gap-2 rounded-2xl px-4 py-3 text-[12px] ring-1 ${tone}`}
+    >
       <div class="flex items-center gap-2">
         <Cloud class="h-4 w-4" />
         <span class="font-medium">{label}</span>
-        <span class="text-current/70">· Última sync: {syncStatus.lastSyncedAt ? new Date(syncStatus.lastSyncedAt).toLocaleString() : "nunca"}</span>
+        <span class="text-current/70">
+          · Última sync:{" "}
+          {syncStatus.lastSyncedAt ? new Date(syncStatus.lastSyncedAt).toLocaleString() : "nunca"}
+        </span>
       </div>
-      {syncStatus.lastError && <span class="max-w-full truncate text-current/80">{syncStatus.lastError}</span>}
+      {syncStatus.lastError && (
+        <span class="max-w-full truncate text-current/80">{syncStatus.lastError}</span>
+      )}
     </div>
   );
 }
@@ -170,7 +419,11 @@ export default function SettingsPanel() {
   const completedSessions = Object.keys(state.completedSessions).length;
   const completedExercises = Object.keys(state.completedExercises).length;
   const nextStageLabel =
-    language.autoStage === "es" ? "Etiquetas bilingües" : language.autoStage === "mixed" ? "Interfaz en inglés" : "Inglés desbloqueado";
+    language.autoStage === "es"
+      ? "Etiquetas bilingües"
+      : language.autoStage === "mixed"
+        ? "Interfaz en inglés"
+        : "Inglés desbloqueado";
 
   function toggle(id: SectionId) {
     setOpen((o) => ({ ...o, [id]: !o[id] }));
@@ -209,7 +462,14 @@ export default function SettingsPanel() {
     <div class="space-y-3">
       <SyncStatusBar syncStatus={syncStatus} />
 
-      <SectionCard id="profile" title="Perfil y plan" description="Nombre, objetivo y metas de estudio." icon={User} open={open.profile} onToggle={() => toggle("profile")}>
+      <SectionCard
+        id="profile"
+        title="Perfil y plan"
+        description="Nombre, objetivo y metas de estudio."
+        icon={User}
+        open={open.profile}
+        onToggle={() => toggle("profile")}
+      >
         <div class="space-y-5">
           <div class="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-start">
             <div class="space-y-4">
@@ -218,21 +478,43 @@ export default function SettingsPanel() {
                 <input
                   type="text"
                   value={state.settings.name}
-                  onInput={(event) => progressStore.setSettings({ name: (event.target as HTMLInputElement).value.slice(0, 40) })}
+                  onInput={(event) =>
+                    progressStore.setSettings({
+                      name: (event.target as HTMLInputElement).value.slice(0, 40),
+                    })
+                  }
                   placeholder="Developer"
                   class="h-10 w-full rounded-xl bg-base-100 px-3.5 text-sm text-base-content placeholder:text-base-content/25"
                 />
               </label>
               <div>
                 <span class="text-[11px] font-medium text-base-content/45">Objetivo principal</span>
-                <p class="mt-0.5 text-[10px] text-base-content/35">Personaliza recomendaciones (no bloquea la ruta).</p>
+                <p class="mt-0.5 text-[10px] text-base-content/35">
+                  Personaliza recomendaciones (no bloquea la ruta).
+                </p>
                 <div class="mt-2 grid gap-2 sm:grid-cols-2">
-                  {([
-                    { id: "daily" as LearningGoal, label: "Trabajo diario", desc: "Slack, PRs y reuniones" },
-                    { id: "interviews" as LearningGoal, label: "Entrevistas", desc: "Explicar experiencia y diseño" },
-                    { id: "work" as LearningGoal, label: "Inglés técnico", desc: "Docs, bugs e incidentes" },
-                    { id: "all" as LearningGoal, label: "Ruta completa", desc: "Recomendaciones equilibradas" },
-                  ]).map((g) => {
+                  {[
+                    {
+                      id: "daily" as LearningGoal,
+                      label: "Trabajo diario",
+                      desc: "Slack, PRs y reuniones",
+                    },
+                    {
+                      id: "interviews" as LearningGoal,
+                      label: "Entrevistas",
+                      desc: "Explicar experiencia y diseño",
+                    },
+                    {
+                      id: "work" as LearningGoal,
+                      label: "Inglés técnico",
+                      desc: "Docs, bugs e incidentes",
+                    },
+                    {
+                      id: "all" as LearningGoal,
+                      label: "Ruta completa",
+                      desc: "Recomendaciones equilibradas",
+                    },
+                  ].map((g) => {
                     const active = state.settings.goal === g.id;
                     return (
                       <button
@@ -245,7 +527,11 @@ export default function SettingsPanel() {
                           <p class="text-[12px] font-medium">{g.label}</p>
                           {active && <Check class="h-3.5 w-3.5 shrink-0" />}
                         </div>
-                        <p class={`mt-0.5 text-[10px] ${active ? "text-base-100/70" : "text-base-content/40"}`}>{g.desc}</p>
+                        <p
+                          class={`mt-0.5 text-[10px] ${active ? "text-base-100/70" : "text-base-content/40"}`}
+                        >
+                          {g.desc}
+                        </p>
                       </button>
                     );
                   })}
@@ -274,28 +560,130 @@ export default function SettingsPanel() {
             <div class="mt-3 space-y-3">
               {state.settings.diagnostic && (
                 <div class="rounded-xl bg-base-100/60 p-3 text-[12px] text-base-content/65">
-                  Diagnóstico: nivel <span class="font-mono font-semibold text-accent">{state.settings.diagnostic.level}</span> ({state.settings.diagnostic.score}%).
-                  {state.settings.plan?.level ? ` Plan enfocado en ${state.settings.plan.level}.` : ""}
+                  Diagnóstico: nivel{" "}
+                  <span class="font-mono font-semibold text-accent">
+                    {state.settings.diagnostic.level}
+                  </span>{" "}
+                  ({state.settings.diagnostic.score}%).
+                  {state.settings.plan?.level
+                    ? ` Plan enfocado en ${state.settings.plan.level}.`
+                    : ""}
                 </div>
               )}
               {(() => {
                 const plan = state.settings.plan || {
-                  dailyMinutes: 10, dailyExercises: 6, weeklySessions: 4, weeklyExercises: 24, monthlySessions: 14, monthlyExercises: 90, focus: state.settings.goal, level: state.settings.diagnostic?.level || "A1",
+                  dailyMinutes: 10,
+                  dailyExercises: 6,
+                  weeklySessions: 4,
+                  weeklyExercises: 24,
+                  monthlySessions: 14,
+                  monthlyExercises: 90,
+                  focus: state.settings.goal,
+                  level: state.settings.diagnostic?.level || "A1",
                 };
-                const setPlan = (patch: any) => progressStore.setSettings({ plan: { ...plan, ...patch, focus: state.settings.goal } as any } as any);
-                const num = (v: string, min: number, max: number) => Math.max(min, Math.min(max, Number(v) || min));
+                const setPlan = (patch: any) =>
+                  progressStore.setSettings({
+                    plan: { ...plan, ...patch, focus: state.settings.goal } as any,
+                  } as any);
+                const num = (v: string, min: number, max: number) =>
+                  Math.max(min, Math.min(max, Number(v) || min));
                 return (
                   <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                    <label class="space-y-1 rounded-xl bg-base-100/50 p-3"><span class="text-[11px] font-medium text-base-content/55">Minutos por día</span><input type="number" min="5" max="120" value={plan.dailyMinutes} onInput={(e:any)=>setPlan({dailyMinutes:num(e.target.value,5,120)})} class="h-9 w-full rounded-lg bg-base-100 px-3 text-sm" /></label>
-                    <label class="space-y-1 rounded-xl bg-base-100/50 p-3"><span class="text-[11px] font-medium text-base-content/55">Ejercicios por día</span><input type="number" min="1" max="100" value={plan.dailyExercises} onInput={(e:any)=>setPlan({dailyExercises:num(e.target.value,1,100)})} class="h-9 w-full rounded-lg bg-base-100 px-3 text-sm" /></label>
-                    <label class="space-y-1 rounded-xl bg-base-100/50 p-3"><span class="text-[11px] font-medium text-base-content/55">Sesiones por semana</span><input type="number" min="1" max="30" value={plan.weeklySessions} onInput={(e:any)=>setPlan({weeklySessions:num(e.target.value,1,30)})} class="h-9 w-full rounded-lg bg-base-100 px-3 text-sm" /></label>
-                    <label class="space-y-1 rounded-xl bg-base-100/50 p-3"><span class="text-[11px] font-medium text-base-content/55">Ejercicios por semana</span><input type="number" min="1" max="300" value={plan.weeklyExercises} onInput={(e:any)=>setPlan({weeklyExercises:num(e.target.value,1,300)})} class="h-9 w-full rounded-lg bg-base-100 px-3 text-sm" /></label>
-                    <label class="space-y-1 rounded-xl bg-base-100/50 p-3"><span class="text-[11px] font-medium text-base-content/55">Sesiones por mes</span><input type="number" min="1" max="120" value={plan.monthlySessions} onInput={(e:any)=>setPlan({monthlySessions:num(e.target.value,1,120)})} class="h-9 w-full rounded-lg bg-base-100 px-3 text-sm" /></label>
-                    <label class="space-y-1 rounded-xl bg-base-100/50 p-3"><span class="text-[11px] font-medium text-base-content/55">Ejercicios por mes</span><input type="number" min="1" max="1200" value={plan.monthlyExercises} onInput={(e:any)=>setPlan({monthlyExercises:num(e.target.value,1,1200)})} class="h-9 w-full rounded-lg bg-base-100 px-3 text-sm" /></label>
+                    <label class="space-y-1 rounded-xl bg-base-100/50 p-3">
+                      <span class="text-[11px] font-medium text-base-content/55">
+                        Minutos por día
+                      </span>
+                      <input
+                        type="number"
+                        min="5"
+                        max="120"
+                        value={plan.dailyMinutes}
+                        onInput={(e: any) => setPlan({ dailyMinutes: num(e.target.value, 5, 120) })}
+                        class="h-9 w-full rounded-lg bg-base-100 px-3 text-sm"
+                      />
+                    </label>
+                    <label class="space-y-1 rounded-xl bg-base-100/50 p-3">
+                      <span class="text-[11px] font-medium text-base-content/55">
+                        Ejercicios por día
+                      </span>
+                      <input
+                        type="number"
+                        min="1"
+                        max="100"
+                        value={plan.dailyExercises}
+                        onInput={(e: any) =>
+                          setPlan({ dailyExercises: num(e.target.value, 1, 100) })
+                        }
+                        class="h-9 w-full rounded-lg bg-base-100 px-3 text-sm"
+                      />
+                    </label>
+                    <label class="space-y-1 rounded-xl bg-base-100/50 p-3">
+                      <span class="text-[11px] font-medium text-base-content/55">
+                        Sesiones por semana
+                      </span>
+                      <input
+                        type="number"
+                        min="1"
+                        max="30"
+                        value={plan.weeklySessions}
+                        onInput={(e: any) =>
+                          setPlan({ weeklySessions: num(e.target.value, 1, 30) })
+                        }
+                        class="h-9 w-full rounded-lg bg-base-100 px-3 text-sm"
+                      />
+                    </label>
+                    <label class="space-y-1 rounded-xl bg-base-100/50 p-3">
+                      <span class="text-[11px] font-medium text-base-content/55">
+                        Ejercicios por semana
+                      </span>
+                      <input
+                        type="number"
+                        min="1"
+                        max="300"
+                        value={plan.weeklyExercises}
+                        onInput={(e: any) =>
+                          setPlan({ weeklyExercises: num(e.target.value, 1, 300) })
+                        }
+                        class="h-9 w-full rounded-lg bg-base-100 px-3 text-sm"
+                      />
+                    </label>
+                    <label class="space-y-1 rounded-xl bg-base-100/50 p-3">
+                      <span class="text-[11px] font-medium text-base-content/55">
+                        Sesiones por mes
+                      </span>
+                      <input
+                        type="number"
+                        min="1"
+                        max="120"
+                        value={plan.monthlySessions}
+                        onInput={(e: any) =>
+                          setPlan({ monthlySessions: num(e.target.value, 1, 120) })
+                        }
+                        class="h-9 w-full rounded-lg bg-base-100 px-3 text-sm"
+                      />
+                    </label>
+                    <label class="space-y-1 rounded-xl bg-base-100/50 p-3">
+                      <span class="text-[11px] font-medium text-base-content/55">
+                        Ejercicios por mes
+                      </span>
+                      <input
+                        type="number"
+                        min="1"
+                        max="1200"
+                        value={plan.monthlyExercises}
+                        onInput={(e: any) =>
+                          setPlan({ monthlyExercises: num(e.target.value, 1, 1200) })
+                        }
+                        class="h-9 w-full rounded-lg bg-base-100 px-3 text-sm"
+                      />
+                    </label>
                   </div>
                 );
               })()}
-              <p class="text-[11px] leading-relaxed text-base-content/45">Estas metas alimentan tu feedback de constancia en el dashboard (diario, semanal y mensual).</p>
+              <p class="text-[11px] leading-relaxed text-base-content/45">
+                Estas metas alimentan tu feedback de constancia en el dashboard (diario, semanal y
+                mensual).
+              </p>
             </div>
           </div>
         </div>
@@ -310,8 +698,18 @@ export default function SettingsPanel() {
         onToggle={() => toggle("account")}
         badge={
           isSupabaseConfigured() ? (
-            <span class={`rounded-full px-2 py-1 text-[10px] font-medium ${syncStatus.phase === "error" ? "bg-error/10 text-error" : syncStatus.phase === "offline" || syncStatus.pending ? "bg-warning/10 text-warning" : syncStatus.lastSyncedAt ? "bg-success/10 text-success" : "bg-base-100 text-base-content/50"}`}>
-              {syncStatus.phase === "error" ? "Error" : syncStatus.phase === "offline" ? "Offline" : syncStatus.pending ? "Pendiente" : syncStatus.lastSyncedAt ? "Sync" : "Sin sync"}
+            <span
+              class={`rounded-full px-2 py-1 text-[10px] font-medium ${syncStatus.phase === "error" ? "bg-error/10 text-error" : syncStatus.phase === "offline" || syncStatus.pending ? "bg-warning/10 text-warning" : syncStatus.lastSyncedAt ? "bg-success/10 text-success" : "bg-base-100 text-base-content/50"}`}
+            >
+              {syncStatus.phase === "error"
+                ? "Error"
+                : syncStatus.phase === "offline"
+                  ? "Offline"
+                  : syncStatus.pending
+                    ? "Pendiente"
+                    : syncStatus.lastSyncedAt
+                      ? "Sync"
+                      : "Sin sync"}
             </span>
           ) : null
         }
@@ -319,7 +717,13 @@ export default function SettingsPanel() {
         {!isSupabaseConfigured() ? (
           <p class="rounded-2xl bg-base-100/45 p-4 text-[11px] leading-relaxed text-base-content/55">
             {import.meta.env.DEV ? (
-              <>Sincronización no configurada. Añade <code class="font-mono">PUBLIC_SUPABASE_URL</code> y <code class="font-mono">PUBLIC_SUPABASE_ANON_KEY</code> en <code class="font-mono">.env</code> y ejecuta <code class="font-mono">supabase/setup.sql</code>.</>
+              <>
+                Sincronización no configurada. Añade{" "}
+                <code class="font-mono">PUBLIC_SUPABASE_URL</code> y{" "}
+                <code class="font-mono">PUBLIC_SUPABASE_ANON_KEY</code> en{" "}
+                <code class="font-mono">.env</code> y ejecuta{" "}
+                <code class="font-mono">supabase/setup.sql</code>.
+              </>
             ) : (
               "La sincronización en la nube no está disponible en esta versión."
             )}
@@ -330,20 +734,66 @@ export default function SettingsPanel() {
               <div class="flex flex-wrap items-start justify-between gap-3">
                 <div class="min-w-0">
                   <p class="text-xs font-medium">{authUser.name || "Cuenta conectada"}</p>
-                  <p class="mt-0.5 text-[11px] text-base-content/55">{authUser.email || "Sesión activa"}</p>
+                  <p class="mt-0.5 text-[11px] text-base-content/55">
+                    {authUser.email || "Sesión activa"}
+                  </p>
                   <div class="mt-2 flex flex-wrap items-center gap-2 text-[10px]">
-                    <span class={`inline-flex items-center gap-1.5 rounded-full px-2 py-1 font-medium ${syncStatus.phase === "error" ? "bg-error/10 text-error" : syncStatus.phase === "offline" || syncStatus.pending ? "bg-warning/10 text-warning" : syncStatus.lastSyncedAt ? "bg-success/10 text-success" : "bg-base-200 text-base-content/60"}`}>
-                      <span class={`h-1.5 w-1.5 rounded-full ${syncStatus.phase === "error" ? "bg-error" : syncStatus.phase === "offline" || syncStatus.pending ? "bg-warning" : syncStatus.lastSyncedAt ? "bg-success" : "bg-base-content/30"}`}></span>
-                      {syncStatus.phase === "syncing" ? "Sincronizando…" : syncStatus.phase === "offline" ? "Sin conexión" : syncStatus.phase === "error" ? "Error de sincronización" : syncStatus.pending ? "Cambios pendientes" : syncStatus.lastSyncedAt ? "Sincronizado" : "Listo para sincronizar"}
+                    <span
+                      class={`inline-flex items-center gap-1.5 rounded-full px-2 py-1 font-medium ${syncStatus.phase === "error" ? "bg-error/10 text-error" : syncStatus.phase === "offline" || syncStatus.pending ? "bg-warning/10 text-warning" : syncStatus.lastSyncedAt ? "bg-success/10 text-success" : "bg-base-200 text-base-content/60"}`}
+                    >
+                      <span
+                        class={`h-1.5 w-1.5 rounded-full ${syncStatus.phase === "error" ? "bg-error" : syncStatus.phase === "offline" || syncStatus.pending ? "bg-warning" : syncStatus.lastSyncedAt ? "bg-success" : "bg-base-content/30"}`}
+                      ></span>
+                      {syncStatus.phase === "syncing"
+                        ? "Sincronizando…"
+                        : syncStatus.phase === "offline"
+                          ? "Sin conexión"
+                          : syncStatus.phase === "error"
+                            ? "Error de sincronización"
+                            : syncStatus.pending
+                              ? "Cambios pendientes"
+                              : syncStatus.lastSyncedAt
+                                ? "Sincronizado"
+                                : "Listo para sincronizar"}
                     </span>
-                    <span class="text-base-content/45">Última sync: {syncStatus.lastSyncedAt ? new Date(syncStatus.lastSyncedAt).toLocaleString() : "nunca"}</span>
+                    <span class="text-base-content/45">
+                      Última sync:{" "}
+                      {syncStatus.lastSyncedAt
+                        ? new Date(syncStatus.lastSyncedAt).toLocaleString()
+                        : "nunca"}
+                    </span>
                   </div>
                 </div>
                 <div class="flex flex-wrap gap-2">
-                  <button type="button" disabled={authBusy !== null} onClick={async () => { setAuthBusy("sync"); clearSyncError(); await progressStore.syncWithCloud(true); setAuthBusy(null); }} class="flex items-center gap-1.5 rounded-xl bg-base-100 px-3 py-2 text-[11px] font-medium text-base-content/70 hover:text-base-content disabled:opacity-50">
-                    <RefreshCw class={`h-3.5 w-3.5 ${authBusy === "sync" ? "animate-spin" : ""}`} /> {syncStatus.phase === "error" || syncStatus.pending ? "Reintentar" : "Sincronizar"}
+                  <button
+                    type="button"
+                    disabled={authBusy !== null}
+                    onClick={async () => {
+                      setAuthBusy("sync");
+                      clearSyncError();
+                      await progressStore.syncWithCloud(true);
+                      setAuthBusy(null);
+                    }}
+                    class="flex items-center gap-1.5 rounded-xl bg-base-100 px-3 py-2 text-[11px] font-medium text-base-content/70 hover:text-base-content disabled:opacity-50"
+                  >
+                    <RefreshCw class={`h-3.5 w-3.5 ${authBusy === "sync" ? "animate-spin" : ""}`} />{" "}
+                    {syncStatus.phase === "error" || syncStatus.pending
+                      ? "Reintentar"
+                      : "Sincronizar"}
                   </button>
-                  <button type="button" disabled={authBusy !== null} onClick={async () => { setAuthBusy("out"); const { error } = await signOut(); setAuthBusy(null); if (error) emitToast(error, "error"); else emitToast("Sesión cerrada. Tu progreso sigue en este dispositivo.", "info"); }} class="flex items-center gap-1.5 rounded-xl bg-base-100 px-3 py-2 text-[11px] font-medium text-base-content/70 hover:text-base-content disabled:opacity-50">
+                  <button
+                    type="button"
+                    disabled={authBusy !== null}
+                    onClick={async () => {
+                      setAuthBusy("out");
+                      const { error } = await signOut();
+                      setAuthBusy(null);
+                      if (error) emitToast(error, "error");
+                      else
+                        emitToast("Sesión cerrada. Tu progreso sigue en este dispositivo.", "info");
+                    }}
+                    class="flex items-center gap-1.5 rounded-xl bg-base-100 px-3 py-2 text-[11px] font-medium text-base-content/70 hover:text-base-content disabled:opacity-50"
+                  >
                     <LogOut class="h-3.5 w-3.5" /> Cerrar sesión
                   </button>
                 </div>
@@ -352,52 +802,133 @@ export default function SettingsPanel() {
                 <div class="mt-3 rounded-xl bg-error/10 px-3 py-2.5 text-[11px] text-error">
                   <p class="font-medium">No se pudo completar la última sincronización.</p>
                   <p class="mt-0.5 break-words text-error/80">{syncStatus.lastError}</p>
-                  {syncStatus.nextRetryAt && <p class="mt-1 text-[10px] text-error/70">Próximo reintento automático: {new Date(syncStatus.nextRetryAt).toLocaleTimeString()}</p>}
+                  {syncStatus.nextRetryAt && (
+                    <p class="mt-1 text-[10px] text-error/70">
+                      Próximo reintento automático:{" "}
+                      {new Date(syncStatus.nextRetryAt).toLocaleTimeString()}
+                    </p>
+                  )}
                 </div>
               )}
-              <button type="button" onClick={() => setShowSyncHistory((v) => !v)} class="mt-3 text-[10px] font-medium text-base-content/45 hover:text-base-content/70">
-                {showSyncHistory ? "Ocultar historial de sincronización" : "Ver historial de sincronización y conflictos"}
+              <button
+                type="button"
+                onClick={() => setShowSyncHistory((v) => !v)}
+                class="mt-3 text-[10px] font-medium text-base-content/45 hover:text-base-content/70"
+              >
+                {showSyncHistory
+                  ? "Ocultar historial de sincronización"
+                  : "Ver historial de sincronización y conflictos"}
               </button>
               {showSyncHistory && (
                 <div class="mt-2 max-h-48 space-y-1.5 overflow-auto rounded-xl bg-base-100/60 p-2.5">
                   {(syncStatus.history || []).length === 0 ? (
-                    <p class="text-[10px] text-base-content/40">Aún no hay eventos de sincronización.</p>
+                    <p class="text-[10px] text-base-content/40">
+                      Aún no hay eventos de sincronización.
+                    </p>
                   ) : (
                     (syncStatus.history || []).slice(0, 12).map((h, idx) => (
                       <div key={idx} class="rounded-lg bg-base-100 px-2.5 py-2 text-[10px]">
                         <div class="flex items-center justify-between gap-2">
-                          <span class={h.ok ? "font-medium text-base-content/70" : "font-medium text-error"}>{h.message}</span>
-                          <span class="shrink-0 text-base-content/35">{new Date(h.at).toLocaleString()}</span>
+                          <span
+                            class={
+                              h.ok ? "font-medium text-base-content/70" : "font-medium text-error"
+                            }
+                          >
+                            {h.message}
+                          </span>
+                          <span class="shrink-0 text-base-content/35">
+                            {new Date(h.at).toLocaleString()}
+                          </span>
                         </div>
-                        {h.details && <p class="mt-0.5 break-words text-base-content/40">{h.details}</p>}
+                        {h.details && (
+                          <p class="mt-0.5 break-words text-base-content/40">{h.details}</p>
+                        )}
                       </div>
                     ))
                   )}
                 </div>
               )}
             </div>
-            <p class="flex items-start gap-1.5 text-[10px] leading-relaxed text-base-content/35"><Info class="mt-0.5 h-3 w-3 shrink-0" /> Fusión automática sin pérdida. Offline: cambios pendientes y reintentos automáticos al reconectar.</p>
+            <p class="flex items-start gap-1.5 text-[10px] leading-relaxed text-base-content/35">
+              <Info class="mt-0.5 h-3 w-3 shrink-0" /> Fusión automática sin pérdida. Offline:
+              cambios pendientes y reintentos automáticos al reconectar.
+            </p>
           </div>
         ) : (
           <div class="space-y-3">
-            <p class="text-[11px] leading-relaxed text-base-content/55">Inicia sesión para respaldar tu progreso y sincronizarlo entre dispositivos (web y móvil).</p>
+            <p class="text-[11px] leading-relaxed text-base-content/55">
+              Inicia sesión para respaldar tu progreso y sincronizarlo entre dispositivos (web y
+              móvil).
+            </p>
             <div class="grid gap-2 sm:grid-cols-2">
-              <button type="button" disabled={authBusy !== null} onClick={async () => { setAuthBusy("google"); const { error } = await signInWithProvider("google"); if (error) { emitToast(error, "error"); setAuthBusy(null); } }} class="flex h-11 items-center justify-center gap-2 rounded-xl bg-base-100 text-sm font-medium text-base-content hover:bg-base-100/80 disabled:opacity-50">
-                {authBusy === "google" ? <Loader2 class="h-4 w-4 animate-spin" /> : <GoogleIcon class="h-4 w-4" />} Continuar con Google
+              <button
+                type="button"
+                disabled={authBusy !== null}
+                onClick={async () => {
+                  setAuthBusy("google");
+                  const { error } = await signInWithProvider("google");
+                  if (error) {
+                    emitToast(error, "error");
+                    setAuthBusy(null);
+                  }
+                }}
+                class="flex h-11 items-center justify-center gap-2 rounded-xl bg-base-100 text-sm font-medium text-base-content hover:bg-base-100/80 disabled:opacity-50"
+              >
+                {authBusy === "google" ? (
+                  <Loader2 class="h-4 w-4 animate-spin" />
+                ) : (
+                  <GoogleIcon class="h-4 w-4" />
+                )}{" "}
+                Continuar con Google
               </button>
-              <button type="button" disabled={authBusy !== null} onClick={async () => { setAuthBusy("github"); const { error } = await signInWithProvider("github"); if (error) { emitToast(error, "error"); setAuthBusy(null); } }} class="flex h-11 items-center justify-center gap-2 rounded-xl bg-base-content text-sm font-medium text-base-100 hover:opacity-90 disabled:opacity-50">
-                {authBusy === "github" ? <Loader2 class="h-4 w-4 animate-spin" /> : <GitHubIcon class="h-4 w-4" />} Continuar con GitHub
+              <button
+                type="button"
+                disabled={authBusy !== null}
+                onClick={async () => {
+                  setAuthBusy("github");
+                  const { error } = await signInWithProvider("github");
+                  if (error) {
+                    emitToast(error, "error");
+                    setAuthBusy(null);
+                  }
+                }}
+                class="flex h-11 items-center justify-center gap-2 rounded-xl bg-base-content text-sm font-medium text-base-100 hover:opacity-90 disabled:opacity-50"
+              >
+                {authBusy === "github" ? (
+                  <Loader2 class="h-4 w-4 animate-spin" />
+                ) : (
+                  <GitHubIcon class="h-4 w-4" />
+                )}{" "}
+                Continuar con GitHub
               </button>
             </div>
-            <p class="flex items-start gap-1.5 text-[10px] leading-relaxed text-base-content/35"><Info class="mt-0.5 h-3 w-3 shrink-0" /> Tu progreso actual se mantiene en este dispositivo y se fusionará con tu cuenta al iniciar sesión.</p>
+            <p class="flex items-start gap-1.5 text-[10px] leading-relaxed text-base-content/35">
+              <Info class="mt-0.5 h-3 w-3 shrink-0" /> Tu progreso actual se mantiene en este
+              dispositivo y se fusionará con tu cuenta al iniciar sesión.
+            </p>
           </div>
         )}
       </SectionCard>
 
-      <SectionCard id="appearance" title="Apariencia e idioma" description="Tema, inmersión y estado de idioma." icon={Languages} open={open.appearance} onToggle={() => toggle("appearance")} badge={<span class="rounded-full bg-base-100/70 px-2.5 py-1 font-mono text-[9px] text-base-content/45">{STAGE_LABEL[stage]}</span>}>
+      <SectionCard
+        id="appearance"
+        title="Apariencia e idioma"
+        description="Tema, inmersión y estado de idioma."
+        icon={Languages}
+        open={open.appearance}
+        onToggle={() => toggle("appearance")}
+        badge={
+          <span class="rounded-full bg-base-100/70 px-2.5 py-1 font-mono text-[9px] text-base-content/45">
+            {STAGE_LABEL[stage]}
+          </span>
+        }
+      >
         <div class="space-y-5">
           <div>
-            <div class="flex items-center gap-2"><Sun class="h-4 w-4 text-base-content/50" /><h3 class="text-sm font-medium">Tema</h3></div>
+            <div class="flex items-center gap-2">
+              <Sun class="h-4 w-4 text-base-content/50" />
+              <h3 class="text-sm font-medium">Tema</h3>
+            </div>
             <div class="mt-3 grid grid-cols-2 gap-2 sm:max-w-md">
               {[
                 { value: "light" as const, label: "Claro", icon: Sun, preview: "bg-[#ffffff]" },
@@ -405,9 +936,24 @@ export default function SettingsPanel() {
               ].map((option) => {
                 const active = state.settings.theme === option.value;
                 return (
-                  <button key={option.value} type="button" onClick={() => progressStore.setTheme(option.value)} class={`rounded-2xl p-2 text-left transition ${active ? "bg-base-100" : "bg-base-100/40 hover:bg-base-100/70"}`}>
-                    <span class={`flex h-14 items-end overflow-hidden rounded-xl ${option.preview} p-2`}><span class={`h-1.5 w-2/3 rounded-full ${option.value === "dark" ? "bg-white/20" : "bg-black/10"}`} /></span>
-                    <span class="mt-2 flex items-center gap-1.5 px-1 pb-1 text-[11px] font-medium"><option.icon class="h-3.5 w-3.5 text-base-content/40" />{option.label}{active && <Check class="ml-auto h-3.5 w-3.5 text-accent" />}</span>
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => progressStore.setTheme(option.value)}
+                    class={`rounded-2xl p-2 text-left transition ${active ? "bg-base-100" : "bg-base-100/40 hover:bg-base-100/70"}`}
+                  >
+                    <span
+                      class={`flex h-14 items-end overflow-hidden rounded-xl ${option.preview} p-2`}
+                    >
+                      <span
+                        class={`h-1.5 w-2/3 rounded-full ${option.value === "dark" ? "bg-white/20" : "bg-black/10"}`}
+                      />
+                    </span>
+                    <span class="mt-2 flex items-center gap-1.5 px-1 pb-1 text-[11px] font-medium">
+                      <option.icon class="h-3.5 w-3.5 text-base-content/40" />
+                      {option.label}
+                      {active && <Check class="ml-auto h-3.5 w-3.5 text-accent" />}
+                    </span>
                   </button>
                 );
               })}
@@ -416,13 +962,36 @@ export default function SettingsPanel() {
 
           <div class="rounded-2xl bg-base-100/40 p-4">
             <div class="flex flex-wrap items-start justify-between gap-2">
-              <div><p class="text-[10px] text-base-content/35">Preparación para inglés</p><p class="mt-1 font-mono text-[1.6rem] font-medium leading-none tracking-tight">{language.score}<span class="text-sm font-normal text-base-content/30"> / 100</span></p></div>
-              <span class="rounded-full bg-base-100/70 px-2.5 py-1 font-mono text-[9px] text-base-content/40">{language.nextTarget === null ? "Inglés desbloqueado" : `${nextStageLabel} · ${language.nextTarget}`}</span>
+              <div>
+                <p class="text-[10px] text-base-content/35">Preparación para inglés</p>
+                <p class="mt-1 font-mono text-[1.6rem] font-medium leading-none tracking-tight">
+                  {language.score}
+                  <span class="text-sm font-normal text-base-content/30"> / 100</span>
+                </p>
+              </div>
+              <span class="rounded-full bg-base-100/70 px-2.5 py-1 font-mono text-[9px] text-base-content/40">
+                {language.nextTarget === null
+                  ? "Inglés desbloqueado"
+                  : `${nextStageLabel} · ${language.nextTarget}`}
+              </span>
             </div>
-            <div class="mt-3 h-1 w-full overflow-hidden rounded-full bg-base-content/[0.07]"><div class="h-full rounded-full bg-accent transition-all duration-500" style={{ width: `${Math.min(100, language.score)}%` }} /></div>
+            <div class="mt-3 h-1 w-full overflow-hidden rounded-full bg-base-content/[0.07]">
+              <div
+                class="h-full rounded-full bg-accent transition-all duration-500"
+                style={{ width: `${Math.min(100, language.score)}%` }}
+              />
+            </div>
             <div class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-              {[{ label: "A1–A2", value: `${language.a1Pct}%` }, { label: "Precisión", value: `${language.accuracyPct}%` }, { label: "Ejercicios", value: `${language.exercisePct}%` }, { label: "B1–B2", value: `${language.b1Pct}%` }].map((metric) => (
-                <div key={metric.label} class="rounded-xl bg-base-100/55 px-2.5 py-2"><p class="font-mono text-[11px] font-medium">{metric.value}</p><p class="mt-0.5 text-[8px] text-base-content/30">{metric.label}</p></div>
+              {[
+                { label: "A1–A2", value: `${language.a1Pct}%` },
+                { label: "Precisión", value: `${language.accuracyPct}%` },
+                { label: "Ejercicios", value: `${language.exercisePct}%` },
+                { label: "B1–B2", value: `${language.b1Pct}%` },
+              ].map((metric) => (
+                <div key={metric.label} class="rounded-xl bg-base-100/55 px-2.5 py-2">
+                  <p class="font-mono text-[11px] font-medium">{metric.value}</p>
+                  <p class="mt-0.5 text-[8px] text-base-content/30">{metric.label}</p>
+                </div>
               ))}
             </div>
             <p class="mt-3 text-[10px] leading-relaxed text-base-content/40">{language.reason}</p>
@@ -434,9 +1003,27 @@ export default function SettingsPanel() {
               {IMMERSION_OPTIONS.map((option) => {
                 const active = state.settings.immersion === option.value;
                 return (
-                  <button key={option.value} type="button" onClick={() => progressStore.setSettings({ immersion: option.value })} class={`rounded-2xl p-3.5 text-left transition ${active ? "bg-base-100" : "bg-base-100/40 hover:bg-base-100/70"}`}>
-                    <div class="flex items-center justify-between gap-2"><span class={`text-xs font-medium ${active ? "text-base-content" : "text-base-content/60"}`}>{option.label}</span><span class={`flex h-4 w-4 items-center justify-center rounded-full ${active ? "bg-accent text-accent-content" : "bg-base-300"}`}>{active && <Check class="h-2.5 w-2.5" />}</span></div>
-                    <p class="mt-1.5 text-[10px] leading-relaxed text-base-content/35">{option.description}</p>
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => progressStore.setSettings({ immersion: option.value })}
+                    class={`rounded-2xl p-3.5 text-left transition ${active ? "bg-base-100" : "bg-base-100/40 hover:bg-base-100/70"}`}
+                  >
+                    <div class="flex items-center justify-between gap-2">
+                      <span
+                        class={`text-xs font-medium ${active ? "text-base-content" : "text-base-content/60"}`}
+                      >
+                        {option.label}
+                      </span>
+                      <span
+                        class={`flex h-4 w-4 items-center justify-center rounded-full ${active ? "bg-accent text-accent-content" : "bg-base-300"}`}
+                      >
+                        {active && <Check class="h-2.5 w-2.5" />}
+                      </span>
+                    </div>
+                    <p class="mt-1.5 text-[10px] leading-relaxed text-base-content/35">
+                      {option.description}
+                    </p>
                   </button>
                 );
               })}
@@ -445,60 +1032,188 @@ export default function SettingsPanel() {
         </div>
       </SectionCard>
 
-      <SectionCard id="audio" title="Audio y recordatorios" description="Pronunciación, voz HQ y avisos de racha." icon={Volume2} open={open.audio} onToggle={() => toggle("audio")}>
+      <SectionCard
+        id="audio"
+        title="Audio y recordatorios"
+        description="Pronunciación, voz HQ y avisos de racha."
+        icon={Volume2}
+        open={open.audio}
+        onToggle={() => toggle("audio")}
+      >
         <div class="space-y-5">
           <div class="rounded-2xl bg-base-100/45 p-4">
-            <div class="flex items-center gap-2"><Volume2 class="h-4 w-4 text-base-content/50" /><h3 class="text-sm font-medium">Pronunciación (TTS)</h3></div>
+            <div class="flex items-center gap-2">
+              <Volume2 class="h-4 w-4 text-base-content/50" />
+              <h3 class="text-sm font-medium">Pronunciación (TTS)</h3>
+            </div>
             <div class="mt-3 flex items-center justify-between gap-3 rounded-xl bg-base-100/50 p-3.5">
-              <div><p class="text-xs font-medium">Voz en toda la app</p><p class="mt-1 text-[11px] leading-relaxed text-base-content/60">Activa o desactiva los botones de pronunciación.</p></div>
-              <button type="button" role="switch" aria-checked={state.settings.ttsEnabled} aria-label="Activar o desactivar la voz" onClick={() => { const enabled = !state.settings.ttsEnabled; if (!enabled) stopSpeech(); progressStore.setSettings({ ttsEnabled: enabled }); }} class={`relative h-6 w-11 shrink-0 rounded-full transition ${state.settings.ttsEnabled ? "bg-accent" : "bg-base-300"}`}>
-                <span class={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-all ${state.settings.ttsEnabled ? "left-[22px]" : "left-0.5"}`} />
+              <div>
+                <p class="text-xs font-medium">Voz en toda la app</p>
+                <p class="mt-1 text-[11px] leading-relaxed text-base-content/60">
+                  Activa o desactiva los botones de pronunciación.
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={state.settings.ttsEnabled}
+                aria-label="Activar o desactivar la voz"
+                onClick={() => {
+                  const enabled = !state.settings.ttsEnabled;
+                  if (!enabled) stopSpeech();
+                  progressStore.setSettings({ ttsEnabled: enabled });
+                }}
+                class={`relative h-6 w-11 shrink-0 rounded-full transition ${state.settings.ttsEnabled ? "bg-accent" : "bg-base-300"}`}
+              >
+                <span
+                  class={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-all ${state.settings.ttsEnabled ? "left-[22px]" : "left-0.5"}`}
+                />
               </button>
             </div>
             <div class="mt-3 flex flex-wrap gap-1.5">
               {[0.75, 1, 1.25].map((rate) => {
                 const active = state.settings.ttsRate === rate;
-                return <button key={rate} type="button" onClick={() => progressStore.setSettings({ ttsRate: rate })} class={`rounded-full px-3.5 py-2 font-mono text-xs font-medium transition ${active ? "bg-base-content text-base-100" : "bg-base-100/50 text-base-content/45 hover:bg-base-100 hover:text-base-content/70"}`}>{rate}x</button>;
+                return (
+                  <button
+                    key={rate}
+                    type="button"
+                    onClick={() => progressStore.setSettings({ ttsRate: rate })}
+                    class={`rounded-full px-3.5 py-2 font-mono text-xs font-medium transition ${active ? "bg-base-content text-base-100" : "bg-base-100/50 text-base-content/45 hover:bg-base-100 hover:text-base-content/70"}`}
+                  >
+                    {rate}x
+                  </button>
+                );
               })}
               {state.settings.ttsEnabled ? (
-                <button type="button" data-speak="The server is running. Pull the latest changes before you push." class="speak-btn ml-auto flex items-center gap-1.5 rounded-full bg-base-100/60 px-3.5 py-2 text-xs font-medium text-base-content/50 transition hover:bg-base-100 hover:text-base-content/75"><Volume2 class="h-3.5 w-3.5" />Probar voz</button>
+                <button
+                  type="button"
+                  data-speak="The server is running. Pull the latest changes before you push."
+                  class="speak-btn ml-auto flex items-center gap-1.5 rounded-full bg-base-100/60 px-3.5 py-2 text-xs font-medium text-base-content/50 transition hover:bg-base-100 hover:text-base-content/75"
+                >
+                  <Volume2 class="h-3.5 w-3.5" />
+                  Probar voz
+                </button>
               ) : (
-                <span class="ml-auto flex items-center gap-1.5 rounded-full bg-base-100/40 px-3.5 py-2 text-xs text-base-content/55"><Volume2 class="h-3.5 w-3.5" />Voz desactivada</span>
+                <span class="ml-auto flex items-center gap-1.5 rounded-full bg-base-100/40 px-3.5 py-2 text-xs text-base-content/55">
+                  <Volume2 class="h-3.5 w-3.5" />
+                  Voz desactivada
+                </span>
               )}
             </div>
 
             <div class="mt-4 rounded-xl bg-base-100/50 p-3.5">
               <div class="flex flex-wrap items-start justify-between gap-3">
                 <div class="flex min-w-0 items-start gap-3">
-                  <span class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent/12 text-accent"><Sparkles class="h-4 w-4" /></span>
+                  <span class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent/12 text-accent">
+                    <Sparkles class="h-4 w-4" />
+                  </span>
                   <div class="min-w-0">
                     <p class="text-xs font-medium">Voz HQ (Kokoro)</p>
-                    <p class="mt-1 text-[11px] leading-relaxed text-base-content/55">Modelo neural local. Descarga única (~90 MB), funciona offline tras caché.</p>
+                    <p class="mt-1 text-[11px] leading-relaxed text-base-content/55">
+                      Modelo neural local. Descarga única (~90 MB), funciona offline tras caché.
+                    </p>
                   </div>
                 </div>
-                <span class={`rounded-full px-2.5 py-1 font-mono text-[9px] ${kokoro.state === "ready" ? "bg-success/15 text-success" : kokoro.state === "loading" ? "bg-accent/15 text-accent" : kokoro.state === "error" ? "bg-error/15 text-error" : kokoroIsCached() ? "bg-accent/10 text-accent" : "bg-base-100/70 text-base-content/45"}`}>
-                  {kokoro.state === "ready" ? "Lista" : kokoro.state === "loading" ? (kokoroIsCached() ? "Cargando caché" : "Descargando") : kokoro.state === "error" ? "Error" : kokoroIsCached() ? "En caché" : "No descargada"}
+                <span
+                  class={`rounded-full px-2.5 py-1 font-mono text-[9px] ${kokoro.state === "ready" ? "bg-success/15 text-success" : kokoro.state === "loading" ? "bg-accent/15 text-accent" : kokoro.state === "error" ? "bg-error/15 text-error" : kokoroIsCached() ? "bg-accent/10 text-accent" : "bg-base-100/70 text-base-content/45"}`}
+                >
+                  {kokoro.state === "ready"
+                    ? "Lista"
+                    : kokoro.state === "loading"
+                      ? kokoroIsCached()
+                        ? "Cargando caché"
+                        : "Descargando"
+                      : kokoro.state === "error"
+                        ? "Error"
+                        : kokoroIsCached()
+                          ? "En caché"
+                          : "No descargada"}
                 </span>
               </div>
               <div class="mt-3 grid grid-cols-2 gap-2 sm:max-w-md">
-                {([{ value: "system" as const, label: "Sistema", desc: "Voz del navegador/dispositivo" }, { value: "kokoro" as const, label: "HQ Kokoro", desc: "Más natural para aprender" }]).map((opt) => {
+                {[
+                  {
+                    value: "system" as const,
+                    label: "Sistema",
+                    desc: "Voz del navegador/dispositivo",
+                  },
+                  {
+                    value: "kokoro" as const,
+                    label: "HQ Kokoro",
+                    desc: "Más natural para aprender",
+                  },
+                ].map((opt) => {
                   const active = (state.settings.ttsEngine ?? "system") === opt.value;
                   return (
-                    <button key={opt.value} type="button" onClick={() => { progressStore.setSettings({ ttsEngine: opt.value }); if (opt.value === "kokoro" && kokoro.state === "idle") void loadKokoro(); }} class={`rounded-xl p-3 text-left transition ${active ? "bg-base-100" : "bg-base-100/40 hover:bg-base-100/70"}`}>
-                      <div class="flex items-center justify-between gap-2"><span class="text-[11px] font-medium">{opt.label}</span><span class={`flex h-4 w-4 items-center justify-center rounded-full ${active ? "bg-accent text-accent-content" : "bg-base-300"}`}>{active && <Check class="h-2.5 w-2.5" />}</span></div>
-                      <p class="mt-1 text-[10px] leading-relaxed text-base-content/40">{opt.desc}</p>
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => {
+                        progressStore.setSettings({ ttsEngine: opt.value });
+                        if (opt.value === "kokoro" && kokoro.state === "idle") void loadKokoro();
+                      }}
+                      class={`rounded-xl p-3 text-left transition ${active ? "bg-base-100" : "bg-base-100/40 hover:bg-base-100/70"}`}
+                    >
+                      <div class="flex items-center justify-between gap-2">
+                        <span class="text-[11px] font-medium">{opt.label}</span>
+                        <span
+                          class={`flex h-4 w-4 items-center justify-center rounded-full ${active ? "bg-accent text-accent-content" : "bg-base-300"}`}
+                        >
+                          {active && <Check class="h-2.5 w-2.5" />}
+                        </span>
+                      </div>
+                      <p class="mt-1 text-[10px] leading-relaxed text-base-content/40">
+                        {opt.desc}
+                      </p>
                     </button>
                   );
                 })}
               </div>
               {(state.settings.ttsEngine === "kokoro" || kokoro.state !== "idle") && (
                 <div class="mt-3 rounded-xl bg-base-100/60 p-3">
-                  <div class="flex flex-wrap items-center justify-between gap-2"><p class="text-[11px] text-base-content/60">{kokoro.message}</p>{kokoro.state === "loading" && <span class="flex items-center gap-1.5 font-mono text-[10px] text-accent"><Loader2 class="h-3 w-3 animate-spin" /> {kokoro.progress}%</span>}</div>
-                  {kokoro.state === "loading" && <div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-base-content/[0.08]"><div class="h-full rounded-full bg-accent transition-all duration-300" style={{ width: `${Math.max(2, kokoro.progress)}%` }} /></div>}
-                  {kokoro.state === "error" && kokoro.error && <p class="mt-1.5 text-[10px] leading-relaxed text-error/80">{kokoro.error}</p>}
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <p class="text-[11px] text-base-content/60">{kokoro.message}</p>
+                    {kokoro.state === "loading" && (
+                      <span class="flex items-center gap-1.5 font-mono text-[10px] text-accent">
+                        <Loader2 class="h-3 w-3 animate-spin" /> {kokoro.progress}%
+                      </span>
+                    )}
+                  </div>
+                  {kokoro.state === "loading" && (
+                    <div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-base-content/[0.08]">
+                      <div
+                        class="h-full rounded-full bg-accent transition-all duration-300"
+                        style={{ width: `${Math.max(2, kokoro.progress)}%` }}
+                      />
+                    </div>
+                  )}
+                  {kokoro.state === "error" && kokoro.error && (
+                    <p class="mt-1.5 text-[10px] leading-relaxed text-error/80">{kokoro.error}</p>
+                  )}
                   <div class="mt-2 flex flex-wrap gap-2">
-                    {(kokoro.state === "idle" || kokoro.state === "error") && <button type="button" onClick={() => void loadKokoro()} class="flex items-center gap-1.5 rounded-full bg-base-content px-3 py-1.5 text-[10px] font-medium text-base-100"><Download class="h-3 w-3" />{kokoro.state === "error" ? "Reintentar" : kokoroIsCached() ? "Cargar voz HQ (caché)" : "Descargar voz HQ"}</button>}
-                    {kokoro.state === "ready" && state.settings.ttsEngine !== "kokoro" && <button type="button" onClick={() => progressStore.setSettings({ ttsEngine: "kokoro" })} class="flex items-center gap-1.5 rounded-full bg-accent/15 px-3 py-1.5 text-[10px] font-medium text-accent"><Check class="h-3 w-3" /> Usar voz HQ</button>}
+                    {(kokoro.state === "idle" || kokoro.state === "error") && (
+                      <button
+                        type="button"
+                        onClick={() => void loadKokoro()}
+                        class="flex items-center gap-1.5 rounded-full bg-base-content px-3 py-1.5 text-[10px] font-medium text-base-100"
+                      >
+                        <Download class="h-3 w-3" />
+                        {kokoro.state === "error"
+                          ? "Reintentar"
+                          : kokoroIsCached()
+                            ? "Cargar voz HQ (caché)"
+                            : "Descargar voz HQ"}
+                      </button>
+                    )}
+                    {kokoro.state === "ready" && state.settings.ttsEngine !== "kokoro" && (
+                      <button
+                        type="button"
+                        onClick={() => progressStore.setSettings({ ttsEngine: "kokoro" })}
+                        class="flex items-center gap-1.5 rounded-full bg-accent/15 px-3 py-1.5 text-[10px] font-medium text-accent"
+                      >
+                        <Check class="h-3 w-3" /> Usar voz HQ
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
@@ -506,32 +1221,106 @@ export default function SettingsPanel() {
           </div>
 
           <div class="rounded-2xl bg-base-100/45 p-4">
-            <div class="flex items-center gap-2"><Bell class="h-4 w-4 text-base-content/50" /><h3 class="text-sm font-medium">Recordatorios de racha</h3></div>
+            <div class="flex items-center gap-2">
+              <Bell class="h-4 w-4 text-base-content/50" />
+              <h3 class="text-sm font-medium">Recordatorios de racha</h3>
+            </div>
             <div class="mt-3 flex items-center justify-between gap-3 rounded-xl bg-base-100/50 p-3.5">
-              <div><p class="text-xs font-medium">Recordatorio diario</p><p class="mt-1 text-[11px] leading-relaxed text-base-content/60">Aviso a la hora que elijas para no perder tu racha.</p></div>
-              <button type="button" role="switch" aria-checked={state.settings.reminders.enabled} aria-label="Activar o desactivar recordatorios" onClick={() => progressStore.setSettings({ reminders: { ...state.settings.reminders, enabled: !state.settings.reminders.enabled } })} class={`relative h-6 w-11 shrink-0 rounded-full transition ${state.settings.reminders.enabled ? "bg-accent" : "bg-base-300"}`}>
-                <span class={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-all ${state.settings.reminders.enabled ? "left-[22px]" : "left-0.5"}`} />
+              <div>
+                <p class="text-xs font-medium">Recordatorio diario</p>
+                <p class="mt-1 text-[11px] leading-relaxed text-base-content/60">
+                  Aviso a la hora que elijas para no perder tu racha.
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={state.settings.reminders.enabled}
+                aria-label="Activar o desactivar recordatorios"
+                onClick={() =>
+                  progressStore.setSettings({
+                    reminders: {
+                      ...state.settings.reminders,
+                      enabled: !state.settings.reminders.enabled,
+                    },
+                  })
+                }
+                class={`relative h-6 w-11 shrink-0 rounded-full transition ${state.settings.reminders.enabled ? "bg-accent" : "bg-base-300"}`}
+              >
+                <span
+                  class={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-all ${state.settings.reminders.enabled ? "left-[22px]" : "left-0.5"}`}
+                />
               </button>
             </div>
             <div class="mt-3 flex flex-wrap items-center gap-3 rounded-xl bg-base-100/50 p-3.5">
-              <label class="space-y-1.5"><span class="text-[11px] font-medium text-base-content/45">Hora del aviso</span><input type="time" value={state.settings.reminders.time} disabled={!state.settings.reminders.enabled} onInput={(event) => progressStore.setSettings({ reminders: { ...state.settings.reminders, time: (event.target as HTMLInputElement).value || "20:00" } })} class="h-10 w-36 rounded-xl bg-base-100 px-3 text-sm text-base-content disabled:opacity-50" /></label>
-              <p class="flex-1 text-[11px] leading-relaxed text-base-content/45">{state.settings.reminders.enabled ? "En Android/app se programa notificación local diaria. En web verás un recordatorio dentro de la app." : "Actívalo para mantener el hábito."}</p>
+              <label class="space-y-1.5">
+                <span class="text-[11px] font-medium text-base-content/45">Hora del aviso</span>
+                <input
+                  type="time"
+                  value={state.settings.reminders.time}
+                  disabled={!state.settings.reminders.enabled}
+                  onInput={(event) =>
+                    progressStore.setSettings({
+                      reminders: {
+                        ...state.settings.reminders,
+                        time: (event.target as HTMLInputElement).value || "20:00",
+                      },
+                    })
+                  }
+                  class="h-10 w-36 rounded-xl bg-base-100 px-3 text-sm text-base-content disabled:opacity-50"
+                />
+              </label>
+              <p class="flex-1 text-[11px] leading-relaxed text-base-content/45">
+                {state.settings.reminders.enabled
+                  ? "En Android/app se programa notificación local diaria. En web verás un recordatorio dentro de la app."
+                  : "Actívalo para mantener el hábito."}
+              </p>
             </div>
           </div>
         </div>
       </SectionCard>
 
-      <SectionCard id="data" title="Datos" description="Exportar/importar progreso y zona de riesgo." icon={Download} open={open.data} onToggle={() => toggle("data")}>
+      <SectionCard
+        id="data"
+        title="Datos"
+        description="Exportar/importar progreso y zona de riesgo."
+        icon={Download}
+        open={open.data}
+        onToggle={() => toggle("data")}
+      >
         <div class="space-y-4">
           <div class="grid gap-2 sm:grid-cols-2">
-            <button type="button" onClick={exportProgress} class="flex items-center gap-3 rounded-2xl bg-base-100/50 p-3.5 text-left transition hover:bg-base-100">
-              <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-base-100/70 text-base-content/50"><Download class="h-4 w-4" /></span>
-              <span><span class="block text-xs font-medium">Exportar progreso</span><span class="mt-0.5 block text-[10px] text-base-content/35">Descarga un JSON de respaldo</span></span>
+            <button
+              type="button"
+              onClick={exportProgress}
+              class="flex items-center gap-3 rounded-2xl bg-base-100/50 p-3.5 text-left transition hover:bg-base-100"
+            >
+              <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-base-100/70 text-base-content/50">
+                <Download class="h-4 w-4" />
+              </span>
+              <span>
+                <span class="block text-xs font-medium">Exportar progreso</span>
+                <span class="mt-0.5 block text-[10px] text-base-content/35">
+                  Descarga un JSON de respaldo
+                </span>
+              </span>
             </button>
             <label class="flex cursor-pointer items-center gap-3 rounded-2xl bg-base-100/50 p-3.5 text-left transition hover:bg-base-100">
-              <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-base-100/70 text-base-content/50"><Upload class="h-4 w-4" /></span>
-              <span><span class="block text-xs font-medium">Importar progreso</span><span class="mt-0.5 block text-[10px] text-base-content/35">Restaura un respaldo exportado</span></span>
-              <input type="file" accept="application/json" class="sr-only" onChange={importProgress} />
+              <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-base-100/70 text-base-content/50">
+                <Upload class="h-4 w-4" />
+              </span>
+              <span>
+                <span class="block text-xs font-medium">Importar progreso</span>
+                <span class="mt-0.5 block text-[10px] text-base-content/35">
+                  Restaura un respaldo exportado
+                </span>
+              </span>
+              <input
+                type="file"
+                accept="application/json"
+                class="sr-only"
+                onChange={importProgress}
+              />
             </label>
           </div>
 
@@ -539,15 +1328,40 @@ export default function SettingsPanel() {
             <div class="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h3 class="text-sm font-medium text-error/90">Zona de riesgo</h3>
-                <p class="mt-1 text-[11px] leading-relaxed text-base-content/35">Borra progreso, logros, racha y slang guardado de este navegador.</p>
+                <p class="mt-1 text-[11px] leading-relaxed text-base-content/35">
+                  Borra progreso, logros, racha y slang guardado de este navegador.
+                </p>
               </div>
               {confirmReset ? (
                 <div class="flex items-center gap-1.5">
-                  <button type="button" onClick={() => setConfirmReset(false)} class="btn btn-ghost btn-sm h-9 rounded-xl px-3 text-base-content/50">Cancelar</button>
-                  <button type="button" onClick={() => { progressStore.reset(); setConfirmReset(false); }} class="btn btn-error btn-sm h-9 gap-1.5 rounded-xl px-3"><Trash2 class="h-3.5 w-3.5" />Sí, borrar todo</button>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmReset(false)}
+                    class="btn btn-ghost btn-sm h-9 rounded-xl px-3 text-base-content/50"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      progressStore.reset();
+                      setConfirmReset(false);
+                    }}
+                    class="btn btn-error btn-sm h-9 gap-1.5 rounded-xl px-3"
+                  >
+                    <Trash2 class="h-3.5 w-3.5" />
+                    Sí, borrar todo
+                  </button>
                 </div>
               ) : (
-                <button type="button" onClick={() => setConfirmReset(true)} class="btn btn-ghost btn-sm h-9 gap-1.5 rounded-xl bg-error/10 px-3 text-error hover:bg-error/15"><RotateCcw class="h-3.5 w-3.5" />Reiniciar progreso</button>
+                <button
+                  type="button"
+                  onClick={() => setConfirmReset(true)}
+                  class="btn btn-ghost btn-sm h-9 gap-1.5 rounded-xl bg-error/10 px-3 text-error hover:bg-error/15"
+                >
+                  <RotateCcw class="h-3.5 w-3.5" />
+                  Reiniciar progreso
+                </button>
               )}
             </div>
           </div>

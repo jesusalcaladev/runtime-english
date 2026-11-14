@@ -77,6 +77,7 @@ export default defineConfig({
     },
     optimizeDeps: {
       include: ["preact", "preact/hooks", "preact/jsx-runtime", "preact/jsx-dev-runtime"],
+      exclude: ["kokoro-js", "@huggingface/transformers", "onnxruntime-web"],
     },
   },
 });

@@ -3,6 +3,7 @@ import { PanelLeft, Search, User } from "@lucide/astro";
 import Logo from "../ui/Logo.astro";
 import ProgressPill from "../dashboard/ProgressPill";
 import ThemeToggle from "./ThemeToggle";
+import InstallAppButton from "./InstallAppButton";
 import { route } from "../../lib/routes";
 
 interface Props {
@@ -54,6 +55,7 @@ const { a1SessionIds, b1SessionIds, totalSessions, totalExercises } = Astro.prop
         <span class="h-1.5 w-1.5 rounded-full bg-accent"></span>
         Slang · Nov 2026
       </div>
+      <InstallAppButton client:only="preact" />
       <ProgressPill
         client:only="preact"
         a1SessionIds={a1SessionIds}

@@ -288,7 +288,14 @@ export async function loadKokoro(): Promise<boolean> {
         if ((env as any).allowRemoteModels === false) (env as any).allowRemoteModels = true;
       } catch {}
 
-      const { KokoroTTS } = await import("kokoro-js");
+      let KokoroTTS: any;
+      try {
+        ({ KokoroTTS } = await import("kokoro-js"));
+      } catch (e) {
+        console.warn("kokoro-js import failed, retrying once...", e);
+        await new Promise((r) => setTimeout(r, 250));
+        ({ KokoroTTS } = await import("kokoro-js"));
+      }
       const model_id = "onnx-community/Kokoro-82M-v1.0-ONNX";
       const dtype = device === "webgpu" ? "fp32" : "q8";
 
@@ -943,9 +950,13 @@ export function maybeAutoLoadKokoro() {
   if (kokoroAutoInitStarted) return;
   if (kokoroTTS || kokoroPromise || kokoroStatus.state === "loading") return;
   const engine = getSpeechEngine();
-  if (engine !== "kokoro" || !isKokoroMarkedCached()) return;
+  // Si ya está descargado en caché, cargar en segundo plano para usarlo sin volver a descargar
+  // (y permitir fallback instantáneo aunque el motor seleccionado sea "system").
+  if (!isKokoroMarkedCached()) return;
+  if (engine !== "kokoro") {
+    // Solo precarga silenciosa si fue descargado previamente
+  }
   kokoroAutoInitStarted = true;
-  // Load from browser cache in the background without blocking the UI
   void loadKokoro().catch((e) => console.warn("Kokoro auto-load failed", e));
 }
 
