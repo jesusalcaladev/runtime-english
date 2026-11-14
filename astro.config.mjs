@@ -12,6 +12,7 @@ export default defineConfig({
       registerType: "autoUpdate",
       injectRegister: null,
       includeAssets: ["favicon.svg"],
+      maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
       manifest: {
         name: "RuntimeEnglish — Inglés técnico para developers",
         short_name: "RuntimeEnglish",
@@ -34,7 +35,6 @@ export default defineConfig({
         navigateFallback: null,
         globPatterns: ["**/*.{js,css,html,svg,png,ico,txt,woff,woff2}"],
         globIgnores: ["**/kokoro*", "**/ort*", "**/*.onnx*", "**/voices/*"],
-        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         runtimeCaching: [
           {
             urlPattern: ({ request, url }) =>

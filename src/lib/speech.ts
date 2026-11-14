@@ -92,7 +92,6 @@ let kokoroStatus: KokoroStatus = {
 };
 const kokoroListeners = new Set<(s: KokoroStatus) => void>();
 let kokoroAudio: HTMLAudioElement | null = null;
-let kokoroAudioUrl: string | null = null;
 let kokoroSpeakingButton: HTMLElement | null = null;
 let kokoroAbort: AbortController | null = null;
 const kokoroAudioCache = new Map<string, string>();
@@ -153,7 +152,6 @@ function stopKokoroPlayback() {
     } catch {}
     kokoroAudio = null;
   }
-  kokoroAudioUrl = null;
   if (kokoroSpeakingButton) {
     setSpeaking(kokoroSpeakingButton, false);
     kokoroSpeakingButton = null;
@@ -468,7 +466,6 @@ async function speakKokoro(text: string, button?: HTMLElement | null): Promise<b
       }
       kokoroAbort = abort;
       kokoroSpeakingButton = button ?? null;
-      kokoroAudioUrl = url;
       await playAudioUrl(url);
     }
     return true;

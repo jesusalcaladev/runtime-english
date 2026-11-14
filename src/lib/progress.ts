@@ -252,9 +252,7 @@ function normalizeSrsEntry(raw: unknown, fallbackLast = Date.now()): ExerciseSrs
   return { box, due, last, correctStreak };
 }
 
-function nextSrs(prev: ExerciseSrs | undefined, correct: boolean, now = Date.now()): ExerciseSrs {
-  return nextSrsFsrs(prev, correct, now);
-}
+// (nextSrs helper removed; using nextSrsFsrs directly)
 
 function seedExerciseSrs(state: ProgressState): Record<string, ExerciseSrs> {
   const seeded: Record<string, ExerciseSrs> = { ...(state.exerciseSrs ?? {}) };
@@ -479,7 +477,6 @@ class ProgressStore {
   private listeners = new Set<Listener>();
   private hydrated = false;
   private syncing = false;
-  private authUnsub: (() => void) | null = null;
 
   constructor() {
     if (isBrowser()) {
@@ -503,7 +500,7 @@ class ProgressStore {
 
   private initCloudSync() {
     try {
-      this.authUnsub = onAuthStateChange((user) => {
+      onAuthStateChange((user) => {
         const nextId = user?.id ?? null;
         const prevId = getCurrentUserId();
         setCurrentUser(nextId);

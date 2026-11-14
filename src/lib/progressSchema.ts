@@ -20,7 +20,7 @@ export const diagnosticSchema = z
     score: z.number().refine(Number.isFinite).min(0).max(100).catch(0),
     completedAt: z
       .number()
-      .finite()
+      .refine(Number.isFinite)
       .catch(() => Date.now()),
   })
   .nullable()

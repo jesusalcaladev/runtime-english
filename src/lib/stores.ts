@@ -27,7 +27,6 @@ function defaultSyncStatus(): SyncStatus {
 export const syncStatusAtom = atom<SyncStatus>(defaultSyncStatus());
 
 let initialized = false;
-let cleanup: (() => void) | null = null;
 
 export function initSyncStatusStore(): () => void {
   if (typeof window === "undefined") {
@@ -37,11 +36,11 @@ export function initSyncStatusStore(): () => void {
     initialized = true;
     try {
       syncStatusAtom.set(getSyncStatus());
-      cleanup = subscribeSyncStatus((status) => {
+      subscribeSyncStatus((status) => {
         syncStatusAtom.set(status);
       });
     } catch {
-      cleanup = null;
+      // ignore subscription errors; status will refresh on next init/check
     }
   }
   return () => {

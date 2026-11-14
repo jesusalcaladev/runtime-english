@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { Exercise } from "./types";
 import {
   PROGRESS_SCHEMA_VERSION,
-  STORAGE_KEY,
   createDefaultState,
   getDueExerciseIds,
   getDuePhraseEntries,
@@ -11,7 +10,6 @@ import {
   mergeState,
   phraseId,
   progressStore,
-  readProgress,
 } from "./progress";
 
 const ex: Exercise = {

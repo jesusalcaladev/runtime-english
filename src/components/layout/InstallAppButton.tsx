@@ -33,7 +33,10 @@ export default function InstallAppButton() {
       return;
     }
     const ua = window.navigator.userAgent || "";
-    const isiOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    const isiOS =
+      /iPad|iPhone|iPod/.test(ua) ||
+      (((navigator as any).platform === "MacIntel" || (navigator as any).userAgentData?.platform === "macOS") &&
+        navigator.maxTouchPoints > 1);
     const isAndroid = /Android/i.test(ua);
     const p = isiOS ? "ios" : isAndroid ? "android" : "other";
     setPlatform(p);
