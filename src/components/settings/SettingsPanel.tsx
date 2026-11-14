@@ -53,6 +53,12 @@ import { isSupabaseConfigured } from "../../lib/supabase";
 import { clearSyncError } from "../../lib/progressSync";
 import { progressStore, type ProgressSettings } from "../../lib/progress";
 import { emitToast } from "../../lib/toast";
+import {
+  APP_UPDATE_CHECK_EVENT,
+  checkForAppUpdateDetailed,
+  getAppUpdateManifestUrl,
+  isNativeAndroid,
+} from "../../lib/appUpdate";
 import { useAuthSession } from "../../hooks/useAuthSession";
 import { useKokoroStatus } from "../../hooks/useKokoroStatus";
 import { useProgress } from "../../hooks/useProgress";
@@ -188,6 +194,57 @@ export default function SettingsPanel() {
   });
   const [authBusy, setAuthBusy] = useState<"google" | "github" | "out" | "sync" | null>(null);
   const [showSyncHistory, setShowSyncHistory] = useState(false);
+  const [checkingUpdate, setCheckingUpdate] = useState(false);
+  const nativeAndroid = isNativeAndroid();
+  const updateManifestUrl = getAppUpdateManifestUrl();
+
+  async function handleCheckAppUpdate() {
+    if (!nativeAndroid) {
+      emitToast("La búsqueda de actualizaciones de APK solo está disponible en la app Android instalada.", "info");
+      return;
+    }
+    if (!updateManifestUrl) {
+      emitToast("No hay una URL de manifiesto de actualización configurada en esta build.", "error");
+      return;
+    }
+    setCheckingUpdate(true);
+    try {
+      const result = await checkForAppUpdateDetailed({ force: true });
+      if (result.status === "update-available" && result.info) {
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent(APP_UPDATE_CHECK_EVENT));
+        }
+        emitToast(
+          `Actualización disponible: ${result.info.latestVersionName} (${result.info.latestBuild}).`,
+          "success",
+        );
+        return;
+      }
+      if (result.status === "up-to-date") {
+        emitToast("Ya tienes la última versión disponible.", "success");
+        return;
+      }
+      if (result.status === "not-configured") {
+        emitToast("No hay una URL de manifiesto de actualización configurada en esta build.", "error");
+        return;
+      }
+      if (result.status === "not-native") {
+        emitToast("La búsqueda de actualizaciones de APK solo está disponible en la app Android instalada.", "info");
+        return;
+      }
+      if (result.status === "dismissed") {
+        emitToast("Hay una actualización disponible que fue omitida antes. Revisa el aviso de actualización.", "info");
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent(APP_UPDATE_CHECK_EVENT));
+        }
+        return;
+      }
+      emitToast(result.error || "No se pudo comprobar si hay actualizaciones.", "error");
+    } finally {
+      setCheckingUpdate(false);
+    }
+  }
+
   const language = getLanguageStatus(state);
   const stage = language.stage;
   const completedSessions = Object.keys(state.completedSessions).length;
@@ -1096,6 +1153,39 @@ export default function SettingsPanel() {
                 onChange={importProgress}
               />
             </label>
+          </div>
+
+          <div class="rounded-2xl bg-base-100/45 p-4 sm:p-5">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <RefreshCw class="h-4 w-4 text-base-content/50" />
+                  <h3 class="text-sm font-medium">Actualizaciones de la app (Android)</h3>
+                </div>
+                <p class="mt-1 text-[11px] leading-relaxed text-base-content/45">
+                  Busca una nueva versión de la APK publicada en el manifiesto de actualización.
+                </p>
+                <p class="mt-1 break-all font-mono text-[10px] text-base-content/30">
+                  {updateManifestUrl
+                    ? `Manifiesto: ${updateManifestUrl}`
+                    : "Manifiesto no configurado en esta build."}
+                </p>
+                {!nativeAndroid && (
+                  <p class="mt-1 text-[10px] text-base-content/35">
+                    Disponible solo en la app Android instalada (APK).
+                  </p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => void handleCheckAppUpdate()}
+                disabled={checkingUpdate}
+                class="flex h-9 items-center gap-1.5 rounded-xl bg-base-100 px-3 text-[11px] font-medium text-base-content/70 transition hover:bg-base-200 hover:text-base-content disabled:opacity-50"
+              >
+                <RefreshCw class={`h-3.5 w-3.5 ${checkingUpdate ? "animate-spin" : ""}`} />
+                {checkingUpdate ? "Buscando…" : "Buscar actualización"}
+              </button>
+            </div>
           </div>
 
           <div class="rounded-2xl bg-error/[0.055] p-4 sm:p-5">

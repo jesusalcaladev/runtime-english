@@ -1,7 +1,7 @@
 {
-  "versionName": "1.2.1",
-  "versionCode": 4,
-  "apkUrl": "/runtimeenglish.apk",
+  "versionName": "1.2.2",
+  "versionCode": 5,
+  "apkUrl": "https://raw.githubusercontent.com/jesusalcaladev/runtime-english/main/public/runtimeenglish.apk",
   "title": "Nueva versión disponible",
-  "notes": "Actualización con el verificador de nuevas versiones configurado y mejoras de rendimiento en la voz HQ (Kokoro). Descárgala e instálala para obtener los últimos cambios."
+  "notes": "Actualización con verificación de nuevas versiones configurada, botón para buscar actualizaciones en Ajustes, acceso rápido a reportar issues y correcciones generales. Descárgala e instálala para obtener los últimos cambios."
 }

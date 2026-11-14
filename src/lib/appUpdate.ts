@@ -26,6 +26,8 @@ const CHECK_INTERVAL_MS = 1000 * 60 * 30; // 30 min
 const LAST_CHECK_KEY = "runtimeenglish_update_last_check_v1";
 const DISMISSED_BUILD_KEY = "runtimeenglish_update_dismissed_build_v1";
 
+export const APP_UPDATE_CHECK_EVENT = "runtimeenglish:check-update";
+
 function isNativeAndroidApp(): boolean {
   try {
     return Capacitor.isNativePlatform() && Capacitor.getPlatform() === "android";
@@ -65,18 +67,44 @@ export function getAppUpdateManifestUrl(): string | null {
   return null;
 }
 
-export async function checkForAppUpdate(options?: { force?: boolean }): Promise<AppUpdateInfo | null> {
-  if (typeof window === "undefined") return null;
-  if (!isNativeAndroidApp()) return null;
+export type AppUpdateCheckStatus =
+  | "update-available"
+  | "up-to-date"
+  | "not-native"
+  | "not-configured"
+  | "dismissed"
+  | "throttled"
+  | "error";
+
+export interface AppUpdateCheckResult {
+  status: AppUpdateCheckStatus;
+  info: AppUpdateInfo | null;
+  error?: string;
+  manifestUrl?: string | null;
+}
+
+export async function checkForAppUpdateDetailed(options?: {
+  force?: boolean;
+}): Promise<AppUpdateCheckResult> {
+  if (typeof window === "undefined") {
+    return { status: "error", info: null, error: "no-window" };
+  }
+  if (!isNativeAndroidApp()) {
+    return { status: "not-native", info: null };
+  }
 
   const manifestUrl = getAppUpdateManifestUrl();
-  if (!manifestUrl) return null;
+  if (!manifestUrl) {
+    return { status: "not-configured", info: null, manifestUrl: null };
+  }
 
   const force = options?.force === true;
   const now = Date.now();
   try {
     const last = Number(window.localStorage.getItem(LAST_CHECK_KEY) || "0");
-    if (!force && last && now - last < CHECK_INTERVAL_MS) return null;
+    if (!force && last && now - last < CHECK_INTERVAL_MS) {
+      return { status: "throttled", info: null, manifestUrl };
+    }
   } catch {
     // ignore storage issues
   }
@@ -90,7 +118,14 @@ export async function checkForAppUpdate(options?: { force?: boolean }): Promise<
       cache: "no-store",
       headers: { Accept: "application/json" },
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      return {
+        status: "error",
+        info: null,
+        manifestUrl,
+        error: `HTTP ${res.status} al consultar el manifiesto de actualización`,
+      };
+    }
     const manifest = (await res.json()) as AppUpdateManifest;
 
     const latestBuild = toInt(manifest.versionCode);
@@ -100,14 +135,14 @@ export async function checkForAppUpdate(options?: { force?: boolean }): Promise<
       try {
         window.localStorage.setItem(LAST_CHECK_KEY, String(now));
       } catch {}
-      return null;
+      return { status: "up-to-date", info: null, manifestUrl };
     }
 
     try {
       const dismissed = toInt(window.localStorage.getItem(DISMISSED_BUILD_KEY));
       if (!force && dismissed === latestBuild && !manifest.mandatory) {
         window.localStorage.setItem(LAST_CHECK_KEY, String(now));
-        return null;
+        return { status: "dismissed", info: null, manifestUrl };
       }
     } catch {}
 
@@ -116,20 +151,33 @@ export async function checkForAppUpdate(options?: { force?: boolean }): Promise<
     } catch {}
 
     return {
-      currentVersionName,
-      currentBuild,
-      latestVersionName,
-      latestBuild,
-      apkUrl: toAbsoluteUrl(apkUrlRaw, manifestUrl),
-      title: String(manifest.title || "Nueva versión disponible").trim(),
-      notes:
-        String(manifest.notes || "Hay una actualización disponible. Descárgala e instálala para continuar con la última versión.").trim(),
-      mandatory: Boolean(manifest.mandatory),
+      status: "update-available",
+      manifestUrl,
+      info: {
+        currentVersionName,
+        currentBuild,
+        latestVersionName,
+        latestBuild,
+        apkUrl: toAbsoluteUrl(apkUrlRaw, manifestUrl),
+        title: String(manifest.title || "Nueva versión disponible").trim(),
+        notes:
+          String(
+            manifest.notes ||
+              "Hay una actualización disponible. Descárgala e instálala para continuar con la última versión.",
+          ).trim(),
+        mandatory: Boolean(manifest.mandatory),
+      },
     };
   } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
     console.warn("App update check failed", error);
-    return null;
+    return { status: "error", info: null, manifestUrl, error: message };
   }
+}
+
+export async function checkForAppUpdate(options?: { force?: boolean }): Promise<AppUpdateInfo | null> {
+  const result = await checkForAppUpdateDetailed(options);
+  return result.info;
 }
 
 export async function openAppUpdateDownload(apkUrl: string): Promise<void> {

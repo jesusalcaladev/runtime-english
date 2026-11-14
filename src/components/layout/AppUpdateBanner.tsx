@@ -1,7 +1,7 @@
 import { useEffect, useState } from "preact/hooks";
 import { Download, RefreshCw, X } from "lucide-preact";
 import {
-  checkForAppUpdate,
+  checkForAppUpdateDetailed,
   dismissAppUpdate,
   openAppUpdateDownload,
   type AppUpdateInfo,
@@ -15,8 +15,8 @@ export default function AppUpdateBanner() {
     let cancelled = false;
 
     const run = async (force = false) => {
-      const info = await checkForAppUpdate({ force });
-      if (!cancelled) setUpdate(info);
+      const result = await checkForAppUpdateDetailed({ force });
+      if (!cancelled) setUpdate(result.info);
     };
 
     void run(false);
@@ -25,11 +25,14 @@ export default function AppUpdateBanner() {
     const onVisible = () => {
       if (document.visibilityState === "visible") void run(false);
     };
+    const onManual = () => void run(true);
     window.addEventListener("focus", onFocus);
+    window.addEventListener("runtimeenglish:check-update", onManual as EventListener);
     document.addEventListener("visibilitychange", onVisible);
     return () => {
       cancelled = true;
       window.removeEventListener("focus", onFocus);
+      window.removeEventListener("runtimeenglish:check-update", onManual as EventListener);
       document.removeEventListener("visibilitychange", onVisible);
     };
   }, []);
