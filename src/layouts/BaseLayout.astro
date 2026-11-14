@@ -19,13 +19,34 @@ interface Props {
   title?: string;
   description?: string;
   fullWidth?: boolean;
+  image?: string;
+  noindex?: boolean;
+  type?: "website" | "article";
 }
 
 const {
   title = "RuntimeEnglish — Inglés técnico para developers",
   description = "Aprende inglés técnico de A1 a B2 con sesiones cortas, ejercicios reales y el slang de 2026.",
   fullWidth = false,
+  image = "/favicon.svg",
+  noindex = false,
+  type = "website",
 } = Astro.props;
+
+const site = Astro.site?.toString().replace(/\/$/, "") ?? (Astro.url ? `${Astro.url.protocol}//${Astro.url.host}` : "");
+const canonicalUrl = site ? new URL(Astro.url.pathname, site).toString() : Astro.url.toString();
+const imageUrl = image.startsWith("http") ? image : (site ? new URL(image, site).toString() : image);
+const siteName = "RuntimeEnglish";
+const locale = "es_ES";
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: siteName,
+  description,
+  url: canonicalUrl,
+  inLanguage: "es",
+  applicationCategory: "EducationalApplication",
+};
 
 const nav = getNavData();
 const a1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "A1-A2").map(
@@ -43,11 +64,35 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#101010" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="application-name" content={siteName} />
+    <meta name="apple-mobile-web-app-title" content={siteName} />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"} />
+    <meta name="googlebot" content={noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"} />
+    <link rel="canonical" href={canonicalUrl} />
+
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:type" content={type} />
+    <meta property="og:locale" content={locale} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={imageUrl} />
+    <meta property="og:image:alt" content={title} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={imageUrl} />
+
     <ClientRouter />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" href="/favicon.svg" />
     <title>{title}</title>
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
     <script is:inline>
       (function () {

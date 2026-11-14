@@ -401,7 +401,7 @@ export async function loadKokoro(): Promise<boolean> {
               emitKokoroStatus({
                 state: "loading",
                 progress: Math.max(0, Math.min(99, Math.round(displayedProgress))),
-                message: "Inicializando modelo de voz…",
+                message: "Inicializando modelo de voz (puede tardar unos segundos, no cierres la pestaña)…",
                 device,
               });
               // Compilation/initialization can take time without emitting progress
@@ -413,6 +413,15 @@ export async function loadKokoro(): Promise<boolean> {
 
       let tts: any;
       let usedDevice: "webgpu" | "wasm" = device;
+      // Ceder el hilo antes de la inicialización pesada para que el navegador pinte la UI
+      // y reduzca la probabilidad del diálogo "Wait/Cancel" al llegar al 99%.
+      emitKokoroStatus({
+        state: "loading",
+        progress: Math.max(0, Math.min(99, Math.round(displayedProgress))),
+        message: targetProgress >= 95 ? "Inicializando modelo de voz (puede tardar unos segundos)…" : (cachedHint ? "Cargando voz HQ desde caché…" : "Descargando voz HQ…"),
+        device,
+      });
+      await new Promise((r) => setTimeout(r, 60));
       try {
         tts = await loadWith(device, dtype);
       } catch (e) {
@@ -425,6 +434,7 @@ export async function loadKokoro(): Promise<boolean> {
             message: "WebGPU no disponible, usando WASM…",
             device: usedDevice,
           });
+          await new Promise((r) => setTimeout(r, 60));
           tts = await loadWith("wasm", "q8");
         } else {
           throw e;
@@ -446,8 +456,8 @@ export async function loadKokoro(): Promise<boolean> {
         device: usedDevice,
       });
 
-      // Pre-generate the test phrase in the background so "Test voice" is instant
-      // and does not freeze the page on the first click after download.
+      // Pre-generate the test phrase in the background so "Test voice" is instant.
+      // Defer to avoid competing with UI right after initialization and to reduce freezes.
       try {
         const sample = "The server is running. Pull the latest changes before you push.";
         const speed = 1;
@@ -457,6 +467,7 @@ export async function loadKokoro(): Promise<boolean> {
             void (async () => {
               try {
                 if (!kokoroTTS || kokoroStatus.state !== "ready") return;
+                await new Promise((r) => setTimeout(r, 400));
                 const audio = await kokoroTTS.generate(sample, { voice: "af_heart", speed });
                 const blob: Blob =
                   typeof audio?.toBlob === "function"
@@ -468,7 +479,7 @@ export async function loadKokoro(): Promise<boolean> {
                 console.warn("Kokoro sample pre-generation failed", e);
               }
             })();
-          }, 150);
+          }, 1200);
         }
       } catch {}
 
