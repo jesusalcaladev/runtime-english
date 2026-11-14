@@ -21,10 +21,17 @@ import {
   X,
 } from "lucide-preact";
 import type { Exercise } from "../../lib/types";
+import {
+  canCheckExercise,
+  getCorrectAnswerText,
+  getUserAnswerText,
+  isExerciseAnswerCorrect,
+  shuffleIndices,
+} from "../../lib/exercise";
 import { detectErrorSkills, skillLabel } from "../../lib/errorPatterns";
 import { getUiStage, t, tAction, type UiStage } from "../../lib/i18n";
 import { phraseId, progressStore } from "../../lib/progress";
-import { isSpeechRecognitionSupported, recognizeOnce, speechMatchScore } from "../../lib/speech";
+import { isSpeechRecognitionSupported, recognizeOnce } from "../../lib/speech";
 import { useProgress } from "../../lib/useProgress";
 
 interface NextSession {
@@ -41,16 +48,6 @@ interface Props {
 }
 
 type Status = "idle" | "correct" | "incorrect";
-
-function normalize(value: string): string {
-  return value
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^\p{L}\p{N}\s]/gu, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
 
 function typeLabel(exercise: Exercise, stage: UiStage): string {
   if (exercise.type === "choice") return tAction(stage, "chooseOption");
@@ -76,23 +73,6 @@ function TypeIcon({ type }: { type: Exercise["type"] }) {
   if (type === "fix-error") return <PenLine class="h-4 w-4" />;
   if (type === "roleplay") return <MessageSquare class="h-4 w-4" />;
   return <PenLine class="h-4 w-4" />;
-}
-
-function shuffleIndices(length: number): number[] {
-  const indices = Array.from({ length }, (_, i) => i);
-  for (let i = indices.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [indices[i], indices[j]] = [indices[j], indices[i]];
-  }
-  if (length > 1) {
-    const sameOrder = indices.every((value, i) => value === i);
-    if (sameOrder) [indices[0], indices[1]] = [indices[1], indices[0]];
-  }
-  return indices;
-}
-
-function splitBlankAlts(value: string): string[] {
-  return value.split("|").map((s) => s.trim()).filter(Boolean);
 }
 
 function burstConfetti() {
@@ -179,46 +159,20 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
     else setBlankValues([]);
   }, [exercise?.id, exercise?.type]);
 
-  const isCorrectAnswer = useMemo(() => {
-    if (!exercise) return false;
-    if (exercise.type === "choice") return selected === exercise.answer;
-    if (exercise.type === "builder") {
-      return normalize(picked.map((wordIndex) => exercise.words[wordIndex]).join(" ")) === normalize(exercise.answer);
-    }
-    if (exercise.type === "write" || exercise.type === "listen" || exercise.type === "fix-error" || exercise.type === "roleplay") {
-      const candidates = [exercise.answer, ...(exercise.accept ?? [])];
-      return candidates.some((candidate) => normalize(candidate) === normalize(text));
-    }
-    if (exercise.type === "speak") {
-      const candidates = [exercise.answer, ...(exercise.accept ?? [])];
-      if (candidates.some((c) => normalize(c) === normalize(heardText || text))) return true;
-      return speechMatchScore(exercise.answer, heardText || text) >= 0.72;
-    }
-    if (exercise.type === "fill-blank") {
-      if (blankValues.length !== exercise.blanks.length) return false;
-      return exercise.blanks.every((b, i) => {
-        const alts = splitBlankAlts(b);
-        const v = normalize(blankValues[i] || "");
-        return alts.some((a) => normalize(a) === v);
-      });
-    }
-    if (exercise.type === "dialogue-order") {
-      if (dialoguePicked.length !== exercise.lines.length) return false;
-      return dialoguePicked.every((lineIdx, pos) => lineIdx === pos);
-    }
-    return false;
-  }, [exercise, selected, picked, text, blankValues, dialoguePicked, heardText]);
+  const interaction = useMemo(
+    () => ({ selected, picked, text, blankValues, dialoguePicked, heardText }),
+    [selected, picked, text, blankValues, dialoguePicked, heardText],
+  );
 
-  const canCheck = useMemo(() => {
-    if (!exercise) return false;
-    if (exercise.type === "choice") return selected !== null;
-    if (exercise.type === "builder") return picked.length > 0;
-    if (exercise.type === "write" || exercise.type === "listen" || exercise.type === "fix-error" || exercise.type === "roleplay") return text.trim().length > 0;
-    if (exercise.type === "speak") return (heardText || text).trim().length > 0;
-    if (exercise.type === "fill-blank") return blankValues.every((v) => v.trim().length > 0);
-    if (exercise.type === "dialogue-order") return dialoguePicked.length > 0;
-    return false;
-  }, [exercise, selected, picked, text, blankValues, dialoguePicked, heardText]);
+  const isCorrectAnswer = useMemo(
+    () => (exercise ? isExerciseAnswerCorrect(exercise, interaction) : false),
+    [exercise, interaction],
+  );
+
+  const canCheck = useMemo(
+    () => (exercise ? canCheckExercise(exercise, interaction) : false),
+    [exercise, interaction],
+  );
 
   function resetInteraction() {
     setSelected(null);
@@ -248,14 +202,7 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
   }
 
   function getUserAnswer(): string {
-    if (!exercise) return "";
-    if (exercise.type === "choice") return selected !== null ? (exercise.options[selected] ?? "") : "";
-    if (exercise.type === "builder") return picked.map((i) => exercise.words[i]).join(" ");
-    if (exercise.type === "write" || exercise.type === "listen" || exercise.type === "fix-error" || exercise.type === "roleplay") return text;
-    if (exercise.type === "speak") return heardText || text;
-    if (exercise.type === "fill-blank") return blankValues.join(" | ");
-    if (exercise.type === "dialogue-order") return dialoguePicked.map((i) => exercise.lines[i]).join(" / ");
-    return "";
+    return exercise ? getUserAnswerText(exercise, interaction) : "";
   }
 
   function check() {
@@ -347,14 +294,7 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
 
   if (!exercise) return null;
 
-  const correctAnswerText =
-    exercise.type === "choice"
-      ? exercise.options[exercise.answer]
-      : exercise.type === "fill-blank"
-        ? exercise.blanks.map((b) => splitBlankAlts(b)[0]).join(" · ")
-        : exercise.type === "dialogue-order"
-          ? exercise.lines.join(" / ")
-          : exercise.answer;
+  const correctAnswerText = getCorrectAnswerText(exercise);
 
   const phraseKey = phraseId(correctAnswerText);
   const phraseEntry = state.phrasebook?.[phraseKey];
