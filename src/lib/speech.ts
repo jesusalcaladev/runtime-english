@@ -12,8 +12,16 @@ type StoredSpeechSettings = {
 function readStoredSettings(): StoredSpeechSettings | null {
   if (typeof window === "undefined") return null;
   try {
-    const raw = window.localStorage.getItem("runtimeenglish_v2");
-    return raw ? JSON.parse(raw)?.settings ?? null : null;
+    const keys = ["runtimeenglish_v3","runtimeenglish_v2","devlingo_v3","devlingo_v2","deveng_core_v2"];
+    let parsed: any = null;
+    for (const k of keys) {
+      const raw = window.localStorage.getItem(k);
+      if (!raw) continue;
+      try { parsed = JSON.parse(raw); break; } catch {}
+    }
+    if (!parsed) return null;
+    const state = parsed?.state && typeof parsed.state === "object" ? parsed.state : parsed;
+    return state?.settings ?? null;
   } catch {
     return null;
   }

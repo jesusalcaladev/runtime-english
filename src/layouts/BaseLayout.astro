@@ -53,22 +53,22 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B
       (function () {
         function applyStoredPreferences() {
           try {
-            var raw = localStorage.getItem("runtimeenglish_v2");
-            var theme = null;
+            var keys = ["runtimeenglish_v3","runtimeenglish_v2","devlingo_v3","devlingo_v2","deveng_core_v2"];
+            var raw = null;
             var parsed = null;
-            if (raw) {
-              parsed = JSON.parse(raw);
-              theme = parsed && parsed.settings ? parsed.settings.theme : null;
+            for (var i = 0; i < keys.length; i++) {
+              raw = localStorage.getItem(keys[i]);
+              if (!raw) continue;
+              try { parsed = JSON.parse(raw); break; } catch (e) { parsed = null; }
             }
-            if (!theme) {
-              theme = window.matchMedia("(prefers-color-scheme: dark)").matches
-                ? "dark"
-                : "light";
+            var state = parsed && parsed.state && typeof parsed.state === "object" ? parsed.state : parsed;
+            var settings = state && state.settings ? state.settings : null;
+            var theme = settings ? settings.theme : null;
+            if (theme !== "dark" && theme !== "light") {
+              theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
             }
-            document.documentElement.dataset.theme =
-              theme === "dark" ? "runtimeenglish-dark" : "runtimeenglish";
-            var ttsEnabled =
-              parsed && parsed.settings ? parsed.settings.ttsEnabled : true;
+            document.documentElement.dataset.theme = theme === "dark" ? "runtimeenglish-dark" : "runtimeenglish";
+            var ttsEnabled = settings ? settings.ttsEnabled : true;
             document.documentElement.dataset.tts = ttsEnabled === false ? "off" : "on";
           } catch (error) {
             document.documentElement.dataset.theme = "runtimeenglish";
