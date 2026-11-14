@@ -1,7 +1,7 @@
 {
-  "versionName": "1.2.0",
-  "versionCode": 3,
+  "versionName": "1.2.1",
+  "versionCode": 4,
   "apkUrl": "/runtimeenglish.apk",
   "title": "Nueva versión disponible",
-  "notes": "Nueva versión con aviso de actualizaciones en la app y mejoras de rendimiento en la voz HQ (Kokoro). Descárgala e instálala para obtener los últimos cambios."
+  "notes": "Actualización con el verificador de nuevas versiones configurado y mejoras de rendimiento en la voz HQ (Kokoro). Descárgala e instálala para obtener los últimos cambios."
 }
