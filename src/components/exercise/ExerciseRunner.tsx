@@ -469,25 +469,71 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
 
           {exercise.type === "fill-blank" && (
             <div class="mt-5 space-y-3">
-              <div class="rounded-2xl bg-base-200/70 p-4 font-mono text-sm leading-7 text-base-content/80">
-                {(exercise as any).template.split("___").map((part: string, i: number, arr: string[]) => (
-                  <span key={i}>
-                    {part}
-                    {i < arr.length - 1 && (
-                      <input
-                        value={blankValues[i] || ""}
-                        disabled={status === "correct"}
-                        onInput={(e) => {
-                          const v = (e.target as HTMLInputElement).value;
-                          setBlankValues((prev) => { const n = [...prev]; n[i] = v; return n; });
-                        }}
-                        class="mx-1 inline-block min-w-[90px] rounded-lg bg-base-100 px-2 py-1 text-center font-mono text-sm text-base-content ring-1 ring-base-content/10"
-                      />
-                    )}
-                  </span>
-                ))}
+              <div class="rounded-2xl bg-base-200/70 p-4">
+                <p class="mb-3 text-[11px] font-medium uppercase tracking-wide text-base-content/40">
+                  Completa {exercise.blanks.length} {exercise.blanks.length === 1 ? "espacio" : "espacios"}
+                </p>
+                <div class="font-mono text-[15px] leading-8 text-base-content/80">
+                  {(exercise as any).template.split("___").map((part: string, i: number, arr: string[]) => (
+                    <span key={i}>
+                      {part}
+                      {i < arr.length - 1 && (
+                        <span class="mx-1 inline-flex items-center gap-1 align-middle">
+                          <span class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-accent/15 px-1 text-[10px] font-semibold text-accent">
+                            {i + 1}
+                          </span>
+                          <input
+                            type="text"
+                            value={blankValues[i] || ""}
+                            disabled={status === "correct"}
+                            placeholder={`Espacio ${i + 1}`}
+                            autoComplete="off"
+                            autoCapitalize="off"
+                            autoCorrect="off"
+                            spellcheck={false}
+                            size={Math.max(8, Math.min(22, (blankValues[i]?.length || 0) + 2))}
+                            onInput={(e) => {
+                              const v = (e.target as HTMLInputElement).value;
+                              setBlankValues((prev) => {
+                                const n = [...prev];
+                                n[i] = v;
+                                return n;
+                              });
+                            }}
+                            class={`inline-block rounded-xl border bg-base-100 px-3 py-1.5 text-center font-mono text-sm text-base-content outline-none transition placeholder:text-base-content/25 focus:border-accent/50 focus:ring-2 focus:ring-accent/20 ${
+                              status === "incorrect" && attempted
+                                ? "border-error/30"
+                                : "border-base-content/10"
+                            } disabled:opacity-70`}
+                          />
+                        </span>
+                      )}
+                    </span>
+                  ))}
+                </div>
+                {exercise.blanks.length > 1 && (
+                  <div class="mt-3 flex flex-wrap gap-2">
+                    {exercise.blanks.map((_, i) => (
+                      <span
+                        key={i}
+                        class={`rounded-lg px-2.5 py-1 text-[11px] ${
+                          (blankValues[i] || "").trim()
+                            ? "bg-accent/10 text-accent"
+                            : "bg-base-100/70 text-base-content/40"
+                        }`}
+                      >
+                        {i + 1}. {(blankValues[i] || "").trim() ? blankValues[i] : "pendiente"}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
-              {(exercise as any).hint && (<p class="flex items-center gap-1.5 px-1 text-[12px] text-base-content/55"><Lightbulb class="h-3 w-3 text-warning/70" />{(exercise as any).hint}</p>)}
+              {(exercise as any).hint && (
+                <p class="flex items-center gap-1.5 px-1 text-[12px] text-base-content/55">
+                  <Lightbulb class="h-3 w-3 text-warning/70" />
+                  {(exercise as any).hint}
+                </p>
+              )}
             </div>
           )}
 
