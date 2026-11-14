@@ -35,9 +35,13 @@ export default function InstallAppButton() {
     const ua = window.navigator.userAgent || "";
     const isiOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
     const isAndroid = /Android/i.test(ua);
-    setPlatform(isiOS ? "ios" : isAndroid ? "android" : "other");
+    const p = isiOS ? "ios" : isAndroid ? "android" : "other";
+    setPlatform(p);
 
     const onBip = (e: any) => {
+      // En Android mostramos descarga directa del APK; no interceptar el prompt PWA
+      // para evitar el warning "preventDefault() called... must call prompt()".
+      if (p === "android") return;
       e.preventDefault?.();
       setDeferred(e);
     };
