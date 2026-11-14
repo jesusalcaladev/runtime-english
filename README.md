@@ -177,4 +177,6 @@ If you discover a security issue, please follow the responsible disclosure proce
 
 ## License
 
-No license file is currently included in this repository. If you plan to use, distribute, or contribute code, please confirm the licensing terms with the repository maintainers/owner.
+This project is licensed under the **GNU General Public License v3.0 (GPL-3.0-or-later)**. See [LICENSE](LICENSE) for the full text.
+
+Third-party dependencies, fonts, icons, and runtime-downloaded resources (e.g. TTS/model assets) are subject to their own licenses/terms. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for details and attribution notes.

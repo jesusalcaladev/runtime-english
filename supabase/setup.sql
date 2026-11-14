@@ -1,17 +1,17 @@
--- RuntimeEnglish — Configuración completa de Supabase
--- Ejecuta este script en el SQL Editor de tu proyecto Supabase.
--- Incluye: certificados (verificación pública por ID, emisión vinculada a cuenta) y progreso de usuario (auth + sync).
+-- RuntimeEnglish — Full Supabase setup
+-- Run this script in your Supabase project's SQL Editor.
+-- Includes: certificates (public verification by ID, account-linked issuance) and user progress (auth + sync).
 
 -- ============================================================
--- A) CERTIFICADOS (verificación pública)
+-- A) CERTIFICATES (public verification)
 -- ============================================================
 
--- 1) Tabla de certificados
+-- 1) Certificates table
 create table if not exists public.certificates (
-  id text primary key,                         -- código del certificado (ej. EE3DEL)
-  name text not null,                          -- nombre del titular
-  issued_at timestamptz not null default now(),-- fecha de emisión
-  completion_date text,                        -- fecha legible de finalización
+  id text primary key,                         -- certificate code (e.g. EE3DEL)
+  name text not null,                          -- holder name
+  issued_at timestamptz not null default now(),-- issuance date
+  completion_date text,                        -- human-readable completion date
   program text not null default 'RuntimeEnglish',
   level text not null default 'A1 — B2',
   status text not null default 'valid',        -- valid | revoked
@@ -22,7 +22,7 @@ create table if not exists public.certificates (
   updated_at timestamptz not null default now()
 );
 
--- Columnas nuevas si ya existía la tabla
+-- New columns if the table already existed
 alter table public.certificates add column if not exists completion_date text;
 alter table public.certificates add column if not exists user_id uuid references auth.users(id) on delete set null;
 alter table public.certificates add column if not exists issued_by text not null default 'system';
@@ -31,7 +31,7 @@ alter table public.certificates add column if not exists updated_at timestamptz 
 
 create index if not exists certificates_user_id_idx on public.certificates(user_id);
 
--- Normaliza el id a mayúsculas
+-- Normalize the ID to uppercase
 create or replace function public.normalize_certificate_id()
 returns trigger language plpgsql as $$
 begin
@@ -45,7 +45,7 @@ create trigger certificates_normalize_id
 before insert or update on public.certificates
 for each row execute function public.normalize_certificate_id();
 
--- updated_at automático
+-- Automatic updated_at
 create or replace function public.set_updated_at_generic()
 returns trigger language plpgsql as $$
 begin
@@ -59,18 +59,18 @@ create trigger certificates_set_updated_at
 before update on public.certificates
 for each row execute function public.set_updated_at_generic();
 
--- 2) Seguridad (RLS)
+-- 2) Security (RLS)
 alter table public.certificates enable row level security;
 
--- No exponer listado público. La verificación se hace vía RPC verify_certificate.
--- Permitir al usuario autenticado ver su(s) propio(s) certificado(s) (opcional, útil para UI)
+-- Do not expose public listing. Verification is done via the verify_certificate RPC.
+-- Allow authenticated users to view their own certificate(s) (optional, useful for the UI)
 drop policy if exists "certificates_select_own" on public.certificates;
 create policy "certificates_select_own"
   on public.certificates for select
   using (auth.uid() = user_id);
 
--- 3) RPC pública de verificación: devuelve solo el certificado solicitado por id
--- (mantiene firma original para compatibilidad; incluye user_id como señal de emisión vinculada cuando existe)
+-- 3) Public verification RPC: returns only the certificate requested by ID
+-- (keeps the original signature for compatibility; includes user_id as a signal of account-linked issuance when present)
 drop function if exists public.verify_certificate(text);
 create or replace function public.verify_certificate(cert_id text)
 returns table (
@@ -98,8 +98,8 @@ revoke all on function public.verify_certificate(text) from public;
 grant execute on function public.verify_certificate(text) to anon, authenticated;
 
 -- ============================================================
--- B) PROGRESO DE USUARIO (login Google/GitHub + sincronización)
--- Diseño eficiente: 1 fila por usuario, estado compacto en JSONB.
+-- B) USER PROGRESS (Google/GitHub login + sync)
+-- Efficient design: 1 row per user, compact state in JSONB.
 -- ============================================================
 
 create table if not exists public.user_progress (
@@ -126,7 +126,7 @@ for each row execute function public.set_updated_at();
 
 alter table public.user_progress enable row level security;
 
--- Cada usuario solo puede leer/escribir su propio progreso
+-- Each user can only read/write their own progress
 drop policy if exists "user_progress_select_own" on public.user_progress;
 create policy "user_progress_select_own"
   on public.user_progress for select
@@ -149,13 +149,13 @@ create policy "user_progress_delete_own"
   using (auth.uid() = user_id);
 
 -- ============================================================
--- C) CONFIGURACIÓN EN DASHBOARD (manual, no SQL)
+-- C) DASHBOARD CONFIGURATION (manual, not SQL)
 -- ============================================================
--- 1. Authentication → Providers: habilita Google y GitHub y pega sus Client ID/Secret.
+-- 1. Authentication → Providers: enable Google and GitHub and paste their Client ID/Secret.
 -- 2. Authentication → URL Configuration:
---    - Site URL: URL de tu app (ej. https://tudominio.com o http://localhost:4321)
---    - Redirect URLs: añade las URLs donde corre la app.
--- 3. Edge Function issue-certificate (endurecida para producción): despliega con `supabase functions deploy issue-certificate`.
---    - Exige Authorization Bearer (JWT de usuario autenticado) y vincula el certificado al usuario (user_id). No permite emisión abierta.
---    - Valida elegibilidad en servidor contra public.user_progress antes de emitir.
---    - Configura en la función: ALLOWED_ORIGINS (CORS), CERT_REQUIRED_SESSIONS y CERT_REQUIRED_EXERCISES (política de elegibilidad, fail-closed si faltan).
+--    - Site URL: your app URL (e.g. https://yourdomain.com or http://localhost:4321)
+--    - Redirect URLs: add the URLs where the app runs.
+-- 3. issue-certificate Edge Function (hardened for production): deploy with `supabase functions deploy issue-certificate`.
+--    - Requires an Authorization Bearer token (authenticated user JWT) and links the certificate to the user (user_id). Open issuance is not allowed.
+--    - Validates eligibility on the server against public.user_progress before issuing.
+--    - Configure in the function: ALLOWED_ORIGINS (CORS), CERT_REQUIRED_SESSIONS, and CERT_REQUIRED_EXERCISES (eligibility policy, fail-closed if missing).

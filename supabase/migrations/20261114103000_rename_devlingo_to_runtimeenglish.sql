@@ -1,23 +1,23 @@
--- Migración: renombrar referencias de DevLingo -> RuntimeEnglish
--- Ejecutar en el SQL Editor de Supabase (o vía Supabase CLI) sobre la base de datos del proyecto.
+-- Migration: rename DevLingo -> RuntimeEnglish references
+-- Run in the Supabase SQL Editor (or via Supabase CLI) against the project database.
 
 begin;
 
--- Certificados: actualizar programa en filas existentes
+-- Certificates: update the program value in existing rows
 update public.certificates
 set program = 'RuntimeEnglish'
 where program = 'DevLingo';
 
--- Asegurar el valor por defecto nuevo en la columna
+-- Ensure the new default value on the column
 alter table public.certificates
   alter column program set default 'RuntimeEnglish';
 
 commit;
 
--- Notas:
--- - Si existen otras tablas/columnas con el valor 'DevLingo', actualízalas de forma similar.
--- - Revisa/verifica que la Edge Function desplegada sea la versión actual (issue-certificate)
---   que emite/verifica con program/name "RuntimeEnglish".
--- - Si cambias el nombre/URL del repositorio o del proyecto, actualiza también los secretos,
---   webhooks, integraciones de deploy (Vercel/GitHub) y la configuración de Auth (redirect URLs
---   si aplica al nuevo esquema de app: com.runtimeenglish.core://login-callback).
+-- Notes:
+-- - If other tables/columns contain the value 'DevLingo', update them similarly.
+-- - Review/verify that the deployed Edge Function is the current version (issue-certificate)
+--   that issues/verifies with program/name "RuntimeEnglish".
+-- - If you change the repository/project name or URL, also update secrets, webhooks,
+--   deploy integrations (Vercel/GitHub), and Auth configuration (redirect URLs
+--   if they apply to the new app scheme: com.runtimeenglish.core://login-callback).

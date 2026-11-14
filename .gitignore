@@ -16,6 +16,13 @@ pnpm-debug.log*
 # environment
 .env
 .env.*
+.env.local
+.env*.local
+.supabase/
+
+# supabase local
+supabase/.temp/
+supabase/.branches/
 
 # editor / OS
 .DS_Store
