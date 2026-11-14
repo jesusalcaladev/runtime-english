@@ -680,14 +680,10 @@ async function speakNative(text: string, button?: HTMLElement | null): Promise<b
   }
 }
 
-async function speakWeb(text: string, button?: HTMLElement | null): Promise<void> {
+async function speakWeb(text: string, button?: HTMLElement | null): Promise<boolean> {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-    emitToast(
-      "Este navegador no tiene síntesis de voz. Prueba en Chrome/Edge o usa la voz HQ (Kokoro).",
-      "error",
-    );
     setSpeaking(button, false);
-    return;
+    return false;
   }
 
   const synth = window.speechSynthesis;
@@ -699,25 +695,17 @@ async function speakWeb(text: string, button?: HTMLElement | null): Promise<void
   }
   cachedVoice = pickEnglishVoice(voices.length ? voices : synth.getVoices()) ?? cachedVoice;
 
-  await new Promise<void>((resolve) => {
+  return await new Promise<boolean>((resolve) => {
     let finished = false;
     let started = false;
     let attempts = 0;
 
-    const finish = (notifyError = false) => {
+    const finish = (ok: boolean) => {
       if (finished) return;
       finished = true;
       window.clearTimeout(timeoutId);
       setSpeaking(button, false);
-      if (notifyError) {
-        emitToast(
-          cachedVoice
-            ? "No se pudo reproducir la voz del sistema."
-            : "No se encontró una voz en inglés en este navegador. Instala una voz en inglés o usa la voz HQ (Kokoro) en Ajustes.",
-          "error",
-        );
-      }
-      resolve();
+      resolve(ok);
     };
 
     const doSpeak = () => {
@@ -741,18 +729,18 @@ async function speakWeb(text: string, button?: HTMLElement | null): Promise<void
         started = true;
         setSpeaking(button, true);
       };
-      u.onend = () => finish(false);
+      u.onend = () => finish(true);
       u.onerror = (e) => {
         const err = (e as any)?.error;
         if (err === "interrupted" || err === "canceled") {
-          finish(false);
+          finish(true); // interruption is not a failure
           return;
         }
         if (!started && attempts < 3) {
           window.setTimeout(doSpeak, 180 * attempts);
           return;
         }
-        finish(true);
+        finish(false);
       };
 
       window.setTimeout(() => {
@@ -771,7 +759,7 @@ async function speakWeb(text: string, button?: HTMLElement | null): Promise<void
           }, 350);
         } catch {
           if (!started && attempts < 3) window.setTimeout(doSpeak, 180 * attempts);
-          else finish(true);
+          else finish(false);
         }
       }, 80);
     };
@@ -781,7 +769,7 @@ async function speakWeb(text: string, button?: HTMLElement | null): Promise<void
         doSpeak();
         return;
       }
-      finish(!started);
+      finish(started);
     }, Math.max(10000, text.length * 140 + 3000));
 
     doSpeak();
@@ -799,13 +787,17 @@ export function speak(text: string, button?: HTMLElement | null) {
   if (engine === "kokoro" && kokoroTTS && kokoroStatus.state === "ready") {
     void speakKokoro(clean, button).then((handled) => {
       if (!handled) {
-        // Fallback
         if (isNativePlatform()) {
           void speakNative(clean, button).then((ok) => {
             if (!ok) setSpeaking(button, false);
           });
         } else {
-          void speakWeb(clean, button).catch(() => setSpeaking(button, false));
+          void speakWeb(clean, button).then((ok) => {
+            if (!ok) {
+              setSpeaking(button, false);
+              emitToast("No se pudo reproducir la voz del sistema ni la voz HQ.", "error");
+            }
+          }).catch(() => setSpeaking(button, false));
         }
       }
     });
@@ -813,7 +805,6 @@ export function speak(text: string, button?: HTMLElement | null) {
   }
 
   if (engine === "kokoro" && kokoroStatus.state === "loading") {
-    // Load in progress: use system voice without interrupting the user
     console.info("Kokoro loading; using system voice fallback for now.");
   }
 
@@ -821,15 +812,30 @@ export function speak(text: string, button?: HTMLElement | null) {
     void speakNative(clean, button).then((handled) => {
       if (!handled) {
         setSpeaking(button, false);
-        emitToast("No se pudo reproducir la voz.", "error");
+        emitToast("No se pudo reproducir la voz nativa.", "error");
       }
     });
     return;
   }
 
-  void speakWeb(clean, button).catch(() => {
+  void speakWeb(clean, button).then(async (ok) => {
+    if (ok) return;
+    // Fallback: si la voz del navegador falla (p.ej. Brave sin voces), usar Kokoro si ya está listo
+    if (kokoroTTS && kokoroStatus.state === "ready") {
+      setSpeaking(button, true);
+      const handled = await speakKokoro(clean, button).catch(() => false);
+      if (handled) return;
+    }
     setSpeaking(button, false);
-    emitToast("No se pudo reproducir la voz. Inténtalo de nuevo.", "error");
+    emitToast(
+      kokoroIsCached()
+        ? "La voz del navegador falló. Cargando/usa la voz HQ (Kokoro) en Ajustes."
+        : "La voz del navegador no está disponible (común en Brave). Descarga y usa la voz HQ (Kokoro) en Ajustes → Pronunciación.",
+      "error",
+    );
+  }).catch(() => {
+    setSpeaking(button, false);
+    emitToast("No se pudo reproducir la voz. Prueba la voz HQ (Kokoro) en Ajustes.", "error");
   });
 }
 
