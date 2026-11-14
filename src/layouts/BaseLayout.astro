@@ -153,15 +153,15 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B
 
     <ToastHost client:only="preact" transition:persist />
 
-    <script is:inline>
+    <script is:inline define:vars={{ isDev: import.meta.env.DEV }}>
       if ("serviceWorker" in navigator) {
         var isNativeApp =
           window.Capacitor &&
           typeof window.Capacitor.isNativePlatform === "function" &&
           window.Capacitor.isNativePlatform();
-        if (isNativeApp) {
-          // El APK sirve todo local; el SW puede devolver HTML cacheado obsoleto
-          // y sus fallbacks al dashboard rompen la navegación en Capacitor.
+        if (isNativeApp || isDev) {
+          // En nativo el APK sirve contenido local; en desarrollo el SW/PWA cachea versiones
+          // viejas y dificulta iterar. Desregistrar SWs y limpiar caches relacionadas.
           navigator.serviceWorker
             .getRegistrations()
             .then(function (registrations) {
@@ -175,7 +175,7 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B
               .keys()
               .then(function (keys) {
                 keys.forEach(function (key) {
-                  if (key.indexOf("runtimeenglish") === 0 || key.indexOf("devlingo") === 0) {
+                  if (key.indexOf("runtimeenglish") === 0 || key.indexOf("devlingo") === 0 || key.indexOf("workbox") !== -1 || key.indexOf("vite") !== -1) {
                     caches.delete(key);
                   }
                 });
