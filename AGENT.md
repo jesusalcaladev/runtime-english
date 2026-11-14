@@ -8,17 +8,18 @@ Guía permanente para trabajar en este repositorio (`lear-english-for-dev`). Man
 - **Qué es:** App web (Astro estático, PWA-ready) y Android (Capacitor) para aprender inglés técnico para developers (A1–B2), con sesiones guiadas, ejercicios interactivos, progreso/logros en `localStorage`, slang, TTS y certificado.
 - **Stack principal:** Astro 7 (static), Preact islands (`client:only="preact"`), Tailwind CSS 4 + daisyUI 5, Geist (sans/mono/pixel), Lucide, Capacitor 8.
 - **Paquete/IDs:** npm `name: "runtimeenglish"`, Android `appId/namespace/package`: `com.runtimeenglish.core`, app name: `RuntimeEnglish`.
+- **Actualizaciones Android (sin OTA):** la APK nativa puede consultar un manifiesto remoto (`app-update.json`) para detectar una nueva versión y mostrar un aviso con botón **Actualizar** (abre la descarga del APK para instalar manualmente). No es OTA de bundle web; los cambios requieren publicar un nuevo APK.
 
 ## Estructura relevante
 
 - `src/pages/` — rutas Astro: `/` (dashboard), `/session/[slug]`, `/slang`, `/achievements`, `/settings`, `/certificate`, `/search`, `/practice`.
-- `src/layouts/BaseLayout.astro` — shell global, carga de fuentes/estilos, preferencias (tema/TTS), `ClientRouter`, sidebar/topbar/toasts persistentes, integración Capacitor (back button, TTS delegado).
-- `src/components/` — islas Preact (`Dashboard.tsx`, `ExerciseRunner.tsx`, `SidebarNav.tsx`, `SearchView.tsx`, `PracticeView.tsx`, `OnboardingCard.tsx`, `SettingsPanel.tsx`, etc.), componentes Astro (`Topbar.astro`, `LessonBlocks.astro`) y `ui/`.
-- `src/data/curriculum/` — módulos `m1.ts`…`m8.ts` y registro/helpers en `index.ts` (`MODULES`, `ALL_SESSIONS`, `getNavData`, etc.).
+- `src/layouts/BaseLayout.astro` — shell global, carga de fuentes/estilos, preferencias (tema/TTS), `ClientRouter`, sidebar/topbar/toasts/aviso de actualización persistentes, integración Capacitor (back button, TTS delegado, OAuth callback).
+- `src/components/` — islas Preact (`Dashboard.tsx`, `ExerciseRunner.tsx`, `SidebarNav.tsx`, `SearchView.tsx`, `PracticeView.tsx`, `OnboardingCard.tsx`, `SettingsPanel.tsx`, etc.), componentes Astro (`Topbar.astro`, `LessonBlocks.astro`) y `ui/`. Incluye `layout/AppUpdateBanner.tsx` para avisar nuevas versiones de APK en Android.
+- `src/data/curriculum/` — módulos `m1.ts`…`m9.ts` y registro/helpers en `index.ts` (`MODULES`, `ALL_SESSIONS`, `getNavData`, etc.).
 - `src/data/slang.ts` — deck de slang.
-- `src/lib/` — tipos (`types.ts`), progreso/store (`progress.ts`, `useProgress.ts`), logros (`achievements.ts`), inmersión/i18n (`i18n.ts`), voz (`speech.ts`), toasts (`toast.ts`).
+- `src/lib/` — tipos (`types.ts`), progreso/store (`progress.ts`, `useProgress.ts`), logros (`achievements.ts`), inmersión/i18n (`i18n.ts`), voz (`speech.ts`), toasts (`toast.ts`), actualización de APK (`appUpdate.ts`), etc.
 - `src/styles/global.css` — Tailwind/daisyUI, temas `runtimeenglish` y `runtimeenglish-dark`, utilidades/estilos base.
-- `public/` — `favicon.svg`, `manifest.webmanifest`, `sw.js` (service worker para web; desactivado/limpiado en APK nativo).
+- `public/` — `favicon.svg`, `manifest.webmanifest`, `sw.js`/SW custom, `runtimeenglish.apk` (artefacto descargable, si se publica), `app-update.json` (manifiesto de actualización para APK nativa).
 - `src/lib/routes.ts` — helper `route()` para generar enlaces internos `.html` compatibles con Capacitor/APK.
 - `android/` — proyecto nativo Capacitor; `dist/` — build web; `apks/` — APKs generados.
 
@@ -87,7 +88,46 @@ npm run android:apk
 - **Insights** básicos en dashboard (p. ej. precisión/intentos, accesos rápidos).
 
 ### Voz (TTS)
-- `src/lib/speech.ts`: usa TTS nativo en Capacitor/Android (`@capacitor-community/text-to-speech`) con fallback a Web Speech API; respeta `settings.ttsEnabled` y `ttsRate`. `data-tts` en `<html>` controla visibilidad de controles de voz.
+- `src/lib/speech.ts`: usa TTS nativo en Capacitor/Android (`@capacitor-community/text-to-speech`) con fallback a Web Speech API; respeta `settings.ttsEnabled`, `ttsRate` y `ttsEngine` (`system`/`kokoro`). `data-tts` en `<html>` controla visibilidad de controles de voz.
+- **Kokoro HQ (rendimiento):** la precarga automática del modelo en caché es diferida y conservadora. No se precarga al arranque en Android nativo solo por estar en caché; se prioriza la carga bajo demanda (Ajustes/uso explícito) para evitar picos de CPU/memoria al iniciar la app.
+
+## Actualización de APK (sin OTA, recomendada para este proyecto)
+
+Flujo simple implementado: la APK instalada (Android nativa) consulta un manifiesto JSON remoto, compara `versionCode` con la versión instalada y, si hay una nueva, muestra un banner con **Actualizar**.
+
+### Archivos y configuración
+- **Cliente:** `src/lib/appUpdate.ts` + `src/components/layout/AppUpdateBanner.tsx` (montado en `BaseLayout.astro`).
+- **Manifiesto público:** `public/app-update.json` (se despliega junto al sitio/APK).
+- **APK descargable (web):** `public/runtimeenglish.apk` (usado por el botón de descarga web y como destino por defecto del manifiesto).
+- **Versionado Android (fuente real instalada):** `android/app/build.gradle` → `defaultConfig.versionCode` y `defaultConfig.versionName`.
+- **Variables de entorno (web/build):**
+  - `PUBLIC_APP_UPDATE_URL` (recomendado): URL absoluta al manifiesto, ej. `https://tu-dominio.com/app-update.json`.
+  - `PUBLIC_APP_URL` (opcional): base del sitio para derivar `/app-update.json` si no se define `PUBLIC_APP_UPDATE_URL`.
+
+### Cómo publicar una nueva actualización (APK)
+1. **Incrementa versión Android** en `android/app/build.gradle`:
+   - Sube `versionCode` (entero, obligatorio para detectar actualización).
+   - Actualiza `versionName` (visible para el usuario, ej. `1.2.0`).
+2. **Actualiza el manifiesto** `public/app-update.json`:
+   - `versionCode`/`versionName`: deben coincidir con el APK nuevo.
+   - `apkUrl`: URL absoluta o relativa al APK publicado (ej. `/runtimeenglish.apk` o URL completa).
+   - `title`/`notes`: texto del aviso (opcional).
+3. **Genera el APK** (y copia artefactos):
+   ```bash
+   export JAVA_HOME="$HOME/jdks/jdk-21.0.13+9"
+   export ANDROID_HOME="$HOME/android-sdk"
+   export PATH="$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$PATH"
+   npm run android:apk
+   ```
+   - Esto actualiza `dist/`, sincroniza Capacitor, compila y copia APKs a `apks/`.
+4. **Publica en hosting** (mismo despliegue del sitio):
+   - Sube el **nuevo** `runtimeenglish.apk` (reemplaza `public/runtimeenglish.apk` o publica la ruta configurada en `apkUrl`).
+   - Sube el **nuevo** `app-update.json`.
+   - Asegura que el build de la app fue generado con `PUBLIC_APP_UPDATE_URL` (o `PUBLIC_APP_URL`) apuntando al dominio correcto.
+5. **Comportamiento en la app instalada:**
+   - En Android nativa, el banner consulta el manifiesto, detecta `versionCode` mayor y muestra **Actualizar**.
+   - Al pulsar **Actualizar**, se abre la URL del APK en el navegador/descargador del sistema; al terminar la descarga el usuario debe abrirlo e instalar (permitir instalación desde esa fuente si Android lo solicita).
+   - Cambios nativos (plugins, permisos, Gradle, código Android) siempre requieren nuevo APK; este flujo no reemplaza OTA de código nativo.
 
 ## Convenciones de trabajo
 

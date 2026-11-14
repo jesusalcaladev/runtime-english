@@ -347,24 +347,30 @@ export async function loadKokoro(): Promise<boolean> {
           else if (st.state === "error") { off(); reject(new Error(st.error || st.message)); }
         });
       });
-      // Pre-generate sample in background (in worker) without blocking UI
-      try {
-        const sample = "The server is running. Pull the latest changes before you push.";
-        const speed = 1;
-        const key = getKokoroCacheKey(sample, speed);
-        if (!kokoroAudioCache.has(key) && kokoroReady) {
-          setTimeout(() => {
-            void (async () => {
-              try {
-                const { buffer, mime } = await kokoroGenerateInWorker(sample, speed);
-                const blob = new Blob([buffer], { type: mime || "audio/wav" });
-                const url = URL.createObjectURL(blob);
-                cacheKokoroAudio(key, url);
-              } catch {}
-            })();
-          }, 1200);
-        }
-      } catch {}
+      // Pre-generación de muestra: útil en escritorio, pero costosa en móvil/nativo.
+      // Se omite en plataformas nativas para reducir picos de CPU/memoria tras la descarga.
+      if (!isNativePlatform()) {
+        try {
+          const sample = "The server is running. Pull the latest changes before you push.";
+          const speed = 1;
+          const key = getKokoroCacheKey(sample, speed);
+          if (!kokoroAudioCache.has(key) && kokoroReady) {
+            const run = () => {
+              void (async () => {
+                try {
+                  const { buffer, mime } = await kokoroGenerateInWorker(sample, speed);
+                  const blob = new Blob([buffer], { type: mime || "audio/wav" });
+                  const url = URL.createObjectURL(blob);
+                  cacheKokoroAudio(key, url);
+                } catch {}
+              })();
+            };
+            const ric = (window as any).requestIdleCallback as undefined | ((cb: () => void, opts?: any) => void);
+            if (typeof ric === "function") ric(run, { timeout: 8000 });
+            else setTimeout(run, 5000);
+          }
+        } catch {}
+      }
       return true;
     } catch {
       return false;
@@ -870,24 +876,33 @@ export function maybeAutoLoadKokoro() {
   if (typeof window === "undefined") return;
   if (kokoroAutoInitStarted) return;
   if (kokoroReady || kokoroPromise || kokoroStatus.state === "loading") return;
-  const engine = getSpeechEngine();
-  // Si ya está descargado en caché, cargar en segundo plano para usarlo sin volver a descargar
-  // (y permitir fallback instantáneo aunque el motor seleccionado sea "system").
+  // Solo precargar cuando el usuario eligió explícitamente Kokoro como motor.
+  // Precargar en segundo plano aunque esté en caché puede consumir mucha CPU/memoria
+  // (especialmente en móviles/WebView) y volver lenta la app al iniciar.
+  if (getSpeechEngine() !== "kokoro") return;
   if (!isKokoroMarkedCached()) return;
-  if (engine !== "kokoro") {
-    // Solo precarga silenciosa si fue descargado previamente
-  }
+  // En plataformas nativas evita precarga agresiva al arranque; se cargará al usar Ajustes o al reproducir.
+  if (isNativePlatform()) return;
+
   kokoroAutoInitStarted = true;
-  void loadKokoro().catch((e) => console.warn("Kokoro auto-load failed", e));
+  const start = () => {
+    void loadKokoro().catch((e) => console.warn("Kokoro auto-load failed", e));
+  };
+  const ric = (window as any).requestIdleCallback as undefined | ((cb: () => void, opts?: any) => void);
+  if (typeof ric === "function") {
+    ric(start, { timeout: 4000 });
+  } else {
+    setTimeout(start, 1500);
+  }
 }
 
 export function initVoices() {
   if (typeof window === "undefined") return;
   if ("speechSynthesis" in window) void getWebVoices();
-  // If already downloaded, restore it without requesting download again
+  // Si el motor HQ está seleccionado y ya está en caché, precargar de forma diferida y no bloqueante.
   setTimeout(() => {
     try {
       maybeAutoLoadKokoro();
     } catch {}
-  }, 0);
+  }, 1200);
 }

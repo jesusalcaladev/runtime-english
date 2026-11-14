@@ -8,6 +8,7 @@ import { ClientRouter } from "astro:transitions";
 import Topbar from "../components/layout/Topbar.astro";
 import SidebarNav from "../components/layout/SidebarNav";
 import ToastHost from "../components/layout/ToastHost";
+import AppUpdateBanner from "../components/layout/AppUpdateBanner";
 import {
   ALL_SESSIONS,
   TOTAL_EXERCISES,
@@ -152,6 +153,7 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B
     </div>
 
     <ToastHost client:only="preact" transition:persist />
+    <AppUpdateBanner client:only="preact" transition:persist />
 
     <script is:inline define:vars={{ isDev: import.meta.env.DEV }}>
       if ("serviceWorker" in navigator) {
