@@ -1,189 +1,179 @@
 # RuntimeEnglish
 
-App web (PWA-ready) y Android para aprender inglés técnico de A1 a B2. 42 sesiones, 219 ejercicios
-interactivos, progreso y logros con objetivos medibles en `localStorage`, y un deck de 51 términos
-de slang actualizado a **noviembre de 2026**. Ruta con práctica distribuida (recuperación activa, checkpoints y pronunciación integrada). Interfaz responsive con estética de workspace
-minimalista, superficies neutras y tipografía Geist.
+RuntimeEnglish is a web (PWA-ready) and Android app for learning **technical English for developers** (A1–B2). It combines guided sessions, interactive exercises, progress tracking, achievements, pronunciation tools, and a 2026-focused developer slang deck in a fast, offline-friendly experience.
 
-## Stack
+- **Web:** Astro (static) + Preact islands
+- **Mobile:** Capacitor (Android)
+- **Progress:** local-first (`localStorage`) with optional account sync and certificate verification via Supabase
+- **Speech:** native/system TTS with an in-browser HQ voice option (Kokoro)
 
-- **Astro 7** (static output) + **Preact** islands para las partes interactivas.
-- **Capacitor 8** para empaquetar el build web como app Android.
-- **Tailwind CSS 4** + **daisyUI 5** como librería de componentes/temas.
-- **Geist**, **Geist Mono** y **Geist Pixel** self-hosted con Fontsource.
-- **Lucide** (`@lucide/astro` y `lucide-preact`) para iconos.
-- **Speech Synthesis API** para pronunciación (sin backend).
-- Progreso local: no hay cuenta ni base de datos.
+## Highlights
 
-## Comandos
+- **A1–B2 technical English path** with curriculum modules and guided sessions
+- **Interactive exercises** (e.g. choice, builder, write) with XP, streaks, and session completion
+- **Search and quick practice** (`/search`, `/practice`) to review content efficiently
+- **Dictionary / phrasebook** tools for vocabulary practice
+- **Achievements and dashboard insights** to track progress
+- **Slang deck (2026)** with searchable/filterable developer terms (`/slang`)
+- **Pronunciation (TTS)**
+  - System/browser or native device voice (depending on platform)
+  - Optional in-browser HQ voice (Kokoro) cached after download for reuse
+- **PWA-ready web app** and **Android app** (`com.runtimeenglish.core`)
+- **Optional Supabase integration** for auth, progress sync, and certificate issuance/verification
+
+## Tech stack
+
+- **Framework:** [Astro 7](https://astro.build/) (static output) with [Preact](https://preactjs.com/) islands (`client:only="preact"`)
+- **Mobile:** [Capacitor 8](https://capacitorjs.com/) (Android)
+- **Styling:** [Tailwind CSS 4](https://tailwindcss.com/) + [daisyUI 5](https://daisyui.com/)
+- **Fonts:** Geist, Geist Mono, Geist Pixel (Fontsource)
+- **Icons:** Lucide (`@lucide/astro`, `lucide-preact`)
+- **Speech:** Web Speech API / native TTS plugin + optional [Kokoro](https://github.com/hexgrad/kokoro) in-browser TTS
+- **Data/validation/utilities:** Supabase JS, Nanostores, MiniSearch, ts-fsrs, Zod, date-fns
+- **Tooling:** TypeScript, Biome, Vitest, Playwright, Astro PWA integration
+
+## Project structure
+
+```text
+.
+├─ src/
+│  ├─ pages/                 # Routes (/, /session/[slug], /search, /practice, /slang, etc.)
+│  ├─ layouts/               # Global app shell/layout
+│  ├─ components/            # Astro + Preact UI/components
+│  ├─ data/
+│  │  ├─ curriculum/         # Modules (m1..m8) and curriculum helpers
+│  │  └─ slang.ts            # Slang deck
+│  ├─ lib/                   # Progress/store, i18n, speech, auth/sync, utilities, types
+│  ├─ hooks/                 # Reusable client hooks
+│  └─ styles/                # Global styles/themes
+├─ public/                   # Static assets, PWA assets, downloadable APK
+├─ android/                  # Capacitor Android project
+├─ apks/                     # Locally generated APK artifacts
+├─ supabase/                 # SQL setup, migrations, and edge functions
+├─ capacitor.config.ts
+├─ astro.config.mjs
+└─ package.json
+```
+
+## Getting started
+
+### Prerequisites
+
+- **Node.js** (LTS recommended)
+- **pnpm** (recommended, lockfile included) or npm
+- For Android builds: **JDK 17+** (JDK 21 recommended), **Android SDK**, and optionally Android Studio
+
+### Install and run (web)
 
 ```bash
-npm install
-npm run dev      # http://localhost:4321
-npm run build    # genera dist/
-npm run preview  # sirve el build
-npm run check    # typecheck de Astro + TS
-npm run android:sync  # build + copia los assets a android/
-npm run android:open  # abre el proyecto en Android Studio
-npm run android:apk   # compila el APK debug y lo copia a apks/
+pnpm install
+pnpm dev
 ```
 
-## Estructura
+Then open the local dev URL shown by Astro (typically `http://localhost:4321`).
 
-```
-src/
-├── data/
-│   ├── curriculum/
-│   │   ├── index.ts       # registro de módulos + helpers de navegación/stats
-│   │   ├── m1.ts … m6.ts  # ruta técnica A1–B2
-│   │   ├── m7.ts          # slang y cultura 2026 (último módulo)
-│   └── slang.ts           # deck de slang (51 términos, fuente de /slang)
-├── lib/
-│   ├── progress.ts        # store + localStorage + XP/racha/sesiones
-│   ├── achievements.ts    # definición y evaluación de logros
-│   ├── i18n.ts            # inmersión progresiva de la interfaz
-│   ├── speech.ts          # TTS inglés
-│   └── types.ts           # tipos de contenido y ejercicios
-├── components/
-│   ├── Dashboard.tsx      # roadmap y progreso
-│   ├── ExerciseRunner.tsx # motor de ejercicios con mapa, atajos y control
-│   ├── SessionProgressCard.tsx # estado/replay de la sesión
-│   ├── SlangExplorer.tsx  # buscador/filtros del slang
-│   ├── AchievementsGrid.tsx
-│   ├── SettingsPanel.tsx
-│   ├── LessonBlocks.astro # render de bloques de contenido
-│   └── ui/                # Button, Badge, Card, ProgressBar, Logo…
-├── layouts/BaseLayout.astro
-└── pages/                 # /, /slang, /achievements, /settings, /session/[slug]
-
-android/                   # proyecto nativo generado por Capacitor
-apks/                      # APK debug/release generados (no versionados)
-capacitor.config.ts        # appId, nombre, webDir y tema del sistema
-```
-
-## Android
-
-El proyecto usa [Capacitor](https://capacitorjs.com/) con `appId` `com.runtimeenglish.core`, tema oscuro
-`#101010`, iconos e splash propios y manejo del botón atrás de Android.
-
-Requisitos para compilar: **JDK 17+** y **Android SDK** instalados, además de Android Studio.
+### Available scripts
 
 ```bash
-npm run android:sync   # genera dist/ y lo copia a android/
-npm run android:open   # abre Android Studio
-npm run android:apk    # compila debug y deja apks/RuntimeEnglish-v<version>-debug.apk
-npm run android:apk:release # compila release y deja apks/RuntimeEnglish-v<version>-release.apk
+# Development / build
+pnpm dev                 # Start Astro dev server
+pnpm build               # Build static site to dist/
+pnpm preview             # Preview production build
+pnpm check               # Astro/TypeScript checks
+
+# Quality
+pnpm lint                # Biome lint
+pnpm lint:fix            # Biome lint (write)
+pnpm format              # Biome format (write)
+pnpm format:check        # Biome format check
+pnpm check:biome         # Biome check
+pnpm check:biome:fix     # Biome check (write)
+
+# Tests
+pnpm test                # Vitest (run)
+pnpm test:watch          # Vitest (watch)
+pnpm test:coverage       # Vitest coverage
+pnpm test:e2e            # Playwright tests
+pnpm test:e2e:ui         # Playwright UI mode
+
+# Android (Capacitor)
+pnpm android:sync        # Build web + sync assets/config to android/
+pnpm android:open        # Open Android project in Android Studio
+pnpm android:apk         # Sync + assemble debug APK + copy to apks/
+pnpm android:apk:release # Sync + assemble release APK + copy to apks/
 ```
 
-El build de Gradle copia automáticamente los APK a `apks/` en la raíz del proyecto. También
-puedes compilar desde Android Studio: el resultado se copia al mismo destino.
+> If you use npm instead of pnpm, replace `pnpm` with `npm run` where appropriate.
 
-En Android Studio: `Build > Generate Signed Bundle / APK`. Para Play Store se sube un **AAB**
-firmado con una keystore propia; esa keystore y los archivos de firma no deben commitearse.
+## Android development
 
-El progreso vive en el `localStorage` del WebView. El export/import JSON de Ajustes sirve como
-respaldo si se borran los datos de la app.
+The Android app is packaged with Capacitor (`appId: com.runtimeenglish.core`, `appName: RuntimeEnglish`).
 
-La pronunciación usa Web Speech en navegador y el motor TTS nativo de Android dentro de la app.
-Si el dispositivo no tiene una voz en inglés instalada, la app lo avisa para instalarla.
+### Build a debug APK
 
-## Añadir una sesión
-
-1. Abre el módulo correspondiente (`src/data/curriculum/mN.ts`).
-2. Añade un objeto a `sessions`. El `slug` es la URL pública (`/session/mi-slug`).
-3. Usa bloques de contenido y ejercicios tipados:
-
-```ts
-{
-  id: "m8-l1",
-  slug: "mi-nueva-sesion",
-  title: "Mi nueva sesión",
-  step: "B2 · Paso 6.1",
-  cefr: "B2",
-  minutes: 10,
-  summary: "Resumen de una línea.",
-  objectives: ["Objetivo 1", "Objetivo 2"],
-  blocks: [
-    { type: "technique", name: "Técnica", desc: "Explicación." },
-    { type: "vocab", title: "Vocabulario", items: [
-      { en: "deploy", es: "desplegar", example: "We deploy on Fridays." }
-    ]},
-    { type: "callout", tone: "tip", title: "Truco", body: "..." }
-  ],
-  pronunciation: "We deploy on Fridays.",
-  exercises: [
-    { id: "m8-l1-e1", type: "choice", prompt: "…", options: ["a", "b"], answer: 0, explanation: "…" },
-    { id: "m8-l1-e2", type: "builder", prompt: "…", words: ["We", "deploy"], answer: "We deploy", explanation: "…" },
-    { id: "m8-l1-e3", type: "write", prompt: "…", answer: "We deploy on Fridays.", accept: ["We deploy Fridays."], explanation: "…" }
-  ]
-}
+```bash
+pnpm android:apk
 ```
 
-No hay que tocar páginas ni componentes: `getStaticPaths` crea la ruta, el sidebar la lista y el
-dashboard la incluye.
+This runs the web build, syncs Capacitor assets, builds the Android debug APK, and copies it to `apks/`.
 
-### Bloques disponibles
+### Local environment example (this repository's documented setup)
 
-`technique`, `text`, `vocab`, `table`, `phrases`, `tenses`, `slang` (por IDs de `slang.ts`) y
-`callout` (tip/warning/info).
+If your machine uses the paths documented in `AGENT.md`:
 
-### Ejercicios
+```bash
+export JAVA_HOME="$HOME/jdks/jdk-21.0.13+9"
+export ANDROID_HOME="$HOME/android-sdk"
+export PATH="$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$PATH"
+pnpm android:apk
+```
 
-- `choice`: `options` + `answer` (índice).
-- `builder`: `words` + `answer`; se compara el orden elegido con el texto normalizado.
-- `write`: `answer` + `accept[]` opcional; también se normalizan mayúsculas/puntuación.
+You can also open and build from Android Studio:
 
-Cada acierto suma **10 XP**; completar una sesión suma **40 XP**. El runner permite saltar
-entre ejercicios, reiniciar la práctica y usar atajos (`←` `→`, `Enter`, `1–4`). Una sesión solo
-se completa cuando todos sus ejercicios están resueltos.
+```bash
+pnpm android:open
+```
 
-## Añadir un módulo
+> Notes:
+> - Internal web routes must remain compatible with Capacitor static output (`.html` routing handled in-app). Use the project's route helper for internal links when modifying navigation.
+> - APK artifacts in `apks/` may be generated locally; the web download button serves `public/runtimeenglish.apk` when present.
 
-Crea `src/data/curriculum/m8.ts` exportando un `Module` y regístralo en `MODULES`
-(`src/data/curriculum/index.ts`). Aparecerá automáticamente agrupado por `level` (`A1-A2` o
-`B1-B2`).
+## Progress, sync, and certificates
 
-## Logros y progreso
+- **Local-first progress:** user progress/settings are stored locally in the browser/app storage.
+- **Export/import:** the app supports backup/restore flows in settings (JSON) for moving progress.
+- **Optional Supabase features:** authentication, progress sync, and certificate issuance/verification are supported when Supabase is configured and deployed (see `supabase/` for SQL, migrations, and edge functions).
+- **Schema migrations:** progress/state migrations are handled in code to preserve compatibility across app updates where possible.
 
-- Clave de localStorage: `runtimeenglish_v2`.
-- Se guardan: XP, ejercicios y sesiones completadas, intentos, racha, slang guardado, logros y
-  ajustes (tema, inmersión, velocidad TTS, nombre).
-- Para crear un logro: añade una entrada a `ACHIEVEMENTS` en `src/lib/achievements.ts` con un
-  `check(state)` y un `icon` de Lucide. La evaluación es automática. Si el logro tiene `target` y
-  `progress(state)`, la galería muestra una barra con el avance real.
-- **Exportar / importar**: Ajustes → Datos y progreso. El JSON permite mover el avance entre
-  navegadores.
-- **Reiniciar todo**: Ajustes → Zona de riesgo.
+## Pronunciation (TTS)
 
-## Inmersión progresiva
+RuntimeEnglish supports multiple pronunciation paths depending on platform and availability:
 
-`src/lib/i18n.ts` decide el idioma de la interfaz con una puntuación de preparación (0–100):
+- **System/browser TTS** (Web Speech API) on web
+- **Native TTS** on Android (Capacitor plugin)
+- **HQ in-browser voice (Kokoro)** as an optional downloadable engine (cached for reuse)
 
-- 55% avance de sesiones A1–A2, 20% ejercicios resueltos, 15% precisión y 10% avance B1–B2.
-- 28+ puntos → etiquetas bilingües.
-- 58+ puntos con al menos 55% de A1–A2 y 55% de precisión → interfaz en inglés.
+If a browser lacks usable system voices, the HQ voice option can provide a more reliable in-browser experience.
 
-El contenido también sube de nivel: explicaciones en español en A1-A2 y en inglés en B1-B2.
-Ajustes muestra el desglose y el siguiente objetivo; el usuario puede forzar el modo manualmente.
+## Development notes
 
-## Slang
+- Use the existing project patterns (Astro + Preact islands, Tailwind/daisyUI, current theme tokens).
+- Keep internal navigation compatible with Capacitor static routing (see `src/lib/routes.ts` and `AGENT.md`).
+- Do not modify brand/logo assets unless explicitly intended.
+- Run checks/build/tests relevant to your changes before opening a PR.
 
-El deck vive en `src/data/slang.ts`. Cada entrada incluye `status` (`consolidado`, `en alza`,
-`2026`), `register`, ejemplo, traducción, fecha de revisión y `caution` cuando el término puede
-sonar ofensivo. Para actualizarlo, añade entradas y actualiza `updated`. La portada y `/slang`
-muestran los conteos automáticamente.
+## Contributing
 
-## Diseño
+Contributions are welcome. Please read:
 
-- Tipografía de interfaz: **Geist Variable**; código y datos: **Geist Mono Variable**.
-- Títulos, marca y cifras destacadas: **Geist Pixel Variable** (variante grid mediante el eje
-  `ELSH`).
-- Sin bordes decorativos: las jerarquías se construyen con superficies (`base-100/200/300`),
-  espacio y contraste. El tema oscuro arranca en `#101010`.
-- Iconos Lucide en toda la interfaz; sin emojis.
+- [CONTRIBUTING.md](CONTRIBUTING.md)
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- [SECURITY.md](SECURITY.md)
 
-## Siguiente iteración
+## Security
 
-- Envolver la PWA con Capacitor para App Store / Play Store (la UI ya es responsive).
-- Más sesiones (speaking con micrófono, listening con audio) y repaso espaciado.
-- Sincronización opcional de progreso y pruebas E2E.
+If you discover a security issue, please follow the responsible disclosure process in [SECURITY.md](SECURITY.md) instead of opening a public issue.
+
+## License
+
+No license file is currently included in this repository. If you plan to use, distribute, or contribute code, please confirm the licensing terms with the repository maintainers/owner.
