@@ -680,26 +680,26 @@ async function speakNative(text: string, button?: HTMLElement | null): Promise<b
   }
 }
 
-function speakWeb(text: string, button?: HTMLElement | null): Promise<void> {
+async function speakWeb(text: string, button?: HTMLElement | null): Promise<void> {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) {
     emitToast(
-      "Este navegador no tiene síntesis de voz. Prueba en Chrome/Edge o usa la app Android.",
+      "Este navegador no tiene síntesis de voz. Prueba en Chrome/Edge o usa la voz HQ (Kokoro).",
       "error",
     );
     setSpeaking(button, false);
-    return Promise.resolve();
+    return;
   }
 
   const synth = window.speechSynthesis;
 
-  // Ensure voices are loaded (some browsers expose them asynchronously)
+  // Some browsers (Chrome/Android WebView) load voices asynchronously.
   let voices = synth.getVoices();
-  if (!cachedVoice) cachedVoice = pickEnglishVoice(voices);
   if (voices.length === 0) {
-    void getWebVoices(2000);
+    voices = await getWebVoices(2500);
   }
+  cachedVoice = pickEnglishVoice(voices.length ? voices : synth.getVoices()) ?? cachedVoice;
 
-  return new Promise<void>((resolve) => {
+  await new Promise<void>((resolve) => {
     let finished = false;
     let started = false;
     let attempts = 0;
@@ -710,7 +710,12 @@ function speakWeb(text: string, button?: HTMLElement | null): Promise<void> {
       window.clearTimeout(timeoutId);
       setSpeaking(button, false);
       if (notifyError) {
-        emitToast("No se pudo reproducir la voz del sistema.", "error");
+        emitToast(
+          cachedVoice
+            ? "No se pudo reproducir la voz del sistema."
+            : "No se encontró una voz en inglés en este navegador. Instala una voz en inglés o usa la voz HQ (Kokoro) en Ajustes.",
+          "error",
+        );
       }
       resolve();
     };
@@ -719,17 +724,12 @@ function speakWeb(text: string, button?: HTMLElement | null): Promise<void> {
       if (finished) return;
       attempts += 1;
 
-      try {
-        // Safely clear the previous queue
-        synth.cancel();
-      } catch {}
+      try { synth.resume(); } catch {}
+      try { synth.cancel(); } catch {}
 
       const u = new SpeechSynthesisUtterance(text);
-      // Refresh voice selection in case voices have loaded
       const currentVoices = synth.getVoices();
-      if (!cachedVoice || currentVoices.length) {
-        cachedVoice = pickEnglishVoice(currentVoices) ?? cachedVoice;
-      }
+      if (currentVoices.length) cachedVoice = pickEnglishVoice(currentVoices) ?? cachedVoice;
       const voice = cachedVoice;
       u.lang = voice?.lang || "en-US";
       u.rate = getSpeechRate();
@@ -743,44 +743,46 @@ function speakWeb(text: string, button?: HTMLElement | null): Promise<void> {
       };
       u.onend = () => finish(false);
       u.onerror = (e) => {
-        if (e.error === "interrupted" || e.error === "canceled") {
+        const err = (e as any)?.error;
+        if (err === "interrupted" || err === "canceled") {
           finish(false);
           return;
         }
-        // Retry once if it failed before starting (common voices/cancel case in Chrome)
-        if (!started && attempts < 2) {
-          window.setTimeout(doSpeak, 150);
+        if (!started && attempts < 3) {
+          window.setTimeout(doSpeak, 180 * attempts);
           return;
         }
-        finish(!started);
+        finish(true);
       };
 
-      try {
-        // Small delay after cancel() improves reliability in Chrome/WebView
-        window.setTimeout(() => {
-          if (finished) return;
-          try {
-            synth.speak(u);
-            if (synth.paused) synth.resume();
-          } catch {
-            if (!started && attempts < 2) window.setTimeout(doSpeak, 150);
-            else finish(true);
-          }
-        }, 60);
-      } catch {
-        if (!started && attempts < 2) window.setTimeout(doSpeak, 150);
-        else finish(true);
-      }
+      window.setTimeout(() => {
+        if (finished) return;
+        try {
+          synth.speak(u);
+          try { synth.resume(); } catch {}
+          // Chrome workaround: if it gets stuck pending, nudge once
+          window.setTimeout(() => {
+            try {
+              if (!started && !finished && synth.pending && !synth.speaking) {
+                synth.pause();
+                synth.resume();
+              }
+            } catch {}
+          }, 350);
+        } catch {
+          if (!started && attempts < 3) window.setTimeout(doSpeak, 180 * attempts);
+          else finish(true);
+        }
+      }, 80);
     };
 
-    // Reasonable maximum time based on text length
     const timeoutId = window.setTimeout(() => {
-      if (!started && attempts < 2) {
+      if (!started && attempts < 3) {
         doSpeak();
         return;
       }
-      finish(false);
-    }, Math.max(8000, text.length * 120 + 2000));
+      finish(!started);
+    }, Math.max(10000, text.length * 140 + 3000));
 
     doSpeak();
   });

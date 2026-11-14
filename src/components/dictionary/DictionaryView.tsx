@@ -24,21 +24,10 @@ import {
 } from "lucide-preact";
 import { progressStore, type PhrasebookEntry } from "../../lib/progress";
 import { useDictionary } from "../../hooks/useDictionary";
+import { speak } from "../../lib/speech";
 
 function speakText(text: string) {
-  if (typeof window === "undefined") return;
-  try {
-    window.dispatchEvent(new CustomEvent("runtimeenglish:speak", { detail: { text } }));
-  } catch {}
-  try {
-    const synth = window.speechSynthesis;
-    if (synth) {
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = "en-US";
-      synth.cancel();
-      synth.speak(u);
-    }
-  } catch {}
+  speak(text);
 }
 
 function mastery(entry: PhrasebookEntry) {
