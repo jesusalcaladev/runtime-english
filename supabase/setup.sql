@@ -71,6 +71,7 @@ create policy "certificates_select_own"
 
 -- 3) RPC pública de verificación: devuelve solo el certificado solicitado por id
 -- (mantiene firma original para compatibilidad; incluye user_id como señal de emisión vinculada cuando existe)
+drop function if exists public.verify_certificate(text);
 create or replace function public.verify_certificate(cert_id text)
 returns table (
   id text,

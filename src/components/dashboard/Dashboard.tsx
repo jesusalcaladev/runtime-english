@@ -341,16 +341,16 @@ export default function Dashboard({
             {/* Progreso compacto dentro del bloque 1 */}
             <div class="flex items-center gap-4 rounded-2xl bg-base-100/50 p-4 lg:min-w-[220px] lg:flex-col lg:items-stretch">
               <div class="flex items-center gap-4 lg:justify-center">
-                <div class="relative flex h-[96px] w-[96px] items-center justify-center">
+                <div class="relative flex h-[72px] w-[72px] shrink-0 items-center justify-center">
                   <svg viewBox="0 0 100 100" class="h-full w-full -rotate-90" aria-hidden="true">
-                    <circle cx="50" cy="50" r="44" fill="none" stroke="currentColor" strokeWidth="5" class="text-base-content/[0.08]" />
-                    <circle cx="50" cy="50" r="44" fill="none" stroke="var(--color-accent)" strokeWidth="5" strokeLinecap="round"
-                      strokeDasharray={`${2 * Math.PI * 44} ${2 * Math.PI * 44}`}
-                      strokeDashoffset={2 * Math.PI * 44 - (pct / 100) * 2 * Math.PI * 44}
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="10" class="text-base-content/[0.08]" />
+                    <circle cx="50" cy="50" r="40" fill="none" stroke="var(--color-accent)" strokeWidth="10" strokeLinecap="round"
+                      strokeDasharray={`${2 * Math.PI * 40} ${2 * Math.PI * 40}`}
+                      strokeDashoffset={2 * Math.PI * 40 - (pct / 100) * 2 * Math.PI * 40}
                       class="transition-[stroke-dashoffset] duration-700 ease-out" />
                   </svg>
                   <div class="absolute inset-0 flex flex-col items-center justify-center">
-                    <span class="font-mono text-[1.2rem] font-medium tracking-tight">{pct}%</span>
+                    <span class="font-mono text-[0.95rem] font-semibold tracking-tight">{pct}%</span>
                   </div>
                 </div>
                 <div class="space-y-0.5">
