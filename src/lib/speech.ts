@@ -486,6 +486,12 @@ export function stopSpeech() {
   try {
     window.speechSynthesis?.cancel();
   } catch {}
+  try {
+    document.querySelectorAll<HTMLElement>("[data-speak-loading='true']").forEach((el) => {
+      delete el.dataset.speakLoading;
+      el.removeAttribute("aria-busy");
+    });
+  } catch {}
   if (isNativePlatform()) {
     void import("@capacitor-community/text-to-speech")
       .then(({ TextToSpeech }) => TextToSpeech.stop())
@@ -560,7 +566,33 @@ async function getWebVoices(timeoutMs = 1500): Promise<SpeechSynthesisVoice[]> {
 }
 
 function setSpeaking(button: HTMLElement | null | undefined, speaking: boolean) {
-  if (button) button.dataset.speaking = speaking ? "true" : "false";
+  if (!button) return;
+  button.dataset.speaking = speaking ? "true" : "false";
+  if (speaking) delete button.dataset.speakLoading;
+}
+
+function setSpeakLoading(button: HTMLElement | null | undefined, loading: boolean) {
+  if (!button) return;
+  if (loading) {
+    button.dataset.speakLoading = "true";
+    button.setAttribute("aria-busy", "true");
+  } else {
+    delete button.dataset.speakLoading;
+    button.removeAttribute("aria-busy");
+  }
+}
+
+export function warmSpeechEngine() {
+  if (typeof window === "undefined") return;
+  try {
+    if (isSpeechEnabled() && "speechSynthesis" in window) {
+      void getWebVoices(1200);
+    }
+    // Warm Kokoro in background when selected/cached so first playback starts faster.
+    if (getSpeechEngine() === "kokoro" && isKokoroMarkedCached() && !kokoroReady && !kokoroPromise && kokoroStatus.state !== "loading") {
+      void loadKokoro().catch(() => {});
+    }
+  } catch {}
 }
 
 async function speakNative(text: string, button?: HTMLElement | null): Promise<boolean> {
@@ -711,26 +743,34 @@ export function speak(text: string, button?: HTMLElement | null) {
   if (typeof window === "undefined" || !text.trim() || !isSpeechEnabled()) return;
 
   const clean = text.replace(/\s+/g, " ").trim();
-  setSpeaking(button, true);
-  stopSpeech(); // stop previous (clears speaking state; we'll set it again)
+  // Immediate visual feedback while engine/voices/audio warm up.
+  setSpeakLoading(button, true);
+  setSpeaking(button, false);
+  stopSpeech(); // stop previous (clears speaking/loading state; we'll set it again)
+  setSpeakLoading(button, true);
+  warmSpeechEngine();
+
+  const clearLoading = () => setSpeakLoading(button, false);
 
   const engine = getSpeechEngine();
   if (engine === "kokoro" && kokoroReady && kokoroStatus.state === "ready") {
     void speakKokoro(clean, button).then((handled) => {
-      if (!handled) {
-        if (isNativePlatform()) {
-          void speakNative(clean, button).then((ok) => {
-            if (!ok) setSpeaking(button, false);
-          });
-        } else {
-          void speakWeb(clean, button).then((ok) => {
-            if (!ok) {
-              setSpeaking(button, false);
-              emitToast("No se pudo reproducir la voz del sistema ni la voz HQ.", "error");
-            }
-          }).catch(() => setSpeaking(button, false));
-        }
+      if (handled) return;
+      if (isNativePlatform()) {
+        void speakNative(clean, button).then((ok) => {
+          if (!ok) { clearLoading(); setSpeaking(button, false); }
+        }).finally(clearLoading);
+      } else {
+        void speakWeb(clean, button).then((ok) => {
+          if (!ok) {
+            setSpeaking(button, false);
+            emitToast("No se pudo reproducir la voz del sistema ni la voz HQ.", "error");
+          }
+        }).catch(() => setSpeaking(button, false)).finally(clearLoading);
       }
+    }).catch(() => {
+      clearLoading();
+      setSpeaking(button, false);
     });
     return;
   }
@@ -745,7 +785,7 @@ export function speak(text: string, button?: HTMLElement | null) {
         setSpeaking(button, false);
         emitToast("No se pudo reproducir la voz nativa.", "error");
       }
-    });
+    }).finally(clearLoading);
     return;
   }
 
@@ -753,9 +793,11 @@ export function speak(text: string, button?: HTMLElement | null) {
     if (ok) return;
     // Fallback: si la voz del navegador falla (p.ej. Brave sin voces), usar Kokoro si ya está listo
     if (kokoroReady && kokoroStatus.state === "ready") {
+      setSpeakLoading(button, true);
       setSpeaking(button, true);
       const handled = await speakKokoro(clean, button).catch(() => false);
       if (handled) return;
+      setSpeakLoading(button, false);
     }
     setSpeaking(button, false);
     emitToast(
@@ -767,7 +809,7 @@ export function speak(text: string, button?: HTMLElement | null) {
   }).catch(() => {
     setSpeaking(button, false);
     emitToast("No se pudo reproducir la voz. Prueba la voz HQ (Kokoro) en Ajustes.", "error");
-  });
+  }).finally(clearLoading);
 }
 
 export function kokoroIsCached(): boolean {

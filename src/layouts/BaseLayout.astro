@@ -198,7 +198,7 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B
       import { Browser } from "@capacitor/browser";
       import { syncStreakReminder } from "../lib/notifications";
       import { progressStore } from "../lib/progress";
-      import { initVoices, speak } from "../lib/speech";
+      import { initVoices, speak, warmSpeechEngine } from "../lib/speech";
       import { supabase } from "../lib/supabase";
 
       initVoices();
@@ -274,6 +274,15 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B
       // Delegación de TTS para botones con data-speak
       if (!nativeWindow.__runtimeenglishSpeechBound) {
         nativeWindow.__runtimeenglishSpeechBound = true;
+        const warmOnIntent = (event: Event) => {
+          const target = event.target;
+          if (!(target instanceof Element)) return;
+          const button = target.closest("[data-speak]");
+          if (!(button instanceof HTMLElement)) return;
+          try { warmSpeechEngine(); } catch {}
+        };
+        document.addEventListener("pointerdown", warmOnIntent, { passive: true });
+        document.addEventListener("focusin", warmOnIntent);
         document.addEventListener("click", (event) => {
           const target = event.target;
           if (!(target instanceof Element)) return;

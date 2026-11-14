@@ -19,6 +19,7 @@ RuntimeEnglish is a web (PWA-ready) and Android app for learning **technical Eng
   - System/browser or native device voice (depending on platform)
   - Optional in-browser HQ voice (Kokoro) cached after download for reuse
 - **PWA-ready web app** and **Android app** (`com.runtimeenglish.core`)
+- **In-app APK update checks** (Android): detects new versions from a remote `app-update.json` and prompts download/install
 - **Optional Supabase integration** for auth, progress sync, and certificate issuance/verification
 
 ## Tech stack
@@ -46,9 +47,9 @@ RuntimeEnglish is a web (PWA-ready) and Android app for learning **technical Eng
 │  ├─ lib/                   # Progress/store, i18n, speech, auth/sync, utilities, types
 │  ├─ hooks/                 # Reusable client hooks
 │  └─ styles/                # Global styles/themes
-├─ public/                   # Static assets, PWA assets, downloadable APK
+├─ public/                   # Static assets, PWA assets, update manifest
 ├─ android/                  # Capacitor Android project
-├─ apks/                     # Locally generated APK artifacts
+├─ apks/                     # Locally generated APK artifacts (ignored in git)
 ├─ supabase/                 # SQL setup, migrations, and edge functions
 ├─ capacitor.config.ts
 ├─ astro.config.mjs
@@ -136,7 +137,7 @@ pnpm android:open
 
 > Notes:
 > - Internal web routes must remain compatible with Capacitor static output (`.html` routing handled in-app). Use the project's route helper for internal links when modifying navigation.
-> - APK artifacts in `apks/` may be generated locally; the web download button serves `public/runtimeenglish.apk` when present.
+> - APK binaries are not tracked in git. Local builds are copied to `apks/` and should be distributed via **GitHub Releases** (the web "Descargar APK" button and `public/app-update.json` point to release assets). Keep `app-update.json` and the release APK in sync when publishing a new version.
 
 ## Progress, sync, and certificates
 

@@ -1,7 +1,7 @@
 {
   "versionName": "1.2.2",
   "versionCode": 5,
-  "apkUrl": "https://raw.githubusercontent.com/jesusalcaladev/runtime-english/main/public/runtimeenglish.apk",
+  "apkUrl": "https://github.com/jesusalcaladev/runtime-english/releases/download/v1.2.2/RuntimeEnglish.apk",
   "title": "Nueva versión disponible",
   "notes": "Actualización con verificación de nuevas versiones configurada, botón para buscar actualizaciones en Ajustes, acceso rápido a reportar issues y correcciones generales. Descárgala e instálala para obtener los últimos cambios."
 }

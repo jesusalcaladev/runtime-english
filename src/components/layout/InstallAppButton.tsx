@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 import { Download, Share } from "lucide-preact";
-import { route } from "../../lib/routes";
+
+const APK_DOWNLOAD_URL = "https://github.com/jesusalcaladev/runtime-english/releases/latest/download/RuntimeEnglish.apk";
 
 function isStandalone(): boolean {
   if (typeof window === "undefined") return false;
@@ -52,7 +53,7 @@ export default function InstallAppButton() {
     return () => window.removeEventListener("beforeinstallprompt", onBip);
   }, []);
 
-  const apkUrl = useMemo(() => route("/runtimeenglish.apk"), []);
+  const apkUrl = APK_DOWNLOAD_URL;
 
   if (hidden) return null;
 

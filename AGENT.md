@@ -19,9 +19,9 @@ Guía permanente para trabajar en este repositorio (`lear-english-for-dev`). Man
 - `src/data/slang.ts` — deck de slang.
 - `src/lib/` — tipos (`types.ts`), progreso/store (`progress.ts`, `useProgress.ts`), logros (`achievements.ts`), inmersión/i18n (`i18n.ts`), voz (`speech.ts`), toasts (`toast.ts`), actualización de APK (`appUpdate.ts`), etc.
 - `src/styles/global.css` — Tailwind/daisyUI, temas `runtimeenglish` y `runtimeenglish-dark`, utilidades/estilos base.
-- `public/` — `favicon.svg`, `manifest.webmanifest`, `sw.js`/SW custom, `runtimeenglish.apk` (artefacto descargable, si se publica), `app-update.json` (manifiesto de actualización para APK nativa).
+- `public/` — `favicon.svg`, `manifest.webmanifest`, `sw.js`/SW custom, `app-update.json` (manifiesto de actualización para APK nativa). **No se versionan binarios APK** (`public/runtimeenglish.apk` y `public/*.apk` están ignorados).
 - `src/lib/routes.ts` — helper `route()` para generar enlaces internos `.html` compatibles con Capacitor/APK.
-- `android/` — proyecto nativo Capacitor; `dist/` — build web; `apks/` — APKs generados.
+- `android/` — proyecto nativo Capacitor; `dist/` — build web; `apks/` — APKs generadas localmente (ignoradas en git, excepto `.gitkeep`). Los APKs se distribuyen vía **GitHub Releases**.
 
 ## Comandos
 
@@ -97,37 +97,36 @@ Flujo simple implementado: la APK instalada (Android nativa) consulta un manifie
 
 ### Archivos y configuración
 - **Cliente:** `src/lib/appUpdate.ts` + `src/components/layout/AppUpdateBanner.tsx` (montado en `BaseLayout.astro`).
-- **Manifiesto público:** `public/app-update.json` (se despliega junto al sitio/APK).
-- **APK descargable (web):** `public/runtimeenglish.apk` (usado por el botón de descarga web y como destino por defecto del manifiesto).
+- **Manifiesto público:** `public/app-update.json` (versionado en git; debe apuntar al APK publicado).
+- **Distribución de APK:** vía **GitHub Releases** (no se versionan APKs en git). El botón web "Descargar APK" usa la descarga del último release (`releases/latest/download/RuntimeEnglish.apk`) y `app-update.json` debe apuntar al asset de release de la versión correspondiente.
 - **Versionado Android (fuente real instalada):** `android/app/build.gradle` → `defaultConfig.versionCode` y `defaultConfig.versionName`.
 - **Variables de entorno (web/build):**
-  - `PUBLIC_APP_UPDATE_URL` (recomendado): URL absoluta al manifiesto, ej. `https://tu-dominio.com/app-update.json`.
+  - `PUBLIC_APP_UPDATE_URL` (recomendado): URL absoluta al manifiesto, ej. `https://raw.githubusercontent.com/jesusalcaladev/runtime-english/main/public/app-update.json` o la URL donde se hospede `app-update.json`.
   - `PUBLIC_APP_URL` (opcional): base del sitio para derivar `/app-update.json` si no se define `PUBLIC_APP_UPDATE_URL`.
 
 ### Cómo publicar una nueva actualización (APK)
 1. **Incrementa versión Android** en `android/app/build.gradle`:
    - Sube `versionCode` (entero, obligatorio para detectar actualización).
-   - Actualiza `versionName` (visible para el usuario, ej. `1.2.0`).
-2. **Actualiza el manifiesto** `public/app-update.json`:
-   - `versionCode`/`versionName`: deben coincidir con el APK nuevo.
-   - `apkUrl`: URL absoluta o relativa al APK publicado (ej. `/runtimeenglish.apk` o URL completa).
-   - `title`/`notes`: texto del aviso (opcional).
-3. **Genera el APK** (y copia artefactos):
+   - Actualiza `versionName` (visible para el usuario, ej. `1.2.3`).
+2. **Genera el APK** (artefacto local, no versionado en git):
    ```bash
    export JAVA_HOME="$HOME/jdks/jdk-21.0.13+9"
    export ANDROID_HOME="$HOME/android-sdk"
    export PATH="$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$PATH"
    npm run android:apk
    ```
-   - Esto actualiza `dist/`, sincroniza Capacitor, compila y copia APKs a `apks/`.
-4. **Publica en hosting** (mismo despliegue del sitio):
-   - Sube el **nuevo** `runtimeenglish.apk` (reemplaza `public/runtimeenglish.apk` o publica la ruta configurada en `apkUrl`).
-   - Sube el **nuevo** `app-update.json`.
-   - Asegura que el build de la app fue generado con `PUBLIC_APP_UPDATE_URL` (o `PUBLIC_APP_URL`) apuntando al dominio correcto.
+   - Copia APKs a `apks/` (ignorados en git).
+3. **Publica el APK en GitHub Releases** (requiere `gh` autenticado):
+   - Crea/publica un release con tag de versión (ej. `v1.2.3`) y sube el asset como `RuntimeEnglish.apk` para que funcione el enlace estable `/releases/latest/download/RuntimeEnglish.apk`.
+   - Ejemplo: `gh release create v1.2.3 apks/RuntimeEnglish-v1.2.3-debug.apk#RuntimeEnglish.apk --title "RuntimeEnglish v1.2.3" --notes "..."`
+4. **Actualiza el manifiesto** `public/app-update.json` y súbelo al repo/hosting configurado en `PUBLIC_APP_UPDATE_URL`:
+   - `versionCode`/`versionName`: deben coincidir con el APK publicado.
+   - `apkUrl`: URL del asset de release de esa versión (ej. `https://github.com/jesusalcaladev/runtime-english/releases/download/v1.2.3/RuntimeEnglish.apk`).
+   - `title`/`notes`: texto del aviso.
 5. **Comportamiento en la app instalada:**
-   - En Android nativa, el banner consulta el manifiesto, detecta `versionCode` mayor y muestra **Actualizar**.
-   - Al pulsar **Actualizar**, se abre la URL del APK en el navegador/descargador del sistema; al terminar la descarga el usuario debe abrirlo e instalar (permitir instalación desde esa fuente si Android lo solicita).
-   - Cambios nativos (plugins, permisos, Gradle, código Android) siempre requieren nuevo APK; este flujo no reemplaza OTA de código nativo.
+   - La APK consulta `PUBLIC_APP_UPDATE_URL`, compara `versionCode` y muestra **Actualizar** si hay una versión nueva.
+   - Al pulsar **Actualizar**, se abre la descarga del APK (asset de release); el usuario debe instalarlo manualmente.
+   - Cambios nativos siempre requieren nuevo APK; este flujo no reemplaza OTA de código nativo.
 
 ## Convenciones de trabajo
 
