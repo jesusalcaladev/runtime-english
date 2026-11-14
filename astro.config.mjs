@@ -33,6 +33,8 @@ export default defineConfig({
       generateSW: {
         navigateFallback: null,
         globPatterns: ["**/*.{js,css,html,svg,png,ico,txt,woff,woff2}"],
+        globIgnores: ["**/kokoro*", "**/ort*", "**/*.onnx*", "**/voices/*"],
+        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         runtimeCaching: [
           {
             urlPattern: ({ request, url }) =>
