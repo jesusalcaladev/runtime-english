@@ -516,6 +516,50 @@ export async function loadKokoro(): Promise<boolean> {
   }
 }
 
+function splitSpeechChunks(text: string, maxLen = 180): string[] {
+  const clean = text.replace(/\s+/g, " ").trim();
+  if (!clean) return [];
+  if (clean.length <= maxLen) return [clean];
+  // Split by sentence/clause boundaries first, then fall back to word chunks
+  const parts = clean
+    .split(/(?<=[.!?;:])\s+|\n+/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+  const chunks: string[] = [];
+  let cur = "";
+  const pushCur = () => { if (cur.trim()) { chunks.push(cur.trim()); cur = ""; } };
+  for (const part of (parts.length ? parts : [clean])) {
+    if (part.length <= maxLen) {
+      if (!cur) cur = part;
+      else if ((cur + " " + part).length <= maxLen) cur += " " + part;
+      else { pushCur(); cur = part; }
+      continue;
+    }
+    pushCur();
+    const words = part.split(/\s+/);
+    let wcur = "";
+    for (const w of words) {
+      if (!wcur) wcur = w;
+      else if ((wcur + " " + w).length <= maxLen) wcur += " " + w;
+      else { chunks.push(wcur); wcur = w; }
+    }
+    if (wcur) chunks.push(wcur);
+  }
+  pushCur();
+  return chunks.length ? chunks : [clean.slice(0, maxLen)];
+}
+
+async function playAudioUrl(url: string): Promise<void> {
+  const el = new Audio(url);
+  kokoroAudio = el;
+  el.playbackRate = 1;
+  await new Promise<void>((resolve, reject) => {
+    el.onended = () => resolve();
+    el.onerror = () => reject(new Error("audio playback error"));
+    el.play().catch(reject);
+  });
+}
+
 async function speakKokoro(text: string, button?: HTMLElement | null): Promise<boolean> {
   if (typeof window === "undefined") return false;
   if (!kokoroTTS || kokoroStatus.state !== "ready") return false;
@@ -524,37 +568,42 @@ async function speakKokoro(text: string, button?: HTMLElement | null): Promise<b
   kokoroSpeakingButton = button ?? null;
   try {
     const rate = getSpeechRate();
-    const cacheKey = getKokoroCacheKey(text, rate);
-    let url = kokoroAudioCache.get(cacheKey) ?? null;
+    const chunks = splitSpeechChunks(text);
+    if (chunks.length === 0) return false;
 
-    if (!url) {
-      // Yield to the main thread so the UI can paint the "speaking/generating" state
-      await new Promise<void>((resolve) => setTimeout(resolve, 20));
+    for (let i = 0; i < chunks.length; i++) {
       if (abort.signal.aborted) return true;
-      // Generation runs on the main thread and may briefly freeze; on failure, fall back silently.
-      const audio = await kokoroTTS.generate(text, { voice: "af_heart", speed: rate });
+      const chunk = chunks[i];
+      const cacheKey = getKokoroCacheKey(chunk, rate);
+      let url = kokoroAudioCache.get(cacheKey) ?? null;
+
+      if (!url) {
+        // Yield to the main thread so the UI can paint "speaking" state before heavy inference
+        await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+        await new Promise<void>((resolve) => setTimeout(resolve, 30));
+        if (abort.signal.aborted) return true;
+        // Generation runs on the main thread and may briefly freeze the UI.
+        const audio = await kokoroTTS.generate(chunk, { voice: "af_heart", speed: rate });
+        if (abort.signal.aborted) return true;
+        const blob: Blob =
+          typeof audio?.toBlob === "function"
+            ? audio.toBlob()
+            : new Blob([audio.toWav()], { type: "audio/wav" });
+        url = URL.createObjectURL(blob);
+        cacheKokoroAudio(cacheKey, url);
+      }
+
       if (abort.signal.aborted) return true;
-      const blob: Blob =
-        typeof audio?.toBlob === "function"
-          ? audio.toBlob()
-          : new Blob([audio.toWav()], { type: "audio/wav" });
-      url = URL.createObjectURL(blob);
-      cacheKokoroAudio(cacheKey, url);
+      // Stop previous chunk playback (without revoking cached URLs)
+      if (kokoroAudio) {
+        try { kokoroAudio.onended = null; kokoroAudio.onerror = null; kokoroAudio.pause(); kokoroAudio.src = ""; } catch {}
+        kokoroAudio = null;
+      }
+      kokoroAbort = abort;
+      kokoroSpeakingButton = button ?? null;
+      kokoroAudioUrl = url;
+      await playAudioUrl(url);
     }
-
-    if (abort.signal.aborted) return true;
-    stopKokoroPlayback(); // Clear previous playback (without revoking cached URLs)
-    kokoroAbort = abort;
-    kokoroSpeakingButton = button ?? null;
-    kokoroAudioUrl = url;
-    const el = new Audio(url);
-    kokoroAudio = el;
-    el.playbackRate = 1; // speed baked into generation
-    await new Promise<void>((resolve, reject) => {
-      el.onended = () => resolve();
-      el.onerror = () => reject(new Error("audio playback error"));
-      el.play().catch(reject);
-    });
     return true;
   } catch (err) {
     if ((err as any)?.name === "AbortError") return true;
