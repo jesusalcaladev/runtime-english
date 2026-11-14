@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: "Preguntas o ayuda general"
+    url: "https://github.com/jesusalcaladev/runtime-english/discussions"
+    about: "Usa Discussions para preguntas, ideas abiertas o ayuda general (si están habilitadas en el repositorio)."
+  - name: "Ver issues existentes"
+    url: "https://github.com/jesusalcaladev/runtime-english/issues"
+    about: "Revisa si el problema o la mejora ya fue reportada antes de crear uno nuevo."

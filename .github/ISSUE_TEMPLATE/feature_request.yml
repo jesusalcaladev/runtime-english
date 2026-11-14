@@ -1,0 +1,61 @@
+name: "Solicitud de mejora"
+description: "Propón una nueva funcionalidad o mejora para RuntimeEnglish."
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Cuéntanos qué te gustaría mejorar o añadir. Mientras más contexto des, más fácil será evaluarlo e implementarlo.
+  - type: textarea
+    id: problem
+    attributes:
+      label: "Problema o necesidad"
+      description: "¿Qué problema quieres resolver? ¿Qué necesidad tienes hoy?"
+      placeholder: "Ej: Me cuesta repasar errores frecuentes y no encuentro una vista dedicada..."
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: "Propuesta"
+      description: "Describe la funcionalidad o cambio que propones."
+      placeholder: "Ej: Añadir una sección de 'Errores frecuentes' con filtros por tipo de ejercicio..."
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Alternativas consideradas"
+      description: "¿Hay otras formas de resolverlo que hayas considerado?"
+      placeholder: "Opcional"
+  - type: dropdown
+    id: area
+    attributes:
+      label: "Área relacionada"
+      options:
+        - "Currículo / sesiones / ejercicios"
+        - "Práctica / búsqueda / diccionario"
+        - "Slang"
+        - "Progreso / logros / rachas"
+        - "Pronunciación / TTS / Kokoro"
+        - "Sincronización / cuenta / certificados"
+        - "APK Android / instalación / actualizaciones"
+        - "UI / UX / accesibilidad"
+        - "Rendimiento"
+        - "Otro"
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: "Contexto adicional"
+      description: "Ejemplos, capturas, referencias o detalles extra."
+      placeholder: "Opcional"
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: "Confirmaciones"
+      options:
+        - label: "Busqué issues existentes para evitar duplicados."
+          required: false

@@ -1,5 +1,5 @@
 ---
-import { PanelLeft, Search, User } from "@lucide/astro";
+import { Bug, PanelLeft, Search, User } from "@lucide/astro";
 import Logo from "../ui/Logo.astro";
 import ProgressPill from "../dashboard/ProgressPill";
 import ThemeToggle from "./ThemeToggle";
@@ -50,6 +50,16 @@ const { a1SessionIds, b1SessionIds, totalSessions, totalExercises } = Astro.prop
         title="Buscar"
       >
         <Search class="h-4 w-4" />
+      </a>
+      <a
+        href="https://github.com/jesusalcaladev/runtime-english/issues/new/choose"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="surface-soft flex h-9 w-9 items-center justify-center rounded-full text-base-content/60 transition hover:bg-base-300 hover:text-base-content"
+        aria-label="Reportar un problema"
+        title="Reportar un problema"
+      >
+        <Bug class="h-4 w-4" />
       </a>
       <div class="mr-1 hidden items-center gap-2 rounded-full bg-base-200 px-3 py-1.5 text-[10px] font-medium text-base-content/50 md:flex">
         <span class="h-1.5 w-1.5 rounded-full bg-accent"></span>

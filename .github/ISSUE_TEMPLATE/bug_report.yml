@@ -1,0 +1,80 @@
+name: "Reporte de bug"
+description: "Reporta un problema, error o comportamiento inesperado en RuntimeEnglish."
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gracias por reportar un problema. Incluye los detalles necesarios para poder reproducirlo y corregirlo.
+  - type: textarea
+    id: summary
+    attributes:
+      label: "Resumen del problema"
+      description: "Describe qué está fallando o qué comportamiento inesperado observas."
+      placeholder: "Ej: Al descargar la voz HQ (Kokoro) en Android, la app se vuelve muy lenta..."
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: "Pasos para reproducir"
+      description: "Indica los pasos exactos para reproducir el problema."
+      placeholder: |
+        1. Ir a Ajustes → Audio y recordatorios
+        2. Descargar/activar voz HQ (Kokoro)
+        3. Volver al dashboard
+        4. Observar que...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: "Comportamiento esperado"
+      placeholder: "¿Qué esperabas que ocurriera?"
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: "Comportamiento actual"
+      placeholder: "¿Qué ocurrió en realidad? Incluye mensajes de error si aparecen."
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: "Plataforma"
+      options:
+        - "Android (APK / app nativa)"
+        - "Web (navegador)"
+        - "PWA instalada"
+        - "Ambas / no estoy seguro"
+    validations:
+      required: true
+  - type: input
+    id: app_version
+    attributes:
+      label: "Versión de la app"
+      description: "En Android, indica versionName/versionCode si lo conoces (ej: 1.2.1 / 4)."
+      placeholder: "Ej: 1.2.1 (4)"
+  - type: input
+    id: device
+    attributes:
+      label: "Dispositivo / navegador"
+      placeholder: "Ej: Pixel 7 Android 15, Chrome 145, Brave, etc."
+  - type: textarea
+    id: context
+    attributes:
+      label: "Contexto adicional"
+      description: "Capturas, logs, conexión, si estabas offline, datos de sincronización/TTS, etc."
+      placeholder: "Cualquier detalle extra que ayude a diagnosticar el problema."
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: "Confirmaciones"
+      options:
+        - label: "Busqué issues existentes para evitar duplicados."
+          required: false
+        - label: "Puedo reproducir el problema de forma consistente (o expliqué cuándo ocurre)."
+          required: false
