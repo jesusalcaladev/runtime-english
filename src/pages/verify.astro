@@ -1,0 +1,14 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import VerifyCertificate from "../components/verify/VerifyCertificate";
+---
+
+<BaseLayout
+  title="Verify certificate · DevLingo"
+  description="Verify a DevLingo English for Programmers certificate by ID."
+  fullWidth={false}
+>
+  <div class="animate-fade-up">
+    <VerifyCertificate client:only="preact" />
+  </div>
+</BaseLayout>

@@ -1,76 +1,20 @@
 import { useEffect, useMemo, useState } from "preact/hooks";
 import { ArrowRight, BookText, Brain, Check, CheckCircle2, NotebookPen, RotateCcw, Tag, Target, Volume2, X, Zap } from "lucide-preact";
-import type { Exercise } from "../lib/types";
-import ExerciseRunner from "./ExerciseRunner";
-import { isSessionRelevantToGoal } from "../lib/goals";
-import { getDuePhraseEntries, getWeakPhraseEntries, isExerciseDue, progressStore, type PhrasebookEntry } from "../lib/progress";
-import { route } from "../lib/routes";
-import { useProgress } from "../lib/useProgress";
-
-interface PracticeItem {
-  exercise: Exercise;
-  sessionId: string;
-  sessionSlug: string;
-  sessionTitle: string;
-  moduleCode: string;
-  cefr: string;
-}
+import ExerciseRunner from "../exercise/ExerciseRunner";
+import { progressStore, type PhrasebookEntry } from "../../lib/progress";
+import {
+  buildExercisePool,
+  buildPhrasePool,
+  getPracticeStats,
+  type PracticeItem,
+  type PracticeMode,
+} from "../../lib/practice";
+import { route } from "../../lib/routes";
+import { useProgress } from "../../lib/useProgress";
 
 interface Props {
   items: PracticeItem[];
 }
-
-function shuffle<T>(arr: T[]): T[] {
-  const copy = [...arr];
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-  return copy;
-}
-
-function pickUnique(items: PracticeItem[], n: number): PracticeItem[] {
-  const seen = new Set<string>();
-  const unique: PracticeItem[] = [];
-  for (const item of items) {
-    if (seen.has(item.exercise.id)) continue;
-    seen.add(item.exercise.id);
-    unique.push(item);
-    if (unique.length >= n) break;
-  }
-  return unique;
-}
-
-/**
- * Prioridad de repaso (SRS + recuperación activa):
- * due ahora, luego no dominados/ costosos, luego repasos programados y nuevos.
- */
-function reviewScore(item: PracticeItem, state: ReturnType<typeof useProgress>, now: number): number {
-  const id = item.exercise.id;
-  const attempts = state.attempts[id] ?? 0;
-  const doneAt = state.completedExercises[id];
-  const done = Boolean(doneAt);
-  const srs = state.exerciseSrs[id];
-  const due = isExerciseDue(state, id, now);
-  const overdueMs = srs ? Math.max(0, now - srs.due) : 0;
-  const overdueDays = overdueMs / 86_400_000;
-  const goal = state.settings.goal ?? "all";
-  const goalBoost = isSessionRelevantToGoal(item.sessionSlug, goal) ? 12 : 0;
-
-  if (attempts > 0 && !done) return 1200 + attempts * 30 + overdueDays + goalBoost; // intentado pero aún no correcto
-  if (attempts > 1 && due) return 950 + attempts * 15 + overdueDays + goalBoost; // costó y toca repasar
-  if (due && attempts > 0) return 800 + overdueDays * 5 + goalBoost; // vence repaso espaciado
-  if (attempts > 1) return 650 + attempts * 10 + goalBoost; // costó más de un intento
-  if (!attempts) return 500 + goalBoost; // nuevo
-  if (srs) {
-    const ageDays = (now - srs.last) / 86_400_000;
-    return 300 + ageDays + goalBoost;
-  }
-  const ageDays = doneAt ? (now - doneAt) / 86_400_000 : 0;
-  return 200 + ageDays + goalBoost;
-}
-
-type PracticeMode = "review" | "weak" | "new" | "mix" | "phrases";
 
 export default function PracticeView({ items }: Props) {
   const state = useProgress();
@@ -90,59 +34,17 @@ export default function PracticeView({ items }: Props) {
   const now = Date.now();
 
   const pool = useMemo(() => {
-    const goal = state.settings.goal ?? "all";
-    const byGoal = (arr: PracticeItem[]) =>
-      goal === "all" ? arr : [...arr].sort((a, b) => (isSessionRelevantToGoal(b.sessionSlug, goal) ? 1 : 0) - (isSessionRelevantToGoal(a.sessionSlug, goal) ? 1 : 0));
-
-    const due = items.filter((item) => isExerciseDue(state, item.exercise.id, now));
-    const weak = items.filter((item) => {
-      const attempts = state.attempts[item.exercise.id] ?? 0;
-      const done = Boolean(state.completedExercises[item.exercise.id]);
-      return attempts > 0 && (!done || attempts > 1);
-    });
-    const unseen = items.filter((item) => !state.attempts[item.exercise.id]);
-
-    const ranked = [...items].sort((a, b) => reviewScore(b, state, now) - reviewScore(a, state, now));
-    const interleaved = shuffle(ranked.slice(0, Math.max(count * 4, 40)));
-
-    let base: PracticeItem[];
-    if (mode === "review") {
-      // Qué repasar hoy: vencidos (SRS) + débiles (sesgo suave por objetivo)
-      base = [...shuffle(byGoal(due)), ...shuffle(byGoal(weak)), ...interleaved, ...shuffle(unseen)];
-    } else if (mode === "weak") {
-      base = weak.length >= 3 ? shuffle(byGoal(weak)) : [...shuffle(byGoal(weak)), ...shuffle(byGoal(due)), ...interleaved, ...shuffle(unseen)];
-    } else if (mode === "new") {
-      base = unseen.length ? shuffle(byGoal(unseen)) : interleaved;
-    } else {
-      base = interleaved;
-    }
-
-    return pickUnique(base, Math.min(count, base.length));
-  }, [items, mode, count, seed, state.attempts, state.completedExercises, state.exerciseSrs, state.settings.goal, now]);
+    if (mode === "phrases") return [];
+    return buildExercisePool(items, state, mode, count, now);
+  }, [items, mode, count, seed, state, now]);
 
   const sessionId = `practice-${mode}-${seed}`;
   const exercises = pool.map((item) => item.exercise);
   const sources = pool.map((item) => ({ id: item.exercise.id, ...item }));
 
-  const phrasePool = useMemo(() => {
-    const due = getDuePhraseEntries(state);
-    const weakP = getWeakPhraseEntries(state, 40);
-    const merged = [...due];
-    for (const p of weakP) if (!merged.find((x) => x.id === p.id)) merged.push(p);
-    return merged.slice(0, Math.min(count, merged.length || count));
-  }, [state.phrasebook, count, seed, now]);
+  const phrasePool = useMemo(() => buildPhrasePool(state, count), [state, count, seed, now]);
 
-  const stats = useMemo(() => {
-    const weak = items.filter((item) => {
-      const attempts = state.attempts[item.exercise.id] ?? 0;
-      const done = Boolean(state.completedExercises[item.exercise.id]);
-      return attempts > 0 && (!done || attempts > 1);
-    }).length;
-    const unseen = items.filter((item) => !state.attempts[item.exercise.id]).length;
-    const dueReview = items.filter((item) => isExerciseDue(state, item.exercise.id, now)).length;
-    const duePhrases = getDuePhraseEntries(state).length;
-    return { weak, unseen, dueReview, duePhrases, total: items.length };
-  }, [items, state.attempts, state.completedExercises, state.exerciseSrs, state.phrasebook, now]);
+  const stats = useMemo(() => getPracticeStats(items, state, now), [items, state, now]);
 
   return (
     <div class="mx-auto max-w-[1120px] animate-fade-up">

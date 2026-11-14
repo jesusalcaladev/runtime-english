@@ -1,0 +1,20 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PracticeView from "../components/practice/PracticeView";
+import { ALL_SESSIONS } from "../data/curriculum";
+
+const items = ALL_SESSIONS.flatMap(({ session, module }) =>
+  session.exercises.map((exercise) => ({
+    exercise,
+    sessionId: session.id,
+    sessionSlug: session.slug,
+    sessionTitle: session.title,
+    moduleCode: module.code,
+    cefr: session.cefr,
+  })),
+);
+---
+
+<BaseLayout title="Práctica rápida · DevLingo" description="Repasa con ejercicios mezclados y enfócate en lo que más te cuesta.">
+  <PracticeView client:only="preact" items={items} />
+</BaseLayout>

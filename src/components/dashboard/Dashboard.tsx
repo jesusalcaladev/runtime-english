@@ -23,16 +23,16 @@ import {
   X,
   Zap,
 } from "lucide-preact";
-import type { NavModule } from "../data/curriculum";
+import type { NavModule } from "../../data/curriculum";
 import OnboardingCard from "./OnboardingCard";
 import Roadmap from "./Roadmap";
-import { GOAL_LABELS, isSessionRelevantToGoal } from "../lib/goals";
-import { getUiStage, t, tAction } from "../lib/i18n";
-import { getDuePhraseEntries, getReviewStats, progressStore, todayKey } from "../lib/progress";
-import { route } from "../lib/routes";
-import { aggregateErrorPatterns } from "../lib/errorPatterns";
-import { getConsistencyFeedback, getConsistencyStats, getLearningRecommendations } from "../lib/studyPlan";
-import { useProgress } from "../lib/useProgress";
+import { GOAL_LABELS, isSessionRelevantToGoal } from "../../lib/goals";
+import { getUiStage, t, tAction } from "../../lib/i18n";
+import { getDuePhraseEntries, getReviewStats, progressStore, todayKey } from "../../lib/progress";
+import { route } from "../../lib/routes";
+import { aggregateErrorPatterns } from "../../lib/errorPatterns";
+import { getConsistencyFeedback, getConsistencyStats, getLearningRecommendations } from "../../lib/studyPlan";
+import { useProgress } from "../../lib/useProgress";
 
 interface Props {
   modules: NavModule[];

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
-import { route } from "../lib/routes";
+import { route } from "../../lib/routes";
 import {
   ArrowLeft,
   ArrowRight,
@@ -20,12 +20,12 @@ import {
   Wand2,
   X,
 } from "lucide-preact";
-import type { Exercise } from "../lib/types";
-import { detectErrorSkills, skillLabel } from "../lib/errorPatterns";
-import { getUiStage, t, tAction, type UiStage } from "../lib/i18n";
-import { phraseId, progressStore } from "../lib/progress";
-import { isSpeechRecognitionSupported, recognizeOnce, speechMatchScore } from "../lib/speech";
-import { useProgress } from "../lib/useProgress";
+import type { Exercise } from "../../lib/types";
+import { detectErrorSkills, skillLabel } from "../../lib/errorPatterns";
+import { getUiStage, t, tAction, type UiStage } from "../../lib/i18n";
+import { phraseId, progressStore } from "../../lib/progress";
+import { isSpeechRecognitionSupported, recognizeOnce, speechMatchScore } from "../../lib/speech";
+import { useProgress } from "../../lib/useProgress";
 
 interface NextSession {
   slug: string;

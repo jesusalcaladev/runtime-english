@@ -1,18 +1,22 @@
 import { useEffect, useState } from "preact/hooks";
 import {
   Award,
+  BookText,
   Check,
   ChevronRight,
+  Dumbbell,
   LayoutGrid,
   MessageSquare,
+  Search,
   Settings,
   Sparkles,
   Trophy,
   X,
 } from "lucide-preact";
-import type { NavModule } from "../data/curriculum";
-import { getUiStage, t, tAction } from "../lib/i18n";
-import { useProgress } from "../lib/useProgress";
+import type { NavModule } from "../../data/curriculum";
+import { getUiStage, t, tAction } from "../../lib/i18n";
+import { route } from "../../lib/routes";
+import { useProgress } from "../../lib/useProgress";
 
 interface Props {
   modules: NavModule[];
@@ -31,7 +35,10 @@ export default function SidebarNav({ modules }: Props) {
       try {
         const params = new URLSearchParams(window.location.search);
         if (params.get("dev") === "1") {
-          window.localStorage.setItem("deveng_dev", "1");
+          window.localStorage.setItem("devlingo_dev", "1");
+        }
+        if (!window.localStorage.getItem("devlingo_dev") && window.localStorage.getItem("deveng_dev") === "1") {
+          window.localStorage.setItem("devlingo_dev", "1");
         }
       } catch {}
     };
@@ -39,10 +46,10 @@ export default function SidebarNav({ modules }: Props) {
 
     syncPath();
     document.addEventListener("astro:page-load", syncPath);
-    window.addEventListener("deveng:menu", onMenu);
+    window.addEventListener("devlingo:menu", onMenu);
     return () => {
       document.removeEventListener("astro:page-load", syncPath);
-      window.removeEventListener("deveng:menu", onMenu);
+      window.removeEventListener("devlingo:menu", onMenu);
     };
   }, []);
 
@@ -61,22 +68,29 @@ export default function SidebarNav({ modules }: Props) {
   const courseComplete = doneSessions >= totalSessions && doneExercises >= totalExercises;
   let devMode = false;
   try {
-    devMode = typeof window !== "undefined" && window.localStorage.getItem("deveng_dev") === "1";
+    devMode =
+      typeof window !== "undefined" &&
+      (window.localStorage.getItem("devlingo_dev") === "1" ||
+        window.localStorage.getItem("deveng_dev") === "1");
   } catch {}
   const canOpenCertificate = courseComplete || devMode;
 
   const workspaceLinks = [
-    { href: "/", label: t(stage, "roadmap"), icon: LayoutGrid },
-    { href: "/slang", label: t(stage, "slang"), icon: MessageSquare },
-    { href: "/achievements", label: t(stage, "achievements"), icon: Trophy },
-    { href: "/settings", label: t(stage, "settings"), icon: Settings },
+    { href: "/", label: t(stage, "roadmap"), icon: LayoutGrid, group: "main" as const },
+    { href: "/practice", label: stage === "en" ? "Practice" : "Práctica", icon: Dumbbell, group: "main" as const },
+    { href: "/dictionary", label: stage === "en" ? "Dictionary" : "Diccionario", icon: BookText, group: "main" as const },
+    { href: "/search", label: stage === "en" ? "Search" : "Buscar", icon: Search, group: "tools" as const },
+    { href: "/slang", label: t(stage, "slang"), icon: MessageSquare, group: "tools" as const },
+    { href: "/achievements", label: t(stage, "achievements"), icon: Trophy, group: "progress" as const },
+    { href: "/settings", label: t(stage, "settings"), icon: Settings, group: "progress" as const },
   ];
 
   const renderLink = (href: string, label: string, Icon: typeof LayoutGrid) => {
-    const active = href === "/" ? path === "/" : path.startsWith(href);
+    const routedHref = route(href);
+    const active = href === "/" ? path === routedHref : path.startsWith(routedHref);
     return (
       <a
-        href={href}
+        href={routedHref}
         onClick={() => setOpen(false)}
         class={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] transition ${
           active
@@ -113,7 +127,7 @@ export default function SidebarNav({ modules }: Props) {
       >
         <div class="flex items-center justify-between px-4 py-3 lg:hidden">
           <div class="flex items-center gap-2">
-            <span class="font-pixel-square text-sm">DevEng</span>
+            <span class="font-pixel-square text-base">DevLingo</span>
             <span class="font-mono text-[9px] tracking-normal text-base-content/35">
               Core
             </span>
@@ -129,22 +143,35 @@ export default function SidebarNav({ modules }: Props) {
         </div>
 
         <div class="flex-1 space-y-8 overflow-y-auto px-3 pb-4 pt-5">
-          <div class="space-y-1">
-            <p class="mono-label px-3 pb-1.5">{t(stage, "workspace")}</p>
-            {workspaceLinks.map((link) => renderLink(link.href, link.label, link.icon))}
-            {canOpenCertificate ? (
-              renderLink("/certificate", stage === "en" ? "Certificate" : "Certificado", Award)
-            ) : (
-              <span class="flex cursor-not-allowed items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] text-base-content/30">
-                <Award class="h-4 w-4 shrink-0 text-base-content/20" />
-                <span class="truncate">{stage === "en" ? "Certificate" : "Certificado"}</span>
-              </span>
-            )}
+          <div class="space-y-5">
+            <div class="space-y-1">
+              <p class="mono-label px-3 pb-2 text-base-content/55">{t(stage, "workspace")}</p>
+              {workspaceLinks.filter((l) => l.group === "main").map((link) => renderLink(link.href, link.label, link.icon))}
+            </div>
+            <div class="space-y-1">
+              <p class="mono-label px-3 pb-2 text-base-content/45">{stage === "en" ? "Tools" : "Herramientas"}</p>
+              {workspaceLinks.filter((l) => l.group === "tools").map((link) => renderLink(link.href, link.label, link.icon))}
+            </div>
+            <div class="space-y-1">
+              <p class="mono-label px-3 pb-2 text-base-content/45">{stage === "en" ? "Progress" : "Progreso"}</p>
+              {workspaceLinks.filter((l) => l.group === "progress").map((link) => renderLink(link.href, link.label, link.icon))}
+              {canOpenCertificate ? (
+                renderLink("/certificate", stage === "en" ? "Certificate" : "Certificado", Award)
+              ) : (
+                <span
+                  aria-disabled="true"
+                  class="flex cursor-not-allowed items-center gap-2.5 rounded-xl bg-base-300/45 px-3 py-2 text-[13px] text-base-content/25 opacity-70"
+                >
+                  <Award class="h-4 w-4 shrink-0 text-base-content/20" />
+                  <span class="truncate">{stage === "en" ? "Certificate" : "Certificado"}</span>
+                </span>
+              )}
+            </div>
           </div>
 
           {(["A1-A2", "B1-B2"] as const).map((level) => (
             <div class="space-y-4">
-              <p class="mono-label px-3 text-base-content/35">
+              <p class="mono-label px-3 text-base-content/55">
                 {t(stage, level === "A1-A2" ? "a1" : "b1")}
               </p>
               {grouped[level].map((module) => {
@@ -176,7 +203,7 @@ export default function SidebarNav({ modules }: Props) {
                     <div class="space-y-1.5">
                       {module.sessions.map((session) => {
                         const complete = Boolean(state.completedSessions[session.id]);
-                        const href = `/session/${session.slug}`;
+                        const href = route(`/session/${session.slug}`);
                         const active = path === href;
                         return (
                           <a
@@ -212,25 +239,6 @@ export default function SidebarNav({ modules }: Props) {
               })}
             </div>
           ))}
-        </div>
-
-        <div class="p-3">
-          <a
-            href="/slang"
-            onClick={() => setOpen(false)}
-            class="group block rounded-2xl bg-base-300/70 p-4 transition hover:bg-base-300"
-          >
-            <div class="flex items-center justify-between">
-              <span class="font-pixel text-[13px] leading-none text-base-content/80">
-                2026
-              </span>
-              <span class="rounded-full bg-accent/10 px-2 py-0.5 font-mono text-[9px] font-semibold tracking-wide text-accent">
-                {tAction(stage, "active")}
-              </span>
-            </div>
-            <p class="mt-3 text-[11px] font-medium text-base-content/70">{tAction(stage, "slangYear")}</p>
-            <p class="mt-1 text-[10px] leading-relaxed text-base-content/40">{tAction(stage, "slangYearBody")}</p>
-          </a>
         </div>
       </aside>
     </>

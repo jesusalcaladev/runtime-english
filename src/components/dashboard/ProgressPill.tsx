@@ -1,4 +1,4 @@
-import { useProgress } from "../lib/useProgress";
+import { useProgress } from "../../lib/useProgress";
 
 interface Props {
   a1SessionIds: string[];

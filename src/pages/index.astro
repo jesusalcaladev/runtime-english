@@ -1,14 +1,16 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import Dashboard from "../components/Dashboard";
+import Dashboard from "../components/dashboard/Dashboard";
 import { ACHIEVEMENTS } from "../lib/achievements";
 import {
   TOTAL_EXERCISES,
   TOTAL_SESSIONS,
+  getAllExerciseIds,
   getNavData,
 } from "../data/curriculum";
 
 const modules = getNavData();
+const exerciseIds = getAllExerciseIds();
 ---
 
 <BaseLayout>
@@ -18,12 +20,13 @@ const modules = getNavData();
     totalSessions={TOTAL_SESSIONS}
     totalExercises={TOTAL_EXERCISES}
     totalAchievements={ACHIEVEMENTS.length}
+    exerciseIds={exerciseIds}
   />
 
   <footer class="mx-auto mt-16 max-w-[1120px]">
     <div class="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-base-200/60 px-4 py-3">
-      <p class="font-pixel-square text-[11px] tracking-wide text-base-content/50">
-        DevEng Core
+      <p class="font-pixel-square text-[12px] tracking-wide text-base-content/50">
+        DevLingo
       </p>
       <p class="text-[10px] text-base-content/30">
         Inglés técnico para developers · progreso local en tu navegador

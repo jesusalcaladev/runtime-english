@@ -1,7 +1,7 @@
 import { Bookmark, BookmarkCheck } from "lucide-preact";
-import { phraseId, progressStore } from "../lib/progress";
-import { emitToast } from "../lib/toast";
-import { useProgress } from "../lib/useProgress";
+import { phraseId, progressStore } from "../../lib/progress";
+import { emitToast } from "../../lib/toast";
+import { useProgress } from "../../lib/useProgress";
 
 interface Props {
   en: string;

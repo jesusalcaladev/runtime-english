@@ -1,6 +1,6 @@
 import { ArrowDown, Check, RotateCcw } from "lucide-preact";
-import { getUiStage, tAction } from "../lib/i18n";
-import { useProgress } from "../lib/useProgress";
+import { getUiStage, tAction } from "../../lib/i18n";
+import { useProgress } from "../../lib/useProgress";
 
 interface Props {
   sessionId: string;
@@ -21,7 +21,7 @@ export default function SessionProgressCard({ sessionId, exerciseIds }: Props) {
 
   function replay() {
     window.dispatchEvent(
-      new CustomEvent("deveng:restart-session", { detail: { sessionId } }),
+      new CustomEvent("devlingo:restart-session", { detail: { sessionId } }),
     );
     scrollToPractice();
   }

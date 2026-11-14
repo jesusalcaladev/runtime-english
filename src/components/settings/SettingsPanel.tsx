@@ -1,4 +1,5 @@
-import { useEffect, useState } from "preact/hooks";
+import { useState } from "preact/hooks";
+import type { SyncStatus } from "../../lib/progressSync";
 import {
   Bell,
   Check,
@@ -38,22 +39,18 @@ function GitHubIcon(props: { class?: string }) {
   );
 }
 
-import type { LearningGoal } from "../lib/goals";
-import { getLanguageStatus } from "../lib/i18n";
-import {
-  getKokoroStatus,
-  kokoroIsCached,
-  loadKokoro,
-  stopSpeech,
-  subscribeKokoroStatus,
-  type KokoroStatus,
-} from "../lib/speech";
-import { getUser, onAuthStateChange, signInWithProvider, signOut } from "../lib/auth";
-import { isSupabaseConfigured } from "../lib/supabase";
-import { clearSyncError, getSyncStatus, subscribeSyncStatus, type SyncStatus } from "../lib/progressSync";
-import { progressStore, type ProgressSettings } from "../lib/progress";
-import { emitToast } from "../lib/toast";
-import { useProgress } from "../lib/useProgress";
+import type { LearningGoal } from "../../lib/goals";
+import { getLanguageStatus } from "../../lib/i18n";
+import { kokoroIsCached, loadKokoro, stopSpeech } from "../../lib/speech";
+import { signInWithProvider, signOut } from "../../lib/auth";
+import { isSupabaseConfigured } from "../../lib/supabase";
+import { clearSyncError } from "../../lib/progressSync";
+import { progressStore, type ProgressSettings } from "../../lib/progress";
+import { emitToast } from "../../lib/toast";
+import { useAuthSession } from "../../hooks/useAuthSession";
+import { useKokoroStatus } from "../../hooks/useKokoroStatus";
+import { useProgress } from "../../hooks/useProgress";
+import { useSyncStatus } from "../../hooks/useSyncStatus";
 
 const IMMERSION_OPTIONS: {
   value: ProgressSettings["immersion"];
@@ -157,15 +154,10 @@ function SyncStatusBar({ syncStatus }: { syncStatus: SyncStatus }) {
 
 export default function SettingsPanel() {
   const state = useProgress();
+  const kokoro = useKokoroStatus();
+  const syncStatus = useSyncStatus();
+  const authUser = useAuthSession();
   const [confirmReset, setConfirmReset] = useState(false);
-  const [kokoro, setKokoro] = useState<KokoroStatus>(() => getKokoroStatus());
-  const [syncStatus, setSyncStatus] = useState<SyncStatus>(() => {
-    try {
-      return getSyncStatus();
-    } catch {
-      return { phase: "idle", pending: false, lastSyncedAt: null, lastError: null, nextRetryAt: null, history: [] } as any;
-    }
-  });
   const [open, setOpen] = useState<Record<SectionId, boolean>>({
     profile: true,
     account: true,
@@ -173,27 +165,8 @@ export default function SettingsPanel() {
     audio: false,
     data: false,
   });
-
-  useEffect(() => {
-    try {
-      return subscribeSyncStatus(setSyncStatus);
-    } catch {
-      return;
-    }
-  }, []);
-  useEffect(() => subscribeKokoroStatus(setKokoro), []);
-  const [authUser, setAuthUser] = useState<{ email?: string | null; name?: string | null } | null>(null);
   const [authBusy, setAuthBusy] = useState<"google" | "github" | "out" | "sync" | null>(null);
   const [showSyncHistory, setShowSyncHistory] = useState(false);
-  useEffect(() => {
-    if (!isSupabaseConfigured()) return;
-    void getUser().then((u) =>
-      setAuthUser(u ? { email: u.email, name: (u.user_metadata as any)?.full_name || (u.user_metadata as any)?.name || null } : null),
-    );
-    return onAuthStateChange((u) =>
-      setAuthUser(u ? { email: u.email, name: (u.user_metadata as any)?.full_name || (u.user_metadata as any)?.name || null } : null),
-    );
-  }, []);
   const language = getLanguageStatus(state);
   const stage = language.stage;
   const completedSessions = Object.keys(state.completedSessions).length;

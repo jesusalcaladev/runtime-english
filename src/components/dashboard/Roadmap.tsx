@@ -1,7 +1,9 @@
-import { Check, ChevronRight, Clock, Layers, Play, Sparkles } from "lucide-preact";
-import type { NavModule, NavSession } from "../data/curriculum";
-import { getUiStage, tAction } from "../lib/i18n";
-import { useProgress } from "../lib/useProgress";
+import { Check, ChevronRight, Clock, Layers, Play, Sparkles, Target } from "lucide-preact";
+import type { NavModule, NavSession } from "../../data/curriculum";
+import { isSessionRelevantToGoal } from "../../lib/goals";
+import { getUiStage, tAction } from "../../lib/i18n";
+import { route } from "../../lib/routes";
+import { useProgress } from "../../lib/useProgress";
 
 interface Props {
   modules: NavModule[];
@@ -15,18 +17,21 @@ function SessionRow({
   nextSessionId,
   completedSessions,
   stage,
+  goal,
 }: {
   session: NavSession;
   nextSessionId: string;
   completedSessions: Record<string, number>;
   stage: Stage;
+  goal: "daily" | "interviews" | "work" | "all";
 }) {
   const complete = Boolean(completedSessions[session.id]);
   const isNext = session.id === nextSessionId && !complete;
+  const goalRelevant = goal !== "all" && isSessionRelevantToGoal(session.slug, goal);
 
   return (
     <a
-      href={`/session/${session.slug}`}
+      href={route(`/session/${session.slug}`)}
       className={`group flex items-center gap-3 rounded-2xl px-3 py-3 transition ${
         isNext
           ? "bg-accent/[0.08]"
@@ -61,6 +66,11 @@ function SessionRow({
               {tAction(stage, "continueHere")}
             </span>
           )}
+          {goalRelevant && !complete && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-base-content/[0.06] px-2 py-0.5 text-[9px] font-medium text-base-content/50" title="Recomendada para tu objetivo">
+              <Target className="h-2.5 w-2.5 text-accent/70" /> Meta
+            </span>
+          )}
         </span>
         <span className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-base-content/35">
           <span className="font-mono">{session.cefr}</span>
@@ -85,11 +95,13 @@ function ModuleCard({
   nextSessionId,
   completedSessions,
   stage,
+  goal,
 }: {
   module: NavModule;
   nextSessionId: string;
   completedSessions: Record<string, number>;
   stage: Stage;
+  goal: "daily" | "interviews" | "work" | "all";
 }) {
   const done = module.sessions.filter((session) => completedSessions[session.id]).length;
   const modulePct = Math.round((done / Math.max(module.sessions.length, 1)) * 100);
@@ -127,6 +139,7 @@ function ModuleCard({
             nextSessionId={nextSessionId}
             completedSessions={completedSessions}
             stage={stage}
+            goal={goal}
           />
         ))}
       </div>
@@ -137,6 +150,7 @@ function ModuleCard({
 export default function Roadmap({ modules, nextSessionId }: Props) {
   const state = useProgress();
   const stage = getUiStage(state);
+  const goal = state.settings.goal ?? "all";
   const totalSessions = modules.reduce((total, module) => total + module.sessions.length, 0);
   const totalExercises = modules.reduce(
     (total, module) => total + module.sessions.reduce((sum, session) => sum + session.exerciseCount, 0),
@@ -167,17 +181,17 @@ export default function Roadmap({ modules, nextSessionId }: Props) {
       <div className="rounded-[32px] bg-base-200/60 p-5 sm:p-7">
         <div className="flex flex-wrap items-end justify-between gap-5">
           <div>
-            <p className="mono-label">{tAction(stage, "route")}</p>
-            <h2 className="font-pixel mt-2 text-[1.9rem] leading-tight tracking-tight sm:text-[2.2rem]">
+            <p className="mono-label text-base-content/55">{tAction(stage, "route")}</p>
+            <h2 className="font-pixel mt-2 text-[2.2rem] leading-tight tracking-tight text-base-content/95 sm:text-[2.6rem]">
               {tAction(stage, "pathTitle")}
             </h2>
-            <p className="mt-2 text-sm text-base-content/45">
+            <p className="mt-2 text-[14px] leading-relaxed text-base-content/55">
               {modules.length} {tAction(stage, "modules")} · {totalSessions} {tAction(stage, "sessions")} · {totalExercises} {tAction(stage, "exercises")}
             </p>
           </div>
-          <div className="min-w-[160px] rounded-2xl bg-base-100/70 px-4 py-3">
-            <p className="font-mono text-2xl font-medium leading-none tracking-tight">{overallPct}%</p>
-            <p className="mt-1.5 text-[10px] text-base-content/40">{doneSessions} / {totalSessions} {tAction(stage, "pathDone")}</p>
+          <div className="min-w-[170px] rounded-2xl bg-base-100/80 px-4 py-3.5">
+            <p className="font-mono text-2xl font-semibold leading-none tracking-tight text-base-content/90">{overallPct}%</p>
+            <p className="mt-1.5 text-[11px] text-base-content/50">{doneSessions} / {totalSessions} {tAction(stage, "pathDone")}</p>
           </div>
         </div>
 
@@ -194,13 +208,13 @@ export default function Roadmap({ modules, nextSessionId }: Props) {
               <div key={group.id} className="space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="flex flex-wrap items-center gap-2.5">
-                    <span className="rounded-full bg-base-content px-3 py-1 font-mono text-[10px] font-semibold tracking-wide text-base-100">
+                    <span className="rounded-full bg-base-content px-3 py-1.5 font-mono text-[10px] font-semibold tracking-wide text-base-100">
                       {group.level}
                     </span>
-                    <h3 className="font-pixel text-[1.35rem] leading-none tracking-tight">{group.title}</h3>
+                    <h3 className="font-pixel text-[1.6rem] leading-none tracking-tight text-base-content/90">{group.title}</h3>
                   </div>
-                  <span className="text-[11px] text-base-content/40">
-                    {done}/{sessions.length} · {pct}%
+                  <span className="text-[12px] font-medium text-base-content/55">
+                    {done}/{sessions.length} sesiones · {pct}%
                   </span>
                 </div>
 
@@ -216,6 +230,7 @@ export default function Roadmap({ modules, nextSessionId }: Props) {
                       nextSessionId={nextSessionId}
                       completedSessions={state.completedSessions}
                       stage={stage}
+                      goal={goal}
                     />
                   ))}
                 </div>

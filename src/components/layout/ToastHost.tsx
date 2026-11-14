@@ -1,6 +1,6 @@
 import { useEffect, useState } from "preact/hooks";
 import { CircleAlert, CircleCheck, Info, Trophy } from "lucide-preact";
-import { subscribeToasts, type ToastMessage } from "../lib/toast";
+import { subscribeToasts, type ToastMessage } from "../../lib/toast";
 
 export default function ToastHost() {
   const [toasts, setToasts] = useState<ToastMessage[]>([]);

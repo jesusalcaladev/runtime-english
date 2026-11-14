@@ -1,10 +1,11 @@
 ---
 import { Sparkles, TrendingUp, CalendarClock, Languages, TriangleAlert } from "@lucide/astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import SlangExplorer from "../components/SlangExplorer";
+import SlangExplorer from "../components/slang/SlangExplorer";
 import PageHeader from "../components/ui/PageHeader.astro";
 import { SLANG } from "../data/slang";
 import { ALL_SESSIONS } from "../data/curriculum";
+import { route } from "../lib/routes";
 
 const newTerms = SLANG.filter((entry) => entry.status === "2026").length;
 const rising = SLANG.filter((entry) => entry.status === "en alza").length;
@@ -15,7 +16,7 @@ const slangSessions = ALL_SESSIONS.filter((entry) => entry.module.id === "m7").m
 ---
 
 <BaseLayout
-  title="Slang 2026 para developers · DevEng Core"
+  title="Slang 2026 para developers · DevLingo"
   description="El slang técnico y de internet más reciente: vibe coding, AI slop, workslop, meat proxy, cooked, aura farming y más."
 >
   <div class="mx-auto max-w-[1120px] animate-fade-up space-y-8">
@@ -31,6 +32,9 @@ const slangSessions = ALL_SESSIONS.filter((entry) => entry.module.id === "m7").m
         </span>
         <span class="rounded-full bg-base-200 px-3 py-1.5 text-[10px] text-base-content/40">
           Nov 2026
+        </span>
+        <span class="rounded-full bg-base-200 px-3 py-1.5 text-[10px] text-base-content/50">
+          Guarda términos con el marcador para crear tu lista personal
         </span>
       </div>
     </PageHeader>
@@ -75,7 +79,7 @@ const slangSessions = ALL_SESSIONS.filter((entry) => entry.module.id === "m7").m
       <div class="flex flex-wrap items-end justify-between gap-2">
         <div>
           <p class="mono-label">Slang / Práctica</p>
-          <h2 class="font-pixel mt-1.5 text-[1.35rem] leading-tight tracking-tight">
+          <h2 class="font-pixel mt-1.5 text-[1.5rem] leading-tight tracking-tight">
             Sesiones para usar el slang
           </h2>
         </div>
@@ -87,7 +91,7 @@ const slangSessions = ALL_SESSIONS.filter((entry) => entry.module.id === "m7").m
       <div class="grid gap-3 sm:grid-cols-2">
         {slangSessions.map((session) => (
           <a
-            href={`/session/${session.slug}`}
+            href={route(`/session/${session.slug}`)}
             class="group rounded-2xl bg-base-200 p-4 transition hover:bg-base-300/70"
           >
             <div class="flex items-center justify-between gap-2">
@@ -114,7 +118,7 @@ const slangSessions = ALL_SESSIONS.filter((entry) => entry.module.id === "m7").m
 
     <SlangExplorer client:only="preact" entries={SLANG} />
 
-    <section class="flex gap-3 rounded-2xl bg-warning/[0.06] p-4">
+    <section class="mt-4 flex gap-3 rounded-2xl bg-warning/[0.06] p-4">
       <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-warning/10 text-warning">
         <TriangleAlert class="h-3.5 w-3.5" />
       </span>

@@ -4,9 +4,10 @@ import "@fontsource-variable/geist-mono";
 import "@fontsource-variable/geist-pixel";
 import "../styles/global.css";
 import { ClientRouter } from "astro:transitions";
-import Topbar from "../components/Topbar.astro";
-import SidebarNav from "../components/SidebarNav";
-import ToastHost from "../components/ToastHost";
+
+import Topbar from "../components/layout/Topbar.astro";
+import SidebarNav from "../components/layout/SidebarNav";
+import ToastHost from "../components/layout/ToastHost";
 import {
   ALL_SESSIONS,
   TOTAL_EXERCISES,
@@ -21,7 +22,7 @@ interface Props {
 }
 
 const {
-  title = "DevEng // Core — Inglés técnico para developers",
+  title = "DevLingo — Inglés técnico para developers",
   description = "Aprende inglés técnico de A1 a B2 con sesiones cortas, ejercicios reales y el slang de 2026.",
   fullWidth = false,
 } = Astro.props;
@@ -36,7 +37,7 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B
 ---
 
 <!doctype html>
-<html lang="es" data-theme="deveng" transition:animate="none">
+<html lang="es" data-theme="devlingo">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -52,7 +53,7 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B
       (function () {
         function applyStoredPreferences() {
           try {
-            var raw = localStorage.getItem("deveng_core_v2");
+            var raw = localStorage.getItem("devlingo_v2");
             var theme = null;
             var parsed = null;
             if (raw) {
@@ -65,18 +66,19 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B
                 : "light";
             }
             document.documentElement.dataset.theme =
-              theme === "dark" ? "deveng-dark" : "deveng";
+              theme === "dark" ? "devlingo-dark" : "devlingo";
             var ttsEnabled =
               parsed && parsed.settings ? parsed.settings.ttsEnabled : true;
             document.documentElement.dataset.tts = ttsEnabled === false ? "off" : "on";
           } catch (error) {
-            document.documentElement.dataset.theme = "deveng";
+            document.documentElement.dataset.theme = "devlingo";
             document.documentElement.dataset.tts = "on";
           }
         }
 
         applyStoredPreferences();
         document.addEventListener("astro:after-swap", applyStoredPreferences);
+        document.addEventListener("astro:page-load", applyStoredPreferences);
       })();
     </script>
   </head>
@@ -107,39 +109,68 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B
     <ToastHost client:only="preact" transition:persist />
 
     <script is:inline>
-      (function () {
-        var capacitor = window.Capacitor;
-        if (!capacitor || !capacitor.isNativePlatform || !capacitor.isNativePlatform()) {
-          return;
-        }
-        if (!document.startViewTransition) return;
-        document.startViewTransition = function (callback) {
-          var update = Promise.resolve().then(function () {
-            return callback();
+      if ("serviceWorker" in navigator) {
+        var isNativeApp =
+          window.Capacitor &&
+          typeof window.Capacitor.isNativePlatform === "function" &&
+          window.Capacitor.isNativePlatform();
+        if (isNativeApp) {
+          // El APK sirve todo local; el SW puede devolver HTML cacheado obsoleto
+          // y sus fallbacks al dashboard rompen la navegación en Capacitor.
+          navigator.serviceWorker
+            .getRegistrations()
+            .then(function (registrations) {
+              registrations.forEach(function (registration) {
+                registration.unregister();
+              });
+            })
+            .catch(function () {});
+          if (window.caches && caches.keys) {
+            caches
+              .keys()
+              .then(function (keys) {
+                keys.forEach(function (key) {
+                  if (key.indexOf("devlingo") === 0) {
+                    caches.delete(key);
+                  }
+                });
+              })
+              .catch(function () {});
+          }
+        } else {
+          window.addEventListener("load", function () {
+            navigator.serviceWorker.register("/sw.js").catch(function () {});
           });
-          return {
-            ready: Promise.resolve(),
-            updateCallbackDone: update,
-            finished: update,
-            skipTransition: function () {},
-          };
-        };
-      })();
+        }
+      }
     </script>
 
     <script>
       import { Capacitor } from "@capacitor/core";
       import { App } from "@capacitor/app";
+      import { Browser } from "@capacitor/browser";
+      import { syncStreakReminder } from "../lib/notifications";
+      import { progressStore } from "../lib/progress";
       import { initVoices, speak } from "../lib/speech";
+      import { supabase } from "../lib/supabase";
 
       initVoices();
+      void syncStreakReminder(progressStore.getState().settings);
+      try {
+        progressStore.backfillPhrasebook();
+      } catch (e) {
+        console.warn("Dictionary backfill failed", e);
+      }
 
       const nativeWindow = window as Window & {
-        __devengBackBound?: boolean;
-        __devengSpeechBound?: boolean;
+        __devlingoBackBound?: boolean;
+        __devlingoSpeechBound?: boolean;
+        __devlingoAuthBound?: boolean;
       };
-      if (Capacitor.isNativePlatform() && !nativeWindow.__devengBackBound) {
-        nativeWindow.__devengBackBound = true;
+
+      // Manejo del botón atrás en Android/Capacitor
+      if (Capacitor.isNativePlatform() && !nativeWindow.__devlingoBackBound) {
+        nativeWindow.__devlingoBackBound = true;
         App.addListener("backButton", ({ canGoBack }) => {
           if (canGoBack) {
             window.history.back();
@@ -149,8 +180,53 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B
         });
       }
 
-      if (!nativeWindow.__devengSpeechBound) {
-        nativeWindow.__devengSpeechBound = true;
+      // Retorno de OAuth nativo (Supabase PKCE) vía deep link
+      if (Capacitor.isNativePlatform() && !nativeWindow.__devlingoAuthBound) {
+        nativeWindow.__devlingoAuthBound = true;
+        void App.addListener("appUrlOpen", async ({ url }) => {
+          if (!url.startsWith("com.devlingo.core://login-callback")) return;
+          try {
+            await Browser.close();
+          } catch {}
+          if (!supabase) return;
+          try {
+            const parsed = new URL(url);
+            const errorDesc =
+              parsed.searchParams.get("error_description") ||
+              parsed.searchParams.get("error");
+            if (errorDesc) {
+              console.error("Supabase auth error:", errorDesc);
+              return;
+            }
+            const code = parsed.searchParams.get("code");
+            if (code) {
+              const { error } = await supabase.auth.exchangeCodeForSession(code);
+              if (error) console.error("exchangeCodeForSession:", error.message);
+              return;
+            }
+            // Fallback: si el flujo devolviera tokens en el hash
+            const hash = parsed.hash.startsWith("#") ? parsed.hash.slice(1) : parsed.hash;
+            if (hash) {
+              const params = new URLSearchParams(hash);
+              const access_token = params.get("access_token");
+              const refresh_token = params.get("refresh_token");
+              if (access_token && refresh_token) {
+                const { error } = await supabase.auth.setSession({
+                  access_token,
+                  refresh_token,
+                });
+                if (error) console.error("setSession:", error.message);
+              }
+            }
+          } catch (e) {
+            console.error("Native auth callback failed:", e);
+          }
+        });
+      }
+
+      // Delegación de TTS para botones con data-speak
+      if (!nativeWindow.__devlingoSpeechBound) {
+        nativeWindow.__devlingoSpeechBound = true;
         document.addEventListener("click", (event) => {
           const target = event.target;
           if (!(target instanceof Element)) return;

@@ -1,6 +1,6 @@
 import { Moon, Sun } from "lucide-preact";
-import { progressStore } from "../lib/progress";
-import { useProgress } from "../lib/useProgress";
+import { progressStore } from "../../lib/progress";
+import { useProgress } from "../../lib/useProgress";
 
 export default function ThemeToggle() {
   const state = useProgress();

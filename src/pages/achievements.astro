@@ -1,7 +1,7 @@
 ---
 import { Trophy } from "@lucide/astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import AchievementsGrid from "../components/AchievementsGrid";
+import AchievementsGrid from "../components/achievements/AchievementsGrid";
 import PageHeader from "../components/ui/PageHeader.astro";
 import { ACHIEVEMENTS } from "../lib/achievements";
 import { TOTAL_EXERCISES, TOTAL_SESSIONS } from "../data/curriculum";
@@ -18,7 +18,7 @@ const totalXp = ACHIEVEMENTS.reduce((total, achievement) => total + achievement.
 ---
 
 <BaseLayout
-  title="Logros · DevEng Core"
+  title="Logros · DevLingo"
   description="Tus logros de inglés técnico: sesiones, rachas, slang y progreso A1-B2 guardados en tu navegador."
 >
   <div class="mx-auto max-w-[1120px] animate-fade-up space-y-8">

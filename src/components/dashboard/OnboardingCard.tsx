@@ -1,8 +1,8 @@
 import { useMemo, useState } from "preact/hooks";
 import { ArrowRight, Check, ClipboardCheck, Sparkles, Target } from "lucide-preact";
-import type { LearningGoal } from "../lib/goals";
-import { progressStore, type DiagnosticResult } from "../lib/progress";
-import { recommendPlan, toStudyPlan } from "../lib/studyPlan";
+import type { LearningGoal } from "../../lib/goals";
+import { progressStore, type DiagnosticResult } from "../../lib/progress";
+import { recommendPlan, toStudyPlan } from "../../lib/studyPlan";
 
 type Step = 1 | 2 | 3 | 4;
 
