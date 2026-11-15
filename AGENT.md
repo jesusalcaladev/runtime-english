@@ -12,12 +12,12 @@ Permanent guide for working in this repository (`lear-english-for-dev`). Keep th
 
 ## Relevant structure
 
-- `src/pages/` — Astro routes: `/` (dashboard), `/session/[slug]`, `/slang`, `/achievements`, `/settings`, `/certificate`, `/search`, `/practice`.
+- `src/pages/` — Astro routes: `/` (dashboard), `/session/[slug]`, `/slang`, `/achievements`, `/settings`, `/certificate`, `/search`, `/practice`, `/my-lessons`, `/my-lesson` (custom lesson viewer via query params, client-rendered).
 - `src/layouts/BaseLayout.astro` — global shell, font/style loading, preferences (theme/TTS), `ClientRouter`, persistent sidebar/topbar/toasts/update notice, Capacitor integration (back button, delegated TTS, OAuth callback).
-- `src/components/` — Preact islands (`Dashboard.tsx`, `ExerciseRunner.tsx`, `SidebarNav.tsx`, `SearchView.tsx`, `PracticeView.tsx`, `OnboardingCard.tsx`, `SettingsPanel.tsx`, etc.), Astro components (`Topbar.astro`, `LessonBlocks.astro`) and `ui/`. Includes `layout/AppUpdateBanner.tsx` to notify about new APK versions on Android.
+- `src/components/` — Preact islands (`Dashboard.tsx`, `ExerciseRunner.tsx`, `SidebarNav.tsx`, `SearchView.tsx`, `PracticeView.tsx`, `OnboardingCard.tsx`, `SettingsPanel.tsx`, custom lessons in `custom-lessons/`, etc.), Astro components (`Topbar.astro`, `LessonBlocks.astro`) and `ui/`. Includes `layout/AppUpdateBanner.tsx` to notify about new APK versions on Android.
 - `src/data/curriculum/` — modules `m1.ts`…`m9.ts` and registry/helpers in `index.ts` (`MODULES`, `ALL_SESSIONS`, `getNavData`, etc.).
 - `src/data/slang.ts` — slang deck.
-- `src/lib/` — types (`types.ts`), progress/store (`progress.ts`, `useProgress.ts`), achievements (`achievements.ts`), immersion/i18n (`i18n.ts`), voice (`speech.ts`), toasts (`toast.ts`), APK update logic (`appUpdate.ts`), etc.
+- `src/lib/` — types (`types.ts`), progress/store (`progress.ts`, `useProgress.ts`), achievements (`achievements.ts`), immersion/i18n (`i18n.ts`), voice (`speech.ts`), toasts (`toast.ts`), APK update logic (`appUpdate.ts`), custom lessons storage/import (`customLessons.ts`), etc.
 - `src/styles/global.css` — Tailwind/daisyUI, `runtimeenglish` and `runtimeenglish-dark` themes, base utilities/styles.
 - `public/` — `favicon.svg`, `manifest.webmanifest`, `sw.js`/custom SW, `app-update.json` (update manifest for the native APK). **APK binaries are not versioned** (`public/runtimeenglish.apk` and `public/*.apk` are ignored).
 - `src/lib/routes.ts` — `route()` helper to generate internal `.html` links compatible with Capacitor/APK.
@@ -90,6 +90,11 @@ npm run android:apk
 - **Quick practice** (`/practice`): mixed rounds (review/new/mix) reusing `ExerciseRunner`.
 - **Onboarding** on the dashboard for users who are not onboarded.
 - **Basic insights** on the dashboard (e.g. accuracy/attempts, quick access).
+- **Custom lessons / Mis lecciones** (`/my-lessons`, `/my-lesson?id=...`): users can create and save personalized lessons locally.
+  - **Flow:** enter a topic, copy an optimized AI prompt, generate lesson JSON with an external AI, paste/validate/import the JSON, then open and practice the lesson.
+  - **Storage:** local-first in browser `localStorage` key `runtimeenglish_custom_lessons_v1` (`src/lib/customLessons.ts`); no Supabase table/sync for custom lesson content yet.
+  - **Implementation:** `src/components/custom-lessons/*` (list/import UI, client block renderer, lesson viewer) + `ExerciseRunner` reuse for practice/progress tracking by custom session/exercise IDs.
+  - **Prompt/validation:** import prompt is explicit about required schema/fields per exercise type and requests JSON-only output (no markdown/emojis); importer validates/normalizes supported blocks and exercise formats before saving.
 
 ### Voice (TTS)
 

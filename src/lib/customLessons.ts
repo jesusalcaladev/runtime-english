@@ -333,6 +333,7 @@ export function buildAiLessonPrompt(topic: string): string {
     "REQUISITOS GENERALES:",
     "- Usa español en explicaciones, descripciones y significados; usa inglés en ejemplos, vocabulario EN y ejercicios.",
     "- Enfoca los ejemplos a contexto de developers/tech cuando sea natural (código, bugs, PRs, reuniones, deploys, tickets, docs).",
+    "- No uses emojis en ningún campo del JSON.",
     "- Crea exactamente 4 a 6 bloques en \"blocks\".",
     "- Crea exactamente 6 ejercicios en \"exercises\".",
     "- Usa IDs únicos: ex-1, ex-2, ex-3, ex-4, ex-5, ex-6.",

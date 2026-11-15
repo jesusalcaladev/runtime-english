@@ -146,11 +146,11 @@ export default function CustomLessonsView() {
               </label>
 
               <div class="space-y-2 rounded-xl bg-base-100 p-3 text-[12px] leading-relaxed text-base-content/65">
-                <p class="font-medium text-base-content/80">Este prompt ya incluye reglas estrictas para que el JSON salga bien a la primera:</p>
+                <p class="font-medium text-base-content/80">Prompt optimizado para generar una lección compatible</p>
                 <ul class="list-disc space-y-1 pl-4">
-                  <li>Responde solo JSON válido (sin markdown ni texto extra).</li>
-                  <li>Formato exacto por tipo de ejercicio (incluye <span class="font-mono">fix-error</span>, <span class="font-mono">builder</span>, <span class="font-mono">dialogue-order</span>).</li>
-                  <li>Ejemplo completo incluido para evitar errores de campos.</li>
+                  <li>Solicita únicamente JSON válido (sin markdown ni texto adicional).</li>
+                  <li>Define la estructura y los campos requeridos para cada tipo de ejercicio.</li>
+                  <li>Incluye un ejemplo completo para reducir errores de formato.</li>
                 </ul>
               </div>
 
