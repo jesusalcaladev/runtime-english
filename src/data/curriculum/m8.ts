@@ -1305,5 +1305,113 @@ export const m8: Module = {
         }
       ],
     },
+    {
+      id: "m8-l12",
+      slug: "repaso-final-lectura-y-aclaraciones",
+      title: "Repaso final: lectura, preguntas y aclaraciones",
+      step: "A2-B1 · Paso 8.10 · Repaso final",
+      cefr: "A2",
+      minutes: 8,
+      summary:
+        "Sesión corta para separar y reforzar lectura rápida de docs y cómo pedir aclaraciones con frases ya conocidas.",
+      objectives: [
+        "Resumir requisitos o puntos clave de documentación.",
+        "Pedir repetición, explicación o confirmación con cortesía.",
+        "Verificar entendimiento antes de actuar."
+      ],
+      pronunciation:
+        "In short, we must validate the input. Could you explain that again, please?",
+      blocks: [
+        {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Repasa m1-l4 (preguntar y pedir aclaraciones) y m8-l1 (lectura rápida de docs y specs). Esta práctica usa solo frases y estructuras ya enseñadas en esas lecciones."
+        },
+        {
+          type: "technique",
+          name: "Leer y aclarar antes de implementar",
+          desc: "Docs: extrae lo clave ('In short...', 'According to the docs...', 'The main requirement is...'). Aclarar: pide repetición/explicación ('Could you explain that again?', 'Sorry, I didn't catch that.') y confirma ('Let me confirm...')."
+        },
+        {
+          type: "phrases",
+          title: "Chunks de apoyo",
+          items: [
+            { en: "In short, we must send an API key.", es: "En resumen, debemos enviar una clave de API." },
+            { en: "According to the docs, this endpoint is deprecated.", es: "Según la documentación, este endpoint está obsoleto." },
+            { en: "Could you explain that again?", es: "¿Podrías explicarlo otra vez?" },
+            { en: "Let me confirm: we deploy on Friday, right?", es: "Déjame confirmar: desplegamos el viernes, ¿verdad?" }
+          ]
+        }
+      ],
+      exercises: [
+        {
+          id: "m8-l12-e1",
+          type: "choice",
+          prompt: "Quieres resumir un requisito de la documentación. ¿Qué opción es mejor?",
+          options: [
+            "In short, we must validate the input.",
+            "Input maybe validate.",
+            "Validate input now please short.",
+            "Docs is input."
+          ],
+          answer: 0,
+          explanation:
+            "'In short...' es una forma clara de resumir el punto principal (m8-l1)."
+        },
+        {
+          id: "m8-l12-e2",
+          type: "write",
+          prompt: "Escríbelo en inglés: '¿Podrías explicarlo otra vez?'",
+          answer: "Could you explain that again?",
+          accept: ["Could you explain that again, please?"],
+          hint: "Usa 'Could you explain that again?'",
+          explanation:
+            "Pedir explicación de nuevo es normal y profesional (m1-l4)."
+        },
+        {
+          id: "m8-l12-e3",
+          type: "builder",
+          prompt: "Construye: 'Según la documentación, este endpoint está obsoleto.'",
+          words: ["According to the docs,", "this endpoint", "is deprecated."],
+          answer: "According to the docs, this endpoint is deprecated.",
+          explanation:
+            "Citar la documentación da contexto claro al comunicar un estado técnico."
+        },
+        {
+          id: "m8-l12-e4",
+          type: "choice",
+          prompt: "No entendiste lo que dijeron en una call. ¿Qué dices?",
+          options: [
+            "Sorry, I didn't catch that.",
+            "You speak bad.",
+            "No.",
+            "I ignore that."
+          ],
+          answer: 0,
+          explanation:
+            "'Sorry, I didn't catch that' es una forma educada de pedir que repitan (m1-l4)."
+        },
+        {
+          id: "m8-l12-e5",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Déjame confirmar: desplegamos el viernes, ¿verdad?'",
+          answer: "Let me confirm: we deploy on Friday, right?",
+          accept: ["Let me confirm: we deploy on Friday, right"],
+          hint: "Usa 'Let me confirm: ... , right?'",
+          explanation:
+            "Confirmar el entendimiento evita errores antes de actuar."
+        },
+        {
+          id: "m8-l12-e6",
+          type: "builder",
+          prompt: "Construye: 'El requisito principal es validar la entrada.'",
+          words: ["The main requirement", "is to validate", "the input."],
+          answer: "The main requirement is to validate the input.",
+          explanation:
+            "Identificar el requisito principal ayuda a enfocarte al leer una spec."
+        }
+      ],
+    },
   ],
 };
