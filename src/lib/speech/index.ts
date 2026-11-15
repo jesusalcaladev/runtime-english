@@ -160,6 +160,11 @@ async function playSpeech(text: string, button?: HTMLElement | null): Promise<vo
   const engine = getSpeechEngine();
 
   if (engine === "kokoro") {
+    if (!isKokoroReady() && !isKokoroLoading()) {
+      // Start loading on demand when HQ voice is selected but not yet ready.
+      void loadKokoro().catch(() => {});
+    }
+
     if (isKokoroReady()) {
       const handledByKokoro = await speakWithKokoro(text, button).catch(() => false);
       if (handledByKokoro) return;
@@ -173,7 +178,7 @@ async function playSpeech(text: string, button?: HTMLElement | null): Promise<vo
     }
 
     if (isKokoroLoading()) {
-      console.info("Kokoro loading; using system voice fallback for now.");
+      emitToast("HQ voice (Kokoro) is loading. Using the system voice for now.", "info");
     }
   }
 

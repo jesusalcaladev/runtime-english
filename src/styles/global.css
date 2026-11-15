@@ -221,12 +221,13 @@
 
   [data-speak][data-speak-loading="true"] {
     position: relative;
+    padding-right: 1.9rem;
   }
 
   [data-speak][data-speak-loading="true"]::after {
     content: "";
     position: absolute;
-    right: 0.4rem;
+    right: 0.6rem;
     top: 50%;
     width: 0.7rem;
     height: 0.7rem;
@@ -236,11 +237,6 @@
     border-top-color: var(--color-accent);
     animation: speak-spin 0.7s linear infinite;
     pointer-events: none;
-  }
-
-  button[data-speak].btn[data-speak-loading="true"],
-  a[data-speak].btn[data-speak-loading="true"] {
-    padding-right: 1.9rem;
   }
 
   [data-speak][data-speak-loading="true"] [data-speak-loading-hide] {
