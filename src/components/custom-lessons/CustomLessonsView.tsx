@@ -100,7 +100,7 @@ export default function CustomLessonsView() {
           <h2 class="font-pixel mt-1 text-[2rem] leading-none tracking-tight">Mis lecciones</h2>
           <p class="mt-2 max-w-2xl text-sm leading-relaxed text-base-content/55">
             Crea tus propias lecciones (por ejemplo: <span class="font-medium text-base-content/75">have to</span>,
-            phrasal verbs, entrevistas, etc.). Puedes generarlas con una IA usando un prompt y luego importar el JSON.
+            phrasal verbs, entrevistas, etc.). Copia un prompt optimizado, pídelo a una IA y pega el JSON aquí.
           </p>
         </div>
         <button
@@ -120,19 +120,20 @@ export default function CustomLessonsView() {
               <Wand2 class="h-4 w-4" />
             </span>
             <div class="min-w-0 flex-1">
-              <h3 class="text-sm font-semibold">Agregar lección con JSON (manual o con IA)</h3>
+              <h3 class="text-sm font-semibold">Agregar lección con IA (flujo rápido)</h3>
               <p class="mt-1 text-[12px] leading-relaxed text-base-content/55">
-                Flujo rápido: 1) escribe el tema, 2) copia el prompt, 3) pégalo en ChatGPT/DeepSeek/Gemini, 4) copia el JSON que te devuelva, 5) impórtalo aquí.
+                1) Escribe el tema. 2) Copia el prompt. 3) Pégalo en ChatGPT/DeepSeek/Gemini. 4) Copia el JSON que te devuelva. 5) Pégalo y guárdalo aquí.
               </p>
             </div>
           </div>
 
           <div class="grid gap-4 lg:grid-cols-2">
-            <div class="space-y-3 rounded-2xl bg-base-100/50 p-4">
+            <div class="space-y-4 rounded-2xl bg-base-100/50 p-4">
               <div class="flex items-center gap-2">
                 <Sparkles class="h-4 w-4 text-accent" />
-                <p class="text-[13px] font-medium">1) Genera el JSON con una IA</p>
+                <p class="text-[13px] font-medium">1) Copia el prompt optimizado</p>
               </div>
+
               <label class="flex flex-col gap-1.5">
                 <span class="text-[11px] font-medium text-base-content/45">Tema que quieres aprender</span>
                 <input
@@ -143,13 +144,23 @@ export default function CustomLessonsView() {
                   class="h-10 w-full rounded-xl bg-base-100 px-3.5 text-sm"
                 />
               </label>
-              <div class="rounded-xl bg-base-100 p-3">
-                <p class="mb-2 text-[10px] font-medium uppercase tracking-wide text-base-content/35">Prompt listo para copiar</p>
-                <pre class="max-h-56 overflow-auto whitespace-pre-wrap text-[11px] leading-relaxed text-base-content/70">{prompt}</pre>
+
+              <div class="space-y-2 rounded-xl bg-base-100 p-3 text-[12px] leading-relaxed text-base-content/65">
+                <p class="font-medium text-base-content/80">Este prompt ya incluye reglas estrictas para que el JSON salga bien a la primera:</p>
+                <ul class="list-disc space-y-1 pl-4">
+                  <li>Responde solo JSON válido (sin markdown ni texto extra).</li>
+                  <li>Formato exacto por tipo de ejercicio (incluye <span class="font-mono">fix-error</span>, <span class="font-mono">builder</span>, <span class="font-mono">dialogue-order</span>).</li>
+                  <li>Ejemplo completo incluido para evitar errores de campos.</li>
+                </ul>
               </div>
-              <button type="button" onClick={copyPrompt} class="btn btn-sm rounded-lg bg-base-100">
-                <Copy class="h-3.5 w-3.5" /> Copiar prompt
+
+              <button type="button" onClick={copyPrompt} class="btn btn-primary btn-sm rounded-lg">
+                <Copy class="h-3.5 w-3.5" /> Copiar prompt para IA
               </button>
+
+              <p class="text-[11px] leading-relaxed text-base-content/45">
+                Recomendación: pide a la IA que no cambie la estructura ni los tipos de ejercicios del ejemplo.
+              </p>
             </div>
 
             <div class="space-y-3 rounded-2xl bg-base-100/50 p-4">
@@ -162,13 +173,13 @@ export default function CustomLessonsView() {
                 <textarea
                   value={jsonText}
                   onInput={(event) => setJsonText((event.currentTarget as HTMLTextAreaElement).value)}
-                  placeholder='Pega aquí el JSON que te devolvió la IA (o tu JSON manual)...'
-                  class="min-h-[260px] w-full rounded-xl bg-base-100 p-3 font-mono text-[12px] leading-relaxed"
+                  placeholder='Pega aquí SOLO el JSON (debe empezar con { y terminar con })'
+                  class="min-h-[320px] w-full rounded-xl bg-base-100 p-3 font-mono text-[12px] leading-relaxed"
                 />
               </label>
               {errors.length > 0 && (
                 <div class="rounded-xl bg-error/10 p-3 text-[12px] text-error">
-                  <p class="font-medium">Revisa esto antes de guardar:</p>
+                  <p class="font-medium">No se pudo guardar la lección:</p>
                   <ul class="mt-1.5 list-disc space-y-1 pl-4">
                     {errors.map((error) => (
                       <li key={error}>{error}</li>
@@ -193,7 +204,7 @@ export default function CustomLessonsView() {
               </div>
               <p class="text-[11px] leading-relaxed text-base-content/45">
                 <Lightbulb class="mr-1 inline h-3.5 w-3.5 text-warning/70" />
-                Las lecciones personalizadas se guardan en este dispositivo (localmente) por ahora.
+                Se guarda localmente en este dispositivo. Si la IA añade texto extra fuera del JSON, bórralo y deja solo el objeto JSON.
               </p>
             </div>
           </div>
