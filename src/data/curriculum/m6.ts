@@ -542,5 +542,113 @@ export const m6: Module = {
         },
       ],
     },
+    {
+      id: "m6-l5",
+      slug: "practica-seguridad-arquitectura-performance",
+      title: "Práctica: seguridad, arquitectura y performance",
+      step: "B2 · Paso 6.5 · Práctica guiada",
+      cefr: "B2",
+      minutes: 8,
+      summary:
+        "Sesión corta para separar y reforzar m6-l1 a m6-l3: respuesta a secretos expuestos, trade-offs y diagnóstico de rendimiento.",
+      objectives: [
+        "Comunicar acciones de seguridad con claridad (rotar, revisar permisos).",
+        "Explicar decisiones de arquitectura con trade-offs simples.",
+        "Describir problemas de rendimiento con métricas y siguiente paso.",
+      ],
+      pronunciation:
+        "The token leaked, so we need to rotate it. The p95 latency doubled, so we should profile the API.",
+      blocks: [
+        {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Repasa m6-l1 (seguridad y secretos), m6-l2 (system design) y m6-l3 (performance). Esta práctica usa solo términos y estructuras ya enseñados en esas lecciones.",
+        },
+        {
+          type: "technique",
+          name: "Problema → acción → razón",
+          desc: "Seguridad: 'The token leaked, so we need to rotate it.' Arquitectura: trade-off claro ('faster, but more complex'). Performance: métrica + acción ('p95 doubled, so we should profile it').",
+        },
+        {
+          type: "phrases",
+          title: "Chunks de apoyo",
+          items: [
+            { en: "We need to rotate the API key.", es: "Necesitamos rotar la clave de API." },
+            { en: "This is a single point of failure.", es: "Este es un punto único de fallo." },
+            { en: "The main bottleneck is the database.", es: "El principal cuello de botella es la base de datos." },
+            { en: "The p95 latency doubled.", es: "La latencia p95 se duplicó." },
+          ],
+        },
+      ],
+      exercises: [
+        {
+          id: "m6-l5-e1",
+          type: "choice",
+          prompt: "Descubres que una API key se filtró en logs. ¿Qué acción es la más adecuada?",
+          options: [
+            "We need to rotate the API key.",
+            "We need to cache the API key.",
+            "We need to deploy the API key.",
+            "We need to ignore the API key.",
+          ],
+          answer: 0,
+          explanation:
+            "Ante una clave expuesta, lo correcto es rotarla (revocar y reemplazarla).",
+        },
+        {
+          id: "m6-l5-e2",
+          type: "builder",
+          prompt: "Construye: 'Este es un punto único de fallo.'",
+          words: ["This is", "a single", "point of", "failure."],
+          answer: "This is a single point of failure.",
+          explanation:
+            "Un 'single point of failure' es un componente cuyo fallo afecta a todo el sistema.",
+        },
+        {
+          id: "m6-l5-e3",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'La latencia p95 se duplicó.'",
+          answer: "The p95 latency doubled.",
+          accept: ["The p95 latency doubled"],
+          hint: "Usa 'p95 latency' y pasado simple 'doubled'.",
+          explanation:
+            "Describir métricas con claridad ayuda a priorizar el diagnóstico de rendimiento.",
+        },
+        {
+          id: "m6-l5-e4",
+          type: "choice",
+          prompt: "Quieres explicar el principal límite de rendimiento. ¿Qué dices?",
+          options: [
+            "The main bottleneck is the database.",
+            "The main feature is the database.",
+            "The main secret is the database.",
+            "The main endpoint is the database.",
+          ],
+          answer: 0,
+          explanation:
+            "'Bottleneck' es el cuello de botella: el punto que limita el rendimiento.",
+        },
+        {
+          id: "m6-l5-e5",
+          type: "builder",
+          prompt: "Construye: 'Deberíamos medir antes de optimizar.'",
+          words: ["We should", "measure", "before we", "optimize."],
+          answer: "We should measure before we optimize.",
+          explanation:
+            "Buena práctica de performance: medir primero para optimizar con evidencia.",
+        },
+        {
+          id: "m6-l5-e6",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Necesitamos revisar los permisos.'",
+          answer: "We need to review the permissions.",
+          accept: ["We need to review permissions."],
+          hint: "Usa 'review the permissions'.",
+          explanation:
+            "Revisar permisos es parte de aplicar mínimo privilegio y mejorar seguridad.",
+        },
+      ],
+    },
   ],
 };
