@@ -18,8 +18,8 @@ describe("certificates", () => {
 
   it("verifies via endpoint when configured", async () => {
     vi.stubEnv("PUBLIC_CERTIFICATE_VERIFY_URL", "https://example.test/verify");
-    globalThis.fetch = vi.fn(async (url: any) => {
-      const u = new URL(String(url));
+    const fetchMock: typeof fetch = async (input) => {
+      const u = new URL(String(input));
       if (u.searchParams.get("id") !== "ABC123") {
         return new Response(JSON.stringify({ ok: false, error: "not_found" }), { status: 404 });
       }
@@ -38,7 +38,8 @@ describe("certificates", () => {
         }),
         { status: 200, headers: { "Content-Type": "application/json" } },
       );
-    }) as any;
+    };
+    globalThis.fetch = vi.fn(fetchMock) as typeof fetch;
 
     const res = await verifyCertificate("abc123");
     expect(res.ok).toBe(true);

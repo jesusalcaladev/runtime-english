@@ -61,8 +61,18 @@ export async function ensureReminderChannel(): Promise<void> {
   if (!isNative()) return;
   try {
     const { LocalNotifications } = await import("@capacitor/local-notifications");
-    if (typeof (LocalNotifications as any).createChannel === "function") {
-      await (LocalNotifications as any).createChannel({
+    const maybeLocalNotifications = LocalNotifications as unknown as {
+      createChannel?: (channel: {
+        id: string;
+        name: string;
+        description?: string;
+        importance?: number;
+        visibility?: number;
+      }) => Promise<void> | void;
+    };
+
+    if (typeof maybeLocalNotifications.createChannel === "function") {
+      await maybeLocalNotifications.createChannel({
         id: "streak-reminders",
         name: "Recordatorios de racha",
         description: "Recordatorios diarios para practicar",

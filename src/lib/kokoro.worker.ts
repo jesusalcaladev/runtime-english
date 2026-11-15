@@ -4,114 +4,210 @@ type LoadMsg = { type: "load"; device: "webgpu" | "wasm"; preferLowMemory?: bool
 type GenerateMsg = { type: "generate"; id: number; text: string; speed: number };
 type Msg = LoadMsg | GenerateMsg;
 
-let tts: any = null;
+type WorkerOutMsg =
+  | { type: "progress"; info: unknown }
+  | { type: "status"; message: string }
+  | { type: "ready"; device: "webgpu" | "wasm" }
+  | { type: "error"; error: string }
+  | { type: "audio"; id: number; buffer: ArrayBuffer; mime: string; device: "webgpu" | "wasm" | null }
+  | { type: "gen-error"; id: number; error: string };
+
+interface KokoroAudioResult {
+  toBlob?: () => Blob;
+  toWav?: () => ArrayBuffer | ArrayBufferView;
+}
+
+interface KokoroTtsInstance {
+  generate: (text: string, options: { voice: string; speed: number }) => Promise<KokoroAudioResult>;
+}
+
+interface KokoroTtsStatic {
+  from_pretrained: (
+    modelId: string,
+    options: {
+      dtype: "fp32" | "q8";
+      device: "webgpu" | "wasm";
+      progress_callback?: (info: unknown) => void;
+    },
+  ) => Promise<KokoroTtsInstance>;
+}
+
+interface TransformersWasmBackend {
+  numThreads?: number;
+  simd?: boolean;
+}
+
+interface TransformersEnv {
+  allowRemoteModels?: boolean;
+  backends?: {
+    onnx?: {
+      wasm?: TransformersWasmBackend;
+    };
+  };
+}
+
+const workerScope = self as unknown as DedicatedWorkerGlobalScope;
+
+let tts: KokoroTtsInstance | null = null;
 let loadPromise: Promise<void> | null = null;
 let loadedDevice: "webgpu" | "wasm" | null = null;
 
-async function ensureLoaded(device: "webgpu" | "wasm", preferLowMemory = false) {
+function postWorkerMessage(message: WorkerOutMsg, transfer?: Transferable[]): void {
+  if (transfer) {
+    workerScope.postMessage(message, transfer);
+    return;
+  }
+  workerScope.postMessage(message);
+}
+
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === "string" && error) return error;
+  return fallback;
+}
+
+async function ensureLoaded(device: "webgpu" | "wasm", preferLowMemory = false): Promise<void> {
   if (tts) return;
   if (loadPromise) return loadPromise;
+
   loadPromise = (async () => {
     try {
       try {
-        const { env } = await import("@huggingface/transformers");
-        const wasm = (env as any)?.backends?.onnx?.wasm;
+        const transformers = await import("@huggingface/transformers");
+        const env = (transformers as { env?: TransformersEnv }).env;
+        const wasm = env?.backends?.onnx?.wasm;
+
         if (wasm) {
           // Keep CPU/memory pressure low, especially on mobile.
           wasm.numThreads = 1;
           try {
-            const hc = (self as any).navigator?.hardwareConcurrency;
-            if (typeof hc === "number" && hc <= 4) wasm.simd = true;
-          } catch {}
+            const hardwareConcurrency = workerScope.navigator?.hardwareConcurrency;
+            if (typeof hardwareConcurrency === "number" && hardwareConcurrency <= 4) {
+              wasm.simd = true;
+            }
+          } catch {
+            // Ignore hardware probing failures.
+          }
         }
-        if ((env as any).allowRemoteModels === false) (env as any).allowRemoteModels = true;
-      } catch {}
 
-      let KokoroTTS: any;
-      try {
-        ({ KokoroTTS } = await import("kokoro-js"));
+        if (env?.allowRemoteModels === false) {
+          env.allowRemoteModels = true;
+        }
       } catch {
-        await new Promise((r) => setTimeout(r, 250));
-        ({ KokoroTTS } = await import("kokoro-js"));
+        // Ignore optional transformers env tuning failures.
       }
 
-      const model_id = "onnx-community/Kokoro-82M-v1.0-ONNX";
+      let KokoroTTS: KokoroTtsStatic;
+      try {
+        ({ KokoroTTS } = (await import("kokoro-js")) as { KokoroTTS: KokoroTtsStatic });
+      } catch {
+        await new Promise<void>((resolve) => setTimeout(resolve, 250));
+        ({ KokoroTTS } = (await import("kokoro-js")) as { KokoroTTS: KokoroTtsStatic });
+      }
+
+      const modelId = "onnx-community/Kokoro-82M-v1.0-ONNX";
       const requestedDevice = preferLowMemory ? "wasm" : device;
       const dtype = requestedDevice === "webgpu" ? "fp32" : "q8";
 
-      const progress_callback = (info: any) => {
+      const progressCallback = (info: unknown): void => {
         try {
-          (self as any).postMessage({ type: "progress", info });
-        } catch {}
+          postWorkerMessage({ type: "progress", info });
+        } catch {
+          // Ignore progress posting failures.
+        }
       };
 
       try {
-        tts = await KokoroTTS.from_pretrained(model_id, {
+        tts = await KokoroTTS.from_pretrained(modelId, {
           dtype,
           device: requestedDevice,
-          progress_callback,
-        } as any);
+          progress_callback: progressCallback,
+        });
         loadedDevice = requestedDevice;
-        (self as any).postMessage({ type: "ready", device: requestedDevice });
-      } catch (e) {
+        postWorkerMessage({ type: "ready", device: requestedDevice });
+      } catch (error) {
         if (requestedDevice === "webgpu") {
-          (self as any).postMessage({ type: "status", message: "WebGPU no disponible o inestable, usando WASM (q8)…" });
-          tts = await KokoroTTS.from_pretrained(model_id, {
+          postWorkerMessage({
+            type: "status",
+            message: "WebGPU no disponible o inestable, usando WASM (q8)…",
+          });
+          tts = await KokoroTTS.from_pretrained(modelId, {
             dtype: "q8",
             device: "wasm",
-            progress_callback,
-          } as any);
+            progress_callback: progressCallback,
+          });
           loadedDevice = "wasm";
-          (self as any).postMessage({ type: "ready", device: "wasm" });
+          postWorkerMessage({ type: "ready", device: "wasm" });
         } else {
-          throw e;
+          throw error;
         }
       }
-    } catch (err: any) {
+    } catch (error) {
       tts = null;
       loadedDevice = null;
-      const message = err?.message || String(err || "load error");
-      (self as any).postMessage({ type: "error", error: message });
-      throw err;
+      postWorkerMessage({ type: "error", error: getErrorMessage(error, "load error") });
+      throw error;
     } finally {
       loadPromise = null;
     }
   })();
+
   return loadPromise;
 }
 
-self.onmessage = async (ev: MessageEvent<Msg>) => {
-  const msg = ev.data;
-  if (!msg) return;
-  if (msg.type === "load") {
+function toArrayBuffer(value: ArrayBuffer | ArrayBufferView): ArrayBuffer {
+  if (value instanceof ArrayBuffer) return value;
+  const copy = new Uint8Array(value.byteLength);
+  copy.set(new Uint8Array(value.buffer, value.byteOffset, value.byteLength));
+  return copy.buffer;
+}
+
+workerScope.onmessage = async (event: MessageEvent<Msg>) => {
+  const message = event.data;
+  if (!message) return;
+
+  if (message.type === "load") {
     try {
-      await ensureLoaded(msg.device, Boolean(msg.preferLowMemory));
-    } catch {}
+      await ensureLoaded(message.device, Boolean(message.preferLowMemory));
+    } catch {
+      // Load errors are reported through worker messages.
+    }
     return;
   }
-  if (msg.type === "generate") {
+
+  if (message.type === "generate") {
     try {
       if (!tts) throw new Error("TTS not ready");
+
       // Short texts are cheaper/faster on mobile and reduce generation stalls.
-      const text = String(msg.text || "").trim();
+      const text = message.text.trim();
       if (!text) throw new Error("Empty text");
-      const audio = await tts.generate(text, { voice: "af_heart", speed: msg.speed });
+
+      const audio = await tts.generate(text, { voice: "af_heart", speed: message.speed });
       let buffer: ArrayBuffer;
       let mime = "audio/wav";
-      if (audio && typeof audio.toBlob === "function") {
-        const blob: Blob = audio.toBlob();
+
+      if (typeof audio.toBlob === "function") {
+        const blob = audio.toBlob();
         mime = blob.type || "audio/wav";
         buffer = await blob.arrayBuffer();
-      } else if (audio && typeof audio.toWav === "function") {
-        const wav = audio.toWav();
-        buffer = wav instanceof ArrayBuffer ? wav : wav.buffer ? wav.buffer.slice(wav.byteOffset, wav.byteOffset + wav.byteLength) : new Uint8Array(wav).buffer;
+      } else if (typeof audio.toWav === "function") {
+        buffer = toArrayBuffer(audio.toWav());
         mime = "audio/wav";
       } else {
         throw new Error("Unsupported audio output");
       }
-      (self as any).postMessage({ type: "audio", id: msg.id, buffer, mime, device: loadedDevice }, [buffer]);
-    } catch (err: any) {
-      (self as any).postMessage({ type: "gen-error", id: msg.id, error: err?.message || String(err || "generate error") });
+
+      postWorkerMessage(
+        { type: "audio", id: message.id, buffer, mime, device: loadedDevice },
+        [buffer],
+      );
+    } catch (error) {
+      postWorkerMessage({
+        type: "gen-error",
+        id: message.id,
+        error: getErrorMessage(error, "generate error"),
+      });
     }
   }
 };

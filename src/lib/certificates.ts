@@ -49,15 +49,21 @@ export async function verifyCertificate(id: string): Promise<VerifyResult> {
   return { ok: true, certificate: normalizeCert(row) };
 }
 
-function normalizeCert(row: any): CertificateRecord {
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function normalizeCert(row: unknown): CertificateRecord {
+  const record = isRecord(row) ? row : {};
+  const userId = record.user_id;
   return {
-    id: String(row.id || "").toUpperCase(),
-    name: row.name || "",
-    issued_at: row.issued_at || new Date().toISOString(),
-    program: row.program ?? "RuntimeEnglish",
-    level: row.level ?? "A1 — B2",
-    status: row.status ?? "valid",
-    user_id: row.user_id ?? null,
+    id: String(record.id ?? "").toUpperCase(),
+    name: typeof record.name === "string" ? record.name : "",
+    issued_at: typeof record.issued_at === "string" ? record.issued_at : new Date().toISOString(),
+    program: typeof record.program === "string" ? record.program : "RuntimeEnglish",
+    level: typeof record.level === "string" ? record.level : "A1 — B2",
+    status: typeof record.status === "string" ? record.status : "valid",
+    user_id: typeof userId === "string" || userId === null ? userId : null,
   };
 }
 
@@ -107,12 +113,28 @@ export async function issueCertificate(input: IssueInput): Promise<IssueResult> 
       }),
     });
     const text = await res.text().catch(() => "");
-    let payload: any = null;
-    try { payload = text ? JSON.parse(text) : null; } catch {}
-    if (!res.ok) {
-      return { ok: false, error: payload?.error || payload?.message || text || `http_${res.status}` };
+    let payload: unknown = null;
+    try {
+      payload = text ? JSON.parse(text) : null;
+    } catch {
+      payload = null;
     }
-    const cert = payload?.certificate ? normalizeCert(payload.certificate) : undefined;
+
+    const payloadRecord = isRecord(payload) ? payload : null;
+    if (!res.ok) {
+      const errorValue = payloadRecord?.error;
+      const messageValue = payloadRecord?.message;
+      return {
+        ok: false,
+        error:
+          (typeof errorValue === "string" && errorValue) ||
+          (typeof messageValue === "string" && messageValue) ||
+          text ||
+          `http_${res.status}`,
+      };
+    }
+
+    const cert = payloadRecord?.certificate ? normalizeCert(payloadRecord.certificate) : undefined;
     return { ok: true, certificate: cert, mode: "server" };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "network_error" };

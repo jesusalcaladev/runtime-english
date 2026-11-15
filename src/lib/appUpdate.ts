@@ -111,8 +111,9 @@ export async function checkForAppUpdateDetailed(options?: {
 
   try {
     const info = await App.getInfo();
-    const currentBuild = toInt((info as any).build ?? (info as any).versionCode ?? 0);
-    const currentVersionName = String((info as any).version ?? info.version ?? "").trim() || "0.0.0";
+    const appInfo = info as unknown as { build?: unknown; versionCode?: unknown; version?: unknown };
+    const currentBuild = toInt(appInfo.build ?? appInfo.versionCode ?? 0);
+    const currentVersionName = String(info.version ?? appInfo.version ?? "").trim() || "0.0.0";
 
     const res = await fetch(`${manifestUrl}${manifestUrl.includes("?") ? "&" : "?"}t=${now}`, {
       cache: "no-store",

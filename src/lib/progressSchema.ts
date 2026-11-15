@@ -141,30 +141,35 @@ export const errorEventSchema = z
   })
   .loose();
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 export function sanitizeSettings(input: unknown, defaults: z.infer<typeof settingsSchema>) {
-  if (!input || typeof input !== "object") return defaults;
-  const raw = input as any;
+  if (!isRecord(input)) return defaults;
+
+  const rawReminders = isRecord(input.reminders) ? input.reminders : {};
   const parsed = settingsSchema.safeParse({
     ...defaults,
-    ...raw,
-    reminders: { ...(defaults.reminders ?? {}), ...(raw.reminders ?? {}) },
+    ...input,
+    reminders: { ...(defaults.reminders ?? {}), ...rawReminders },
   });
   const out = parsed.success ? parsed.data : defaults;
-  // Preserve onboarding inference behavior from legacy data
-  if (raw.onboarded === undefined && typeof raw.name === "string" && raw.name.trim()) {
+
+  // Preserve onboarding inference behavior from legacy data.
+  if (input.onboarded === undefined && typeof input.name === "string" && input.name.trim()) {
     out.onboarded = true;
   }
-  if (raw.planIntroDismissed !== undefined)
-    out.planIntroDismissed = Boolean(raw.planIntroDismissed);
-  if (raw.diagnostic === null) out.diagnostic = null;
-  if (raw.plan === null) out.plan = null;
+  if (input.planIntroDismissed !== undefined) {
+    out.planIntroDismissed = Boolean(input.planIntroDismissed);
+  }
+  if (input.diagnostic === null) out.diagnostic = null;
+  if (input.plan === null) out.plan = null;
   return out;
 }
 
 export function sanitizeStreak(input: unknown, defaults: z.infer<typeof streakSchema>) {
-  const parsed = streakSchema.safeParse(
-    input && typeof input === "object" ? { ...defaults, ...(input as any) } : defaults,
-  );
+  const parsed = streakSchema.safeParse(isRecord(input) ? { ...defaults, ...input } : defaults);
   return parsed.success ? parsed.data : defaults;
 }
 

@@ -76,12 +76,15 @@ export function nextSrsFsrs(
   const grade = !correct ? Rating.Again : options.struggled ? Rating.Hard : Rating.Good;
 
   const result = scheduler.review({ card, grade, now });
-  const nextCard = result.card as any;
+  const nextCard = result.card as unknown as { dueAt: Date | number | string };
+
+  const nextDueAt = nextCard.dueAt instanceof Date ? nextCard.dueAt : new Date(nextCard.dueAt);
+  const due = nextDueAt.getTime();
 
   if (!correct) {
     return {
       box: 0,
-      due: (nextCard.dueAt as Date).getTime(),
+      due,
       last: nowMs,
       correctStreak: 0,
     };
@@ -91,7 +94,7 @@ export function nextSrsFsrs(
   const step = options.struggled ? 0 : 1;
   return {
     box: clampBox(prevBox + step),
-    due: (nextCard.dueAt as Date).getTime(),
+    due,
     last: nowMs,
     correctStreak: (prev?.correctStreak ?? 0) + 1,
   };

@@ -224,6 +224,58 @@ function migrateKeys<T>(record: Record<string, T>): Record<string, T> {
   return next;
 }
 
+type UnknownRecord = Record<string, unknown>;
+
+function isRecord(value: unknown): value is UnknownRecord {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function toRecord(value: unknown): UnknownRecord {
+  return isRecord(value) ? value : {};
+}
+
+function getString(value: unknown): string | undefined {
+  return typeof value === "string" ? value : undefined;
+}
+
+function getNumber(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function getBoolean(value: unknown): boolean | undefined {
+  return typeof value === "boolean" ? value : undefined;
+}
+
+function getExerciseAnswerText(exercise: Exercise): string {
+  switch (exercise.type) {
+    case "choice":
+      return exercise.options[exercise.answer] ?? "";
+    case "builder":
+    case "write":
+    case "listen":
+    case "speak":
+    case "fix-error":
+      return exercise.answer;
+    case "fill-blank":
+      return exercise.template;
+    case "dialogue-order":
+      return exercise.lines.join(" / ");
+    case "roleplay":
+      return "";
+    default: {
+      const exhaustiveCheck: never = exercise;
+      return exhaustiveCheck;
+    }
+  }
+}
+
+function getExerciseLearningText(exercise: Exercise): { en: string; es: string } {
+  return {
+    en: getExerciseAnswerText(exercise),
+    es: exercise.explanation || exercise.prompt || "",
+  };
+}
+
 const SRS_INTERVALS_MS = [
   10 * 60 * 1000, // 10 min
   24 * 60 * 60 * 1000, // 1 day
@@ -311,128 +363,135 @@ function applyDocumentSettings(settings: ProgressSettings) {
 
 export function mergeState(raw: unknown): ProgressState {
   const defaults = createDefaultState();
-  if (!raw || typeof raw !== "object") return defaults;
-  const unwrapped = unwrapProgressInput(raw);
-  const parsed = (
-    unwrapped && typeof unwrapped === "object" ? unwrapped : raw
-  ) as Partial<ProgressState> & Record<string, any>;
-  // If input is in compact sync format (v/ce/cs/se/...), expand it first
-  const base =
-    "v" in parsed || "ce" in parsed || "se" in parsed
-      ? expandState(parsed, defaults)
-      : ({ ...defaults, ...parsed } as ProgressState);
+  if (!isRecord(raw)) return defaults;
 
-  const rawSrs = (base.exerciseSrs ?? (parsed as any).exerciseSrs ?? {}) as Record<string, unknown>;
+  const unwrapped = unwrapProgressInput(raw);
+  const parsed = isRecord(unwrapped) ? unwrapped : isRecord(raw) ? raw : {};
+
+  // If input is in compact sync format (v/ce/cs/se/...), expand it first.
+  const baseRecord =
+    "v" in parsed || "ce" in parsed || "se" in parsed
+      ? toRecord(expandState(parsed, defaults))
+      : ({ ...defaults, ...parsed } as UnknownRecord);
+
+  const rawSrs = toRecord(baseRecord.exerciseSrs ?? parsed.exerciseSrs);
   const migratedSrs = migrateKeys(rawSrs);
   const normalizedSrs: Record<string, ExerciseSrs> = {};
-  for (const [id, val] of Object.entries(migratedSrs)) {
-    const n = normalizeSrsEntry(val);
-    if (n) normalizedSrs[id] = n;
+  for (const [id, value] of Object.entries(migratedSrs)) {
+    const normalized = normalizeSrsEntry(value);
+    if (normalized) normalizedSrs[id] = normalized;
   }
 
-  const rawPhrasebook = ((base as any).phrasebook ?? (parsed as any).phrasebook ?? {}) as Record<
-    string,
-    any
-  >;
+  const rawPhrasebook = toRecord(baseRecord.phrasebook ?? parsed.phrasebook);
   const phrasebook: Record<string, PhrasebookEntry> = {};
-  if (rawPhrasebook && typeof rawPhrasebook === "object" && !Array.isArray(rawPhrasebook)) {
-    for (const [id, val] of Object.entries(rawPhrasebook)) {
-      if (!val || typeof val !== "object") continue;
-      const en = typeof (val as any).en === "string" ? (val as any).en : "";
-      if (!en.trim()) continue;
-      const es = typeof (val as any).es === "string" ? (val as any).es : "";
-      const tags = Array.isArray((val as any).tags)
-        ? (val as any).tags
-            .filter((t: any) => typeof t === "string" && t.trim())
-            .map((t: string) => t.trim().slice(0, 24))
-            .slice(0, 8)
-        : [];
-      const diff = (val as any).difficulty;
-      const addedAt = typeof (val as any).addedAt === "number" ? (val as any).addedAt : Date.now();
-      const updatedAt =
-        typeof (val as any).updatedAt === "number" ? (val as any).updatedAt : addedAt;
-      const correct = typeof (val as any).correct === "number" ? (val as any).correct : 0;
-      const box = clampSrsBox(
-        typeof (val as any).box === "number"
-          ? (val as any).box
-          : Math.min(correct, SRS_INTERVALS_MS.length - 1),
-      );
-      const last = typeof (val as any).last === "number" ? (val as any).last : updatedAt;
-      const due =
-        typeof (val as any).due === "number" ? (val as any).due : last + SRS_INTERVALS_MS[box];
-      phrasebook[id] = {
-        id,
-        en,
-        es,
-        source: typeof (val as any).source === "string" ? (val as any).source : "",
-        addedAt,
-        updatedAt,
-        seen: typeof (val as any).seen === "number" ? (val as any).seen : 0,
-        correct,
-        saved: Boolean((val as any).saved),
-        notes:
-          typeof (val as any).notes === "string" ? (val as any).notes.slice(0, 500) : undefined,
-        userExample:
-          typeof (val as any).userExample === "string"
-            ? (val as any).userExample.slice(0, 300)
-            : undefined,
-        tags: tags.length ? tags : undefined,
-        difficulty: diff === "easy" || diff === "hard" || diff === "normal" ? diff : undefined,
-        box,
-        due,
-        last,
-        correctStreak:
-          typeof (val as any).correctStreak === "number" ? (val as any).correctStreak : box,
-      };
-    }
+  for (const [id, value] of Object.entries(rawPhrasebook)) {
+    if (!isRecord(value)) continue;
+
+    const en = (getString(value.en) ?? "").trim();
+    if (!en) continue;
+
+    const es = getString(value.es) ?? "";
+    const tags = Array.isArray(value.tags)
+      ? value.tags
+          .filter((tag): tag is string => typeof tag === "string" && tag.trim().length > 0)
+          .map((tag) => tag.trim().slice(0, 24))
+          .slice(0, 8)
+      : [];
+
+    const difficultyValue = getString(value.difficulty);
+    const addedAt = getNumber(value.addedAt) ?? Date.now();
+    const updatedAt = getNumber(value.updatedAt) ?? addedAt;
+    const correct = getNumber(value.correct) ?? 0;
+    const box = clampSrsBox(getNumber(value.box) ?? Math.min(correct, SRS_INTERVALS_MS.length - 1));
+    const last = getNumber(value.last) ?? updatedAt;
+    const due = getNumber(value.due) ?? last + SRS_INTERVALS_MS[box];
+    const notes = getString(value.notes);
+    const userExample = getString(value.userExample);
+
+    phrasebook[id] = {
+      id,
+      en,
+      es,
+      source: getString(value.source) ?? "",
+      addedAt,
+      updatedAt,
+      seen: getNumber(value.seen) ?? 0,
+      correct,
+      saved: getBoolean(value.saved) ?? false,
+      notes: notes ? notes.slice(0, 500) : undefined,
+      userExample: userExample ? userExample.slice(0, 300) : undefined,
+      tags: tags.length > 0 ? tags : undefined,
+      difficulty:
+        difficultyValue === "easy" || difficultyValue === "hard" || difficultyValue === "normal"
+          ? difficultyValue
+          : undefined,
+      box,
+      due,
+      last,
+      correctStreak: getNumber(value.correctStreak) ?? box,
+    };
   }
 
-  const rawCert = (base as any).certificate ?? (parsed as any).certificate ?? null;
-  const certificate = sanitizeCertificate(rawCert) as CertificateState | null;
+  const rawCertificate = baseRecord.certificate ?? parsed.certificate ?? null;
+  const certificate = sanitizeCertificate(rawCertificate) as CertificateState | null;
 
-  const rawErrorEvents = Array.isArray((base as any).errorEvents ?? (parsed as any).errorEvents)
-    ? ((base as any).errorEvents ?? (parsed as any).errorEvents)
+  const rawErrorEvents = Array.isArray(baseRecord.errorEvents ?? parsed.errorEvents)
+    ? ((baseRecord.errorEvents ?? parsed.errorEvents) as unknown[])
     : [];
   const errorEvents: ErrorEvent[] = rawErrorEvents
-    .filter((e: any) => e && typeof e === "object" && typeof e.exerciseId === "string")
+    .filter((event): event is UnknownRecord => isRecord(event) && typeof event.exerciseId === "string")
     .slice(-300)
-    .map((e: any) => ({
-      id: typeof e.id === "string" ? e.id : `err-${e.exerciseId}-${Number(e.at) || Date.now()}`,
-      exerciseId: String(e.exerciseId),
-      sessionId: typeof e.sessionId === "string" ? e.sessionId : undefined,
-      exerciseType: typeof e.exerciseType === "string" ? e.exerciseType : "unknown",
-      prompt: typeof e.prompt === "string" ? e.prompt.slice(0, 240) : "",
-      userAnswer: typeof e.userAnswer === "string" ? e.userAnswer.slice(0, 240) : "",
-      correctAnswer: typeof e.correctAnswer === "string" ? e.correctAnswer.slice(0, 240) : "",
-      skills: Array.isArray(e.skills)
-        ? e.skills.filter((s: any) => typeof s === "string").slice(0, 6)
-        : [],
-      at: typeof e.at === "number" ? e.at : Date.now(),
-    }));
+    .map((event) => {
+      const exerciseId = String(event.exerciseId);
+      const at = getNumber(event.at) ?? Date.now();
+      const skills = Array.isArray(event.skills)
+        ? event.skills.filter((skill): skill is string => typeof skill === "string").slice(0, 6)
+        : [];
+
+      return {
+        id: getString(event.id) ?? `err-${exerciseId}-${Number(at) || Date.now()}`,
+        exerciseId,
+        sessionId: getString(event.sessionId),
+        exerciseType: getString(event.exerciseType) ?? "unknown",
+        prompt: (getString(event.prompt) ?? "").slice(0, 240),
+        userAnswer: (getString(event.userAnswer) ?? "").slice(0, 240),
+        correctAnswer: (getString(event.correctAnswer) ?? "").slice(0, 240),
+        skills,
+        at,
+      };
+    });
+
+  const mergedBase = {
+    ...defaults,
+    ...baseRecord,
+  } as ProgressState & UnknownRecord;
 
   const merged: ProgressState = {
     ...defaults,
-    ...base,
+    ...mergedBase,
     version: PROGRESS_SCHEMA_VERSION,
-    completedExercises: migrateKeys(base.completedExercises ?? {}),
-    completedSessions: migrateKeys(base.completedSessions ?? {}),
-    attempts: migrateKeys(base.attempts ?? {}),
+    completedExercises: migrateKeys(toRecord(mergedBase.completedExercises) as Record<string, number>),
+    completedSessions: migrateKeys(toRecord(mergedBase.completedSessions) as Record<string, number>),
+    attempts: migrateKeys(toRecord(mergedBase.attempts) as Record<string, number>),
     exerciseSrs: normalizedSrs,
     errorEvents,
-    savedSlang: Array.isArray(base.savedSlang) ? base.savedSlang : [],
+    savedSlang: Array.isArray(mergedBase.savedSlang)
+      ? mergedBase.savedSlang.filter((value): value is string => typeof value === "string")
+      : [],
     phrasebook,
     certificate,
-    achievements: base.achievements ?? {},
-    streak: sanitizeStreak(base.streak ?? defaults.streak, defaults.streak),
-    dictionaryBackfilledAt:
-      typeof (base as any).dictionaryBackfilledAt === "number"
-        ? (base as any).dictionaryBackfilledAt
-        : null,
+    achievements: toRecord(mergedBase.achievements) as Record<string, number>,
+    streak: sanitizeStreak(
+      (isRecord(mergedBase.streak) ? mergedBase.streak : defaults.streak) as ProgressState["streak"],
+      defaults.streak,
+    ),
+    dictionaryBackfilledAt: getNumber(mergedBase.dictionaryBackfilledAt) ?? null,
     settings: sanitizeSettings(
-      { ...defaults.settings, ...(base.settings ?? {}) },
-      defaults.settings as any,
+      { ...defaults.settings, ...(toRecord(mergedBase.settings) as Partial<ProgressSettings>) },
+      defaults.settings,
     ) as ProgressSettings,
   };
+
   merged.exerciseSrs = seedExerciseSrs(merged);
   return merged;
 }
@@ -641,13 +700,7 @@ class ProgressStore {
 
       let phrasebook = state.phrasebook;
       if (correct) {
-        let en = "";
-        if (exercise.type === "choice") en = exercise.options[exercise.answer] ?? "";
-        else if ("answer" in exercise && typeof (exercise as any).answer === "string")
-          en = (exercise as any).answer;
-        else if (exercise.type === "dialogue-order") en = exercise.lines.join(" / ");
-        else if (exercise.type === "fill-blank") en = exercise.template;
-        const es = (exercise as any).explanation || (exercise as any).prompt || "";
+        const { en, es } = getExerciseLearningText(exercise);
         if (en.trim()) {
           phrasebook = upsertPhrase(phrasebook, {
             en,
@@ -873,20 +926,24 @@ class ProgressStore {
   }
 
   importProgress(raw: unknown): boolean {
-    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return false;
-    const candidate = unwrapProgressInput(raw) as any;
-    if (!candidate || typeof candidate !== "object") return false;
+    if (!isRecord(raw)) return false;
+
+    const candidate = unwrapProgressInput(raw);
+    if (!isRecord(candidate)) return false;
+
     const looksLikeState =
       typeof candidate.xp === "number" ||
-      candidate.completedExercises ||
-      candidate.completedSessions ||
-      candidate.settings ||
-      candidate.v ||
-      candidate.ce ||
-      candidate.cs;
+      "completedExercises" in candidate ||
+      "completedSessions" in candidate ||
+      "settings" in candidate ||
+      "v" in candidate ||
+      "ce" in candidate ||
+      "cs" in candidate;
     if (!looksLikeState) return false;
+
     const next = mergeState(raw);
     if (!Number.isFinite(next.xp) || next.xp < 0) next.xp = 0;
+
     this.state = next;
     this.persist();
     this.notify();
@@ -1032,12 +1089,20 @@ function upsertPhrase(
   return { ...phrasebook, [id]: next };
 }
 
-function unwrapProgressInput(raw: any): any {
-  if (!raw || typeof raw !== "object") return raw;
-  if ((raw.format === "runtimeenglish-progress" || raw.format === "devlingo-progress") && raw.state && typeof raw.state === "object")
-    return raw.state;
-  if (raw.state && typeof raw.state === "object" && (raw.schemaVersion || raw.exportedAt))
-    return raw.state;
+function unwrapProgressInput(raw: unknown): unknown {
+  if (!isRecord(raw)) return raw;
+
+  const format = getString(raw.format);
+  const state = raw.state;
+
+  if ((format === "runtimeenglish-progress" || format === "devlingo-progress") && isRecord(state)) {
+    return state;
+  }
+
+  if (isRecord(state) && ("schemaVersion" in raw || "exportedAt" in raw)) {
+    return state;
+  }
+
   return raw;
 }
 
@@ -1053,6 +1118,7 @@ function exportProgressEnvelope(state: ProgressState): ProgressExportEnvelope {
 
 function backfillPhrasebookState(state: ProgressState): Record<string, PhrasebookEntry> {
   let phrasebook = { ...(state.phrasebook ?? {}) };
+
   try {
     for (const { session } of ALL_SESSIONS) {
       for (const block of session.blocks) {
@@ -1080,33 +1146,37 @@ function backfillPhrasebookState(state: ProgressState): Record<string, Phraseboo
           }
         }
       }
-      for (const ex of session.exercises) {
-        if (!state.completedExercises[ex.id]) continue;
-        let en = "";
-        if (ex.type === "choice") en = ex.options[ex.answer] ?? "";
-        else if ("answer" in ex && typeof (ex as any).answer === "string") en = (ex as any).answer;
-        const es = (ex as any).explanation || (ex as any).prompt || "";
-        if (en.trim()) {
-          phrasebook = upsertPhrase(phrasebook, {
-            en,
-            es,
-            source: `Aprendida · ${session.title}`,
-            correct: true,
-            saved: false,
-            markSeen: false,
-          });
-        }
+
+      for (const exercise of session.exercises) {
+        if (!state.completedExercises[exercise.id]) continue;
+        const { en, es } = getExerciseLearningText(exercise);
+        if (!en.trim()) continue;
+
+        phrasebook = upsertPhrase(phrasebook, {
+          en,
+          es,
+          source: `Aprendida · ${session.title}`,
+          correct: true,
+          saved: false,
+          markSeen: false,
+        });
       }
     }
   } catch {
-    // Ignore backfill errors
+    // Ignore backfill errors.
   }
+
   return phrasebook;
 }
 
 const globalKey = "__runtimeenglish_progress_store__";
-export const progressStore: ProgressStore =
-  (globalThis as any)[globalKey] ?? ((globalThis as any)[globalKey] = new ProgressStore());
+
+type GlobalProgressStore = typeof globalThis & {
+  __runtimeenglish_progress_store__?: ProgressStore;
+};
+
+const globalStore = globalThis as GlobalProgressStore;
+export const progressStore: ProgressStore = globalStore[globalKey] ?? (globalStore[globalKey] = new ProgressStore());
 
 export function isExerciseDue(state: ProgressState, exerciseId: string, now = Date.now()): boolean {
   const srs = state.exerciseSrs[exerciseId];

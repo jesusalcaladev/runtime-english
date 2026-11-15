@@ -1,14 +1,14 @@
 import { ACHIEVEMENTS } from "./achievements";
-import type { ProgressSettings, ProgressState } from "./progress";
+import type { CertificateState, ExerciseSrs, PhrasebookEntry, ProgressSettings, ProgressState } from "./progress";
 import { parseCompactState } from "./progressSchema";
 import { supabase } from "./supabase";
 
 const TABLE = "user_progress";
 const SYNC_META_KEY = "runtimeenglish_sync_meta_v1";
 const SYNC_HISTORY_MAX = 30;
-const BASE_RETRY_MS = 5000;
-const MAX_RETRY_MS = 120000;
-const SYNC_DEBOUNCE_MS = 2500;
+const BASE_RETRY_MS = 5_000;
+const MAX_RETRY_MS = 120_000;
+const SYNC_DEBOUNCE_MS = 2_500;
 
 export type SyncPhase = "idle" | "syncing" | "pending" | "error" | "offline" | "disabled";
 
@@ -40,14 +40,98 @@ export interface SyncStatus extends SyncMeta {
   configured: boolean;
 }
 
+interface CompactReminderState {
+  en?: boolean;
+  tm?: string;
+  ld?: string | null;
+}
+
+interface CompactSettingsState {
+  th?: "light" | "dark";
+  im?: "auto" | "es" | "mixed" | "en";
+  tts?: boolean;
+  rate?: number;
+  eng?: "system" | "kokoro";
+  name?: string;
+  ob?: boolean;
+  goal?: "daily" | "interviews" | "work" | "all";
+  rem?: CompactReminderState;
+}
+
+interface CompactStreakState {
+  current?: number;
+  longest?: number;
+  lastActiveDate?: string | null;
+}
+
+interface CompactCertificateState {
+  id?: string;
+  name?: string;
+  issuedAt?: string;
+  issued_at?: string;
+  completionDate?: string;
+  completion_date?: string;
+  status?: CertificateState["status"];
+  userId?: string | null;
+  user_id?: string | null;
+  issuedBy?: CertificateState["issuedBy"];
+  lastVerifiedAt?: string | null;
+  shareUrl?: string | null;
+  lastError?: string | null;
+}
+
+interface CompactProgressState {
+  v?: number;
+  xp?: number;
+  st?: number;
+  ce?: Record<string, number>;
+  cs?: Record<string, number>;
+  at?: Record<string, number>;
+  sr?: Record<string, unknown>;
+  ss?: string[];
+  pb?: Record<string, unknown>;
+  cert?: unknown;
+  ac?: Record<string, number>;
+  sk?: CompactStreakState;
+  se?: CompactSettingsState;
+}
+
+type UnknownRecord = Record<string, unknown>;
+
 let currentUserId: string | null = null;
 let applyingRemote = false;
 let pushTimer: ReturnType<typeof setTimeout> | null = null;
 let retryTimer: ReturnType<typeof setTimeout> | null = null;
 let lastPushFingerprint = "";
-const listeners = new Set<(s: SyncStatus) => void>();
+const listeners = new Set<(status: SyncStatus) => void>();
 
-function nowIso() {
+function isBrowser(): boolean {
+  return typeof window !== "undefined";
+}
+
+function isRecord(value: unknown): value is UnknownRecord {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+
+
+function toFiniteNumber(value: unknown, fallback = 0): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function toOptionalFiniteNumber(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function toStringValue(value: unknown, fallback = ""): string {
+  return typeof value === "string" ? value : fallback;
+}
+
+function toNullableString(value: unknown): string | null {
+  return typeof value === "string" ? value : null;
+}
+
+function nowIso(): string {
   return new Date().toISOString();
 }
 
@@ -67,42 +151,43 @@ function defaultMeta(): SyncMeta {
   };
 }
 
-function isBrowser() {
-  return typeof window !== "undefined";
-}
-
 function readMeta(): SyncMeta {
   if (!isBrowser()) return defaultMeta();
+
   try {
     const raw = window.localStorage.getItem(SYNC_META_KEY);
     if (!raw) return defaultMeta();
-    const p = JSON.parse(raw) as Partial<SyncMeta>;
+
+    const parsed = JSON.parse(raw) as Partial<SyncMeta>;
     return {
       ...defaultMeta(),
-      ...p,
-      history: Array.isArray(p.history) ? p.history.slice(0, SYNC_HISTORY_MAX) : [],
+      ...parsed,
+      history: Array.isArray(parsed.history) ? parsed.history.slice(0, SYNC_HISTORY_MAX) : [],
     };
   } catch {
     return defaultMeta();
   }
 }
 
-function writeMeta(meta: SyncMeta) {
+function writeMeta(meta: SyncMeta): void {
   if (!isBrowser()) return;
+
   try {
     window.localStorage.setItem(SYNC_META_KEY, JSON.stringify(meta));
-  } catch {}
+  } catch {
+    // Ignore storage write failures.
+  }
 }
 
 let metaState: SyncMeta = readMeta();
 
-function computePhase(m: SyncMeta): SyncPhase {
+function computePhase(meta: SyncMeta): SyncPhase {
   const online = isBrowser() ? navigator.onLine !== false : true;
   if (!supabase) return "disabled";
   if (!currentUserId) return "idle";
   if (!online) return "offline";
-  if (m.lastError && m.pending) return "error";
-  if (m.pending) return "pending";
+  if (meta.lastError && meta.pending) return "error";
+  if (meta.pending) return "pending";
   return "idle";
 }
 
@@ -112,260 +197,434 @@ export function getSyncStatus(): SyncStatus {
     userId: currentUserId,
     phase: computePhase(metaState),
     online: isBrowser() ? navigator.onLine !== false : true,
-    configured: !!supabase,
+    configured: Boolean(supabase),
   };
 }
 
-function notify() {
-  const s = getSyncStatus();
-  listeners.forEach((l) => l(s));
+function notify(): void {
+  const status = getSyncStatus();
+  listeners.forEach((listener) => listener(status));
 }
 
-export function subscribeSyncStatus(listener: (s: SyncStatus) => void): () => void {
+export function subscribeSyncStatus(listener: (status: SyncStatus) => void): () => void {
   listeners.add(listener);
   listener(getSyncStatus());
   return () => listeners.delete(listener);
 }
 
-function updateMeta(patch: Partial<SyncMeta>, entry?: SyncHistoryEntry) {
+function updateMeta(patch: Partial<SyncMeta>, entry?: SyncHistoryEntry): void {
   const history = entry
-    ? [entry, ...(metaState.history || [])].slice(0, SYNC_HISTORY_MAX)
-    : metaState.history || [];
+    ? [entry, ...(metaState.history ?? [])].slice(0, SYNC_HISTORY_MAX)
+    : (metaState.history ?? []);
+
   metaState = { ...metaState, ...patch, history };
   writeMeta(metaState);
   notify();
 }
 
-function pushHistory(
-  type: SyncHistoryEntry["type"],
-  ok: boolean,
-  message: string,
-  details?: string,
-) {
+function pushHistory(type: SyncHistoryEntry["type"], ok: boolean, message: string, details?: string): void {
   updateMeta({}, { at: nowIso(), type, ok, message, details });
 }
 
-// --- Compaction to save space (omits empty/trivial defaults) ---
-function isEmptyRecord(v: unknown): boolean {
-  return !!v && typeof v === "object" && !Array.isArray(v) && Object.keys(v as object).length === 0;
+function isEmptyRecord(value: unknown): boolean {
+  return isRecord(value) && Object.keys(value).length === 0;
 }
 
 export function compactState(state: ProgressState): Record<string, unknown> {
-  const out: Record<string, unknown> = { v: 3, xp: state.xp, st: state.startedAt };
-  if (!isEmptyRecord(state.completedExercises)) out.ce = state.completedExercises;
-  if (!isEmptyRecord(state.completedSessions)) out.cs = state.completedSessions;
-  if (!isEmptyRecord(state.attempts)) out.at = state.attempts;
-  if (!isEmptyRecord((state as any).exerciseSrs)) out.sr = (state as any).exerciseSrs;
-  if (state.savedSlang.length) out.ss = state.savedSlang;
-  if (!isEmptyRecord((state as any).phrasebook)) out.pb = (state as any).phrasebook;
-  if ((state as any).certificate) out.cert = (state as any).certificate;
-  if (!isEmptyRecord(state.achievements)) out.ac = state.achievements;
-  if (state.streak.current || state.streak.longest || state.streak.lastActiveDate)
-    out.sk = state.streak;
-  const s = state.settings;
-  out.se = {
-    th: s.theme,
-    im: s.immersion,
-    tts: s.ttsEnabled,
-    rate: s.ttsRate,
-    eng: s.ttsEngine,
-    name: s.name || "",
-    ob: s.onboarded,
-    goal: s.goal,
-    rem: { en: s.reminders.enabled, tm: s.reminders.time, ld: s.reminders.lastNudgeDate },
+  const compact: Record<string, unknown> = {
+    v: 3,
+    xp: state.xp,
+    st: state.startedAt,
   };
-  return out;
+
+  if (!isEmptyRecord(state.completedExercises)) compact.ce = state.completedExercises;
+  if (!isEmptyRecord(state.completedSessions)) compact.cs = state.completedSessions;
+  if (!isEmptyRecord(state.attempts)) compact.at = state.attempts;
+  if (!isEmptyRecord(state.exerciseSrs)) compact.sr = state.exerciseSrs;
+  if (state.savedSlang.length > 0) compact.ss = state.savedSlang;
+  if (!isEmptyRecord(state.phrasebook)) compact.pb = state.phrasebook;
+  if (state.certificate) compact.cert = state.certificate;
+  if (!isEmptyRecord(state.achievements)) compact.ac = state.achievements;
+  if (state.streak.current || state.streak.longest || state.streak.lastActiveDate) {
+    compact.sk = state.streak;
+  }
+
+  const settings = state.settings;
+  compact.se = {
+    th: settings.theme,
+    im: settings.immersion,
+    tts: settings.ttsEnabled,
+    rate: settings.ttsRate,
+    eng: settings.ttsEngine,
+    name: settings.name || "",
+    ob: settings.onboarded,
+    goal: settings.goal,
+    rem: {
+      en: settings.reminders.enabled,
+      tm: settings.reminders.time,
+      ld: settings.reminders.lastNudgeDate,
+    },
+  } satisfies CompactSettingsState;
+
+  return compact;
 }
 
-function asRecord(v: unknown): Record<string, number> {
-  if (!v || typeof v !== "object" || Array.isArray(v)) return {};
-  return v as Record<string, number>;
+function asNumberRecord(value: unknown): Record<string, number> {
+  if (!isRecord(value)) return {};
+
+  const result: Record<string, number> = {};
+  for (const [key, entry] of Object.entries(value)) {
+    if (typeof entry === "number" && Number.isFinite(entry)) {
+      result[key] = entry;
+    }
+  }
+  return result;
 }
-function asStringArray(v: unknown): string[] {
-  return Array.isArray(v) ? v.filter((x) => typeof x === "string") : [];
+
+function asStringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+}
+
+function asSrsRecord(value: unknown): Record<string, ExerciseSrs> {
+  if (!isRecord(value)) return {};
+
+  const result: Record<string, ExerciseSrs> = {};
+  for (const [id, entry] of Object.entries(value)) {
+    if (!isRecord(entry)) continue;
+
+    const box = toOptionalFiniteNumber(entry.box);
+    const due = toOptionalFiniteNumber(entry.due);
+    const last = toOptionalFiniteNumber(entry.last);
+    const correctStreak = toOptionalFiniteNumber(entry.correctStreak);
+    if (box === undefined || due === undefined || last === undefined || correctStreak === undefined) {
+      continue;
+    }
+
+    result[id] = { box, due, last, correctStreak };
+  }
+  return result;
+}
+
+function asPhrasebookRecord(value: unknown): Record<string, PhrasebookEntry> {
+  if (!isRecord(value)) return {};
+
+  const result: Record<string, PhrasebookEntry> = {};
+  for (const [id, entry] of Object.entries(value)) {
+    if (!isRecord(entry)) continue;
+
+    const en = toStringValue(entry.en).trim();
+    if (!en) continue;
+
+    const addedAt = toFiniteNumber(entry.addedAt, Date.now());
+    const updatedAt = toFiniteNumber(entry.updatedAt, addedAt);
+    const box = toFiniteNumber(entry.box, 0);
+    const last = toFiniteNumber(entry.last, updatedAt);
+    const due = toFiniteNumber(entry.due, last);
+    const tags = Array.isArray(entry.tags)
+      ? entry.tags.filter((tag): tag is string => typeof tag === "string").slice(0, 8)
+      : undefined;
+    const difficulty = toStringValue(entry.difficulty);
+
+    result[id] = {
+      id,
+      en,
+      es: toStringValue(entry.es),
+      source: toStringValue(entry.source),
+      addedAt,
+      updatedAt,
+      seen: toFiniteNumber(entry.seen, 0),
+      correct: toFiniteNumber(entry.correct, 0),
+      saved: Boolean(entry.saved),
+      notes: typeof entry.notes === "string" ? entry.notes : undefined,
+      userExample: typeof entry.userExample === "string" ? entry.userExample : undefined,
+      tags: tags && tags.length > 0 ? tags : undefined,
+      difficulty:
+        difficulty === "easy" || difficulty === "normal" || difficulty === "hard"
+          ? difficulty
+          : undefined,
+      box,
+      due,
+      last,
+      correctStreak: toFiniteNumber(entry.correctStreak, 0),
+    };
+  }
+
+  return result;
+}
+
+function asCertificate(value: unknown): CertificateState | null {
+  if (!isRecord(value)) return null;
+
+  const raw = value as CompactCertificateState & UnknownRecord;
+  const id = toStringValue(raw.id).trim().toUpperCase();
+  const name = toStringValue(raw.name).trim();
+  const issuedAt = toStringValue(raw.issuedAt || raw.issued_at).trim();
+  const completionDate = toStringValue(raw.completionDate || raw.completion_date).trim();
+
+  if (!id || !name || !issuedAt || !completionDate) {
+    return null;
+  }
+
+  const status = raw.status;
+  const issuedBy = raw.issuedBy;
+
+  return {
+    id,
+    name,
+    issuedAt,
+    completionDate,
+    status:
+      status === "local" ||
+      status === "pending" ||
+      status === "issued" ||
+      status === "verified" ||
+      status === "revoked" ||
+      status === "error"
+        ? status
+        : "local",
+    userId: typeof raw.userId === "string" || raw.userId === null ? raw.userId : toNullableString(raw.user_id),
+    issuedBy: issuedBy === "server" || issuedBy === "local" ? issuedBy : "local",
+    lastVerifiedAt: toNullableString(raw.lastVerifiedAt),
+    shareUrl: toNullableString(raw.shareUrl),
+    lastError: toNullableString(raw.lastError),
+  };
+}
+
+function toCompactState(raw: unknown): CompactProgressState | null {
+  const parsed = parseCompactState(raw);
+  if (parsed) return parsed as CompactProgressState;
+  return isRecord(raw) ? (raw as CompactProgressState) : null;
 }
 
 export function expandState(raw: unknown, defaults: ProgressState): ProgressState {
-  if (!raw || typeof raw !== "object") return defaults;
-  const rawObj = raw as any;
-  // Supports compact format (v/ce/cs/...) and full format (version/completedExercises/...)
-  const compact = "v" in rawObj || "ce" in rawObj || "cs" in rawObj;
-  if (!compact) {
-    // Delegates to the store mergeState via a partial full structure
-    return { ...defaults, ...(rawObj as Partial<ProgressState>) } as ProgressState;
+  if (!isRecord(raw)) return defaults;
+
+  const compactCandidate = "v" in raw || "ce" in raw || "cs" in raw || "se" in raw;
+  if (!compactCandidate) {
+    return { ...defaults, ...(raw as Partial<ProgressState>) } as ProgressState;
   }
-  const r = parseCompactState(rawObj) ?? rawObj;
-  const se = (r as any).se || {};
-  const rem = se.rem || {};
-  const settings: ProgressSettings = {
+
+  const compact = toCompactState(raw);
+  if (!compact) return defaults;
+
+  const settings = compact.se ?? {};
+  const reminders = settings.rem ?? {};
+  const streak = compact.sk ?? {};
+
+  const expandedSettings: ProgressSettings = {
     ...defaults.settings,
-    theme: se.th === "dark" ? "dark" : "light",
-    immersion: ["auto", "es", "mixed", "en"].includes(se.im) ? se.im : defaults.settings.immersion,
-    ttsEnabled: typeof se.tts === "boolean" ? se.tts : defaults.settings.ttsEnabled,
-    ttsRate: typeof se.rate === "number" ? se.rate : defaults.settings.ttsRate,
-    ttsEngine: se.eng === "kokoro" ? "kokoro" : "system",
-    name: typeof se.name === "string" ? se.name : "",
-    onboarded: Boolean(se.ob),
-    goal: ["daily", "interviews", "work", "all"].includes(se.goal) ? se.goal : "all",
+    theme: settings.th === "dark" ? "dark" : "light",
+    immersion:
+      settings.im === "auto" || settings.im === "es" || settings.im === "mixed" || settings.im === "en"
+        ? settings.im
+        : defaults.settings.immersion,
+    ttsEnabled: typeof settings.tts === "boolean" ? settings.tts : defaults.settings.ttsEnabled,
+    ttsRate: toFiniteNumber(settings.rate, defaults.settings.ttsRate),
+    ttsEngine: settings.eng === "kokoro" ? "kokoro" : "system",
+    name: toStringValue(settings.name, ""),
+    onboarded: Boolean(settings.ob),
+    goal:
+      settings.goal === "daily" || settings.goal === "interviews" || settings.goal === "work" || settings.goal === "all"
+        ? settings.goal
+        : "all",
     reminders: {
-      enabled: Boolean(rem.en),
-      time: typeof rem.tm === "string" && /^\d{2}:\d{2}$/.test(rem.tm) ? rem.tm : "20:00",
-      lastNudgeDate: typeof rem.ld === "string" ? rem.ld : null,
+      enabled: Boolean(reminders.en),
+      time:
+        typeof reminders.tm === "string" && /^\d{2}:\d{2}$/.test(reminders.tm)
+          ? reminders.tm
+          : "20:00",
+      lastNudgeDate: typeof reminders.ld === "string" ? reminders.ld : null,
     },
-  } as ProgressSettings;
-  const sk = r.sk || {};
+  };
+
   return {
     ...defaults,
-    version: typeof r.v === "number" ? r.v : 3,
-    xp: typeof r.xp === "number" ? r.xp : 0,
-    startedAt: typeof r.st === "number" ? r.st : defaults.startedAt,
-    completedExercises: asRecord(r.ce),
-    completedSessions: asRecord(r.cs),
-    attempts: asRecord(r.at),
-    exerciseSrs: (r.sr && typeof r.sr === "object" && !Array.isArray(r.sr) ? r.sr : {}) as any,
-    savedSlang: asStringArray(r.ss),
-    phrasebook: (r.pb && typeof r.pb === "object" && !Array.isArray(r.pb) ? r.pb : {}) as any,
-    certificate: (r.cert && typeof r.cert === "object"
-      ? {
-          id: String(r.cert.id || "").toUpperCase(),
-          name: String(r.cert.name || ""),
-          issuedAt: String(r.cert.issuedAt || r.cert.issued_at || ""),
-          completionDate: String(r.cert.completionDate || r.cert.completion_date || ""),
-          status: r.cert.status || "local",
-          userId: r.cert.userId ?? r.cert.user_id ?? null,
-          issuedBy: r.cert.issuedBy || "local",
-          lastVerifiedAt: r.cert.lastVerifiedAt ?? null,
-          shareUrl: r.cert.shareUrl ?? null,
-          lastError: r.cert.lastError ?? null,
-        }
-      : null) as any,
-    achievements: asRecord(r.ac),
+    version: toFiniteNumber(compact.v, 3),
+    xp: toFiniteNumber(compact.xp, 0),
+    startedAt: toFiniteNumber(compact.st, defaults.startedAt),
+    completedExercises: asNumberRecord(compact.ce),
+    completedSessions: asNumberRecord(compact.cs),
+    attempts: asNumberRecord(compact.at),
+    exerciseSrs: asSrsRecord(compact.sr),
+    savedSlang: asStringArray(compact.ss),
+    phrasebook: asPhrasebookRecord(compact.pb),
+    certificate: asCertificate(compact.cert),
+    achievements: asNumberRecord(compact.ac),
     streak: {
-      current: typeof sk.current === "number" ? sk.current : 0,
-      longest: typeof sk.longest === "number" ? sk.longest : 0,
-      lastActiveDate: typeof sk.lastActiveDate === "string" ? sk.lastActiveDate : null,
+      current: toFiniteNumber(streak.current, 0),
+      longest: toFiniteNumber(streak.longest, 0),
+      lastActiveDate: typeof streak.lastActiveDate === "string" ? streak.lastActiveDate : null,
     },
-    settings,
-  } as ProgressState;
+    settings: expandedSettings,
+  };
 }
 
 function unionMinTs(a: Record<string, number>, b: Record<string, number>): Record<string, number> {
-  const out: Record<string, number> = { ...a };
-  for (const [k, v] of Object.entries(b)) {
-    if (!(k in out) || (typeof v === "number" && v < out[k])) out[k] = v;
+  const result: Record<string, number> = { ...a };
+  for (const [key, value] of Object.entries(b)) {
+    if (!(key in result) || value < result[key]) {
+      result[key] = value;
+    }
   }
-  return out;
+  return result;
 }
+
 function maxAttempts(a: Record<string, number>, b: Record<string, number>): Record<string, number> {
-  const out: Record<string, number> = { ...a };
-  for (const [k, v] of Object.entries(b)) {
-    out[k] = Math.max(out[k] ?? 0, typeof v === "number" ? v : 0);
+  const result: Record<string, number> = { ...a };
+  for (const [key, value] of Object.entries(b)) {
+    result[key] = Math.max(result[key] ?? 0, value);
   }
-  return out;
+  return result;
 }
+
 function unionStrings(a: string[], b: string[]): string[] {
-  return Array.from(new Set([...(a || []), ...(b || [])]));
+  return Array.from(new Set([...(a ?? []), ...(b ?? [])]));
 }
+
 function achievementXpTotal(unlocked: Record<string, number>): number {
   let sum = 0;
-  for (const a of ACHIEVEMENTS) if (unlocked[a.id]) sum += a.xp;
+  for (const achievement of ACHIEVEMENTS) {
+    if (unlocked[achievement.id]) sum += achievement.xp;
+  }
   return sum;
 }
+
 function recomputeXp(
-  state: Pick<
-    ProgressState,
-    "completedExercises" | "completedSessions" | "savedSlang" | "achievements"
-  >,
+  state: Pick<ProgressState, "completedExercises" | "completedSessions" | "savedSlang" | "achievements">,
 ): number {
   return (
-    Object.keys(state.completedExercises || {}).length * 10 +
-    Object.keys(state.completedSessions || {}).length * 40 +
-    (state.savedSlang || []).length * 5 +
-    achievementXpTotal(state.achievements || {})
+    Object.keys(state.completedExercises ?? {}).length * 10 +
+    Object.keys(state.completedSessions ?? {}).length * 40 +
+    (state.savedSlang ?? []).length * 5 +
+    achievementXpTotal(state.achievements ?? {})
   );
 }
-function mergeStreak(
-  a: ProgressState["streak"],
-  b: ProgressState["streak"],
-): ProgressState["streak"] {
-  const pick = (x: ProgressState["streak"], y: ProgressState["streak"]) => {
-    if (!x?.lastActiveDate) return y;
-    if (!y?.lastActiveDate) return x;
-    if (x.lastActiveDate === y.lastActiveDate) {
+
+function mergeStreak(a: ProgressState["streak"], b: ProgressState["streak"]): ProgressState["streak"] {
+  const pick = (first: ProgressState["streak"], second: ProgressState["streak"]) => {
+    if (!first?.lastActiveDate) return second;
+    if (!second?.lastActiveDate) return first;
+
+    if (first.lastActiveDate === second.lastActiveDate) {
       return {
-        current: Math.max(x.current, y.current),
-        longest: Math.max(x.longest, y.longest),
-        lastActiveDate: x.lastActiveDate,
+        current: Math.max(first.current, second.current),
+        longest: Math.max(first.longest, second.longest),
+        lastActiveDate: first.lastActiveDate,
       };
     }
-    return x.lastActiveDate > y.lastActiveDate ? x : y;
+
+    return first.lastActiveDate > second.lastActiveDate ? first : second;
   };
-  const chosen = pick(a, b) || a || b;
+
+  const chosen = pick(a, b) ?? a ?? b;
   return {
-    ...chosen,
-    longest: Math.max(a?.longest || 0, b?.longest || 0, chosen?.longest || 0),
-  } as any;
+    current: chosen?.current ?? 0,
+    longest: Math.max(a?.longest ?? 0, b?.longest ?? 0, chosen?.longest ?? 0),
+    lastActiveDate: chosen?.lastActiveDate ?? null,
+  };
 }
+
 function mergeExerciseSrs(
   a: ProgressState["exerciseSrs"] | undefined,
   b: ProgressState["exerciseSrs"] | undefined,
 ): ProgressState["exerciseSrs"] {
-  const out: ProgressState["exerciseSrs"] = { ...(a ?? {}) };
-  for (const [id, sb] of Object.entries(b ?? {})) {
-    const sa = out[id] as any;
-    if (!sa) {
-      out[id] = sb as any;
+  const result: ProgressState["exerciseSrs"] = { ...(a ?? {}) };
+
+  for (const [id, remoteEntry] of Object.entries(b ?? {})) {
+    const localEntry = result[id];
+    if (!localEntry) {
+      result[id] = remoteEntry;
       continue;
     }
-    const lb = (sb as any).last ?? 0;
-    const la = sa.last ?? 0;
-    if (lb > la) out[id] = sb as any;
-    else if (lb === la && ((sb as any).box ?? 0) >= (sa.box ?? 0)) out[id] = sb as any;
+
+    if (remoteEntry.last > localEntry.last) {
+      result[id] = remoteEntry;
+      continue;
+    }
+
+    if (remoteEntry.last === localEntry.last && remoteEntry.box >= localEntry.box) {
+      result[id] = remoteEntry;
+    }
   }
-  return out;
+
+  return result;
 }
+
 function mergePhrasebook(
-  a: Record<string, any> | undefined,
-  b: Record<string, any> | undefined,
-): Record<string, any> {
-  const out: Record<string, any> = { ...(a ?? {}) };
-  for (const [id, rb] of Object.entries(b ?? {})) {
-    const ra = out[id];
-    if (!ra) {
-      out[id] = rb;
+  a: Record<string, PhrasebookEntry> | undefined,
+  b: Record<string, PhrasebookEntry> | undefined,
+): Record<string, PhrasebookEntry> {
+  const result: Record<string, PhrasebookEntry> = { ...(a ?? {}) };
+
+  for (const [id, remoteEntry] of Object.entries(b ?? {})) {
+    const localEntry = result[id];
+    if (!localEntry) {
+      result[id] = remoteEntry;
       continue;
     }
-    const updatedAt = Math.max(ra.updatedAt ?? 0, rb.updatedAt ?? 0);
-    out[id] = {
-      ...ra,
-      ...rb,
+
+    const updatedAt = Math.max(localEntry.updatedAt ?? 0, remoteEntry.updatedAt ?? 0);
+    result[id] = {
+      ...localEntry,
+      ...remoteEntry,
       id,
-      en: (rb.en?.length ?? 0) >= (ra.en?.length ?? 0) ? rb.en : ra.en,
-      es: (rb.es?.length ?? 0) >= (ra.es?.length ?? 0) ? rb.es : ra.es || "",
-      source: rb.source || ra.source || "",
-      addedAt: Math.min(ra.addedAt ?? updatedAt, rb.addedAt ?? updatedAt),
+      en: (remoteEntry.en?.length ?? 0) >= (localEntry.en?.length ?? 0) ? remoteEntry.en : localEntry.en,
+      es: (remoteEntry.es?.length ?? 0) >= (localEntry.es?.length ?? 0) ? remoteEntry.es : localEntry.es,
+      source: remoteEntry.source || localEntry.source || "",
+      addedAt: Math.min(localEntry.addedAt ?? updatedAt, remoteEntry.addedAt ?? updatedAt),
       updatedAt,
-      seen: Math.max(ra.seen ?? 0, rb.seen ?? 0),
-      correct: Math.max(ra.correct ?? 0, rb.correct ?? 0),
-      saved: Boolean(ra.saved || rb.saved),
+      seen: Math.max(localEntry.seen ?? 0, remoteEntry.seen ?? 0),
+      correct: Math.max(localEntry.correct ?? 0, remoteEntry.correct ?? 0),
+      saved: Boolean(localEntry.saved || remoteEntry.saved),
+      tags:
+        (remoteEntry.tags?.length ?? 0) >= (localEntry.tags?.length ?? 0)
+          ? remoteEntry.tags
+          : localEntry.tags,
+      notes:
+        (remoteEntry.notes?.length ?? 0) >= (localEntry.notes?.length ?? 0)
+          ? remoteEntry.notes
+          : localEntry.notes,
+      userExample:
+        (remoteEntry.userExample?.length ?? 0) >= (localEntry.userExample?.length ?? 0)
+          ? remoteEntry.userExample
+          : localEntry.userExample,
+      difficulty: remoteEntry.difficulty ?? localEntry.difficulty,
+      box: Math.max(localEntry.box ?? 0, remoteEntry.box ?? 0),
+      due: Math.max(localEntry.due ?? 0, remoteEntry.due ?? 0),
+      last: Math.max(localEntry.last ?? 0, remoteEntry.last ?? 0),
+      correctStreak: Math.max(localEntry.correctStreak ?? 0, remoteEntry.correctStreak ?? 0),
     };
   }
-  return out;
+
+  return result;
 }
-function mergeCertificate(a: any, b: any): any {
-  if (!a) return b || null;
-  if (!b) return a || null;
-  // Prefer server-issued/verified, otherwise the latest issuedAt
-  const rank = (c: any) =>
-    (c?.issuedBy === "server" ? 2 : 0) +
-    (c?.status === "verified" || c?.status === "issued" ? 1 : 0);
-  const ra = rank(a),
-    rb = rank(b);
-  if (rb !== ra) return rb > ra ? { ...a, ...b } : { ...b, ...a };
-  const ta = Date.parse(a.issuedAt || "") || 0;
-  const tb = Date.parse(b.issuedAt || "") || 0;
-  const newer = tb >= ta ? b : a;
-  const older = tb >= ta ? a : b;
+
+function certificateRank(certificate: CertificateState | null | undefined): number {
+  if (!certificate) return -1;
+  const issuedByScore = certificate.issuedBy === "server" ? 2 : 0;
+  const statusScore = certificate.status === "verified" || certificate.status === "issued" ? 1 : 0;
+  return issuedByScore + statusScore;
+}
+
+function mergeCertificate(
+  localCertificate: CertificateState | null | undefined,
+  remoteCertificate: CertificateState | null | undefined,
+): CertificateState | null {
+  if (!localCertificate) return remoteCertificate ?? null;
+  if (!remoteCertificate) return localCertificate ?? null;
+
+  const localRank = certificateRank(localCertificate);
+  const remoteRank = certificateRank(remoteCertificate);
+  if (remoteRank !== localRank) {
+    return remoteRank > localRank
+      ? { ...localCertificate, ...remoteCertificate }
+      : { ...remoteCertificate, ...localCertificate };
+  }
+
+  const localTime = Date.parse(localCertificate.issuedAt || "") || 0;
+  const remoteTime = Date.parse(remoteCertificate.issuedAt || "") || 0;
+  const newer = remoteTime >= localTime ? remoteCertificate : localCertificate;
+  const older = remoteTime >= localTime ? localCertificate : remoteCertificate;
   return { ...older, ...newer };
 }
 
@@ -381,39 +640,36 @@ export function mergeProgress(local: ProgressState, remote: ProgressState): Prog
 
 export function mergeProgressDetailed(local: ProgressState, remote: ProgressState): MergeReport {
   const notes: string[] = [];
-  const completedExercises = unionMinTs(
-    local.completedExercises || {},
-    remote.completedExercises || {},
-  );
-  const completedSessions = unionMinTs(
-    local.completedSessions || {},
-    remote.completedSessions || {},
-  );
-  const attempts = maxAttempts(local.attempts || {}, remote.attempts || {});
-  const exerciseSrs = mergeExerciseSrs(local.exerciseSrs as any, remote.exerciseSrs as any);
-  const savedSlang = unionStrings(local.savedSlang || [], remote.savedSlang || []);
-  const phrasebook = mergePhrasebook(local.phrasebook as any, remote.phrasebook as any);
-  const certificate = mergeCertificate((local as any).certificate, (remote as any).certificate);
-  const achievements = unionMinTs(local.achievements || {}, remote.achievements || {});
+
+  const completedExercises = unionMinTs(local.completedExercises ?? {}, remote.completedExercises ?? {});
+  const completedSessions = unionMinTs(local.completedSessions ?? {}, remote.completedSessions ?? {});
+  const attempts = maxAttempts(local.attempts ?? {}, remote.attempts ?? {});
+  const exerciseSrs = mergeExerciseSrs(local.exerciseSrs, remote.exerciseSrs);
+  const savedSlang = unionStrings(local.savedSlang ?? [], remote.savedSlang ?? []);
+  const phrasebook = mergePhrasebook(local.phrasebook, remote.phrasebook);
+  const certificate = mergeCertificate(local.certificate, remote.certificate);
+  const achievements = unionMinTs(local.achievements ?? {}, remote.achievements ?? {});
   const streak = mergeStreak(local.streak, remote.streak);
   const xp = Math.max(
-    local.xp || 0,
-    remote.xp || 0,
+    local.xp ?? 0,
+    remote.xp ?? 0,
     recomputeXp({ completedExercises, completedSessions, savedSlang, achievements }),
   );
 
-  // Settings: conservative union + prefer profile/remote fields when present
-  const settings = { ...local.settings, ...remote.settings } as ProgressSettings;
-  // Device preferences (theme/tts, etc.) are merged conservatively; perfect last-write merge is not guaranteed, so we union values
-  if (local.settings?.theme && !remote.settings?.theme) settings.theme = local.settings.theme;
+  const settings: ProgressSettings = { ...local.settings, ...remote.settings };
+  if (local.settings?.theme && !remote.settings?.theme) {
+    settings.theme = local.settings.theme;
+  }
 
   const hadConflict = JSON.stringify(compactState(local)) !== JSON.stringify(compactState(remote));
-  if (hadConflict) notes.push("Se fusionaron cambios locales y remotos.");
+  if (hadConflict) {
+    notes.push("Se fusionaron cambios locales y remotos.");
+  }
 
   const merged: ProgressState = {
     ...local,
     ...remote,
-    version: Math.max(local.version || 2, remote.version || 2, 3),
+    version: Math.max(local.version ?? 2, remote.version ?? 2, 3),
     completedExercises,
     completedSessions,
     attempts,
@@ -424,9 +680,9 @@ export function mergeProgressDetailed(local: ProgressState, remote: ProgressStat
     achievements,
     streak,
     xp,
-    startedAt: Math.min(local.startedAt || Date.now(), remote.startedAt || Date.now()),
+    startedAt: Math.min(local.startedAt ?? Date.now(), remote.startedAt ?? Date.now()),
     settings,
-  } as ProgressState;
+  };
 
   return { merged, hadConflict, notes };
 }
@@ -435,9 +691,10 @@ export function isApplyingRemote(): boolean {
   return applyingRemote;
 }
 
-export function setCurrentUser(userId: string | null) {
-  const prev = currentUserId;
+export function setCurrentUser(userId: string | null): void {
+  const previousUserId = currentUserId;
   currentUserId = userId;
+
   if (!userId && pushTimer) {
     clearTimeout(pushTimer);
     pushTimer = null;
@@ -446,19 +703,16 @@ export function setCurrentUser(userId: string | null) {
     clearTimeout(retryTimer);
     retryTimer = null;
   }
-  if (userId !== prev) {
+
+  if (userId !== previousUserId) {
     updateMeta({
       userId,
       lastError: null,
       retryCount: 0,
       nextRetryAt: null,
-      pending: !!userId && metaState.pending,
+      pending: userId ? metaState.pending : false,
     });
-    pushHistory(
-      "auth",
-      true,
-      userId ? "Sesión iniciada, listo para sincronizar." : "Sesión cerrada.",
-    );
+    pushHistory("auth", true, userId ? "Sesión iniciada, listo para sincronizar." : "Sesión cerrada.");
   } else {
     notify();
   }
@@ -472,15 +726,21 @@ export async function pullRemote(
   defaults: ProgressState,
 ): Promise<{ state: ProgressState; updatedAt: string } | null> {
   if (!supabase || !currentUserId) return null;
+
   const { data, error } = await supabase
     .from(TABLE)
     .select("state, updated_at")
     .eq("user_id", currentUserId)
     .maybeSingle();
+
   if (error) throw error;
   if (!data) return null;
-  const expanded = expandState(data.state, defaults);
-  return { state: expanded, updatedAt: data.updated_at as string };
+
+  const expanded = expandState((data as { state: unknown }).state, defaults);
+  return {
+    state: expanded,
+    updatedAt: toStringValue((data as { updated_at?: unknown }).updated_at, nowIso()),
+  };
 }
 
 function fingerprint(state: ProgressState): string {
@@ -494,31 +754,39 @@ function fingerprint(state: ProgressState): string {
 export async function pushRemote(state: ProgressState, force = false): Promise<boolean> {
   if (!supabase || !currentUserId) return false;
   if (applyingRemote && !force) return false;
+
   if (isBrowser() && navigator.onLine === false) {
     updateMeta({ pending: true, lastError: "Sin conexión. Se reintentará al volver online." });
     return false;
   }
-  const fp = fingerprint(state);
-  if (!force && fp === lastPushFingerprint && !metaState.pending) return true;
+
+  const stateFingerprint = fingerprint(state);
+  if (!force && stateFingerprint === lastPushFingerprint && !metaState.pending) {
+    return true;
+  }
 
   updateMeta({ lastAttemptAt: nowIso(), pending: true });
+
   const payload = { user_id: currentUserId, state: compactState(state) };
   const { error } = await supabase.from(TABLE).upsert(payload, { onConflict: "user_id" });
+
   if (error) {
-    const msg = error.message || "Error al sincronizar";
+    const message = error.message || "Error al sincronizar";
     const retryCount = (metaState.retryCount || 0) + 1;
     const delay = Math.min(MAX_RETRY_MS, BASE_RETRY_MS * 2 ** Math.min(retryCount, 6));
+
     updateMeta({
-      lastError: msg,
+      lastError: message,
       pending: true,
       retryCount,
       nextRetryAt: new Date(Date.now() + delay).toISOString(),
     });
-    pushHistory("error", false, "No se pudo subir el progreso.", msg);
+    pushHistory("error", false, "No se pudo subir el progreso.", message);
     scheduleRetry(delay);
     return false;
   }
-  lastPushFingerprint = fp;
+
+  lastPushFingerprint = stateFingerprint;
   updateMeta({
     lastError: null,
     pending: false,
@@ -531,21 +799,25 @@ export async function pushRemote(state: ProgressState, force = false): Promise<b
   return true;
 }
 
-function scheduleRetry(delay: number) {
+function scheduleRetry(delay: number): void {
   if (retryTimer) clearTimeout(retryTimer);
+
   retryTimer = setTimeout(() => {
     retryTimer = null;
     notify();
-    // Consumer should trigger sync/push via events; emit status so the UI can react
     try {
       if (isBrowser()) window.dispatchEvent(new CustomEvent("runtimeenglish-sync-retry"));
-    } catch {}
+    } catch {
+      // Ignore event dispatch failures.
+    }
   }, delay);
 }
 
-export function schedulePush(getState: () => ProgressState) {
+export function schedulePush(getState: () => ProgressState): void {
   if (!currentUserId || applyingRemote) return;
+
   updateMeta({ pending: true, lastError: null });
+
   if (pushTimer) clearTimeout(pushTimer);
   pushTimer = setTimeout(() => {
     pushTimer = null;
@@ -553,34 +825,32 @@ export function schedulePush(getState: () => ProgressState) {
   }, SYNC_DEBOUNCE_MS);
 }
 
-export async function syncNow(
-  local: ProgressState,
-  defaults: ProgressState,
-): Promise<ProgressState> {
+export async function syncNow(local: ProgressState, defaults: ProgressState): Promise<ProgressState> {
   if (!supabase || !currentUserId) return local;
+
   updateMeta({ lastAttemptAt: nowIso() });
+
   if (isBrowser() && navigator.onLine === false) {
     updateMeta({
       pending: true,
-      lastError:
-        "Sin conexión. Los cambios se guardaron localmente y se sincronizarán al reconectar.",
+      lastError: "Sin conexión. Los cambios se guardaron localmente y se sincronizarán al reconectar.",
     });
     pushHistory("error", false, "Sin conexión.", "offline");
     return local;
   }
+
   try {
     const remote = await pullRemote(defaults);
     let merged = local;
     let hadConflict = false;
+
     if (remote) {
-      const res = mergeProgressDetailed(local, remote.state);
-      merged = res.merged;
-      hadConflict = res.hadConflict;
+      const result = mergeProgressDetailed(local, remote.state);
+      merged = result.merged;
+      hadConflict = result.hadConflict;
       updateMeta({
         lastRemoteUpdatedAt: remote.updatedAt,
-        conflictCount: hadConflict
-          ? (metaState.conflictCount || 0) + 1
-          : metaState.conflictCount || 0,
+        conflictCount: hadConflict ? (metaState.conflictCount || 0) + 1 : (metaState.conflictCount || 0),
       });
       pushHistory(
         hadConflict ? "conflict" : "merge",
@@ -593,26 +863,29 @@ export async function syncNow(
     } else {
       pushHistory("pull", true, "No había progreso remoto. Se subirá el progreso local.");
     }
+
     applyingRemote = true;
     try {
       await pushRemote(merged, true);
     } finally {
       applyingRemote = false;
     }
+
     return merged;
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : "Error de sincronización";
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Error de sincronización";
     const retryCount = (metaState.retryCount || 0) + 1;
     const delay = Math.min(MAX_RETRY_MS, BASE_RETRY_MS * 2 ** Math.min(retryCount, 6));
+
     updateMeta({
-      lastError: msg,
+      lastError: message,
       pending: true,
       retryCount,
       nextRetryAt: new Date(Date.now() + delay).toISOString(),
     });
-    pushHistory("error", false, "Fallo de sincronización.", msg);
+    pushHistory("error", false, "Fallo de sincronización.", message);
     scheduleRetry(delay);
-    throw e;
+    throw error;
   }
 }
 
@@ -625,23 +898,26 @@ export function withRemoteApply<T>(fn: () => T): T {
   }
 }
 
-export function clearSyncError() {
+export function clearSyncError(): void {
   updateMeta({ lastError: null, retryCount: 0, nextRetryAt: null });
 }
 
 export function getSyncHistory(): SyncHistoryEntry[] {
-  return metaState.history || [];
+  return metaState.history ?? [];
 }
 
-// Auto-retry on reconnect
+// Auto-retry on reconnect.
 if (isBrowser()) {
   window.addEventListener("online", () => {
     updateMeta({ lastError: null });
     pushHistory("pull", true, "Conexión restablecida. Reintentando sincronización...");
     try {
       window.dispatchEvent(new CustomEvent("runtimeenglish-sync-retry"));
-    } catch {}
+    } catch {
+      // Ignore event dispatch failures.
+    }
   });
+
   window.addEventListener("offline", () => {
     updateMeta({ pending: true, lastError: "Sin conexión. Los cambios se guardarán localmente." });
     pushHistory("error", false, "Sin conexión.", "offline");

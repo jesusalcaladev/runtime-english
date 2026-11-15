@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createDefaultState } from "./progress";
+import { createDefaultState, type ExerciseSrs, type PhrasebookEntry } from "./progress";
 import {
   buildExercisePool,
   buildPhrasePool,
@@ -44,7 +44,8 @@ describe("practice", () => {
     state.attempts["a"] = 2; // attempted, not completed
     state.completedExercises["b"] = now;
     state.attempts["b"] = 1;
-    state.exerciseSrs["b"] = { box: 1, due: now + 100000, last: now, correctStreak: 1 } as any;
+    const srsEntry: ExerciseSrs = { box: 1, due: now + 100000, last: now, correctStreak: 1 };
+    state.exerciseSrs["b"] = srsEntry;
 
     expect(reviewScore(a, state, now)).toBeGreaterThan(reviewScore(b, state, now));
   });
@@ -56,7 +57,7 @@ describe("practice", () => {
     state.attempts["weak"] = 2; // no completion => weak
     state.attempts["due"] = 1;
     state.completedExercises["due"] = now - 1000;
-    state.exerciseSrs["due"] = { box: 1, due: now - 1, last: now - 1000, correctStreak: 1 } as any;
+    state.exerciseSrs["due"] = { box: 1, due: now - 1, last: now - 1000, correctStreak: 1 };
 
     const stats = getPracticeStats(items, state, now);
     expect(stats.weak).toBeGreaterThanOrEqual(1);
@@ -77,16 +78,37 @@ describe("practice", () => {
   it("buildPhrasePool merges due and weak phrase entries", () => {
     const state = createDefaultState();
     const now = Date.now();
-    state.phrasebook = {
-      a: {
-        id: "a", en: "A", es: "A", source: "x", addedAt: now, updatedAt: now, seen: 1, correct: 0, saved: false,
-        box: 0, due: now - 10, last: now - 10, correctStreak: 0,
-      } as any,
-      b: {
-        id: "b", en: "B", es: "B", source: "x", addedAt: now, updatedAt: now, seen: 1, correct: 0, saved: false,
-        box: 0, due: now + 100000, last: now, correctStreak: 0,
-      } as any,
+    const entryA: PhrasebookEntry = {
+      id: "a",
+      en: "A",
+      es: "A",
+      source: "x",
+      addedAt: now,
+      updatedAt: now,
+      seen: 1,
+      correct: 0,
+      saved: false,
+      box: 0,
+      due: now - 10,
+      last: now - 10,
+      correctStreak: 0,
     };
+    const entryB: PhrasebookEntry = {
+      id: "b",
+      en: "B",
+      es: "B",
+      source: "x",
+      addedAt: now,
+      updatedAt: now,
+      seen: 1,
+      correct: 0,
+      saved: false,
+      box: 0,
+      due: now + 100000,
+      last: now,
+      correctStreak: 0,
+    };
+    state.phrasebook = { a: entryA, b: entryB };
     const pool = buildPhrasePool(state, 10);
     expect(pool.some((p) => p.id === "a")).toBe(true);
   });

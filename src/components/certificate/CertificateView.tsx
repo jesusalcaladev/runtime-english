@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "preact/hooks";
 import { Award, Check, Cloud, Copy, ExternalLink, Info, Loader2, RefreshCw, ShieldCheck } from "lucide-preact";
 import { route } from "../../lib/routes";
 import { certificateShareUrl, issueCertificate, verifyCertificate } from "../../lib/certificates";
-import { progressStore } from "../../lib/progress";
+import { progressStore, type CertificateState } from "../../lib/progress";
 import { isSupabaseConfigured, supabase } from "../../lib/supabase";
 import { useProgress } from "../../lib/useProgress";
 import { emitToast } from "../../lib/toast";
@@ -85,83 +85,107 @@ export default function CertificateView({ totalSessions, totalExercises }: Props
   const shareUrl = useMemo(() => certificateShareUrl(issueId), [issueId]);
   const issueEndpointConfigured = Boolean(import.meta.env.PUBLIC_CERTIFICATE_ISSUE_URL);
 
-  async function ensureLocalCertificate() {
-    if (!complete) return;
-    const record = {
+  function buildCertificateRecord(overrides: Partial<CertificateState> = {}): CertificateState {
+    return {
       id: issueId,
       name,
       issuedAt: issuedAtIso,
       completionDate: displayDate,
-      status: (cert?.status as any) || "local",
-      issuedBy: (cert?.issuedBy as any) || "local",
+      status: cert?.status ?? "local",
+      issuedBy: cert?.issuedBy ?? "local",
+      userId: cert?.userId ?? null,
       shareUrl,
-      lastError: cert?.lastError || null,
-      lastVerifiedAt: cert?.lastVerifiedAt || null,
+      lastError: cert?.lastError ?? null,
+      lastVerifiedAt: cert?.lastVerifiedAt ?? null,
+      ...overrides,
     };
-    progressStore.setCertificate(record as any);
+  }
+
+  async function ensureLocalCertificate() {
+    if (!complete) return;
+    progressStore.setCertificate(buildCertificateRecord());
   }
 
   async function doIssue(auto = false) {
     if (!complete) return;
     await ensureLocalCertificate();
     if (!issueEndpointConfigured) {
-      progressStore.setCertificate({ id: issueId, name, issuedAt: issuedAtIso, completionDate: displayDate, status: "local", issuedBy: "local", shareUrl } as any);
+      progressStore.setCertificate(buildCertificateRecord({ status: "local", issuedBy: "local" }));
       return;
     }
+
     setIssuing(true);
-    const res = await issueCertificate({ id: issueId, name, issued_at: issuedAtIso, completion_date: displayDate });
+    const res = await issueCertificate({
+      id: issueId,
+      name,
+      issued_at: issuedAtIso,
+      completion_date: displayDate,
+    });
     setIssuing(false);
+
     if (res.ok) {
-      progressStore.setCertificate({
-        id: issueId,
-        name,
-        issuedAt: issuedAtIso,
-        completionDate: displayDate,
-        status: "issued",
-        issuedBy: "server",
-        shareUrl,
-        lastError: null,
-      } as any);
-      if (!auto) emitToast(authed ? "Certificado emitido y vinculado a tu cuenta." : "Certificado emitido en el registro verificable.", "success");
-    } else {
-      progressStore.setCertificate({
-        id: issueId,
-        name,
-        issuedAt: issuedAtIso,
-        completionDate: displayDate,
-        status: cert?.status === "issued" || cert?.status === "verified" ? cert.status : "pending",
-        issuedBy: cert?.issuedBy || "local",
-        shareUrl,
-        lastError: res.error || "No se pudo emitir en servidor.",
-      } as any);
-      if (!auto) emitToast(`No se pudo emitir en servidor: ${res.error || "error"}`, "error");
+      progressStore.setCertificate(
+        buildCertificateRecord({
+          status: "issued",
+          issuedBy: "server",
+          lastError: null,
+        }),
+      );
+      if (!auto) {
+        emitToast(
+          authed ? "Certificado emitido y vinculado a tu cuenta." : "Certificado emitido en el registro verificable.",
+          "success",
+        );
+      }
+      return;
     }
+
+    progressStore.setCertificate(
+      buildCertificateRecord({
+        status: cert?.status === "issued" || cert?.status === "verified" ? cert.status : "pending",
+        issuedBy: cert?.issuedBy ?? "local",
+        lastError: res.error || "No se pudo emitir en servidor.",
+      }),
+    );
+    if (!auto) emitToast(`No se pudo emitir en servidor: ${res.error || "error"}`, "error");
   }
 
   async function doVerify() {
     setVerifying(true);
     const res = await verifyCertificate(issueId);
     setVerifying(false);
+
     if (res.ok && res.certificate) {
-      progressStore.setCertificate({
-        id: issueId,
-        name: res.certificate.name || name,
-        issuedAt: res.certificate.issued_at || issuedAtIso,
-        completionDate: displayDate,
-        status: "verified",
-        issuedBy: "server",
-        shareUrl,
-        lastVerifiedAt: new Date().toISOString(),
-        lastError: null,
-      } as any);
+      progressStore.setCertificate(
+        buildCertificateRecord({
+          name: res.certificate.name || name,
+          issuedAt: res.certificate.issued_at || issuedAtIso,
+          status: "verified",
+          issuedBy: "server",
+          lastVerifiedAt: new Date().toISOString(),
+          lastError: null,
+        }),
+      );
       emitToast("Certificado verificado correctamente en el registro.", "success");
-    } else {
-      if (!autoIssueRan) await ensureLocalCertificate();
-      if (cert?.status === "issued" || cert?.status === "verified") {
-        progressStore.setCertificate({ ...(cert as any), status: "issued", lastError: res.error || "No verificado aún" } as any);
-      }
-      emitToast(res.error === "not_found" ? "Aún no aparece en el registro verificable. Intenta emitirlo." : `Verificación no disponible: ${res.error || "error"}`, res.error === "not_found" ? "info" : "error");
+      return;
     }
+
+    if (!autoIssueRan) await ensureLocalCertificate();
+    if (cert?.status === "issued" || cert?.status === "verified") {
+      progressStore.setCertificate(
+        buildCertificateRecord({
+          status: "issued",
+          lastError: res.error || "No verificado aún",
+        }),
+      );
+    }
+
+    emitToast(
+      res.error === "not_found"
+        ? "Aún no aparece en el registro verificable. Intenta emitirlo."
+        : `Verificación no disponible: ${res.error || "error"}`,
+      res.error === "not_found" ? "info" : "error",
+    );
   }
 
   const [autoIssueRan, setAutoIssueRan] = useState(false);

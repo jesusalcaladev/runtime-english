@@ -61,13 +61,37 @@ function tokens(s: string): string[] {
 export function getExerciseText(exercise: Exercise): string {
   const parts: string[] = [exercise.prompt];
   if ("explanation" in exercise && exercise.explanation) parts.push(exercise.explanation);
-  if (exercise.type === "choice") parts.push(...exercise.options);
-  if (exercise.type === "builder") parts.push(exercise.answer, ...exercise.words);
-  if ("answer" in exercise && typeof (exercise as any).answer === "string") parts.push((exercise as any).answer);
-  if (exercise.type === "fill-blank") parts.push(exercise.template, ...exercise.blanks);
-  if (exercise.type === "dialogue-order") parts.push(...exercise.lines);
-  if (exercise.type === "fix-error") parts.push(exercise.sentence);
-  if (exercise.type === "roleplay") parts.push(exercise.scenario, exercise.goal);
+
+  switch (exercise.type) {
+    case "choice":
+      parts.push(...exercise.options);
+      break;
+    case "builder":
+      parts.push(exercise.answer, ...exercise.words);
+      break;
+    case "fill-blank":
+      parts.push(exercise.template, ...exercise.blanks);
+      break;
+    case "dialogue-order":
+      parts.push(...exercise.lines);
+      break;
+    case "fix-error":
+      parts.push(exercise.sentence, exercise.answer);
+      break;
+    case "write":
+    case "listen":
+    case "speak":
+      parts.push(exercise.answer);
+      break;
+    case "roleplay":
+      parts.push(exercise.scenario, exercise.goal);
+      break;
+    default: {
+      const exhaustiveCheck: never = exercise;
+      return exhaustiveCheck;
+    }
+  }
+
   return parts.join(" ");
 }
 
