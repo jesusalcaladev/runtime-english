@@ -45,6 +45,7 @@ function GitHubIcon(props: { class?: string }) {
 }
 
 import type { LearningGoal } from "../../lib/goals";
+import type { StudyPlan } from "../../lib/progress";
 import { getLanguageStatus } from "../../lib/i18n";
 import { kokoroIsCached, loadKokoro, stopSpeech } from "../../lib/speech";
 import { signInWithProvider, signOut } from "../../lib/auth";
@@ -119,7 +120,7 @@ function SectionCard({
           </span>
           <div class="min-w-0">
             <h2 class="text-sm font-medium">{title}</h2>
-            <p class="mt-0.5 truncate text-[11px] text-base-content/40">{description}</p>
+            <p class="mt-0.5 hidden text-[11px] text-base-content/40 sm:block sm:truncate">{description}</p>
           </div>
         </div>
         <div class="flex shrink-0 items-center gap-2">
@@ -136,7 +137,7 @@ function SectionCard({
         }`}
       >
         <div class="overflow-hidden">
-          <div class="px-4 pb-4 pt-1 sm:px-5 sm:pb-5">{children}</div>
+          <div class="px-3.5 pb-4 pt-1 sm:px-5 sm:pb-5">{children}</div>
         </div>
       </div>
     </section>
@@ -408,7 +409,7 @@ export default function SettingsPanel() {
                 </div>
               )}
               {(() => {
-                const plan = state.settings.plan || {
+                const fallbackPlan: StudyPlan = {
                   dailyMinutes: 10,
                   dailyExercises: 6,
                   weeklySessions: 4,
@@ -418,12 +419,21 @@ export default function SettingsPanel() {
                   focus: state.settings.goal,
                   level: state.settings.diagnostic?.level || "A1",
                 };
-                const setPlan = (patch: any) =>
+                const plan: StudyPlan = state.settings.plan
+                  ? { ...fallbackPlan, ...state.settings.plan, focus: state.settings.goal }
+                  : fallbackPlan;
+
+                const setPlan = (patch: Partial<StudyPlan>) =>
                   progressStore.setSettings({
-                    plan: { ...plan, ...patch, focus: state.settings.goal } as any,
-                  } as any);
-                const num = (v: string, min: number, max: number) =>
-                  Math.max(min, Math.min(max, Number(v) || min));
+                    plan: { ...plan, ...patch, focus: state.settings.goal },
+                  });
+
+                const num = (value: string, min: number, max: number) =>
+                  Math.max(min, Math.min(max, Number(value) || min));
+
+                const readInputValue = (event: Event): string =>
+                  event.currentTarget instanceof HTMLInputElement ? event.currentTarget.value : "";
+
                 return (
                   <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     <label class="space-y-1 rounded-xl bg-base-100/50 p-3">
@@ -435,7 +445,7 @@ export default function SettingsPanel() {
                         min="5"
                         max="120"
                         value={plan.dailyMinutes}
-                        onInput={(e: any) => setPlan({ dailyMinutes: num(e.target.value, 5, 120) })}
+                        onInput={(event) => setPlan({ dailyMinutes: num(readInputValue(event), 5, 120) })}
                         class="h-9 w-full rounded-lg bg-base-100 px-3 text-sm"
                       />
                     </label>
@@ -448,8 +458,8 @@ export default function SettingsPanel() {
                         min="1"
                         max="100"
                         value={plan.dailyExercises}
-                        onInput={(e: any) =>
-                          setPlan({ dailyExercises: num(e.target.value, 1, 100) })
+                        onInput={(event) =>
+                          setPlan({ dailyExercises: num(readInputValue(event), 1, 100) })
                         }
                         class="h-9 w-full rounded-lg bg-base-100 px-3 text-sm"
                       />
@@ -463,8 +473,8 @@ export default function SettingsPanel() {
                         min="1"
                         max="30"
                         value={plan.weeklySessions}
-                        onInput={(e: any) =>
-                          setPlan({ weeklySessions: num(e.target.value, 1, 30) })
+                        onInput={(event) =>
+                          setPlan({ weeklySessions: num(readInputValue(event), 1, 30) })
                         }
                         class="h-9 w-full rounded-lg bg-base-100 px-3 text-sm"
                       />
@@ -478,8 +488,8 @@ export default function SettingsPanel() {
                         min="1"
                         max="300"
                         value={plan.weeklyExercises}
-                        onInput={(e: any) =>
-                          setPlan({ weeklyExercises: num(e.target.value, 1, 300) })
+                        onInput={(event) =>
+                          setPlan({ weeklyExercises: num(readInputValue(event), 1, 300) })
                         }
                         class="h-9 w-full rounded-lg bg-base-100 px-3 text-sm"
                       />
@@ -493,8 +503,8 @@ export default function SettingsPanel() {
                         min="1"
                         max="120"
                         value={plan.monthlySessions}
-                        onInput={(e: any) =>
-                          setPlan({ monthlySessions: num(e.target.value, 1, 120) })
+                        onInput={(event) =>
+                          setPlan({ monthlySessions: num(readInputValue(event), 1, 120) })
                         }
                         class="h-9 w-full rounded-lg bg-base-100 px-3 text-sm"
                       />
@@ -508,8 +518,8 @@ export default function SettingsPanel() {
                         min="1"
                         max="1200"
                         value={plan.monthlyExercises}
-                        onInput={(e: any) =>
-                          setPlan({ monthlyExercises: num(e.target.value, 1, 1200) })
+                        onInput={(event) =>
+                          setPlan({ monthlyExercises: num(readInputValue(event), 1, 1200) })
                         }
                         class="h-9 w-full rounded-lg bg-base-100 px-3 text-sm"
                       />
@@ -1132,7 +1142,7 @@ export default function SettingsPanel() {
               </span>
               <span>
                 <span class="block text-xs font-medium">Exportar progreso</span>
-                <span class="mt-0.5 block text-[10px] text-base-content/35">
+                <span class="mt-0.5 hidden text-[10px] text-base-content/35 sm:block">
                   Descarga un JSON de respaldo
                 </span>
               </span>
@@ -1143,7 +1153,7 @@ export default function SettingsPanel() {
               </span>
               <span>
                 <span class="block text-xs font-medium">Importar progreso</span>
-                <span class="mt-0.5 block text-[10px] text-base-content/35">
+                <span class="mt-0.5 hidden text-[10px] text-base-content/35 sm:block">
                   Restaura un respaldo exportado
                 </span>
               </span>
@@ -1163,16 +1173,16 @@ export default function SettingsPanel() {
                   <RefreshCw class="h-4 w-4 text-base-content/50" />
                   <h3 class="text-sm font-medium">Actualizaciones de la app (Android)</h3>
                 </div>
-                <p class="mt-1 text-[11px] leading-relaxed text-base-content/45">
+                <p class="mt-1 hidden text-[11px] leading-relaxed text-base-content/45 sm:block">
                   Busca una nueva versión de la APK publicada en el manifiesto de actualización.
                 </p>
-                <p class="mt-1 break-all font-mono text-[10px] text-base-content/30">
+                <p class="mt-1 hidden break-all font-mono text-[10px] text-base-content/30 sm:block">
                   {updateManifestUrl
                     ? `Manifiesto: ${updateManifestUrl}`
                     : "Manifiesto no configurado en esta build."}
                 </p>
                 {!nativeAndroid && (
-                  <p class="mt-1 text-[10px] text-base-content/35">
+                  <p class="mt-1 hidden text-[10px] text-base-content/35 sm:block">
                     Disponible solo en la app Android instalada (APK).
                   </p>
                 )}
@@ -1193,7 +1203,7 @@ export default function SettingsPanel() {
             <div class="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h3 class="text-sm font-medium text-error/90">Zona de riesgo</h3>
-                <p class="mt-1 text-[11px] leading-relaxed text-base-content/35">
+                <p class="mt-1 hidden text-[11px] leading-relaxed text-base-content/35 sm:block">
                   Borra progreso, logros, racha y slang guardado de este navegador.
                 </p>
               </div>

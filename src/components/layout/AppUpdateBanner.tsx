@@ -58,11 +58,12 @@ export default function AppUpdateBanner() {
           </div>
           <div class="min-w-0 flex-1">
             <p class="text-sm font-semibold text-base-content">{update.title}</p>
-            <p class="mt-0.5 text-[11px] leading-relaxed text-base-content/65">{update.notes}</p>
+            <p class="mt-0.5 hidden text-[11px] leading-relaxed text-base-content/65 sm:block">{update.notes}</p>
             <p class="mt-1 font-mono text-[10px] text-base-content/45">
-              Instalada: {update.currentVersionName} ({update.currentBuild}) · Nueva: {update.latestVersionName} ({update.latestBuild})
+              <span class="sm:hidden">Nueva: {update.latestVersionName} ({update.latestBuild})</span>
+              <span class="hidden sm:inline">Instalada: {update.currentVersionName} ({update.currentBuild}) · Nueva: {update.latestVersionName} ({update.latestBuild})</span>
             </p>
-            <p class="mt-1 text-[10px] text-base-content/45">
+            <p class="mt-1 hidden text-[10px] text-base-content/45 sm:block">
               Al tocar “Actualizar” se abrirá la descarga del APK. Cuando termine, ábrelo e instala la nueva versión.
             </p>
             <div class="mt-2.5 flex flex-wrap items-center gap-2">

@@ -44,8 +44,8 @@ export function ExerciseFeedback({
       <p class="text-[13px] leading-relaxed text-base-content/70">{explanation}</p>
 
       {status === "correct" && (
-        <p class="flex items-center gap-1.5 text-[11px] leading-relaxed text-accent/80">
-          <BookText class="h-3.5 w-3.5" /> Esta respuesta se guarda/actualiza automáticamente en tu diccionario para que puedas repasarla con flashcards.
+        <p class="hidden items-center gap-1.5 text-[11px] leading-relaxed text-accent/80 sm:flex">
+          <BookText class="h-3.5 w-3.5" /> Se guarda en tu diccionario para repasar con flashcards.
         </p>
       )}
 
@@ -55,7 +55,7 @@ export function ExerciseFeedback({
             <p class="text-[11px] font-medium text-base-content/45">{tAction(stage, "correctAnswer")}</p>
             <p class="mt-1 inline-flex rounded-lg bg-accent/[0.08] px-3 py-2 font-mono text-[13px] font-medium text-base-content/90 ring-1 ring-accent/15">{correctAnswerText}</p>
           </div>
-          <p class="text-[11px] leading-relaxed text-base-content/55">Revísala y practícala: al acertarla se guardará/actualizará automáticamente en tu diccionario.</p>
+          <p class="hidden text-[11px] leading-relaxed text-base-content/55 sm:block">Revísala y practícala: al acertarla se guardará en tu diccionario.</p>
           {detectedSkills.length > 0 && (
             <div class="flex flex-wrap items-center gap-1.5">
               <span class="text-[10px] font-medium text-base-content/45">Patrón a reforzar:</span>
@@ -79,17 +79,17 @@ export function ExerciseFeedback({
             <p class="mt-1.5 text-[12px] leading-relaxed text-base-content/70"><span class="font-medium text-base-content/45">Tu ejemplo: </span><span class="font-mono">{phraseEntry.userExample}</span></p>
           )}
           {phraseEntry.notes && (
-            <p class="mt-1 text-[12px] leading-relaxed text-base-content/60"><span class="font-medium text-base-content/45">Nota: </span>{phraseEntry.notes}</p>
+            <p class="mt-1 hidden text-[12px] leading-relaxed text-base-content/60 sm:block"><span class="font-medium text-base-content/45">Nota: </span>{phraseEntry.notes}</p>
           )}
           {(phraseEntry.tags?.length ?? 0) > 0 && (
-            <div class="mt-1.5 flex flex-wrap gap-1">
+            <div class="mt-1.5 hidden flex-wrap gap-1 sm:flex">
               {phraseEntry.tags!.slice(0, 5).map((tag) => (
                 <span key={tag} class="inline-flex items-center gap-1 rounded-full bg-base-200 px-2 py-0.5 text-[10px] text-base-content/50"><Tag class="h-2.5 w-2.5" />{tag}</span>
               ))}
             </div>
           )}
           {phraseEntry.difficulty === "hard" && (
-            <p class="mt-1.5 inline-flex rounded-full bg-error/10 px-2 py-0.5 text-[10px] font-medium text-error">Marcada como difícil</p>
+            <p class="mt-1.5 hidden rounded-full bg-error/10 px-2 py-0.5 text-[10px] font-medium text-error sm:inline-flex">Marcada como difícil</p>
           )}
         </div>
       )}

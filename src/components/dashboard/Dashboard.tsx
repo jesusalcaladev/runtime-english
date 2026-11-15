@@ -11,7 +11,6 @@ import {
   Calendar,
   CheckCircle2,
   ChevronDown,
-  ChevronUp,
   Clock,
   Flame,
   Layers,
@@ -161,32 +160,32 @@ export default function Dashboard({
       {!state.settings.onboarded && <OnboardingCard />}
 
       {showPlanIntro && state.settings.plan && (
-        <section class="mb-4 overflow-hidden rounded-3xl border border-accent/20 bg-accent/[0.07] p-5 sm:p-6">
-          <div class="flex flex-wrap items-start justify-between gap-4">
+        <section class="mb-4 overflow-hidden rounded-3xl border border-accent/20 bg-accent/[0.07] p-4 sm:p-6">
+          <div class="flex items-start justify-between gap-3 sm:gap-4">
             <div class="min-w-0">
               <p class="mono-label flex items-center gap-2 text-accent/90"><Sparkles class="h-3.5 w-3.5" /> Tu plan está listo</p>
-              <h2 class="font-pixel mt-2 text-[1.45rem] tracking-tight sm:text-[1.7rem]">Resumen rápido y siguiente paso</h2>
-              <p class="mt-2 max-w-2xl text-sm leading-relaxed text-base-content/60">
-                Nivel inicial <span class="font-mono font-medium text-accent">{state.settings.plan.level ?? state.settings.diagnostic?.level ?? "A1"}</span> · objetivo <span class="font-medium text-base-content/75">{GOAL_LABELS[goal]}</span>. Meta diaria: {state.settings.plan.dailyMinutes} min / {state.settings.plan.dailyExercises} ejercicios. Semanal: {state.settings.plan.weeklySessions} sesiones / {state.settings.plan.weeklyExercises} ejercicios.
+              <h2 class="font-pixel mt-2 text-[1.3rem] tracking-tight sm:text-[1.7rem]">Siguiente paso</h2>
+              <p class="mt-2 hidden max-w-2xl text-sm leading-relaxed text-base-content/60 sm:block">
+                Nivel <span class="font-mono font-medium text-accent">{state.settings.plan.level ?? state.settings.diagnostic?.level ?? "A1"}</span> · objetivo <span class="font-medium text-base-content/75">{GOAL_LABELS[goal]}</span>. Meta diaria: {state.settings.plan.dailyMinutes} min / {state.settings.plan.dailyExercises} ejercicios.
               </p>
             </div>
             <button
               type="button"
               onClick={() => progressStore.setSettings({ planIntroDismissed: true } as any)}
-              class="flex h-9 w-9 items-center justify-center rounded-xl text-base-content/45 hover:bg-base-100/70 hover:text-base-content/70"
+              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-base-content/45 hover:bg-base-100/70 hover:text-base-content/70"
               aria-label="Cerrar resumen del plan"
             >
               <X class="h-4 w-4" />
             </button>
           </div>
-          <div class="mt-4 grid gap-2 sm:grid-cols-3">
+          <div class="mt-3 hidden gap-2 sm:mt-4 sm:grid sm:grid-cols-3">
             <div class="rounded-2xl bg-base-100/70 p-3"><p class="text-[10px] text-base-content/45">Diario</p><p class="mt-1 font-mono text-sm font-semibold">{state.settings.plan.dailyExercises} ejercicios · {state.settings.plan.dailyMinutes} min</p></div>
             <div class="rounded-2xl bg-base-100/70 p-3"><p class="text-[10px] text-base-content/45">Semanal</p><p class="mt-1 font-mono text-sm font-semibold">{state.settings.plan.weeklySessions} sesiones · {state.settings.plan.weeklyExercises} ej</p></div>
             <div class="rounded-2xl bg-base-100/70 p-3"><p class="text-[10px] text-base-content/45">Mensual</p><p class="mt-1 font-mono text-sm font-semibold">{state.settings.plan.monthlySessions} sesiones · {state.settings.plan.monthlyExercises} ej</p></div>
           </div>
-          <div class="mt-4 flex flex-wrap items-center gap-2">
+          <div class="mt-3 flex flex-wrap items-center gap-2 sm:mt-4">
             <a href={recommendedNextHref} class="btn btn-primary h-10 gap-2 rounded-xl px-4">
-              <Play class="h-4 w-4 fill-current" /> Siguiente paso: {recommendedNextLabel}
+              <Play class="h-4 w-4 fill-current" /> <span class="sm:hidden">Continuar</span><span class="hidden sm:inline">Siguiente paso: {recommendedNextLabel}</span>
             </a>
             <a href={route("/settings")} class="btn btn-ghost h-10 rounded-xl px-4 text-base-content/65">Ajustar plan</a>
           </div>
@@ -202,7 +201,7 @@ export default function Dashboard({
             </span>
             <div class="min-w-0">
               <p class="text-sm font-medium">Tienes {totalDue} repaso{totalDue === 1 ? "" : "s"} hoy</p>
-              <p class="mt-1 text-[11px] leading-relaxed text-base-content/60">
+              <p class="mt-1 hidden text-[11px] leading-relaxed text-base-content/60 sm:block">
                 {review.due > 0 && duePhrases > 0
                   ? `${review.due} ejercicio${review.due === 1 ? "" : "s"} (SRS) y ${duePhrases} frase${duePhrases === 1 ? "" : "s"} del diccionario (flashcards) listas para repasar.`
                   : review.due > 0
@@ -234,7 +233,7 @@ export default function Dashboard({
               <p class="text-sm font-medium">
                 {state.streak.current > 0 ? "No pierdas tu racha hoy" : "Unos minutos de práctica hoy"}
               </p>
-              <p class="mt-1 text-[11px] leading-relaxed text-base-content/55">
+              <p class="mt-1 hidden text-[11px] leading-relaxed text-base-content/55 sm:block">
                 {state.streak.current > 0
                   ? `Llevas ${state.streak.current} día${state.streak.current === 1 ? "" : "s"} seguidos. Haz una sesión corta o práctica rápida para mantenerla.`
                   : "Mantén el hábito: una sesión corta o práctica rápida cuenta para tu racha."}
@@ -270,7 +269,7 @@ export default function Dashboard({
       )}
 
       {/* Bloque 1: Acción inmediata (Continuar + Repasar hoy unificado) */}
-      <section class="relative mt-2 overflow-hidden rounded-[24px] bg-base-200 p-4 sm:rounded-[28px] sm:p-8">
+      <section class="relative mt-2 overflow-hidden rounded-[24px] bg-base-200 p-3.5 sm:rounded-[28px] sm:p-8">
         <div class="pointer-events-none absolute -right-24 -top-28 h-80 w-80 rounded-full bg-accent/[0.07] blur-3xl" />
         <div class="relative">
           <div class="flex flex-wrap items-end justify-between gap-3 sm:gap-4">
@@ -302,7 +301,7 @@ export default function Dashboard({
               <h2 class="mt-2.5 text-balance text-[1.3rem] font-semibold leading-snug tracking-tight text-base-content/95 sm:mt-3 sm:text-[1.75rem]">
                 {nextSession.title}
               </h2>
-              <p class="mt-2 max-w-xl text-[13px] leading-6 text-base-content/60 sm:text-[14px] sm:leading-7">{nextSession.summary}</p>
+              <p class="mt-2 hidden max-w-xl text-[13px] leading-6 text-base-content/60 sm:block sm:text-[14px] sm:leading-7">{nextSession.summary}</p>
               <div class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] text-base-content/55 sm:mt-4 sm:gap-x-4 sm:gap-y-2 sm:text-[12px]">
                 <span class="flex items-center gap-1.5"><Clock class="h-4 w-4 text-base-content/40" />{nextSession.minutes} {t(stage, "minutes")}</span>
                 <span class="flex items-center gap-1.5"><Layers class="h-4 w-4 text-base-content/40" />{nextSession.exerciseCount} {t(stage, "exercises")}</span>
@@ -363,7 +362,7 @@ export default function Dashboard({
                 <div class="min-w-0 flex-1 space-y-0.5">
                   <p class="text-[11px] font-medium text-base-content/70">Progreso total</p>
                   <p class="font-mono text-[11px] text-base-content/55">{doneExercises}/{totalExercises} ejercicios</p>
-                  <p class="text-[10px] text-base-content/40">{doneSessions}/{totalSessions} sesiones · Nivel {xpLevel}</p>
+                  <p class="hidden text-[10px] text-base-content/40 sm:block">{doneSessions}/{totalSessions} sesiones · Nivel {xpLevel}</p>
                 </div>
               </div>
             </div>
@@ -395,103 +394,103 @@ export default function Dashboard({
       {/* Bloque 3: Profundizar (colapsable en móvil por defecto) */}
       <section class="mt-4 grid gap-3 lg:grid-cols-2">
         <div class="rounded-3xl bg-base-200 p-5">
-          <button type="button" onClick={() => setShowHabits((v) => !v)} class="flex w-full items-center justify-between gap-2 text-left">
+          <button type="button" onClick={() => setShowHabits((v) => !v)} class="flex w-full cursor-pointer items-center justify-between gap-2 text-left" aria-expanded={showHabits}>
             <p class="flex items-center gap-2 text-sm font-medium"><Calendar class="h-4 w-4 text-accent" /> Metas y hábitos</p>
             <span class="flex items-center gap-2">
               {plan && <span class="hidden rounded-full bg-accent/10 px-2.5 py-1 text-[10px] font-medium text-accent sm:inline">{plan.level ?? "Plan"} · {GOAL_LABELS[plan.focus as keyof typeof GOAL_LABELS] ?? plan.focus}</span>}
-              {showHabits ? <ChevronUp class="h-4 w-4 text-base-content/40" /> : <ChevronDown class="h-4 w-4 text-base-content/40" />}
+              <ChevronDown class={`h-4 w-4 text-base-content/40 transition-transform duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] ${showHabits ? "rotate-180" : ""}`} aria-hidden="true" />
             </span>
           </button>
-          {!showHabits && (
-            <p class="mt-2 text-[12px] text-base-content/55">
-              {plan
-                ? `Hoy ${consistency.todayExercises}/${plan.dailyExercises} ejercicios · Semana ${consistency.weekSessions}/${plan.weeklySessions} sesiones.`
-                : "Configura tu plan para ver metas diarias, semanales y mensuales."}
-              <span class="ml-1 text-base-content/40">(toca para ver detalle)</span>
-            </p>
-          )}
-          {showHabits && (
-            <div class="mt-4 space-y-4">
-              {plan ? (
-                <>
-                  <div class="grid gap-3 sm:grid-cols-3">
-                    <MiniGoal title="Hoy" value={`${consistency.todayExercises}/${plan.dailyExercises}`} sub="ejercicios" pct={Math.round((consistency.todayExercises / Math.max(plan.dailyExercises, 1)) * 100)} extra={`${plan.dailyMinutes} min/día`} />
-                    <MiniGoal title="Semana" value={`${consistency.weekSessions}/${plan.weeklySessions}`} sub="sesiones" pct={Math.round((consistency.weekSessions / Math.max(plan.weeklySessions, 1)) * 100)} extra={`${consistency.weekExercises}/${plan.weeklyExercises} ej · ${consistency.activeDaysThisWeek} días`} />
-                    <MiniGoal title="Mes" value={`${consistency.monthSessions}/${plan.monthlySessions}`} sub="sesiones" pct={Math.round((consistency.monthSessions / Math.max(plan.monthlySessions, 1)) * 100)} extra={`${consistency.monthExercises}/${plan.monthlyExercises} ej · ${consistency.activeDaysThisMonth} días`} />
-                  </div>
-                  <div class="space-y-1.5">
-                    {consistencyTips.map((tip, i) => (
-                      <p key={i} class="flex items-start gap-2 text-[12px] leading-relaxed text-base-content/60">
-                        <CheckCircle2 class="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent/70" /> {tip}
-                      </p>
-                    ))}
-                  </div>
-                </>
-              ) : (
-                <div class="rounded-xl bg-base-100/50 p-4 text-sm text-base-content/55">
-                  <p>Aún no tienes un plan personalizado.</p>
-                  <a href={route("/settings")} class="btn btn-primary btn-sm mt-3 h-9 rounded-xl px-3">Configurar plan</a>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div class="rounded-3xl bg-base-200 p-5">
-          <button type="button" onClick={() => setShowPatterns((v) => !v)} class="flex w-full items-center justify-between gap-2 text-left">
-            <p class="flex items-center gap-2 text-sm font-medium"><Lightbulb class="h-4 w-4 text-accent" /> Recomendaciones y patrones</p>
-            {showPatterns ? <ChevronUp class="h-4 w-4 text-base-content/40" /> : <ChevronDown class="h-4 w-4 text-base-content/40" />}
-          </button>
-          {!showPatterns && (
-            <div class="mt-2 space-y-2">
-              <p class="text-[12px] text-base-content/55">
-                {recommendations[0] ? recommendations[0].title : "Sin recomendaciones pendientes"}{recommendations.length > 1 ? ` · +${recommendations.length - 1} más` : ""}. <span class="text-base-content/40">(toca para ver detalle)</span>
-              </p>
-              {recommendations[0] && (
-                <a href={route(recommendations[0].href)} class="inline-flex items-center gap-1.5 text-[12px] font-medium text-accent hover:underline">
-                  {recommendations[0].title} <ArrowUpRight class="h-3.5 w-3.5" />
-                </a>
-              )}
-            </div>
-          )}
-          {showPatterns && (
-            <div class="mt-4 space-y-2">
-              <div class="rounded-xl bg-base-100/60 p-3">
-                <p class="text-[11px] font-medium text-base-content/60">Patrones de práctica</p>
-                <ul class="mt-2 space-y-1 text-[12px] leading-relaxed text-base-content/55">
-                  <li>• Precisión: <span class="font-medium text-base-content/75">{accuracy}%</span> ({doneExercises}/{totalAttempts || 0}).</li>
-                  <li>• A reforzar: <span class="font-medium text-base-content/75">{review.weak}</span>{review.weak > 0 ? " ejercicios." : " — bien."}</li>
-                  <li>• Ejercicios SRS vencidos: <span class="font-medium text-base-content/75">{review.due}</span>.</li>
-                  {duePhrases > 0 && <li>• Frases (flashcards) vencidas: <span class="font-medium text-base-content/75">{duePhrases}</span>.</li>}
-                  {hardPhraseCount > 0 && <li>• Frases difíciles: <span class="font-medium text-base-content/75">{hardPhraseCount}</span>.</li>}
-                </ul>
-                {errorPatterns.length > 0 && (
-                  <div class="mt-3 border-t border-base-content/10 pt-3">
-                    <p class="text-[11px] font-medium text-base-content/60">Patrones de error detectados</p>
-                    <div class="mt-2 space-y-2">
-                      {errorPatterns.map((p) => (
-                        <div key={p.skill} class="rounded-lg bg-base-100/70 px-2.5 py-2">
-                          <div class="flex items-center justify-between gap-2">
-                            <span class="text-[12px] font-medium text-base-content/75">{p.label}</span>
-                            <span class="rounded-full bg-error/10 px-2 py-0.5 font-mono text-[10px] text-error">{p.count}</span>
-                          </div>
-                        </div>
+          <p class={`mt-2 text-[12px] text-base-content/55 transition-opacity duration-200 ${showHabits ? "hidden" : "block"}`}>
+            {plan
+              ? `Hoy ${consistency.todayExercises}/${plan.dailyExercises} ejercicios · Semana ${consistency.weekSessions}/${plan.weeklySessions} sesiones.`
+              : "Configura tu plan para ver metas diarias, semanales y mensuales."}
+            <span class="ml-1 text-base-content/40">(ver detalle)</span>
+          </p>
+          <div class={`grid transition-[grid-template-rows,opacity] duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] ${showHabits ? "mt-4 grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
+            <div class="overflow-hidden">
+              <div class="space-y-4">
+                {plan ? (
+                  <>
+                    <div class="grid gap-3 sm:grid-cols-3">
+                      <MiniGoal title="Hoy" value={`${consistency.todayExercises}/${plan.dailyExercises}`} sub="ejercicios" pct={Math.round((consistency.todayExercises / Math.max(plan.dailyExercises, 1)) * 100)} extra={`${plan.dailyMinutes} min/día`} />
+                      <MiniGoal title="Semana" value={`${consistency.weekSessions}/${plan.weeklySessions}`} sub="sesiones" pct={Math.round((consistency.weekSessions / Math.max(plan.weeklySessions, 1)) * 100)} extra={`${consistency.weekExercises}/${plan.weeklyExercises} ej · ${consistency.activeDaysThisWeek} días`} />
+                      <MiniGoal title="Mes" value={`${consistency.monthSessions}/${plan.monthlySessions}`} sub="sesiones" pct={Math.round((consistency.monthSessions / Math.max(plan.monthlySessions, 1)) * 100)} extra={`${consistency.monthExercises}/${plan.monthlyExercises} ej · ${consistency.activeDaysThisMonth} días`} />
+                    </div>
+                    <div class="space-y-1.5">
+                      {consistencyTips.map((tip, i) => (
+                        <p key={i} class="flex items-start gap-2 text-[12px] leading-relaxed text-base-content/60">
+                          <CheckCircle2 class="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent/70" /> {tip}
+                        </p>
                       ))}
                     </div>
+                  </>
+                ) : (
+                  <div class="rounded-xl bg-base-100/50 p-4 text-sm text-base-content/55">
+                    <p>Aún no tienes un plan personalizado.</p>
+                    <a href={route("/settings")} class="btn btn-primary btn-sm mt-3 h-9 rounded-xl px-3">Configurar plan</a>
                   </div>
                 )}
               </div>
-              {recommendations.map((rec) => (
-                <a key={rec.title} href={route(rec.href)} class="flex items-start justify-between gap-3 rounded-xl bg-base-100/50 p-3 transition hover:bg-base-100/80">
-                  <div class="min-w-0">
-                    <p class="text-[12px] font-medium text-base-content/80">{rec.title}</p>
-                    <p class="mt-0.5 text-[11px] leading-relaxed text-base-content/50">{rec.detail}</p>
-                  </div>
-                  <ArrowUpRight class={`mt-0.5 h-4 w-4 shrink-0 ${rec.tone === "accent" ? "text-accent" : rec.tone === "warn" ? "text-warning" : "text-base-content/30"}`} />
-                </a>
-              ))}
             </div>
-          )}
+          </div>
+        </div>
+
+        <div class="rounded-3xl bg-base-200 p-5">
+          <button type="button" onClick={() => setShowPatterns((v) => !v)} class="flex w-full cursor-pointer items-center justify-between gap-2 text-left" aria-expanded={showPatterns}>
+            <p class="flex items-center gap-2 text-sm font-medium"><Lightbulb class="h-4 w-4 text-accent" /> Recomendaciones y patrones</p>
+            <ChevronDown class={`h-4 w-4 text-base-content/40 transition-transform duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] ${showPatterns ? "rotate-180" : ""}`} aria-hidden="true" />
+          </button>
+          <div class={`mt-2 space-y-2 transition-opacity duration-200 ${showPatterns ? "hidden" : "block"}`}>
+            <p class="text-[12px] text-base-content/55">
+              {recommendations[0] ? recommendations[0].title : "Sin recomendaciones pendientes"}{recommendations.length > 1 ? ` · +${recommendations.length - 1} más` : ""}. <span class="text-base-content/40">(ver detalle)</span>
+            </p>
+            {recommendations[0] && (
+              <a href={route(recommendations[0].href)} class="inline-flex items-center gap-1.5 text-[12px] font-medium text-accent hover:underline">
+                {recommendations[0].title} <ArrowUpRight class="h-3.5 w-3.5" />
+              </a>
+            )}
+          </div>
+          <div class={`grid transition-[grid-template-rows,opacity] duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] ${showPatterns ? "mt-4 grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
+            <div class="overflow-hidden">
+              <div class="space-y-2">
+                <div class="rounded-xl bg-base-100/60 p-3">
+                  <p class="text-[11px] font-medium text-base-content/60">Patrones de práctica</p>
+                  <ul class="mt-2 space-y-1 text-[12px] leading-relaxed text-base-content/55">
+                    <li>• Precisión: <span class="font-medium text-base-content/75">{accuracy}%</span> ({doneExercises}/{totalAttempts || 0}).</li>
+                    <li>• A reforzar: <span class="font-medium text-base-content/75">{review.weak}</span>{review.weak > 0 ? " ejercicios." : " — bien."}</li>
+                    <li class="hidden sm:list-item">• Ejercicios SRS vencidos: <span class="font-medium text-base-content/75">{review.due}</span>.</li>
+                    {duePhrases > 0 && <li class="hidden sm:list-item">• Frases (flashcards) vencidas: <span class="font-medium text-base-content/75">{duePhrases}</span>.</li>}
+                    {hardPhraseCount > 0 && <li class="hidden sm:list-item">• Frases difíciles: <span class="font-medium text-base-content/75">{hardPhraseCount}</span>.</li>}
+                  </ul>
+                  {errorPatterns.length > 0 && (
+                    <div class="mt-3 border-t border-base-content/10 pt-3">
+                      <p class="text-[11px] font-medium text-base-content/60">Patrones de error detectados</p>
+                      <div class="mt-2 space-y-2">
+                        {errorPatterns.map((p, i) => (
+                          <div key={p.skill} class={`rounded-lg bg-base-100/70 px-2.5 py-2 ${i > 1 ? "hidden sm:block" : ""}`}>
+                            <div class="flex items-center justify-between gap-2">
+                              <span class="text-[12px] font-medium text-base-content/75">{p.label}</span>
+                              <span class="rounded-full bg-error/10 px-2 py-0.5 font-mono text-[10px] text-error">{p.count}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {recommendations.map((rec) => (
+                  <a key={rec.title} href={route(rec.href)} class="flex items-start justify-between gap-3 rounded-xl bg-base-100/50 p-3 transition hover:bg-base-100/80">
+                    <div class="min-w-0">
+                      <p class="text-[12px] font-medium text-base-content/80">{rec.title}</p>
+                      <p class="mt-0.5 hidden text-[11px] leading-relaxed text-base-content/50 sm:block">{rec.detail}</p>
+                    </div>
+                    <ArrowUpRight class={`mt-0.5 h-4 w-4 shrink-0 ${rec.tone === "accent" ? "text-accent" : rec.tone === "warn" ? "text-warning" : "text-base-content/30"}`} />
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -546,7 +545,7 @@ function Metric({
         <Icon class="h-4 w-4 text-base-content/35" />
       </div>
       <p class="mt-3 font-mono text-[1.3rem] font-semibold tracking-tight text-base-content/90">{value}</p>
-      <p class="mt-1 truncate text-[11px] text-base-content/45">{detail}</p>
+      <p class="mt-1 hidden truncate text-[11px] text-base-content/45 sm:block">{detail}</p>
     </div>
   );
 }

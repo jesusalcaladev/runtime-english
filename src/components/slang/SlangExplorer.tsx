@@ -94,8 +94,8 @@ export default function SlangExplorer({ entries }: Props) {
               }`}
             >
               <Sparkles class="h-3 w-3" />
-              Solo 2026
-              <span class="font-mono text-[9px] opacity-60">{newCount}</span>
+              <span class="hidden sm:inline">Solo 2026</span><span class="sm:hidden">2026</span>
+              <span class="hidden font-mono text-[9px] opacity-60 sm:inline">{newCount}</span>
             </button>
             <button
               type="button"
@@ -108,7 +108,7 @@ export default function SlangExplorer({ entries }: Props) {
               aria-pressed={onlySaved}
             >
               {onlySaved ? <BookmarkCheck class="h-3.5 w-3.5" /> : <Bookmark class="h-3.5 w-3.5" />}
-              Mis guardados
+              <span class="hidden sm:inline">Mis guardados</span><span class="sm:hidden">Guardados</span>
               <span class={`rounded-full px-1.5 py-0.5 font-mono text-[10px] ${onlySaved ? "bg-accent-content/15" : "bg-base-200 text-base-content/60"}`}>
                 {state.savedSlang.length}
               </span>
@@ -136,7 +136,7 @@ export default function SlangExplorer({ entries }: Props) {
               >
                 <item.icon class="h-3 w-3" />
                 {item.label}
-                <span class="font-mono text-[9px] opacity-50">{count}</span>
+                <span class="hidden font-mono text-[9px] opacity-50 sm:inline">{count}</span>
               </button>
             );
           })}
@@ -151,7 +151,7 @@ export default function SlangExplorer({ entries }: Props) {
             </span>
             <div>
               <p class="text-[13px] font-medium text-base-content/85">Tus términos guardados</p>
-              <p class="text-[11px] text-base-content/50">
+              <p class="hidden text-[11px] text-base-content/50 sm:block">
                 {state.savedSlang.length} guardado{state.savedSlang.length === 1 ? "" : "s"} · se actualiza cuando marcas términos
               </p>
             </div>
@@ -169,7 +169,8 @@ export default function SlangExplorer({ entries }: Props) {
       {onlySaved && (
         <div class="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-base-200 px-4 py-3">
           <p class="text-[13px] text-base-content/70">
-            Mostrando tu lista personal de slang guardado ({filtered.length}).
+            <span class="sm:hidden">Guardados ({filtered.length})</span>
+            <span class="hidden sm:inline">Mostrando tu lista personal de slang guardado ({filtered.length}).</span>
           </p>
           <button
             type="button"
@@ -184,7 +185,7 @@ export default function SlangExplorer({ entries }: Props) {
       <div class="flex items-center justify-between gap-3 px-1">
         <p class="text-[12px] text-base-content/55">
           <span class="font-mono font-medium text-base-content">{filtered.length}</span> términos
-          {onlySaved ? " guardados" : ""} · nov 2026
+          {onlySaved ? " guardados" : ""} <span class="hidden sm:inline">· nov 2026</span>
         </p>
         <p class="hidden items-center gap-1.5 text-[11px] text-base-content/50 sm:flex">
           <Bookmark class="h-3 w-3" />
@@ -193,7 +194,7 @@ export default function SlangExplorer({ entries }: Props) {
       </div>
 
       {filtered.length === 0 ? (
-        <div class="rounded-3xl bg-base-200 px-6 py-16 text-center">
+        <div class="rounded-3xl bg-base-200 px-4 py-12 text-center sm:px-6 sm:py-16">
           <p class="text-sm font-medium text-base-content/55">No hay términos con ese filtro.</p>
           <button
             type="button"
@@ -285,7 +286,7 @@ export default function SlangExplorer({ entries }: Props) {
                   </div>
                 )}
 
-                <p class="mt-3 text-[10px] tracking-[0.08em] text-base-content/45">
+                <p class="mt-3 hidden text-[10px] tracking-[0.08em] text-base-content/45 sm:block">
                   {entry.updated}
                 </p>
               </article>

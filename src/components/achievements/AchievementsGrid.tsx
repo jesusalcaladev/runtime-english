@@ -132,7 +132,7 @@ export default function AchievementsGrid({ achievements, totalSessions, totalExe
             <p class={`text-[13px] font-medium ${courseComplete ? "" : "text-base-content/50"}`}>
               {courseComplete ? "Certificate unlocked" : "Completion certificate"}
             </p>
-            <p class="mt-0.5 text-[11px] text-base-content/40">
+            <p class="mt-0.5 hidden text-[11px] text-base-content/40 sm:block">
               {courseComplete
                 ? "Print your English for Programmers certificate."
                 : `Finish everything to unlock it · ${doneSessions}/${totalSessions} sessions, ${doneExercises}/${totalExercises} exercises`}
@@ -208,7 +208,7 @@ export default function AchievementsGrid({ achievements, totalSessions, totalExe
           return (
             <article
               key={achievement.id}
-              class={`rounded-2xl p-4 transition ${
+              class={`rounded-2xl p-3.5 transition sm:p-4 ${
                 unlockedAt ? "bg-base-200" : "bg-base-200/45"
               }`}
             >
@@ -242,7 +242,7 @@ export default function AchievementsGrid({ achievements, totalSessions, totalExe
                     </span>
                   </div>
                   <p
-                    class={`mt-1.5 text-[11px] leading-relaxed ${
+                    class={`mt-1.5 hidden text-[11px] leading-relaxed sm:block ${
                       unlockedAt ? "text-base-content/45" : "text-base-content/25"
                     }`}
                   >
@@ -252,7 +252,7 @@ export default function AchievementsGrid({ achievements, totalSessions, totalExe
               </div>
 
               {achievement.target ? (
-                <div class="mt-3 space-y-1.5">
+                <div class="mt-3 hidden space-y-1.5 sm:block">
                   <div class="h-0.5 overflow-hidden rounded-full bg-base-content/[0.06]">
                     <div
                       class={`h-full rounded-full transition-all duration-500 ${
@@ -268,7 +268,7 @@ export default function AchievementsGrid({ achievements, totalSessions, totalExe
               ) : null}
 
               <div class="mt-3.5 flex items-center justify-between gap-2">
-                <span class="font-mono text-[10px] text-base-content/30">
+                <span class="hidden font-mono text-[10px] text-base-content/30 sm:inline">
                   +{achievement.xp} XP
                 </span>
                 <span
@@ -276,7 +276,7 @@ export default function AchievementsGrid({ achievements, totalSessions, totalExe
                     unlockedAt ? "text-accent" : "text-base-content/20"
                   }`}
                 >
-                  {unlockedAt ? `Desbloqueado · ${formatDate(unlockedAt)}` : "Bloqueado"}
+                  {unlockedAt ? <><span class="hidden sm:inline">Desbloqueado · {formatDate(unlockedAt)}</span><span class="sm:hidden">Desbloqueado</span></> : "Bloqueado"}
                 </span>
               </div>
             </article>

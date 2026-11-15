@@ -75,10 +75,9 @@ export default function PracticeView({ items }: Props) {
           <h1 class="font-pixel mt-3 text-[2rem] leading-[1.05] tracking-tight sm:text-[3.05rem]">
             Entrena en modo fluido
           </h1>
-          <p class="mt-2 max-w-2xl text-sm leading-6 text-base-content/55 sm:mt-3 sm:leading-7">
-            <span class="hidden sm:inline"><span class="font-medium text-base-content/70">Ejercicios (SRS):</span> repaso espaciado y recuperación activa.{" "}
-            <span class="font-medium text-base-content/70">Frases/Diccionario:</span> repasa vocabulario con tus notas y ejemplos.{state.settings.goal && state.settings.goal !== "all" && " Ajustado a tu objetivo."}</span>
-            <span class="sm:hidden">Elige un modo, repasa rápido y sigue. Tus respuestas se guardan automáticamente.</span>
+          <p class="mt-2 hidden max-w-2xl text-sm leading-6 text-base-content/55 sm:mt-3 sm:block sm:leading-7">
+            <span class="font-medium text-base-content/70">Ejercicios (SRS):</span> repaso espaciado y recuperación activa.{" "}
+            <span class="font-medium text-base-content/70">Frases/Diccionario:</span> repasa vocabulario con tus notas y ejemplos.{state.settings.goal && state.settings.goal !== "all" && " Ajustado a tu objetivo."}
           </p>
         </div>
         <button
@@ -95,22 +94,22 @@ export default function PracticeView({ items }: Props) {
         <div class={`rounded-2xl px-3 py-3 sm:px-4 sm:py-4 ${stats.dueReview > 0 ? "bg-accent/[0.08] ring-1 ring-accent/20" : "bg-base-200"}`}>
           <div class="flex items-center gap-2 text-[10px] text-base-content/45 sm:text-[11px]"><Brain class="h-3.5 w-3.5 text-accent" /> <span class="truncate">SRS</span></div>
           <p class="mt-1.5 font-mono text-lg font-medium sm:mt-2 sm:text-xl">{stats.dueReview}</p>
-          <p class="mt-0.5 text-[10px] text-base-content/35 sm:mt-1">Para repasar</p>
+          <p class="mt-0.5 hidden text-[10px] text-base-content/35 sm:mt-1 sm:block">Para repasar</p>
         </div>
         <div class="rounded-2xl bg-base-200 px-3 py-3 sm:px-4 sm:py-4">
           <div class="flex items-center gap-2 text-[10px] text-base-content/45 sm:text-[11px]"><Target class="h-3.5 w-3.5" /> <span class="truncate">Reforzar</span></div>
           <p class="mt-1.5 font-mono text-lg font-medium sm:mt-2 sm:text-xl">{stats.weak}</p>
-          <p class="mt-0.5 text-[10px] text-base-content/35 sm:mt-1">Más difíciles</p>
+          <p class="mt-0.5 hidden text-[10px] text-base-content/35 sm:mt-1 sm:block">Más difíciles</p>
         </div>
         <div class={`rounded-2xl px-3 py-3 sm:px-4 sm:py-4 ${stats.duePhrases > 0 ? "bg-accent/[0.08] ring-1 ring-accent/20" : "bg-base-200"}`}>
           <div class="flex items-center gap-2 text-[10px] text-base-content/45 sm:text-[11px]"><BookText class="h-3.5 w-3.5 text-accent" /> <span class="truncate">Frases</span></div>
           <p class="mt-1.5 font-mono text-lg font-medium sm:mt-2 sm:text-xl">{stats.duePhrases}</p>
-          <p class="mt-0.5 text-[10px] text-base-content/35 sm:mt-1">Flashcards</p>
+          <p class="mt-0.5 hidden text-[10px] text-base-content/35 sm:mt-1 sm:block">Flashcards</p>
         </div>
         <div class="rounded-2xl bg-base-200 px-3 py-3 sm:px-4 sm:py-4">
           <div class="flex items-center gap-2 text-[10px] text-base-content/45 sm:text-[11px]"><CheckCircle2 class="h-3.5 w-3.5" /> <span class="truncate">Nuevos</span></div>
           <p class="mt-1.5 font-mono text-lg font-medium sm:mt-2 sm:text-xl">{stats.unseen}</p>
-          <p class="mt-0.5 text-[10px] text-base-content/35 sm:mt-1">Sin intentar</p>
+          <p class="mt-0.5 hidden text-[10px] text-base-content/35 sm:mt-1 sm:block">Sin intentar</p>
         </div>
       </section>
 
@@ -140,7 +139,7 @@ export default function PracticeView({ items }: Props) {
             ))}
           </div>
           <div class="flex items-center justify-between gap-2 text-sm text-base-content/55 sm:ml-auto sm:justify-start">
-            <span class="text-[12px] sm:text-sm">Cantidad</span>
+            <span class="hidden text-[12px] sm:inline sm:text-sm">Cantidad</span>
             <div class="flex items-center gap-1.5">
               {COUNT_OPTIONS.map((n) => (
                 <button
@@ -177,9 +176,9 @@ export default function PracticeView({ items }: Props) {
       <section class="mt-8">
         {mode === "phrases" ? (
           phrasePool.length === 0 ? (
-            <div class="rounded-3xl bg-base-200/60 px-5 py-10 text-center">
+            <div class="rounded-3xl bg-base-200/60 px-4 py-8 text-center sm:px-5 sm:py-10">
               <p class="text-sm font-medium text-base-content/60">No hay frases/diccionario para repasar ahora.</p>
-              <p class="mt-2 text-[12px] leading-relaxed text-base-content/45">Guarda frases desde una lección (botón Guardar), completa ejercicios (se guardan automáticamente al acertar) o usa el <span class="font-medium">backfill inicial</span> en el Diccionario.</p>
+              <p class="mt-2 hidden text-[12px] leading-relaxed text-base-content/45 sm:block">Guarda frases desde lecciones, completa ejercicios o usa el backfill inicial en el Diccionario.</p>
               <div class="mt-4 flex flex-wrap justify-center gap-2">
                 <a href={route("/dictionary")} class="btn btn-primary btn-sm h-9 rounded-xl px-4">Ir al diccionario</a>
                 <a href={route("/dictionary?review=1")} class="btn btn-ghost btn-sm h-9 rounded-xl bg-base-100 px-4">Ver flashcards</a>
@@ -189,7 +188,7 @@ export default function PracticeView({ items }: Props) {
             <PhraseReviewRunner key={`phr-${seed}`} entries={phrasePool} />
           )
         ) : exercises.length === 0 ? (
-          <div class="rounded-3xl bg-base-200/60 px-5 py-10 text-center">
+          <div class="rounded-3xl bg-base-200/60 px-4 py-8 text-center sm:px-5 sm:py-10">
             <p class="text-sm font-medium text-base-content/60">
               {mode === "review"
                 ? "No tienes ejercicios (SRS) vencidos ahora mismo."
@@ -199,12 +198,12 @@ export default function PracticeView({ items }: Props) {
                     ? "No hay ejercicios nuevos pendientes."
                     : "No hay ejercicios disponibles para este modo todavía."}
             </p>
-            <p class="mt-2 text-[12px] leading-relaxed text-base-content/45">
+            <p class="mt-2 hidden text-[12px] leading-relaxed text-base-content/45 sm:block">
               {mode === "review"
-                ? "Sigue practicando con “Mezcla inteligente” o “Nuevos”. Cuando aciertes, las respuestas se guardan/actualizan en tu diccionario y volverán con repaso espaciado."
+                ? "Prueba “Mezcla inteligente” o “Nuevos” mientras tanto."
                 : mode === "weak"
-                  ? "¡Buen trabajo! Completa sesiones o vuelve cuando algún ejercicio necesite refuerzo."
-                  : "Completa sesiones desde Inicio o cambia de modo para seguir practicando."}
+                  ? "Vuelve cuando algún ejercicio necesite refuerzo."
+                  : "Cambia de modo o continúa desde Inicio."}
             </p>
             <div class="mt-4 flex flex-wrap justify-center gap-2">
               <a href={route("/")} class="btn btn-primary btn-sm h-9 rounded-xl px-4">Ir a Inicio</a>
@@ -264,7 +263,7 @@ function PhraseReviewRunner({ entries }: { entries: PhrasebookEntry[] }) {
       </div>
       <div class="rounded-[26px] bg-base-200 p-1.5">
         <div class="rounded-[20px] bg-base-100 p-5 sm:p-6">
-          <p class="text-[11px] font-medium text-base-content/45">Traduce/recuerda esta frase</p>
+          <p class="hidden text-[11px] font-medium text-base-content/45 sm:block">Traduce/recuerda esta frase</p>
           <div class="mt-3 flex items-start justify-between gap-3">
             <p class="font-mono text-lg text-base-content/90 sm:text-xl">{entry.en}</p>
             <button
@@ -289,16 +288,16 @@ function PhraseReviewRunner({ entries }: { entries: PhrasebookEntry[] }) {
                   <p class="mt-3 text-[12px] leading-relaxed text-base-content/70"><span class="inline-flex items-center gap-1 font-medium text-base-content/45"><NotebookPen class="h-3.5 w-3.5" /> Tu ejemplo:</span> <span class="font-mono">{entry.userExample}</span></p>
                 )}
                 {entry.notes && (
-                  <p class="mt-2 text-[12px] leading-relaxed text-base-content/65"><span class="font-medium text-base-content/45">Nota:</span> {entry.notes}</p>
+                  <p class="mt-2 hidden text-[12px] leading-relaxed text-base-content/65 sm:block"><span class="font-medium text-base-content/45">Nota:</span> {entry.notes}</p>
                 )}
                 {(entry.tags?.length ?? 0) > 0 && (
-                  <div class="mt-2 flex flex-wrap gap-1">
+                  <div class="mt-2 hidden flex-wrap gap-1 sm:flex">
                     {entry.tags!.map((t) => (
                       <span key={t} class="inline-flex items-center gap-1 rounded-full bg-base-100 px-2 py-0.5 text-[10px] text-base-content/50"><Tag class="h-2.5 w-2.5" />{t}</span>
                     ))}
                   </div>
                 )}
-                <div class="mt-2 flex flex-wrap gap-2 text-[10px] text-base-content/40">
+                <div class="mt-2 hidden flex-wrap gap-2 text-[10px] text-base-content/40 sm:flex">
                   {entry.source && <span>Origen: {entry.source}</span>}
                   {entry.difficulty && <span>· Dificultad: {entry.difficulty === "hard" ? "Difícil" : entry.difficulty === "easy" ? "Fácil" : "Normal"}</span>}
                   <span>· Aciertos: {entry.correct}</span>
@@ -313,7 +312,7 @@ function PhraseReviewRunner({ entries }: { entries: PhrasebookEntry[] }) {
           )}
         </div>
       </div>
-      <p class="text-center text-[11px] text-base-content/40">Repasa en contexto: tus notas, ejemplos y etiquetas te ayudan a recordar matices.</p>
+      <p class="hidden text-center text-[11px] text-base-content/40 sm:block">Repasa en contexto: tus notas, ejemplos y etiquetas te ayudan a recordar matices.</p>
     </div>
   );
 }

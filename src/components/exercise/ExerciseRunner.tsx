@@ -348,7 +348,7 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
                 <div class="rounded-xl bg-warning/10 px-3 py-2 text-sm text-base-content/80"><span class="font-medium">Frase:</span> <span class="font-mono">{(exercise as any).sentence}</span></div>
               )}
               <textarea value={text} disabled={status === "correct"} onInput={(event) => setText((event.target as HTMLTextAreaElement).value)} rows={exercise.type === "roleplay" ? 3 : 2} placeholder={tAction(stage, "typeAnswer")} class="w-full resize-none rounded-2xl bg-base-200 px-4 py-3.5 font-mono text-sm text-base-content placeholder:text-base-content/25 disabled:opacity-70" spellcheck={false} />
-              {(exercise as any).hint && (<p class="flex items-center gap-1.5 px-1 text-[12px] text-base-content/55"><Lightbulb class="h-3 w-3 text-warning/70" />{(exercise as any).hint}</p>)}
+              {(exercise as any).hint && (<p class="hidden items-center gap-1.5 px-1 text-[12px] text-base-content/55 sm:flex"><Lightbulb class="h-3 w-3 text-warning/70" />{(exercise as any).hint}</p>)}
             </div>
           )}
 
@@ -363,10 +363,10 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
                 >
                   <Headphones class="h-4 w-4" aria-hidden="true" /> Escuchar audio
                 </button>
-                <span class="text-[11px] text-base-content/40">Pulsa para oír la frase. Puedes repetirla o cancelar reproduciendo otra.</span>
+                <span class="hidden text-[11px] text-base-content/40 sm:inline">Pulsa para oír la frase. Puedes repetirla o cancelar reproduciendo otra.</span>
               </div>
               <textarea value={text} disabled={status === "correct"} onInput={(event) => setText((event.target as HTMLTextAreaElement).value)} rows={2} placeholder="Escribe lo que escuchaste…" class="w-full resize-none rounded-2xl bg-base-200 px-4 py-3.5 font-mono text-sm text-base-content placeholder:text-base-content/25 disabled:opacity-70" spellcheck={false} />
-              {(exercise as any).hint && (<p class="flex items-center gap-1.5 px-1 text-[12px] text-base-content/55"><Lightbulb class="h-3 w-3 text-warning/70" />{(exercise as any).hint}</p>)}
+              {(exercise as any).hint && (<p class="hidden items-center gap-1.5 px-1 text-[12px] text-base-content/55 sm:flex"><Lightbulb class="h-3 w-3 text-warning/70" />{(exercise as any).hint}</p>)}
             </div>
           )}
 
@@ -397,7 +397,7 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
                       <Mic class="h-4 w-4" aria-hidden="true" /> {micState === "listening" ? "Escuchando…" : "Practicar con micrófono"}
                     </button>
                   ) : (
-                    <span class="self-center text-[11px] text-base-content/40">Reconocimiento de voz no disponible en este navegador.</span>
+                    <span class="hidden self-center text-[11px] text-base-content/40 sm:inline">Reconocimiento de voz no disponible en este navegador.</span>
                   )}
                 </div>
               </div>
@@ -405,10 +405,10 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
                 {micState === "listening" && <p class="text-[12px] text-accent/90">Escuchando… habla ahora.</p>}
                 {heardText && <p class="text-[12px] text-base-content/60">Detectado: <span class="font-mono text-base-content/80">{heardText}</span></p>}
                 {micError && <p class="text-[12px] text-error/80" role="status">{micError}</p>}
-                {!micSupported && <p class="text-[12px] text-base-content/45">Tu navegador no soporta reconocimiento de voz. Puedes escribir tu respuesta o usar un navegador compatible (Chrome/Edge) en HTTPS/localhost.</p>}
+                {!micSupported && <p class="hidden text-[12px] text-base-content/45 sm:block">Tu navegador no soporta reconocimiento de voz. Puedes escribir tu respuesta o usar un navegador compatible (Chrome/Edge) en HTTPS/localhost.</p>}
               </div>
               <textarea value={text} disabled={status === "correct"} onInput={(event) => setText((event.target as HTMLTextAreaElement).value)} rows={2} placeholder="O escribe lo que dirías…" class="w-full resize-none rounded-2xl bg-base-200 px-4 py-3.5 font-mono text-sm text-base-content placeholder:text-base-content/25 disabled:opacity-70" spellcheck={false} />
-              {(exercise as any).hint && (<p class="flex items-center gap-1.5 px-1 text-[12px] text-base-content/55"><Lightbulb class="h-3 w-3 text-warning/70" />{(exercise as any).hint}</p>)}
+              {(exercise as any).hint && (<p class="hidden items-center gap-1.5 px-1 text-[12px] text-base-content/55 sm:flex"><Lightbulb class="h-3 w-3 text-warning/70" />{(exercise as any).hint}</p>)}
             </div>
           )}
 

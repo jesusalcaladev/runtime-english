@@ -59,8 +59,8 @@ export default function DictionaryView() {
         <div class="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p class="flex items-center gap-2 text-sm font-medium"><Brain class="h-4 w-4 text-accent" /> Repasar (flashcards SRS)</p>
-            <p class="mt-1 text-[12px] leading-relaxed text-base-content/55">
-              Repasa frases con tus significados, notas y ejemplos. Las respuestas actualizan el repaso espaciado del diccionario.
+            <p class="mt-1 hidden text-[12px] leading-relaxed text-base-content/55 sm:block">
+              Repasa frases con tus significados, notas y ejemplos.
             </p>
           </div>
           <div class="flex flex-wrap gap-2">
@@ -78,14 +78,14 @@ export default function DictionaryView() {
           </div>
         </div>
 
-        <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
-          <Stat label="Total frases" value={String(total)} />
+        <div class="grid grid-cols-2 gap-2 sm:grid-cols-2 lg:grid-cols-5">
+          <Stat label="Total" value={String(total)} />
           <Stat label="Aprendidas" value={String(learned)} accent />
-          <Stat label="Guardadas" value={String(saved)} />
-          <Stat label="Vencidas hoy" value={String(dueEntries.length)} warn={dueEntries.length > 0} />
-          <div class="rounded-2xl bg-accent/[0.07] p-3">
+          <div class="hidden sm:block"><Stat label="Guardadas" value={String(saved)} /></div>
+          <Stat label="Vencidas" value={String(dueEntries.length)} warn={dueEntries.length > 0} />
+          <div class="col-span-2 rounded-2xl bg-accent/[0.07] p-3 sm:col-span-1">
             <p class="font-mono text-lg font-medium leading-none text-accent">{progressPct}%</p>
-            <p class="mt-1 text-[10px] text-base-content/45">Dominio ({mastered}) · {hard} difíciles</p>
+            <p class="mt-1 hidden text-[10px] text-base-content/45 sm:block">Dominio ({mastered}) · {hard} difíciles</p>
             <div class="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-base-content/10">
               <div class="h-full rounded-full bg-accent" style={{ width: `${progressPct}%` }} />
             </div>
@@ -102,11 +102,11 @@ export default function DictionaryView() {
           <div class="rounded-2xl bg-base-100 p-4 sm:p-6 ring-1 ring-accent/10">
             <div class="flex items-center justify-between gap-2 text-[11px] text-base-content/45">
               <span>Tarjeta {reviewIndex + 1} / {d.reviewQueue.length}</span>
-              <span>{reviewedCount} respondida{reviewedCount === 1 ? "" : "s"}</span>
-              <button type="button" onClick={() => { setReviewMode("none"); setReviewQueue([]); }} class="flex items-center gap-1 rounded-full px-2 py-1 hover:bg-base-200"><X class="h-3.5 w-3.5" /> Cerrar</button>
+              <span class="hidden sm:inline">{reviewedCount} respondida{reviewedCount === 1 ? "" : "s"}</span>
+              <button type="button" onClick={() => { setReviewMode("none"); setReviewQueue([]); }} class="flex items-center gap-1 rounded-full px-2 py-1 hover:bg-base-200"><X class="h-3.5 w-3.5" /> <span class="hidden sm:inline">Cerrar</span></button>
             </div>
             <div class="mt-4 text-center">
-              <p class="text-[11px] font-medium text-base-content/40">Frase en inglés</p>
+              <p class="hidden text-[11px] font-medium text-base-content/40 sm:block">Frase en inglés</p>
               <div class="mt-2 inline-flex max-w-full items-center rounded-2xl bg-accent/[0.08] px-5 py-3 ring-1 ring-accent/15">
                 <p class="font-mono text-lg font-medium text-base-content sm:text-xl">{card.en}</p>
               </div>
@@ -130,12 +130,12 @@ export default function DictionaryView() {
               </div>
               {revealed ? (
                 <div class="mx-auto mt-4 max-w-2xl space-y-2 rounded-2xl bg-base-200/70 p-4 text-left">
-                  <p class="text-sm leading-relaxed text-base-content/80"><span class="font-medium text-base-content/50">Significado: </span>{card.es || "—"}</p>
-                  {card.userExample && <p class="text-[13px] text-base-content/65"><span class="font-medium text-base-content/45">Tu ejemplo: </span><span class="font-mono">{card.userExample}</span></p>}
-                  {card.notes && <p class="text-[13px] text-base-content/60"><span class="font-medium text-base-content/45">Nota: </span>{card.notes}</p>}
+                  <p class="text-sm leading-relaxed text-base-content/80"><span class="hidden font-medium text-base-content/50 sm:inline">Significado: </span>{card.es || "—"}</p>
+                  {card.userExample && <p class="hidden text-[13px] text-base-content/65 sm:block"><span class="font-medium text-base-content/45">Tu ejemplo: </span><span class="font-mono">{card.userExample}</span></p>}
+                  {card.notes && <p class="hidden text-[13px] text-base-content/60 sm:block"><span class="font-medium text-base-content/45">Nota: </span>{card.notes}</p>}
                 </div>
               ) : (
-                <p class="mt-4 text-[12px] text-base-content/40">Piensa el significado y luego revélalo para autoevaluarte.</p>
+                <p class="mt-4 hidden text-[12px] text-base-content/40 sm:block">Piensa el significado y luego revélalo para autoevaluarte.</p>
               )}
             </div>
             <div class="mt-5 flex flex-col justify-center gap-2 sm:flex-row">
@@ -155,7 +155,7 @@ export default function DictionaryView() {
           <h2 class="text-sm font-medium text-base-content/80">Mis frases</h2>
           <span class="text-[11px] text-base-content/40">{filtered.length} de {total}</span>
         </div>
-        <div class="rounded-3xl bg-base-200 p-4 space-y-3">
+        <div class="rounded-3xl bg-base-200 p-3.5 space-y-3 sm:p-4">
           <div class="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
             <label class="relative block w-full lg:max-w-md">
               <Search class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-base-content/25" />
@@ -172,10 +172,10 @@ export default function DictionaryView() {
         </div>
 
         {filtered.length === 0 ? (
-          <div class="rounded-3xl bg-base-200 px-6 py-14 text-center">
+          <div class="rounded-3xl bg-base-200 px-4 py-10 text-center sm:px-6 sm:py-14">
             <BookText class="mx-auto h-8 w-8 text-base-content/20" />
             <p class="mt-3 text-sm font-medium text-base-content/55">{total === 0 ? "Tu diccionario aún está vacío." : "No hay resultados con ese filtro."}</p>
-            <p class="mt-1 text-xs text-base-content/40">{total === 0 ? "Completa ejercicios, guarda frases en las lecciones o usa el backfill inicial." : "Prueba con otra búsqueda o filtro."}</p>
+            <p class="mt-1 hidden text-xs text-base-content/40 sm:block">{total === 0 ? "Completa ejercicios, guarda frases en las lecciones o usa el backfill inicial." : "Prueba con otra búsqueda o filtro."}</p>
             {total === 0 && (
               <button type="button" onClick={() => progressStore.backfillPhrasebook()} class="btn btn-primary btn-sm mt-4 h-9 gap-2 rounded-xl px-4">
                 <Download class="h-4 w-4" /> Importar frases iniciales (backfill)
@@ -259,11 +259,11 @@ function PhraseCard({ entry, editing, onEdit, onClose }: { entry: PhrasebookEntr
           <div class="inline-flex max-w-full items-center rounded-xl bg-accent/[0.08] px-3 py-1.5 ring-1 ring-accent/15">
             <p class="truncate font-mono text-[14px] font-medium text-base-content">{entry.en}</p>
           </div>
-          <p class="mt-2 text-[13px] leading-relaxed text-base-content/70"><span class="font-medium text-base-content/45">Significado: </span>{entry.es || "—"}</p>
-          {entry.userExample && <p class="mt-1.5 rounded-lg bg-base-100/60 px-2.5 py-2 text-[12px] leading-relaxed text-base-content/65"><span class="font-medium text-base-content/45">Tu ejemplo: </span><span class="font-mono">{entry.userExample}</span></p>}
-          {entry.notes && <p class="mt-1.5 text-[12px] leading-relaxed text-base-content/55"><span class="font-medium text-base-content/40">Nota: </span>{entry.notes}</p>}
+          <p class="mt-2 text-[13px] leading-relaxed text-base-content/70"><span class="hidden font-medium text-base-content/45 sm:inline">Significado: </span>{entry.es || "—"}</p>
+          {entry.userExample && <p class="mt-1.5 hidden rounded-lg bg-base-100/60 px-2.5 py-2 text-[12px] leading-relaxed text-base-content/65 sm:block"><span class="font-medium text-base-content/45">Tu ejemplo: </span><span class="font-mono">{entry.userExample}</span></p>}
+          {entry.notes && <p class="mt-1.5 hidden text-[12px] leading-relaxed text-base-content/55 sm:block"><span class="font-medium text-base-content/40">Nota: </span>{entry.notes}</p>}
           {(entry.tags?.length ?? 0) > 0 && (
-            <div class="mt-2 flex flex-wrap gap-1">
+            <div class="mt-2 hidden flex-wrap gap-1 sm:flex">
               {entry.tags!.map((t) => (
                 <span key={t} class="inline-flex items-center gap-1 rounded-full bg-base-100 px-2 py-0.5 text-[10px] text-base-content/50"><Tag class="h-2.5 w-2.5" />{t}</span>
               ))}
@@ -311,12 +311,12 @@ function PhraseCard({ entry, editing, onEdit, onClose }: { entry: PhrasebookEntr
 
       <div class="mt-3 flex flex-wrap items-center gap-2">
         <span class={`rounded-full px-2.5 py-1 text-[10px] font-medium ${m.tone}`}>{m.label}</span>
-        <span class={`rounded-full px-2.5 py-1 text-[10px] font-medium ${diff.cls}`}>{diff.label}</span>
-        {entry.correct > 0 && <span class="flex items-center gap-1 text-[10px] text-base-content/45"><CheckCircle2 class="h-3 w-3 text-accent/70" /> {entry.correct} acierto{entry.correct === 1 ? "" : "s"}</span>}
-        {entry.seen > 0 && <span class="text-[10px] text-base-content/35">{entry.seen} práctica{entry.seen === 1 ? "" : "s"}</span>}
-        {entry.source && <span class="text-[10px] text-base-content/35">· {entry.source}</span>}
+        <span class={`hidden rounded-full px-2.5 py-1 text-[10px] font-medium sm:inline-flex ${diff.cls}`}>{diff.label}</span>
+        {entry.correct > 0 && <span class="hidden items-center gap-1 text-[10px] text-base-content/45 sm:flex"><CheckCircle2 class="h-3 w-3 text-accent/70" /> {entry.correct} acierto{entry.correct === 1 ? "" : "s"}</span>}
+        {entry.seen > 0 && <span class="hidden text-[10px] text-base-content/35 sm:inline">{entry.seen} práctica{entry.seen === 1 ? "" : "s"}</span>}
+        {entry.source && <span class="hidden text-[10px] text-base-content/35 sm:inline">· {entry.source}</span>}
       </div>
-      <div class="mt-2 h-1 w-full overflow-hidden rounded-full bg-base-content/[0.07]">
+      <div class="mt-2 hidden h-1 w-full overflow-hidden rounded-full bg-base-content/[0.07] sm:block">
         <div class="h-full rounded-full bg-accent/70" style={{ width: `${m.pct}%` }} />
       </div>
 

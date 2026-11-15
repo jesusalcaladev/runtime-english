@@ -71,32 +71,32 @@ function SessionRow({
             </span>
           )}
           {isIntegrated && (
-            <span className="rounded-full bg-base-content/[0.06] px-2 py-0.5 text-[9px] font-medium text-base-content/45" title="Sesión integrada en esta parte del recorrido">
+            <span className="hidden rounded-full bg-base-content/[0.06] px-2 py-0.5 text-[9px] font-medium text-base-content/45 sm:inline-flex" title="Sesión integrada en esta parte del recorrido">
               Integrada
             </span>
           )}
           {isCheckpoint && !isIntegrated && (
-            <span className="rounded-full bg-base-content/[0.06] px-2 py-0.5 text-[9px] font-medium text-base-content/45">
+            <span className="hidden rounded-full bg-base-content/[0.06] px-2 py-0.5 text-[9px] font-medium text-base-content/45 sm:inline-flex">
               Repaso
             </span>
           )}
           {goalRelevant && !complete && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-base-content/[0.06] px-2 py-0.5 text-[9px] font-medium text-base-content/50" title="Recomendada para tu objetivo">
+            <span className="hidden items-center gap-1 rounded-full bg-base-content/[0.06] px-2 py-0.5 text-[9px] font-medium text-base-content/50 sm:inline-flex" title="Recomendada para tu objetivo">
               <Target className="h-2.5 w-2.5 text-accent/70" /> Meta
             </span>
           )}
         </span>
         <span className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-base-content/35">
           <span className="font-mono">{session.cefr}</span>
-          <span className="flex items-center gap-1">
+          <span className="hidden items-center gap-1 sm:flex">
             <Clock className="h-3 w-3" />
             {session.minutes} {tAction(stage, "minutes")}
           </span>
-          <span className="flex items-center gap-1">
+          <span className="hidden items-center gap-1 sm:flex">
             <Layers className="h-3 w-3" />
             {session.exerciseCount} {stage === "es" ? "ej." : "ex."}
           </span>
-          <span className="truncate font-mono text-base-content/30">{session.step}</span>
+          <span className="hidden truncate font-mono text-base-content/30 sm:inline">{session.step}</span>
         </span>
       </span>
 
@@ -134,7 +134,7 @@ function ModuleCard({
             )}
           </div>
           <h4 className="mt-1.5 text-[15px] font-medium tracking-tight text-base-content/90">{module.shortTitle}</h4>
-          <p className="mt-1 max-w-2xl text-[11px] leading-relaxed text-base-content/40">{module.description}</p>
+          <p className="mt-1 hidden max-w-2xl text-[11px] leading-relaxed text-base-content/40 sm:block">{module.description}</p>
         </div>
         <div className="shrink-0 text-right">
           <p className="font-mono text-sm font-medium text-base-content/70">{modulePct}%</p>
@@ -194,14 +194,14 @@ export default function Roadmap({ modules, nextSessionId }: Props) {
 
   return (
     <section id="roadmap" className="mt-14 scroll-mt-20">
-      <div className="rounded-[32px] bg-base-200/60 p-5 sm:p-7">
+      <div className="rounded-[32px] bg-base-200/60 p-4 sm:p-7">
         <div className="flex flex-wrap items-end justify-between gap-5">
           <div>
             <p className="mono-label text-base-content/55">{tAction(stage, "route")}</p>
             <h2 className="font-pixel mt-2 text-[2.2rem] leading-tight tracking-tight text-base-content/95 sm:text-[2.6rem]">
               {tAction(stage, "pathTitle")}
             </h2>
-            <p className="mt-2 text-[14px] leading-relaxed text-base-content/55">
+            <p className="mt-2 hidden text-[14px] leading-relaxed text-base-content/55 sm:block">
               {modules.length} {tAction(stage, "modules")} · {totalSessions} {tAction(stage, "sessions")} · {totalExercises} {tAction(stage, "exercises")}
             </p>
           </div>

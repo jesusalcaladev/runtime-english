@@ -74,8 +74,8 @@ export default function SearchView({ items }: Props) {
         <h1 class="font-pixel mt-3 text-[2.2rem] leading-[1.05] tracking-tight sm:text-[2.85rem]">
           Encuentra lo que necesitas
         </h1>
-        <p class="mt-3 max-w-2xl text-sm leading-7 text-base-content/55">
-          Busca en sesiones, vocabulario, frases, ejercicios y slang. Escribe al menos 2 caracteres.
+        <p class="mt-3 hidden max-w-2xl text-sm leading-7 text-base-content/55 sm:block">
+          Busca en sesiones, vocabulario, frases, ejercicios y slang.
         </p>
       </section>
 
@@ -95,11 +95,11 @@ export default function SearchView({ items }: Props) {
 
       <div class="mt-6">
         {query.trim().length < 2 ? (
-          <div class="rounded-2xl bg-base-200/60 px-5 py-8 text-center">
+          <div class="rounded-2xl bg-base-200/60 px-4 py-7 text-center sm:px-5 sm:py-8">
             <p class="text-sm text-base-content/45">Empieza a escribir para ver resultados.</p>
           </div>
         ) : results.length === 0 ? (
-          <div class="rounded-2xl bg-base-200/60 px-5 py-8 text-center">
+          <div class="rounded-2xl bg-base-200/60 px-4 py-7 text-center sm:px-5 sm:py-8">
             <p class="text-sm text-base-content/55">Sin resultados para "{query}".</p>
             <p class="mt-1 text-xs text-base-content/35">Prueba con otra palabra o en inglés/español.</p>
           </div>
@@ -121,7 +121,7 @@ export default function SearchView({ items }: Props) {
                         <Icon class="h-3 w-3" />
                         {meta.label}
                       </span>
-                      <span class="truncate text-[10px] text-base-content/35">{item.meta}</span>
+                      <span class="hidden truncate text-[10px] text-base-content/35 sm:inline">{item.meta}</span>
                     </div>
                     <p class="mt-2 text-sm font-medium text-base-content/85">{item.title}</p>
                     <p class="mt-1 line-clamp-2 text-xs leading-5 text-base-content/45">{item.body}</p>

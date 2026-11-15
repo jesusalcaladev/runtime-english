@@ -99,8 +99,8 @@ export default function OnboardingCard() {
             <Sparkles class="h-3.5 w-3.5" /> Bienvenido a RuntimeEnglish
           </p>
           <h2 class="font-pixel mt-3 text-[1.7rem] tracking-tight sm:text-[2.1rem]">Onboarding guiado</h2>
-          <p class="mt-2 text-sm leading-6 text-base-content/55">
-            Diagnóstico rápido, objetivo claro y plan diario personalizado para que empieces con foco. Puedes ajustar todo luego en Ajustes.
+          <p class="mt-2 hidden text-sm leading-6 text-base-content/55 sm:block">
+            Diagnóstico rápido, objetivo y plan personalizado para empezar con foco.
           </p>
         </div>
         <div class="flex items-center gap-1.5 rounded-full bg-base-100/70 px-3 py-1.5 text-[11px] font-medium text-base-content/60">
