@@ -1,0 +1,28 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import CustomLessonsView from "../components/custom-lessons/CustomLessonsView";
+import PageHeader from "../components/ui/PageHeader.astro";
+import { Sparkles } from "@lucide/astro";
+---
+
+<BaseLayout
+  title="Mis lecciones · RuntimeEnglish"
+  description="Crea e importa tus propias lecciones personalizadas con JSON o con ayuda de IA."
+>
+  <div class="mx-auto max-w-[1120px] animate-fade-up space-y-8">
+    <PageHeader
+      eyebrow="Personalizado"
+      title="Mis lecciones"
+      description="Guarda lecciones creadas por ti (a mano o con IA) y practícalas cuando quieras."
+    >
+      <div class="mt-5 flex flex-wrap items-center gap-2">
+        <span class="flex items-center gap-1.5 rounded-full bg-accent/10 px-3 py-1.5 text-[10px] font-medium text-accent">
+          <Sparkles class="h-3 w-3" />
+          Importa JSON desde ChatGPT, DeepSeek, Gemini u otra IA
+        </span>
+      </div>
+    </PageHeader>
+
+    <CustomLessonsView client:only="preact" />
+  </div>
+</BaseLayout>

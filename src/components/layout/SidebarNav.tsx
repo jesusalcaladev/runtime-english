@@ -1,5 +1,6 @@
 import {
   Award,
+  BookOpen,
   BookText,
   Check,
   ChevronRight,
@@ -46,6 +47,7 @@ export default function SidebarNav({ modules }: Props) {
     { href: "/", label: t(stage, "roadmap"), icon: LayoutGrid, group: "main" as const },
     { href: "/practice", label: stage === "en" ? "Practice" : "Práctica", icon: Dumbbell, group: "main" as const },
     { href: "/dictionary", label: stage === "en" ? "Dictionary" : "Diccionario", icon: BookText, group: "main" as const },
+    { href: "/my-lessons", label: stage === "en" ? "My lessons" : "Mis lecciones", icon: BookOpen, group: "main" as const },
     { href: "/search", label: stage === "en" ? "Search" : "Buscar", icon: Search, group: "tools" as const },
     { href: "/slang", label: t(stage, "slang"), icon: MessageSquare, group: "tools" as const },
     { href: "/achievements", label: t(stage, "achievements"), icon: Trophy, group: "progress" as const },

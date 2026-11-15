@@ -1,0 +1,11 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import CustomLessonView from "../components/custom-lessons/CustomLessonView";
+---
+
+<BaseLayout
+  title="Lección personalizada · RuntimeEnglish"
+  description="Practica una lección personalizada creada por ti."
+>
+  <CustomLessonView client:only="preact" />
+</BaseLayout>
