@@ -808,5 +808,113 @@ export const m1: Module = {
         }
       ],
     },
+    {
+      id: "m1-l7",
+      slug: "practica-mixta-fundamentos",
+      title: "Práctica mixta: fundamentos en acción",
+      step: "A2 · Paso 1.7 · Práctica guiada",
+      cefr: "A2",
+      minutes: 8,
+      summary:
+        "Sesión corta para mezclar y reforzar lo esencial de m1-l1 a m1-l4: verbos, acciones técnicas, versiones/números y aclaraciones.",
+      objectives: [
+        "Usar verbos y acciones técnicas en frases simples y correctas.",
+        "Decir versiones y pedir aclaración con naturalidad.",
+        "Combinar instrucciones y descripciones cortas en contexto real."
+      ],
+      pronunciation:
+        "The function returns a value. Run the tests before you deploy. Could you explain that again, please?",
+      blocks: [
+        {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Repasa m1-l1 (verbos reyes), m1-l2 (verbos técnicos), m1-l3 (números, versiones y fechas) y m1-l4 (preguntar y aclarar). Esta práctica mezcla solo contenido ya enseñado en esas lecciones."
+        },
+        {
+          type: "technique",
+          name: "Combinar bloques básicos",
+          desc: "Describe (presente simple), da instrucciones (imperativo), comunica datos (versiones/números) y pide ayuda o aclaración ('Could you...?', 'What does ... mean?')."
+        },
+        {
+          type: "phrases",
+          title: "Chunks de apoyo",
+          items: [
+            { en: "The function returns a value.", es: "La función devuelve un valor." },
+            { en: "Run the tests before you deploy.", es: "Ejecuta los tests antes de desplegar." },
+            { en: "Version 2.0 was released today.", es: "La versión 2.0 se publicó hoy." },
+            { en: "Could you explain that again, please?", es: "¿Podrías explicarlo otra vez, por favor?" }
+          ]
+        }
+      ],
+      exercises: [
+        {
+          id: "m1-l7-e1",
+          type: "choice",
+          prompt: "¿Qué frase describe correctamente una acción habitual del sistema?",
+          options: [
+            "The server handle requests.",
+            "The server handles requests.",
+            "The server handling requests.",
+            "The server is handle requests."
+          ],
+          answer: 1,
+          explanation:
+            "Presente simple con tercera persona singular: 'The server handles requests.'"
+        },
+        {
+          id: "m1-l7-e2",
+          type: "builder",
+          prompt: "Construye: 'Ejecuta los tests antes de desplegar.'",
+          words: ["Run", "the tests", "before you", "deploy."],
+          answer: "Run the tests before you deploy.",
+          explanation:
+            "Imperativo + secuencia clara, útil en instrucciones técnicas."
+        },
+        {
+          id: "m1-l7-e3",
+          type: "write",
+          prompt: "Escríbelo en inglés: '¿Podrías explicarlo otra vez, por favor?'",
+          answer: "Could you explain that again, please?",
+          accept: ["Could you explain that again please?", "Can you explain that again, please?"],
+          hint: "Frase de cortesía: 'Could you explain...?'",
+          explanation:
+            "Pedir aclaración con cortesía es clave en trabajo en equipo."
+        },
+        {
+          id: "m1-l7-e4",
+          type: "choice",
+          prompt: "¿Cómo dirías la versión 2.0 en inglés técnico?",
+          options: [
+            "version two comma zero",
+            "version two point zero",
+            "version twenty",
+            "version two zero point"
+          ],
+          answer: 1,
+          explanation:
+            "En versiones se usa 'point': 'two point zero'."
+        },
+        {
+          id: "m1-l7-e5",
+          type: "builder",
+          prompt: "Construye: 'La función devuelve un valor.'",
+          words: ["The function", "returns", "a value."],
+          answer: "The function returns a value.",
+          explanation:
+            "Patrón básico de descripción: sujeto técnico + verbo en presente simple."
+        },
+        {
+          id: "m1-l7-e6",
+          type: "write",
+          prompt: "Escribe la instrucción en inglés: 'Abre el archivo de configuración.'",
+          answer: "Open the configuration file.",
+          accept: ["Open the config file."],
+          hint: "Usa imperativo: 'Open...'",
+          explanation:
+            "Instrucción directa con verbo técnico ya trabajado en el módulo."
+        }
+      ],
+    },
   ],
 };
