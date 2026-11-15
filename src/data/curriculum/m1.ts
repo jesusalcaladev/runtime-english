@@ -15,43 +15,54 @@ export const m1: Module = {
       title: "Los 10 Verbos Reyes en Contexto Técnico",
       step: "A1 · Paso 1.1",
       cefr: "A1",
-      minutes: 10,
+      minutes: 12,
       summary:
-        "Domina cómo se comportan los 10 verbos fundamentales cuando hablas de servidores, funciones y errores.",
+        "Aprende los 10 verbos básicos que usarás en casi todas las frases técnicas, con la regla clave: en tercera persona (it/the server/the function) el verbo suele llevar -s.",
       objectives: [
-        "Usar be, have, do, say, go, can, want, need, know y think.",
-        "Aplicar la -s de tercera persona al hablar de código.",
-        "Construir frases de debugging con 'I think'.",
+        "Reconocer y usar be, have, do, say, go, can, want, need, know y think en contexto.",
+        "Aplicar la -s de tercera persona al hablar de sistemas, funciones o errores (has, does, says, goes, wants, needs).",
+        "Construir frases simples y claras para describir estado, capacidad y opiniones ('I think...').",
       ],
       pronunciation:
         "The server is down and the error says permission denied.",
       blocks: [
         {
           type: "technique",
-          name: "Regla de la 3ª Persona en Código",
-          desc: "Cuando hablas de una pieza del sistema (the server, the function, the API), el verbo va en tercera persona y añade -S: 'The function has...', 'The error says...', 'The code goes...', 'This library needs...'. Con 'can', el modal no lleva -s: 'The API can handle...'.",
+          name: "Antes de empezar: regla de oro (tercera persona)",
+          desc: "Cuando el sujeto es una cosa o sistema (the server, the function, the API, this library), piensa en 'it'. En presente: be → is, have → has, do → does, say → says, go → goes, want → wants, need → needs, know → knows, think → thinks. Excepción importante: 'can' es modal y NO cambia (The API can handle...). Con 'I/you/we/they' el verbo va en forma base (I need, they have).",
         },
         {
           type: "vocab",
-          title: "Los 10 verbos reyes",
+          title: "Los 10 verbos reyes (con su forma para 'it')",
           items: [
-            { en: "to be", es: "ser / estar (estado del sistema)", example: "The server is down.", note: "El servidor está caído." },
-            { en: "to have", es: "tener (características)", example: "This function has two parameters.", note: "Esta función tiene dos parámetros." },
-            { en: "to do", es: "hacer (ejecutar acción)", example: "The script does nothing.", note: "El script no hace nada." },
-            { en: "to say", es: "decir / especificar (logs)", example: "The error says permission denied.", note: "El error dice permiso denegado." },
-            { en: "to go", es: "ir / moverse (flujo del código)", example: "The code goes into an infinite loop.", note: "El código entra en un bucle infinito." },
-            { en: "can", es: "poder (capacidad del sistema)", example: "This API can handle 1,000 requests per second.", note: "Esta API puede manejar 1.000 peticiones por segundo." },
-            { en: "to want", es: "querer (requerimiento)", example: "The client wants a login page.", note: "El cliente quiere una página de login." },
-            { en: "to need", es: "necesitar (dependencia)", example: "This library needs Node 18.", note: "Esta librería necesita Node 18." },
-            { en: "to know", es: "saber / conocer", example: "I don't know why this broke.", note: "No sé por qué se rompió esto." },
-            { en: "to think", es: "pensar (debugging)", example: "I think the issue is in the cache.", note: "Creo que el problema está en la caché." },
+            { en: "to be → is", es: "ser / estar (estado del sistema)", example: "The server is down.", note: "is = forma de 'be' para it/the server." },
+            { en: "to have → has", es: "tener (características)", example: "This function has two parameters.", note: "parameters = parámetros." },
+            { en: "to do → does", es: "hacer (ejecutar acción)", example: "The script does nothing.", note: "script = script; nothing = nada." },
+            { en: "to say → says", es: "decir / mostrar (logs/errores)", example: "The error says \"permission denied\".", note: "error = error." },
+            { en: "to go → goes", es: "ir / entrar (flujo del código)", example: "The code goes into an infinite loop.", note: "loop = bucle; infinite = infinito." },
+            { en: "can → can", es: "poder (capacidad del sistema)", example: "This API can handle 1,000 requests per second.", note: "can no cambia; handle = manejar." },
+            { en: "to want → wants", es: "querer (requerimiento)", example: "The client wants a login page.", note: "client = cliente." },
+            { en: "to need → needs", es: "necesitar (dependencia/requisito)", example: "This library needs Node 18.", note: "library = librería." },
+            { en: "to know → know (I)", es: "saber / conocer", example: "I don't know why this is broken.", note: "Con 'I' usa know; is broken = está roto." },
+            { en: "to think → think (I)", es: "pensar / creer (hipótesis)", example: "I think the issue is in the cache.", note: "issue = problema; cache = caché." },
+          ],
+        },
+        {
+          type: "phrases",
+          title: "Frases modelo (solo con lo aprendido aquí)",
+          items: [
+            { en: "The server is down.", es: "El servidor está caído." },
+            { en: "The function has two parameters.", es: "La función tiene dos parámetros." },
+            { en: "The script does nothing.", es: "El script no hace nada." },
+            { en: "This API can handle requests.", es: "Esta API puede manejar peticiones." },
+            { en: "I think the issue is in the cache.", es: "Creo que el problema está en la caché." },
           ],
         },
         {
           type: "callout",
           tone: "tip",
-          title: "Truco de conversación",
-          body: "Si no recuerdas el verbo exacto, usa 'it is / it has / it needs'. En una call técnica, una frase simple bien conjugada comunica más que una frase compleja mal armada.",
+          title: "Cómo usar esta lección",
+          body: "Primero mira la tabla de verbos y las frases modelo. Los ejercicios solo usan estos 10 verbos y palabras que aparecen en los ejemplos (server, function, script, error, code, API, client, library, issue, cache, parameters, requests). Si dudas, vuelve a la forma para 'it' (is/has/does/needs...).",
         },
       ],
       exercises: [
@@ -115,15 +126,15 @@ export const m1: Module = {
         {
           id: "m1-l1-e6",
           type: "write",
-          prompt: "Escríbelo en inglés de forma natural: 'No sé por qué se rompió esto.'",
-          answer: "I don't know why this broke.",
+          prompt: "Escríbelo en inglés de forma natural: 'No sé por qué esto está roto.'",
+          answer: "I don't know why this is broken.",
           accept: [
-            "I do not know why this broke.",
-            "I don't know why this is broken.",
+            "I do not know why this is broken.",
+            "I don't know why it is broken.",
           ],
-          hint: "Usa 'I don't know why...'",
+          hint: "Usa 'I don't know why...' + 'is broken' (ya visto en el vocabulario).",
           explanation:
-            "Frase honesta y muy útil en debugging. Sonar natural también es admitir con claridad lo que no sabes.",
+            "Frase honesta y muy útil en debugging. Usa solo estructuras ya vistas: 'I don't know' y 'is broken' (estado).",
         },
         {
           id: "m1-l1-e7",
@@ -139,12 +150,12 @@ export const m1: Module = {
         {
           id: "m1-l1-e8",
           type: "fill-blank",
-          prompt: "Completa los espacios con las formas correctas.",
+          prompt: "Completa los espacios con las formas correctas (solo verbos de esta lección).",
           template: "I ___ the issue is in the cache because the function ___ two parameters.",
           blanks: ["think", "has"],
-          hint: "Primera persona: 'think'. Tercera persona: 'has'.",
+          hint: "Con 'I' usa 'think'. Con 'the function' (it) usa 'has'.",
           explanation:
-            "Repaso en contexto: 'I think...' (opinión/debugging) y 'the function has...' (tercera persona singular).",
+            "Repaso en contexto: 'I think...' (opinión/hipótesis) y 'the function has...' (tercera persona singular). Todas las palabras ya aparecieron en los ejemplos.",
         },
       ],
     },
@@ -154,53 +165,53 @@ export const m1: Module = {
       title: "Los 20 Verbos Técnicos Diarios",
       step: "A2 · Paso 1.2",
       cefr: "A2",
-      minutes: 12,
+      minutes: 14,
       summary:
-        "Las acciones exactas que ejecutas en tu terminal, IDE y repositorio Git, con el imperativo que aparece en cualquier README.",
+        "Los verbos de acción más usados en terminal, Git y documentación. Aquí aprenderás el imperativo (instrucciones como 'Run the tests') y a describir qué hace el código en presente simple.",
       objectives: [
-        "Reconocer los 20 verbos de terminal más frecuentes.",
-        "Entender el imperativo de documentación y READMEs.",
-        "Describir qué hace una función en presente simple.",
+        "Reconocer 20 verbos técnicos frecuentes y sus combinaciones comunes (run tests, push changes, fix a bug).",
+        "Usar el imperativo para dar instrucciones claras (verbo en forma base al inicio).",
+        "Describir qué hace algo en presente simple con tercera persona: 'This function returns...'.",
       ],
       pronunciation:
-        "Pull the latest version, fix the bug locally, and push your changes.",
+        "Pull the latest changes, fix the bug locally, and push your changes.",
       blocks: [
         {
           type: "technique",
-          name: "Imperativo Técnico (Documentación y READMEs)",
-          desc: "Cuando lees instrucciones en inglés ('Run npm install', 'Push your changes', 'Fetch the data'), el verbo va al inicio en forma base, sin sujeto. No es falta de cortesía: es el estándar.",
+          name: "Dos formas que verás en esta lección",
+          desc: "1) Imperativo (instrucciones/README): verbo en forma base al inicio, sin sujeto → 'Run npm install', 'Push your changes'. 2) Presente simple para describir: 'This function returns a promise' / 'The build fails' (aquí se aplica la regla de -s de la lección anterior). En esta lección verás ambos; los tiempos en progreso ('I'm debugging') se estudian en el Módulo 2.",
         },
         {
           type: "vocab",
-          title: "20 verbos del día a día",
+          title: "20 verbos del día a día (aprende el bloque verbo + objeto)",
           items: [
-            { en: "run", es: "ejecutar (código, script)", example: "Run npm install first." },
-            { en: "build", es: "compilar / construir", example: "The build failed." },
-            { en: "deploy", es: "desplegar", example: "We deploy every Friday." },
-            { en: "push", es: "subir código", example: "Push your changes." },
-            { en: "pull", es: "traer cambios del remoto", example: "Pull the latest version." },
-            { en: "commit", es: "confirmar cambios en Git", example: "Did you commit your code?" },
-            { en: "merge", es: "fusionar ramas", example: "Merge the PR." },
-            { en: "break", es: "romper / funcionar mal", example: "This update breaks the app." },
-            { en: "fix", es: "arreglar", example: "Fix the bug before shipping." },
-            { en: "test", es: "probar", example: "Test it locally first." },
-            { en: "debug", es: "depurar", example: "I'm debugging this function." },
-            { en: "log", es: "registrar / ver en consola", example: "Log the response." },
-            { en: "return", es: "devolver (valor)", example: "This function returns a promise." },
-            { en: "call", es: "llamar (función, API)", example: "Call the API with the ID." },
-            { en: "pass", es: "pasar (argumento)", example: "Pass the user ID as a parameter." },
-            { en: "throw", es: "lanzar (error)", example: "Throw an error if invalid." },
-            { en: "catch", es: "capturar (error)", example: "Catch the exception." },
-            { en: "fetch", es: "obtener (datos)", example: "Fetch the data from the database." },
-            { en: "handle", es: "manejar (evento/error)", example: "Handle the click event." },
-            { en: "update", es: "actualizar", example: "Update the state." },
+            { en: "run", es: "ejecutar (código, tests, script)", example: "Run the tests." },
+            { en: "build", es: "compilar / construir", example: "Build the project." },
+            { en: "deploy", es: "desplegar", example: "Deploy the app." },
+            { en: "push", es: "subir cambios (al remoto)", example: "Push your changes." },
+            { en: "pull", es: "traer cambios (del remoto)", example: "Pull the latest changes." },
+            { en: "commit", es: "confirmar cambios en Git", example: "Commit your changes." },
+            { en: "merge", es: "fusionar ramas o cambios", example: "Merge the PR." },
+            { en: "break", es: "romper / hacer que falle", example: "This update can break the app." },
+            { en: "fix", es: "arreglar", example: "Fix the bug." },
+            { en: "test", es: "probar", example: "Test it locally." },
+            { en: "debug", es: "depurar (buscar el problema)", example: "Debug the function." },
+            { en: "log", es: "registrar / mostrar en consola", example: "Log the response." },
+            { en: "return", es: "devolver (un valor)", example: "This function returns a promise." },
+            { en: "call", es: "llamar (función, API)", example: "Call the API." },
+            { en: "pass", es: "pasar (un argumento/valor)", example: "Pass the user ID." },
+            { en: "throw", es: "lanzar (un error)", example: "Throw an error." },
+            { en: "catch", es: "capturar (un error)", example: "Catch the error." },
+            { en: "fetch", es: "obtener (datos)", example: "Fetch the data." },
+            { en: "handle", es: "manejar (evento/error)", example: "Handle the error." },
+            { en: "update", es: "actualizar", example: "Update the code." },
           ],
         },
         {
           type: "callout",
           tone: "tip",
           title: "Aprende cómodo: verbo + objeto",
-          body: "No memorices listas sueltas. Aprende bloques naturales: 'run the tests', 'push the changes', 'open a PR', 'fetch the data'. Si piensas en chunks, hablas más rápido y con menos esfuerzo.",
+          body: "No memorices palabras sueltas. Aprende bloques: 'run the tests', 'push the changes', 'fix the bug', 'fetch the data'. Los ejercicios de esta lección usan estos verbos y palabras básicas ya vistas (tests, changes, bug, app, function, API, error, data, code, PR).",
         },
       ],
       exercises: [
@@ -277,25 +288,25 @@ export const m1: Module = {
         {
           id: "m1-l2-e8",
           type: "dialogue-order",
-          prompt: "Ordena este mini diálogo de trabajo.",
+          prompt: "Ordena este mini diálogo de trabajo (petición → respuesta → seguimiento).",
           lines: [
             "Can you pull the latest changes?",
-            "Sure. I pulled them and I'm running the tests now.",
-            "Great. Let me know if the build passes.",
+            "Sure. I can pull them and run the tests now.",
+            "Great. Let me know if the tests pass.",
           ],
           explanation:
-            "Diálogos claros: petición → confirmación con estado actual → seguimiento. Útil para chat y llamadas.",
+            "Diálogo con estructuras ya vistas: petición con 'Can you...?', respuesta con 'can + verbo base', y seguimiento con 'Let me know if...'. Más adelante (Módulo 2) verás formas como 'I'm running' para acciones en progreso.",
         },
         {
           id: "m1-l2-e9",
           type: "fix-error",
           prompt: "Corrige el error en esta instrucción de README.",
           sentence: "Please to run the tests before deploy.",
-          answer: "Please run the tests before deploying.",
-          accept: ["Please run the tests before you deploy."],
-          hint: "Imperativo: 'run' sin 'to'. Revisa la segunda parte.",
+          answer: "Please run the tests before you deploy.",
+          accept: ["Please run the tests before deploying."],
+          hint: "Imperativo: usa 'run' (sin 'to'). Para la segunda parte usa 'before you deploy'.",
           explanation:
-            "En imperativos no usamos 'to' antes del verbo ('run', no 'to run'). 'Before deploying' o 'before you deploy' son naturales.",
+            "En imperativos no usamos 'to' antes del verbo ('run', no 'to run'). Para conectar acciones, 'before you deploy' es claro y usa solo presente simple (que verás/practicarás en contexto).",
         },
       ],
     },
@@ -420,6 +431,31 @@ export const m1: Module = {
           explanation:
             "Decir porcentajes con calma ('fifty percent') te ayuda a comunicar números con claridad en una call.",
         },
+        {
+          id: "m1-l3-e7",
+          type: "listen",
+          prompt: "Escucha y escribe la versión en inglés (dictado de números).",
+          audioText: "Version two point four point one.",
+          answer: "Version 2.4.1.",
+          accept: [
+            "Version 2.4.1",
+            "Version two point four point one.",
+            "Version two point four point one",
+          ],
+          hint: "Empieza con 'Version...'",
+          explanation:
+            "Repaso auditivo: en versiones técnicas se pronuncia cada separador como 'point'. Puedes escribirlo con números o con palabras.",
+        },
+        {
+          id: "m1-l3-e8",
+          type: "fill-blank",
+          prompt: "Completa la frase con la preposición/hora correctas.",
+          template: "The meeting is ___ ten thirty a.m. ___ March 3rd.",
+          blanks: ["at", "on"],
+          hint: "Horas → 'at'. Día/fecha concreta → 'on'.",
+          explanation:
+            "Preposiciones de tiempo frecuentes: 'at ten thirty a.m.' (hora) y 'on March 3rd' (fecha concreta).",
+        },
       ],
     },
     {
@@ -539,6 +575,31 @@ export const m1: Module = {
           explanation:
             "Pedir que deletreen es totalmente normal, sobre todo con nombres de variables, ramas o servicios.",
         },
+        {
+          id: "m1-l4-e7",
+          type: "listen",
+          prompt: "Escucha y escribe la pregunta (pedir repetición).",
+          audioText: "Could you explain that again, please?",
+          answer: "Could you explain that again, please?",
+          accept: [
+            "Could you explain that again please?",
+            "Can you explain that again, please?",
+          ],
+          hint: "Empieza con 'Could you...'",
+          explanation:
+            "Listening de una frase clave para pedir aclaración con cortesía en reuniones o llamadas.",
+        },
+        {
+          id: "m1-l4-e8",
+          type: "fix-error",
+          prompt: "Corrige la pregunta (error común).",
+          sentence: "What means 'flaky'?",
+          answer: "What does 'flaky' mean?",
+          accept: ["What does flaky mean?"],
+          hint: "Estructura: What does + palabra + mean?",
+          explanation:
+            "Para preguntar por el significado: 'What does X mean?' (no 'What means X?').",
+        },
       ],
     },
     {
@@ -634,6 +695,104 @@ export const m1: Module = {
           explanation:
             "'I think' + cláusula es una forma simple de compartir tu hipótesis en debugging.",
         },
+      ],
+    },
+    {
+      id: "m1-l6",
+      slug: "practica-verbos-tecnicos",
+      title: "Práctica: verbos técnicos en acción",
+      step: "A2 · Paso 1.6 · Práctica guiada",
+      cefr: "A2",
+      minutes: 8,
+      summary:
+        "Sesión corta para separar y reforzar m1-l2: imperativos, secuencias y descripciones simples con verbos técnicos.",
+      objectives: [
+        "Dar instrucciones claras con imperativos (run, pull, push, test, fix).",
+        "Describir qué hace el código en presente simple con tercera persona.",
+        "Encadenar acciones técnicas en orden lógico."
+      ],
+      pronunciation:
+        "Pull the latest changes, run the tests, and fix the bug before you deploy.",
+      blocks: [
+        {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Completa primero 'Los 20 Verbos Técnicos Diarios' (m1-l2). Esta práctica separa los ejercicios en drills cortos usando solo verbos y palabras ya vistos allí.",
+        },
+        {
+          type: "technique",
+          name: "Dos patrones clave",
+          desc: "Imperativo para instrucciones: 'Run the tests.' / 'Fix the bug.' Presente simple para describir: 'This function returns a value.' / 'The build fails.' (con -s en tercera persona).",
+        },
+        {
+          type: "phrases",
+          title: "Chunks de apoyo (ya vistos)",
+          items: [
+            { en: "Pull the latest changes.", es: "Trae los últimos cambios." },
+            { en: "Run the tests.", es: "Ejecuta los tests." },
+            { en: "Push your changes.", es: "Sube tus cambios." },
+            { en: "This function returns a value.", es: "Esta función devuelve un valor." }
+          ],
+        }
+      ],
+      exercises: [
+        {
+          id: "m1-l6-e1",
+          type: "choice",
+          prompt: "Quieres pedir que traigan los últimos cambios del remoto. ¿Qué verbo usas?",
+          options: ["push", "pull", "throw", "catch"],
+          answer: 1,
+          explanation:
+            "'Pull' trae cambios del remoto; 'push' los envía.",
+        },
+        {
+          id: "m1-l6-e2",
+          type: "builder",
+          prompt: "Construye: 'Ejecuta los tests y sube tus cambios.'",
+          words: ["Run", "the tests", "and push", "your changes."],
+          answer: "Run the tests and push your changes.",
+          explanation:
+            "Dos imperativos conectados con 'and' para dar instrucciones claras.",
+        },
+        {
+          id: "m1-l6-e3",
+          type: "write",
+          prompt: "Escribe en inglés: 'Esta función devuelve un valor.'",
+          answer: "This function returns a value.",
+          accept: ["This function returns a value"],
+          hint: "Presente simple con tercera persona: 'returns'.",
+          explanation:
+            "Para describir lo que hace el código, usa presente simple: 'returns'.",
+        },
+        {
+          id: "m1-l6-e4",
+          type: "choice",
+          prompt: "¿Qué instrucción es correcta para manejar un error en código?",
+          options: ["Catch the error.", "Deploy the error.", "Merge the error.", "Build the error."],
+          answer: 0,
+          explanation:
+            "'Catch the error' significa capturar el error (verbo técnico visto en m1-l2).",
+        },
+        {
+          id: "m1-l6-e5",
+          type: "builder",
+          prompt: "Construye: 'Trae los últimos cambios y ejecuta los tests.'",
+          words: ["Pull", "the latest changes", "and run", "the tests."],
+          answer: "Pull the latest changes and run the tests.",
+          explanation:
+            "Secuencia común antes de trabajar o desplegar: primero actualizar, luego probar.",
+        },
+        {
+          id: "m1-l6-e6",
+          type: "write",
+          prompt: "Escribe la instrucción: 'Arregla el bug antes de desplegar.'",
+          answer: "Fix the bug before you deploy.",
+          accept: ["Fix the bug before deploying."],
+          hint: "Imperativo: 'Fix...' y luego 'before you deploy'.",
+          explanation:
+            "Instrucción clara con orden de acciones usando verbos ya conocidos.",
+        }
       ],
     },
   ],

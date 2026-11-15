@@ -27,9 +27,15 @@ export const m5: Module = {
         "Fix: resolve CORS error in production and update the API documentation.",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Requiere imperativos y vocabulario de cambios (add, fix, update, refactor, test) de módulos anteriores. Aquí aprenderás convenciones (Conventional Commits, estructura de PR y reporte de bugs) y las frases específicas usadas en ejercicios.",
+        },
+        {
           type: "technique",
-          name: "La regla de oro del commit: 'This commit will...'",
-          desc: "En equipos que usan Conventional Commits, evita el pasado ('added login') y los mensajes vagos ('fix stuff'). Escribe en presente imperativo completando mentalmente la frase 'If applied, this commit will... [add login endpoint]'. Si tu equipo usa otro estilo, sigue su convención.",
+          name: "Commit claro: 'If applied, this commit will...'",
+          desc: "Usa presente/imperativo en el mensaje: 'add login endpoint', 'fix CORS error'. Prefijos comunes: feat, fix, docs, refactor, test, chore. Evita pasado ('added') y mensajes vagos ('fix stuff'). Si tu equipo usa otra convención, síguela.",
         },
         {
           type: "table",
@@ -42,6 +48,18 @@ export const m5: Module = {
             ["refactor:", "Mejora interna sin cambiar función", "refactor: extract validation logic"],
             ["test:", "Agregar o modificar tests", "test: add unit tests for password hashing"],
             ["chore:", "Mantenimiento / dependencias", "chore: update npm dependencies"],
+          ],
+        },
+        {
+          type: "vocab",
+          title: "Vocabulario nuevo (usado en ejemplos y ejercicios)",
+          items: [
+            { en: "endpoint", es: "punto de acceso/ruta de una API", example: "feat: add login endpoint" },
+            { en: "setup instructions", es: "instrucciones de instalación/configuración", example: "docs: update README with setup instructions" },
+            { en: "dependencies", es: "dependencias/librerías del proyecto", example: "chore: update npm dependencies" },
+            { en: "breaking change", es: "cambio que rompe compatibilidad", example: "This is a breaking change." },
+            { en: "login bug", es: "error/bug en el inicio de sesión", example: "This PR fixes the login bug." },
+            { en: "password hashing", es: "proceso de convertir contraseñas en hash (seguro)", example: "test: add tests for password hashing" },
           ],
         },
         {
@@ -60,7 +78,7 @@ export const m5: Module = {
           columns: ["Paso", "Frase modelo"],
           rows: [
             ["1. Qué intentas hacer", "I'm trying to store the auth token in localStorage after login."],
-            ["2. Qué ya intentaste", "I've already tried clearing the cache and checking the network tab."],
+            ["2. Qué ya intentaste", "I already tried clearing the cache and checking the network tab."],
             ["3. Esperado vs Real", "I expected the token to persist, but it returns null after refresh."],
           ],
         },
@@ -125,6 +143,28 @@ export const m5: Module = {
           explanation:
             "Un cambio solo de documentación usa 'docs:' y verbo en presente imperativo: 'update installation instructions'.",
         },
+        {
+          id: "m5-l1-e5",
+          type: "builder",
+          prompt: "Construye la descripción breve de un PR: 'Esto arregla el error de login.'",
+          words: ["This PR", "fixes", "the login bug."],
+          answer: "This PR fixes the login bug.",
+          explanation:
+            "Descripción clara y directa: qué hace el PR. Usar 'fixes' vincula la intención del cambio.",
+        },
+        {
+          id: "m5-l1-e6",
+          type: "write",
+          prompt: "Escribe en inglés: 'Agrega tests para el hash de contraseñas.' (como mensaje de commit tipo test:)",
+          answer: "test: add tests for password hashing",
+          accept: [
+            "test: add unit tests for password hashing",
+            "test: add tests for password hashing.",
+          ],
+          hint: "Usa el prefijo 'test:' y verbo imperativo 'add'.",
+          explanation:
+            "Conventional Commits: tipo + dos puntos + descripción breve en imperativo ('add tests...').",
+        },
       ],
     },
     {
@@ -145,9 +185,27 @@ export const m5: Module = {
         "Quick heads-up: the deploy is blocked. Do you have an ETA for the fix?",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Necesitas peticiones corteses ('Can/Could you...?'), tiempos futuros simples y vocabulario de PR/deploy. Esta lección enseña frases de async (heads-up, ETA, follow up, loop in) y estructura de mensajes.",
+        },
+        {
           type: "technique",
-          name: "La fórmula del mensaje asíncrono",
-          desc: "Contexto + petición + plazo. Ejemplo: 'Quick heads-up: the deploy is blocked by the API change. Can you review the PR by 3 p.m.?' Si falta uno de los tres, aumentan las idas y venidas.",
+          name: "Mensaje asíncrono efectivo: contexto + petición + plazo",
+          desc: "Ej.: 'Quick heads-up: the deploy is blocked. Can you review the PR by 3 p.m.?' Incluir contexto, qué necesitas y cuándo (o indicar 'no rush') reduce idas y vueltas.",
+        },
+        {
+          type: "vocab",
+          title: "Vocabulario y chunks de esta lección",
+          items: [
+            { en: "heads-up", es: "aviso rápido/previo", example: "Quick heads-up: I'll be offline this afternoon." },
+            { en: "ETA (estimated time of arrival)", es: "tiempo estimado", example: "Do you have an ETA for the fix?" },
+            { en: "loop in", es: "incluir a alguien en la conversación", example: "Looping in Ana for context." },
+            { en: "follow up", es: "hacer seguimiento", example: "I'll follow up tomorrow." },
+            { en: "thread", es: "hilo de conversación", example: "Can we take this to a thread?" },
+            { en: "keep someone posted", es: "mantener a alguien informado", example: "I'll keep you posted." },
+          ],
         },
         {
           type: "phrases",
@@ -216,6 +274,32 @@ export const m5: Module = {
           explanation:
             "'Let you know' es la forma estándar de prometer un aviso sin comprometerte a una hora exacta.",
         },
+        {
+          id: "m5-l2-e5",
+          type: "dialogue-order",
+          prompt: "Ordena un mensaje asíncrono claro (contexto → petición → seguimiento).",
+          lines: [
+            "Quick heads-up: the deploy is blocked by the API change.",
+            "Can you review the PR by 3 p.m.?",
+            "Thanks — I'll follow up after that.",
+          ],
+          explanation:
+            "Un buen mensaje async da contexto, hace una petición concreta (con plazo si aplica) y muestra el siguiente paso.",
+        },
+        {
+          id: "m5-l2-e6",
+          type: "choice",
+          prompt: "Quieres confirmar un acuerdo sin sonar agresivo. ¿Qué frase encaja mejor?",
+          options: [
+            "Just to confirm: we're shipping on Friday, right?",
+            "We ship Friday. Ok?",
+            "You said Friday, don't forget.",
+            "Friday. Yes or no.",
+          ],
+          answer: 0,
+          explanation:
+            "'Just to confirm...' es una forma educada y clara de verificar entendimiento en trabajo asíncrono.",
+        },
       ],
     },
     {
@@ -236,15 +320,33 @@ export const m5: Module = {
         "In my last role, I led the migration to the cloud. The main trade-off was latency versus cost.",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Requiere pasado simple para contar experiencias, vocabulario de roles/proyectos y capacidad de explicar decisiones. Se introducen estructura STAR y frases típicas de entrevista en esta sesión.",
+        },
+        {
           type: "technique",
-          name: "STAR: la estructura de una buena respuesta",
-          desc: "Situation (contexto), Task (tu responsabilidad), Action (qué hiciste) y Result (qué cambió). En una entrevista, una historia concreta con resultados vale más que una lista de adjetivos.",
+          name: "STAR: estructura para respuestas de comportamiento",
+          desc: "Situation (contexto), Task (tu responsabilidad), Action (qué hiciste tú) y Result (impacto/resultado, idealmente medible). Respuestas concretas y breves funcionan mejor que generalidades.",
+        },
+        {
+          type: "vocab",
+          title: "Vocabulario clave de entrevista (usado en esta lección)",
+          items: [
+            { en: "experience", es: "experiencia", example: "I have three years of experience as a backend developer." },
+            { en: "role", es: "puesto/rol", example: "In my last role, I led the migration to the cloud." },
+            { en: "lead / led", es: "liderar / lideré (pasado)", example: "I led the migration to the cloud." },
+            { en: "trade-off", es: "compensación entre opciones", example: "The main trade-off was latency versus cost." },
+            { en: "latency vs cost", es: "latencia frente a coste", example: "The main trade-off was latency versus cost." },
+            { en: "as a result", es: "como resultado", example: "As a result, we reduced latency by 20%." },
+          ],
         },
         {
           type: "phrases",
           title: "Frases para la entrevista",
           items: [
-            { en: "I've been working as a backend developer for three years.", es: "Llevo tres años trabajando como backend developer." },
+            { en: "I have three years of experience as a backend developer.", es: "Tengo tres años de experiencia como desarrollador backend." },
             { en: "In my last role, I led the migration to the cloud.", es: "En mi último puesto, lideré la migración a la nube." },
             { en: "The main trade-off was latency versus cost.", es: "El principal trade-off era latencia frente a coste." },
             { en: "I'm looking for a role where I can own the architecture.", es: "Busco un puesto donde pueda ser responsable de la arquitectura." },
@@ -315,6 +417,25 @@ export const m5: Module = {
           explanation:
             "'Led' es el pasado irregular de 'lead'. Es una frase fuerte para una respuesta STAR.",
         },
+        {
+          id: "m5-l3-e5",
+          type: "builder",
+          prompt: "Construye una respuesta breve (STAR - resultado): 'Como resultado, redujimos la latencia un 20%.'",
+          words: ["As a result,", "we reduced", "latency by 20%."],
+          answer: "As a result, we reduced latency by 20%.",
+          explanation:
+            "En STAR, el resultado debe ser claro y, si es posible, medible ('by 20%'). 'Reduced' es pasado simple de 'reduce'.",
+        },
+        {
+          id: "m5-l3-e6",
+          type: "speak",
+          prompt: "Practica en voz alta tu presentación breve (rol entrevista).",
+          answer: "I am a backend developer with three years of experience.",
+          accept: ["I'm a backend developer with three years of experience."],
+          hint: "Habla claro: rol + años de experiencia.",
+          explanation:
+            "Práctica de speaking: una apertura simple y profesional para 'Tell me about yourself'. Enfócate en claridad y ritmo.",
+        },
       ],
     },
     {
@@ -335,9 +456,15 @@ export const m5: Module = {
         "I mean, the fix is simple. Actually, we should refactor this first. Basically, the cache is stale.",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Útil tener fluidez básica con frases de opinión y explicación. Aquí aprenderás discourse markers (I mean, actually, basically, etc.) y su intención; todos se practican en contexto antes de los ejercicios.",
+        },
+        {
           type: "technique",
-          name: "Los marcadores no cambian el hecho, cambian la intención",
-          desc: "En inglés hablado, palabras como 'I mean', 'actually' o 'basically' ayudan a reformular, corregir o resumir. No son relleno vacío: le dicen a la otra persona cómo interpretar lo que viene. Úsalos con moderación y con un propósito claro.",
+          name: "Discourse markers: señalan tu intención",
+          desc: "'I mean' reformula/aclara, 'actually' corrige o contrasta, 'basically' resume, 'anyway' retoma/cierra tema. No cambian los hechos, pero ayudan a que te entiendan mejor en conversación.",
         },
         {
           type: "vocab",
@@ -425,6 +552,25 @@ export const m5: Module = {
           explanation:
             "'I mean' sirve para aclarar o suavizar lo que quieres decir: 'o sea, no es un bloqueador'.",
         },
+        {
+          id: "m5-l4-e5",
+          type: "fill-blank",
+          prompt: "Completa con el discourse marker adecuado (de esta lección).",
+          template: "___, the issue was in the config file. ___, we just need to update one value.",
+          blanks: ["Actually", "Basically"],
+          hint: "Corregir/contrastar → 'Actually'. Resumir lo esencial → 'Basically'.",
+          explanation:
+            "Cada marcador señala intención: 'Actually' introduce una corrección y 'Basically' resume la idea principal.",
+        },
+        {
+          id: "m5-l4-e6",
+          type: "choice",
+          prompt: "Quieres cerrar una digresión y volver al tema principal. ¿Qué marcador encaja mejor?",
+          options: ["Anyway", "Actually", "To be honest", "You know"],
+          answer: 0,
+          explanation:
+            "'Anyway' se usa para retomar o cerrar el tema: 'Anyway, back to the main issue.'",
+        },
       ],
     },
     {
@@ -445,9 +591,26 @@ export const m5: Module = {
         "Let me show you what changed. Basically, we fixed the timeout issue and added a retry.",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Necesitas pasado/presente para comparar antes/después y vocabulario de cambios (fix, add, handle). Esta lección enseña frases para guiar una demo corta paso a paso.",
+        },
+        {
           type: "technique",
-          name: "Estructura simple para una demo",
-          desc: "1) Qué problema había. 2) Qué cambiaste. 3) Cómo probarlo o qué resultado esperar. Mantén la demo corta y enfócate en el valor: 'Before, users saw an error. Now, the request retries automatically.'",
+          name: "Demo corta y clara: problema → cambio → resultado",
+          desc: "1) Antes/problema ('Before this change...'). 2) Qué hiciste ('We fixed/added...'). 3) Ahora/cómo probar ('Now..., you can test it by...'). Cierra invitando preguntas.",
+        },
+        {
+          type: "vocab",
+          title: "Vocabulario y chunks para demos",
+          items: [
+            { en: "walk someone through", es: "mostrar/explicar paso a paso", example: "Let me walk you through the change." },
+            { en: "before this change / now", es: "antes de este cambio / ahora", example: "Before this change... Now, it handles the error correctly." },
+            { en: "crash (on login)", es: "fallar/caerse (al iniciar sesión)", example: "The app crashed on login." },
+            { en: "handle (an error)", es: "manejar (un error)", example: "Now, it handles the error correctly." },
+            { en: "test it by clicking...", es: "probarlo haciendo clic en...", example: "You can test it by clicking this button." },
+          ],
         },
         {
           type: "phrases",
@@ -519,6 +682,28 @@ export const m5: Module = {
           explanation:
             "'Let me know if anything is unclear' abre espacio a preguntas de forma amable y profesional.",
         },
+        {
+          id: "m5-l5-e5",
+          type: "builder",
+          prompt: "Construye: 'Puedes probarlo haciendo clic en este botón.'",
+          words: ["You can test it", "by clicking", "this button."],
+          answer: "You can test it by clicking this button.",
+          explanation:
+            "Dar un paso concreto para probar ('by clicking this button') hace la demo fácil de seguir. 'Clicking' es la forma -ing del verbo 'click' (hacer clic).",
+        },
+        {
+          id: "m5-l5-e6",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Déjame mostrarte el cambio paso a paso.'",
+          answer: "Let me walk you through the change.",
+          accept: [
+            "Let me walk you through this change.",
+            "Let me walk you through the changes.",
+          ],
+          hint: "Usa 'Let me walk you through...'",
+          explanation:
+            "Frase clara para iniciar una demo o explicación guiada de un cambio.",
+        },
       ],
     },
     {
@@ -539,9 +724,27 @@ export const m5: Module = {
         "Nit: could you rename this variable? This might break when the input is null. LGTM once tests pass.",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Requiere frases de sugerencia ('Could you...?', 'I suggest...'), condicionales simples ('might break when...') y etiquetas de review vistas antes. Aquí se practica feedback concreto y respetuoso.",
+        },
+        {
           type: "technique",
-          name: "Feedback accionable = qué + por qué + sugerencia",
-          desc: "Un buen comentario no solo critica: señala el punto, explica el impacto y propone una alternativa. Ejemplo: 'This might break when the input is null. Could you add a guard clause?' Así el autor sabe qué hacer.",
+          name: "Comentario de PR accionable: qué + impacto + sugerencia",
+          desc: "Señala el punto concreto, explica el riesgo/impacto y propone una acción ('This might break when... Could you add...?'). Marca si es 'nit' o bloqueante cuando aplique.",
+        },
+        {
+          type: "vocab",
+          title: "Vocabulario y etiquetas de revisión",
+          items: [
+            { en: "nit", es: "detalle menor (no suele bloquear)", example: "Nit: consider renaming this variable for clarity." },
+            { en: "might break", es: "podría fallar/romperse", example: "This might break when the input is null." },
+            { en: "guard clause / check", es: "condición de guarda/validación", example: "Could you add a check?" },
+            { en: "extract into a helper function", es: "extraer a una función auxiliar", example: "I suggest extracting this into a helper function." },
+            { en: "LGTM", es: "Looks Good To Me (aprobado)", example: "LGTM once the tests pass." },
+            { en: "Nice catch", es: "buen hallazgo", example: "Nice catch, thanks for fixing this." },
+          ],
         },
         {
           type: "phrases",
@@ -618,6 +821,33 @@ export const m5: Module = {
           explanation:
             "'Nit' (nitpick) es un comentario menor, de estilo o claridad, normalmente no bloqueante.",
         },
+        {
+          id: "m5-l6-e5",
+          type: "fix-error",
+          prompt: "Reescribe este comentario para que sea útil y respetuoso.",
+          sentence: "Bad name.",
+          answer: "Nit: could you rename this variable for clarity?",
+          accept: [
+            "Nit: could you rename this to `userId` for clarity?",
+            "Nit: consider renaming this variable for clarity.",
+          ],
+          hint: "Usa 'Nit:' si es menor y sugiere una acción concreta.",
+          explanation:
+            "Un buen comentario indica la intención (nit), el punto (nombre) y una sugerencia concreta.",
+        },
+        {
+          id: "m5-l6-e6",
+          type: "write",
+          prompt: "Escríbelo en inglés: '¿Puedes explicar por qué necesitamos este cambio?'",
+          answer: "Can you explain why we need this change?",
+          accept: [
+            "Could you explain why we need this change?",
+            "Can you explain why we need this change",
+          ],
+          hint: "Usa 'Can/Could you explain why...?'",
+          explanation:
+            "Pedir contexto con respeto ayuda a entender la intención del PR antes de sugerir cambios.",
+        },
       ],
     },
     {
@@ -638,9 +868,27 @@ export const m5: Module = {
         "Quick update: I finished the fix and I'm testing it now. Sorry to interrupt, could you clarify that?",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Se apoya en estructura de standup (M4), peticiones educadas y confirmaciones. Esta lección añade frases para interrumpir, aclarar y cerrar reuniones con próximos pasos.",
+        },
+        {
           type: "technique",
-          name: "Update de 30 segundos",
-          desc: "Estructura: qué hiciste / qué harás / si hay bloqueo. Ejemplo: 'Yesterday I fixed the bug. Today I'm writing tests. No blockers.' Corto, claro y fácil de seguir.",
+          name: "Participar en reuniones: breve, claro y respetuoso",
+          desc: "Updates en 3 partes (ayer/hoy/bloqueo). Para intervenir: 'Sorry to interrupt, but...'. Para confirmar: 'Just to confirm...'. Para cerrar: 'What are the next steps?' y asignar responsables.",
+        },
+        {
+          type: "vocab",
+          title: "Chunks útiles para reuniones",
+          items: [
+            { en: "quick update", es: "actualización rápida", example: "Quick update: the feature is ready for review." },
+            { en: "sorry to interrupt", es: "disculpa que interrumpa", example: "Sorry to interrupt, but could you clarify that?" },
+            { en: "clarify", es: "aclarar", example: "Could you clarify that?" },
+            { en: "just to confirm", es: "solo para confirmar", example: "Just to confirm, we're launching on Monday, right?" },
+            { en: "next steps", es: "próximos pasos", example: "What are the next steps?" },
+            { en: "take care of", es: "encargarse de", example: "I'll take care of that." },
+          ],
         },
         {
           type: "phrases",
@@ -716,6 +964,26 @@ export const m5: Module = {
           explanation:
             "Pedir aclaración es profesional y evita errores: 'Could you clarify what you mean by that?'",
         },
+        {
+          id: "m5-l7-e5",
+          type: "builder",
+          prompt: "Construye: 'Solo para confirmar, lanzamos el lunes, ¿verdad?'",
+          words: ["Just to confirm,", "we're launching", "on Monday,", "right?"],
+          answer: "Just to confirm, we're launching on Monday, right?",
+          explanation:
+            "Confirmar acuerdos en voz alta evita malentendidos sobre fechas y responsables.",
+        },
+        {
+          id: "m5-l7-e6",
+          type: "listen",
+          prompt: "Escucha y escribe la frase para pedir aclaración en una reunión.",
+          audioText: "Could you clarify what you mean by that?",
+          answer: "Could you clarify what you mean by that?",
+          accept: ["Could you clarify what you mean by that"],
+          hint: "Empieza con 'Could you clarify...'",
+          explanation:
+            "Frase clave para pedir precisión cuando un término o punto técnico no queda claro.",
+        },
       ],
     },
     {
@@ -736,9 +1004,28 @@ export const m5: Module = {
         "Status: in progress. Blocker: waiting for API access. Next step: I'll deploy once access is granted.",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Requiere vocabulario de estado, bloqueos y próximos pasos visto en M4–M5. Aquí se sistematiza en plantillas (frames) para tickets/handoffs async.",
+        },
+        {
           type: "technique",
-          name: "Patrones reutilizables (sentence frames)",
-          desc: "Usa marcos que solo cambias por variables: 'Status: [X]. Blocker: [Y]. Next step: [Z].' / 'I'm working on [X]. I expect to finish by [Y].' / 'The issue is caused by [X]. I suggest [Y].' Esto hace tu escritura rápida y consistente.",
+          name: "Frames para async: rellena los huecos",
+          desc: "Plantillas reutilizables: 'Status: [X]. Blocker: [Y]. Next step: [Z].' / 'Context: ... Expected: ... Actual: ...'. Cuanto más concretos los campos, más útil el mensaje.",
+        },
+        {
+          type: "vocab",
+          title: "Vocabulario para tickets y handoffs",
+          items: [
+            { en: "status / in progress", es: "estado / en progreso", example: "Status: in progress." },
+            { en: "blocker", es: "bloqueo", example: "Blocker: waiting for access to the production database." },
+            { en: "next step", es: "próximo paso", example: "Next step: run the migration tonight." },
+            { en: "context", es: "contexto", example: "Context: the error happens only on Safari." },
+            { en: "handoff", es: "traspaso de trabajo", example: "Handoff: I documented the steps in the ticket." },
+            { en: "FYI", es: "para tu información (sin acción inmediata)", example: "FYI: the PR is ready for review." },
+            { en: "QA sign-off", es: "aprobación de QA/calidad", example: "Needs QA sign-off before release." },
+          ],
         },
         {
           type: "phrases",
@@ -747,7 +1034,7 @@ export const m5: Module = {
             { en: "Status: in progress. Next step: run the migration tonight.", es: "Estado: en progreso. Próximo paso: ejecutar la migración esta noche." },
             { en: "Blocker: waiting for access to the production database.", es: "Bloqueo: esperando acceso a la base de datos de producción." },
             { en: "Context: the error happens only on Safari.", es: "Contexto: el error ocurre solo en Safari." },
-            { en: "Handoff: I've documented the steps in the ticket.", es: "Traspaso: documenté los pasos en el ticket." },
+            { en: "Handoff: I documented the steps in the ticket.", es: "Traspaso: documenté los pasos en el ticket." },
             { en: "FYI: I'll be out tomorrow, but the PR is ready for review.", es: "Para tu info: mañana no estaré, pero el PR está listo para revisión." },
             { en: "Please let me know if you need more details.", es: "Avísame si necesitas más detalles." },
           ],
@@ -815,6 +1102,28 @@ export const m5: Module = {
           explanation:
             "Los marcos funcionan mejor con detalles concretos: qué tarea y cuándo esperas terminar.",
         },
+        {
+          id: "m5-l8-e5",
+          type: "write",
+          prompt: "Escribe en inglés: 'Estado: en progreso. Próximo paso: ejecutar la migración esta noche.'",
+          answer: "Status: in progress. Next step: run the migration tonight.",
+          accept: [
+            "Status: in progress. Next step: run the migration tonight",
+            "Status: In progress. Next step: run the migration tonight.",
+          ],
+          hint: "Usa el frame 'Status: ... Next step: ...'",
+          explanation:
+            "Plantillas de estado y siguiente paso hacen los handoffs claros sin necesidad de reunión.",
+        },
+        {
+          id: "m5-l8-e6",
+          type: "builder",
+          prompt: "Construye: 'Para tu info: mañana no estaré, pero el PR está listo para revisión.'",
+          words: ["FYI:", "I'll be out tomorrow,", "but the PR is", "ready for review."],
+          answer: "FYI: I'll be out tomorrow, but the PR is ready for review.",
+          explanation:
+            "Mensaje async útil: comparte contexto y estado del trabajo para que el equipo pueda continuar.",
+        },
       ],
     },
     {
@@ -835,9 +1144,15 @@ export const m5: Module = {
         "LGTM once tests pass. I'm blocked by API access. Basically, we need to reduce the scope.",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Checkpoint de integración",
+          body: "Este repaso mezcla PRs, async, incidentes, conectores y estimaciones vistos en M4–M5. Si algo no sale, vuelve a la lección específica: el objetivo es recuperar y aplicar, no memorizar perfecto.",
+        },
+        {
           type: "technique",
-          name: "Mezcla intencional",
-          desc: "Este repaso mezcla temas (PR, async, incidentes, conectores) para simular el trabajo real. Responde con la estructura más simple: contexto, hecho, siguiente paso. Si te trabas, baja la velocidad: claridad primero, velocidad después.",
+          name: "Estrategia de repaso",
+          desc: "Responde con estructura simple: contexto/hecho → impacto o estado → siguiente paso. Usa frames conocidos ('Status...', 'I'm blocked by...', 'It will take... assuming...') para ganar claridad bajo presión.",
         },
         {
           type: "phrases",
@@ -925,6 +1240,109 @@ export const m5: Module = {
           words: ["This might break", "when the input is null.", "Could you add", "a validation?"],
           answer: "This might break when the input is null. Could you add a validation?",
           explanation: "Feedback de PR útil: riesgo concreto + sugerencia accionable.",
+        }
+      ],
+    },
+    {
+      id: "m5-l10",
+      slug: "practica-prs-async-y-feedback",
+      title: "Práctica: PRs, async y feedback claro",
+      step: "B1-B2 · Paso 5.10 · Práctica guiada",
+      cefr: "B1",
+      minutes: 8,
+      summary:
+        "Sesión corta para separar y reforzar comunicación escrita: commits/PR, mensajes async y feedback accionable.",
+      objectives: [
+        "Usar frases claras para PRs, bloqueos y seguimiento.",
+        "Escribir updates async con estado y siguiente paso.",
+        "Dar feedback de revisión concreto y respetuoso."
+      ],
+      pronunciation:
+        "LGTM once the tests pass. I'm blocked by API access. Could you add a test for this case?",
+      blocks: [
+        {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Repasa m5-l1 (commits/PRs), m5-l2 (Slack/async), m5-l6 (comentarios de PR) y m5-l8 (handoffs/tickets). Esta práctica usa solo chunks y estructuras ya enseñados.",
+        },
+        {
+          type: "technique",
+          name: "Escribir para que otros actúen",
+          desc: "Sé específico: estado/bloqueo + siguiente paso en async; en PRs, riesgo + sugerencia concreta ('This might break...', 'Could you add...') o aprobación clara ('LGTM once...').",
+        },
+        {
+          type: "phrases",
+          title: "Chunks de apoyo",
+          items: [
+            { en: "LGTM once the tests pass.", es: "Aprobado cuando pasen los tests." },
+            { en: "I'm blocked by API access.", es: "Estoy bloqueado por el acceso a la API." },
+            { en: "Status: in progress. Next step: open the PR.", es: "Estado: en progreso. Próximo paso: abrir el PR." },
+            { en: "Could you add a test for this case?", es: "¿Podrías agregar un test para este caso?" }
+          ],
+        }
+      ],
+      exercises: [
+        {
+          id: "m5-l10-e1",
+          type: "choice",
+          prompt: "Quieres aprobar un PR condicionado a que pasen los tests. ¿Qué dices?",
+          options: ["Ship now.", "LGTM once the tests pass.", "It is bad.", "No merge."],
+          answer: 1,
+          explanation:
+            "'LGTM once the tests pass' aprueba con una condición clara.",
+        },
+        {
+          id: "m5-l10-e2",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Estoy bloqueado por el acceso a la API.'",
+          answer: "I'm blocked by API access.",
+          accept: ["I am blocked by API access.", "I'm blocked by access to the API."],
+          hint: "Usa 'I'm blocked by...'",
+          explanation:
+            "Comunica bloqueo y causa de forma directa.",
+        },
+        {
+          id: "m5-l10-e3",
+          type: "builder",
+          prompt: "Construye: 'Estado: en progreso. Próximo paso: abrir el PR.'",
+          words: ["Status: in progress.", "Next step:", "open the PR."],
+          answer: "Status: in progress. Next step: open the PR.",
+          explanation:
+            "Marco async claro: estado actual y siguiente acción.",
+        },
+        {
+          id: "m5-l10-e4",
+          type: "choice",
+          prompt: "Quieres pedir un test de forma educada en un PR. ¿Qué opción es mejor?",
+          options: [
+            "Add test now.",
+            "Could you add a test for this case?",
+            "No tests.",
+            "Test missing."
+          ],
+          answer: 1,
+          explanation:
+            "'Could you add...?' es una sugerencia clara y respetuosa.",
+        },
+        {
+          id: "m5-l10-e5",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Haré seguimiento mañana.'",
+          answer: "I'll follow up tomorrow.",
+          accept: ["I will follow up tomorrow."],
+          hint: "Usa 'follow up'.",
+          explanation:
+            "'Follow up' indica que harás seguimiento en un momento concreto.",
+        },
+        {
+          id: "m5-l10-e6",
+          type: "builder",
+          prompt: "Construye: 'Esto podría fallar cuando la entrada es null. ¿Podrías agregar una validación?'",
+          words: ["This might break", "when the input is null.", "Could you add", "a validation?"],
+          answer: "This might break when the input is null. Could you add a validation?",
+          explanation:
+            "Feedback de PR útil: riesgo concreto + sugerencia accionable.",
         }
       ],
     },

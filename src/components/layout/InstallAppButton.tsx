@@ -62,34 +62,36 @@ export default function InstallAppButton() {
       <a
         href={apkUrl}
         download="RuntimeEnglish.apk"
-        class="surface-soft hidden h-9 items-center gap-1.5 rounded-full px-3 text-[11px] font-medium text-base-content/70 transition hover:bg-base-300 hover:text-base-content sm:inline-flex"
+        class="surface-soft inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-base-content/70 transition hover:bg-base-300 hover:text-base-content sm:w-auto sm:gap-1.5 sm:px-3"
         title="Descargar APK para Android"
-        aria-label="Descargar APK"
+        aria-label="Descargar APK para Android"
       >
         <Download class="h-3.5 w-3.5" />
-        <span>Descargar APK</span>
+        <span class="hidden text-[11px] font-medium sm:inline">Descargar APK</span>
       </a>
     );
   }
 
   if (platform === "ios") {
     return (
-      <div class="relative hidden sm:block">
+      <div class="relative">
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          class="surface-soft inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-[11px] font-medium text-base-content/70 transition hover:bg-base-300 hover:text-base-content"
+          class="surface-soft inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-base-content/70 transition hover:bg-base-300 hover:text-base-content sm:w-auto sm:gap-1.5 sm:px-3"
           aria-label="Instalar app"
+          aria-expanded={open}
+          aria-haspopup="dialog"
           title="Instalar app (PWA)"
         >
           <Download class="h-3.5 w-3.5" />
-          <span>Instalar app</span>
+          <span class="hidden text-[11px] font-medium sm:inline">Instalar app</span>
         </button>
         {open && (
-          <div class="absolute right-0 top-11 z-50 w-72 rounded-2xl border border-base-content/10 bg-base-100 p-3 text-left shadow-xl">
+          <div class="absolute right-0 top-11 z-50 w-72 max-w-[calc(100vw-1rem)] rounded-2xl border border-base-content/10 bg-base-100 p-3 text-left shadow-xl" role="dialog" aria-label="Instrucciones para instalar la app">
             <p class="text-xs font-semibold text-base-content">Instalar en iPhone/iPad</p>
             <ol class="mt-2 space-y-1.5 text-[11px] leading-relaxed text-base-content/70">
-              <li class="flex items-start gap-2"><span class="mt-0.5 inline-flex h-4 w-4 items-center justify-center rounded bg-base-200 text-[10px]">1</span><span>Toca <Share class="inline h-3 w-3" /> <strong>Compartir</strong> en Safari.</span></li>
+              <li class="flex items-start gap-2"><span class="mt-0.5 inline-flex h-4 w-4 items-center justify-center rounded bg-base-200 text-[10px]">1</span><span>Toca <Share class="inline h-3 w-3" aria-hidden="true" /> <strong>Compartir</strong> en Safari.</span></li>
               <li class="flex items-start gap-2"><span class="mt-0.5 inline-flex h-4 w-4 items-center justify-center rounded bg-base-200 text-[10px]">2</span><span>Elige <strong>“Añadir a pantalla de inicio”</strong>.</span></li>
               <li class="flex items-start gap-2"><span class="mt-0.5 inline-flex h-4 w-4 items-center justify-center rounded bg-base-200 text-[10px]">3</span><span>Confirma para instalar la app (PWA).</span></li>
             </ol>
@@ -112,10 +114,12 @@ export default function InstallAppButton() {
           } catch {}
           setDeferred(null);
         }}
-        class="surface-soft hidden h-9 items-center gap-1.5 rounded-full px-3 text-[11px] font-medium text-base-content/70 transition hover:bg-base-300 hover:text-base-content sm:inline-flex"
+        class="surface-soft inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-base-content/70 transition hover:bg-base-300 hover:text-base-content sm:w-auto sm:gap-1.5 sm:px-3"
+        aria-label="Instalar app"
+        title="Instalar app"
       >
         <Download class="h-3.5 w-3.5" />
-        <span>Instalar app</span>
+        <span class="hidden text-[11px] font-medium sm:inline">Instalar app</span>
       </button>
     );
   }

@@ -4,7 +4,6 @@ import {
   Bell,
   Check,
   ChevronDown,
-  ChevronUp,
   Cloud,
   Download,
   Info,
@@ -72,14 +71,14 @@ const IMMERSION_OPTIONS: {
   {
     value: "auto",
     label: "Automático",
-    description: "Mixta al 28 de preparación e inglés al 58, con 55% de precisión y de A1-A2.",
+    description: "Cambia la interfaz según tu progreso.",
   },
-  { value: "es", label: "Español", description: "Navegación y botones siempre en español." },
-  { value: "mixed", label: "Mixto", description: "Etiquetas bilingües: español · English." },
+  { value: "es", label: "Español", description: "Interfaz siempre en español." },
+  { value: "mixed", label: "Mixto", description: "Etiquetas en español e inglés." },
   {
     value: "en",
     label: "English",
-    description: "Interfaz en inglés. El contenido sigue bilingüe.",
+    description: "Interfaz en inglés (contenido bilingüe).",
   },
 ];
 
@@ -111,11 +110,11 @@ function SectionCard({
       <button
         type="button"
         onClick={onToggle}
-        class="flex w-full items-center justify-between gap-3 rounded-[22px] px-4 py-4 text-left transition hover:bg-base-100/40 sm:px-5"
+        class="group flex w-full cursor-pointer items-center justify-between gap-3 rounded-[22px] px-4 py-4 text-left transition hover:bg-base-100/40 sm:px-5"
         aria-expanded={open}
       >
         <div class="flex min-w-0 items-center gap-3">
-          <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-base-100/70 text-base-content/55">
+          <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-base-100/70 text-base-content/55 transition group-hover:text-base-content/70">
             <Icon class="h-4 w-4" />
           </span>
           <div class="min-w-0">
@@ -125,14 +124,21 @@ function SectionCard({
         </div>
         <div class="flex shrink-0 items-center gap-2">
           {badge}
-          {open ? (
-            <ChevronUp class="h-4 w-4 text-base-content/40" />
-          ) : (
-            <ChevronDown class="h-4 w-4 text-base-content/40" />
-          )}
+          <ChevronDown
+            class={`h-4 w-4 text-base-content/40 transition-transform duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] ${open ? "rotate-180" : ""}`}
+            aria-hidden="true"
+          />
         </div>
       </button>
-      {open && <div class="px-4 pb-4 pt-1 sm:px-5 sm:pb-5">{children}</div>}
+      <div
+        class={`grid transition-[grid-template-rows,opacity] duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+          open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+        }`}
+      >
+        <div class="overflow-hidden">
+          <div class="px-4 pb-4 pt-1 sm:px-5 sm:pb-5">{children}</div>
+        </div>
+      </div>
     </section>
   );
 }
@@ -321,7 +327,7 @@ export default function SettingsPanel() {
               <div>
                 <span class="text-[11px] font-medium text-base-content/45">Objetivo principal</span>
                 <p class="mt-0.5 text-[10px] text-base-content/35">
-                  Personaliza recomendaciones (no bloquea la ruta).
+                  Ajusta recomendaciones según tu enfoque.
                 </p>
                 <div class="mt-2 grid gap-2 sm:grid-cols-2">
                   {[
@@ -512,8 +518,7 @@ export default function SettingsPanel() {
                 );
               })()}
               <p class="text-[11px] leading-relaxed text-base-content/45">
-                Estas metas alimentan tu feedback de constancia en el dashboard (diario, semanal y
-                mensual).
+                Se usan para tu seguimiento diario, semanal y mensual.
               </p>
             </div>
           </div>
@@ -644,45 +649,40 @@ export default function SettingsPanel() {
               <button
                 type="button"
                 onClick={() => setShowSyncHistory((v) => !v)}
-                class="mt-3 text-[10px] font-medium text-base-content/45 hover:text-base-content/70"
+                class="mt-3 inline-flex cursor-pointer items-center gap-1 text-[10px] font-medium text-base-content/45 transition hover:text-base-content/70"
+                aria-expanded={showSyncHistory}
               >
-                {showSyncHistory
-                  ? "Ocultar historial de sincronización"
-                  : "Ver historial de sincronización y conflictos"}
+                <ChevronDown class={`h-3 w-3 transition-transform duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] ${showSyncHistory ? "rotate-180" : ""}`} aria-hidden="true" />
+                {showSyncHistory ? "Ocultar historial" : "Historial de sincronización"}
               </button>
-              {showSyncHistory && (
-                <div class="mt-2 max-h-48 space-y-1.5 overflow-auto rounded-xl bg-base-100/60 p-2.5">
-                  {(syncStatus.history || []).length === 0 ? (
-                    <p class="text-[10px] text-base-content/40">
-                      Aún no hay eventos de sincronización.
-                    </p>
-                  ) : (
-                    (syncStatus.history || []).slice(0, 12).map((h, idx) => (
-                      <div key={idx} class="rounded-lg bg-base-100 px-2.5 py-2 text-[10px]">
-                        <div class="flex items-center justify-between gap-2">
-                          <span
-                            class={
-                              h.ok ? "font-medium text-base-content/70" : "font-medium text-error"
-                            }
-                          >
-                            {h.message}
-                          </span>
-                          <span class="shrink-0 text-base-content/35">
-                            {new Date(h.at).toLocaleString()}
-                          </span>
+              <div
+                class={`grid transition-[grid-template-rows,opacity] duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+                  showSyncHistory ? "mt-2 grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                }`}
+              >
+                <div class="overflow-hidden">
+                  <div class="max-h-48 space-y-1.5 overflow-auto rounded-xl bg-base-100/60 p-2.5">
+                    {(syncStatus.history || []).length === 0 ? (
+                      <p class="text-[10px] text-base-content/40">Sin eventos aún.</p>
+                    ) : (
+                      (syncStatus.history || []).slice(0, 12).map((h, idx) => (
+                        <div key={idx} class="rounded-lg bg-base-100 px-2.5 py-2 text-[10px]">
+                          <div class="flex items-center justify-between gap-2">
+                            <span class={h.ok ? "font-medium text-base-content/70" : "font-medium text-error"}>
+                              {h.message}
+                            </span>
+                            <span class="shrink-0 text-base-content/35">{new Date(h.at).toLocaleString()}</span>
+                          </div>
+                          {h.details && <p class="mt-0.5 break-words text-base-content/40">{h.details}</p>}
                         </div>
-                        {h.details && (
-                          <p class="mt-0.5 break-words text-base-content/40">{h.details}</p>
-                        )}
-                      </div>
-                    ))
-                  )}
+                      ))
+                    )}
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
             <p class="flex items-start gap-1.5 text-[10px] leading-relaxed text-base-content/35">
-              <Info class="mt-0.5 h-3 w-3 shrink-0" /> Fusión automática sin pérdida. Offline:
-              cambios pendientes y reintentos automáticos al reconectar.
+              <Info class="mt-0.5 h-3 w-3 shrink-0" /> Fusión automática. Si estás offline, se reintenta al reconectar.
             </p>
           </div>
         ) : (
@@ -734,8 +734,7 @@ export default function SettingsPanel() {
               </button>
             </div>
             <p class="flex items-start gap-1.5 text-[10px] leading-relaxed text-base-content/35">
-              <Info class="mt-0.5 h-3 w-3 shrink-0" /> Tu progreso actual se mantiene en este
-              dispositivo y se fusionará con tu cuenta al iniciar sesión.
+              <Info class="mt-0.5 h-3 w-3 shrink-0" /> Tu progreso local se fusionará con tu cuenta al iniciar sesión.
             </p>
           </div>
         )}
@@ -825,7 +824,7 @@ export default function SettingsPanel() {
                 </div>
               ))}
             </div>
-            <p class="mt-3 text-[10px] leading-relaxed text-base-content/40">{language.reason}</p>
+            <p class="mt-3 text-[10px] leading-relaxed text-base-content/40 line-clamp-2 sm:line-clamp-none">{language.reason}</p>
           </div>
 
           <div>
@@ -881,7 +880,7 @@ export default function SettingsPanel() {
               <div>
                 <p class="text-xs font-medium">Voz en toda la app</p>
                 <p class="mt-1 text-[11px] leading-relaxed text-base-content/60">
-                  Activa o desactiva los botones de pronunciación.
+                  Muestra u oculta los botones de pronunciación.
                 </p>
               </div>
               <button
@@ -919,9 +918,11 @@ export default function SettingsPanel() {
                 <button
                   type="button"
                   data-speak="The server is running. Pull the latest changes before you push."
-                  class="speak-btn ml-auto flex items-center gap-1.5 rounded-full bg-base-100/60 px-3.5 py-2 text-xs font-medium text-base-content/50 transition hover:bg-base-100 hover:text-base-content/75"
+                  class="speak-btn ml-auto flex cursor-pointer items-center gap-1.5 rounded-full bg-base-100/60 px-3.5 py-2 text-xs font-medium text-base-content/50 transition hover:bg-base-100 hover:text-base-content/80 hover:shadow-sm active:scale-[0.98]"
+                  aria-label="Probar voz de pronunciación"
+                  title="Probar voz"
                 >
-                  <Volume2 class="h-3.5 w-3.5" />
+                  <Volume2 class="h-3.5 w-3.5" aria-hidden="true" />
                   Probar voz
                 </button>
               ) : (
@@ -941,7 +942,7 @@ export default function SettingsPanel() {
                   <div class="min-w-0">
                     <p class="text-xs font-medium">Voz HQ (Kokoro)</p>
                     <p class="mt-1 text-[11px] leading-relaxed text-base-content/55">
-                      Modelo neural local. Descarga única (~90 MB), funciona offline tras caché.
+                      Voz neural local (descarga única, disponible offline tras caché).
                     </p>
                   </div>
                 </div>
@@ -1060,7 +1061,7 @@ export default function SettingsPanel() {
               <div>
                 <p class="text-xs font-medium">Recordatorio diario</p>
                 <p class="mt-1 text-[11px] leading-relaxed text-base-content/60">
-                  Aviso a la hora que elijas para no perder tu racha.
+                  Aviso diario para mantener tu racha.
                 </p>
               </div>
               <button
@@ -1103,7 +1104,7 @@ export default function SettingsPanel() {
               </label>
               <p class="flex-1 text-[11px] leading-relaxed text-base-content/45">
                 {state.settings.reminders.enabled
-                  ? "En Android/app se programa notificación local diaria. En web verás un recordatorio dentro de la app."
+                  ? "Notificación local en app Android; en web, aviso dentro de la app."
                   : "Actívalo para mantener el hábito."}
               </p>
             </div>

@@ -10,10 +10,25 @@ import {
   type PracticeMode,
 } from "../../lib/practice";
 import { route } from "../../lib/routes";
+import { warmSpeechEngine } from "../../lib/speech";
 import { useProgress } from "../../lib/useProgress";
 
 interface Props {
   items: PracticeItem[];
+}
+
+const MODE_OPTIONS = [
+  { id: "review", label: "Ejercicios (SRS) · Repasar hoy", short: "Repasar" },
+  { id: "weak", label: "Ejercicios · Reforzar", short: "Reforzar" },
+  { id: "new", label: "Ejercicios · Nuevos", short: "Nuevos" },
+  { id: "mix", label: "Ejercicios · Mezcla inteligente", short: "Mezcla" },
+  { id: "phrases", label: "Frases/Diccionario (flashcards)", short: "Frases" },
+] as const satisfies ReadonlyArray<{ id: PracticeMode; label: string; short: string }>;
+
+const COUNT_OPTIONS = [5, 10, 15] as const;
+
+function isPracticeMode(value: string | null): value is PracticeMode {
+  return value === "review" || value === "weak" || value === "new" || value === "mix" || value === "phrases";
 }
 
 export default function PracticeView({ items }: Props) {
@@ -24,131 +39,137 @@ export default function PracticeView({ items }: Props) {
 
   useEffect(() => {
     try {
-      const m = new URLSearchParams(window.location.search).get("mode");
-      if (m === "review" || m === "weak" || m === "new" || m === "mix" || m === "phrases") {
-        setMode(m);
-      }
+      const modeParam = new URLSearchParams(window.location.search).get("mode");
+      if (isPracticeMode(modeParam)) setMode(modeParam);
     } catch {}
   }, []);
 
-  const now = Date.now();
+  useEffect(() => {
+    try { warmSpeechEngine(); } catch {}
+  }, []);
+
+  // Keep a stable "now" per round so memoized pools/stats don't recompute on every render.
+  const now = useMemo(() => Date.now(), [mode, count, seed, state.streak.lastActiveDate]);
 
   const pool = useMemo(() => {
     if (mode === "phrases") return [];
     return buildExercisePool(items, state, mode, count, now);
-  }, [items, mode, count, seed, state, now]);
+  }, [items, state, mode, count, now]);
 
   const sessionId = `practice-${mode}-${seed}`;
-  const exercises = pool.map((item) => item.exercise);
-  const sources = pool.map((item) => ({ id: item.exercise.id, ...item }));
+  const exercises = useMemo(() => pool.map((item) => item.exercise), [pool]);
+  const sources = useMemo(() => pool.map((item) => ({ id: item.exercise.id, ...item })), [pool]);
 
-  const phrasePool = useMemo(() => buildPhrasePool(state, count), [state, count, seed, now]);
+  const phrasePool = useMemo(() => buildPhrasePool(state, count), [state, count, now]);
 
   const stats = useMemo(() => getPracticeStats(items, state, now), [items, state, now]);
 
   return (
     <div class="mx-auto max-w-[1120px] animate-fade-up">
-      <section class="flex flex-wrap items-end justify-between gap-5">
+      <section class="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p class="mono-label flex items-center gap-2">
             <Zap class="h-3.5 w-3.5 text-accent" />
             Práctica rápida
           </p>
-          <h1 class="font-pixel mt-3 text-[2.2rem] leading-[1.05] tracking-tight sm:text-[3.05rem]">
+          <h1 class="font-pixel mt-3 text-[2rem] leading-[1.05] tracking-tight sm:text-[3.05rem]">
             Entrena en modo fluido
           </h1>
-          <p class="mt-3 max-w-2xl text-sm leading-7 text-base-content/55">
-            <span class="font-medium text-base-content/70">Ejercicios (SRS):</span> repaso espaciado y recuperación activa de lecciones.{" "}
-            <span class="font-medium text-base-content/70">Frases/Diccionario (flashcards):</span> repasa tu vocabulario con significados, notas y ejemplos propios.
-            {state.settings.goal && state.settings.goal !== "all" && " Las recomendaciones se ajustan suavemente a tu objetivo."}
+          <p class="mt-2 max-w-2xl text-sm leading-6 text-base-content/55 sm:mt-3 sm:leading-7">
+            <span class="hidden sm:inline"><span class="font-medium text-base-content/70">Ejercicios (SRS):</span> repaso espaciado y recuperación activa.{" "}
+            <span class="font-medium text-base-content/70">Frases/Diccionario:</span> repasa vocabulario con tus notas y ejemplos.{state.settings.goal && state.settings.goal !== "all" && " Ajustado a tu objetivo."}</span>
+            <span class="sm:hidden">Elige un modo, repasa rápido y sigue. Tus respuestas se guardan automáticamente.</span>
           </p>
         </div>
         <button
           type="button"
           onClick={() => setSeed((s) => s + 1)}
-          class="btn btn-ghost h-10 gap-2 rounded-xl bg-base-200 px-4 text-base-content/70"
+          class="btn btn-ghost h-10 gap-2 rounded-xl bg-base-200 px-3 text-base-content/70 sm:px-4"
+          aria-label="Nueva ronda"
         >
-          <RotateCcw class="h-4 w-4" /> Nueva ronda
+          <RotateCcw class="h-4 w-4" /> <span class="hidden sm:inline">Nueva ronda</span><span class="sm:hidden">Ronda</span>
         </button>
       </section>
 
-      <section class="mt-6 grid gap-3 sm:grid-cols-4">
-        <div class={`rounded-2xl px-4 py-4 ${stats.dueReview > 0 ? "bg-accent/[0.08] ring-1 ring-accent/20" : "bg-base-200"}`}>
-          <div class="flex items-center gap-2 text-[11px] text-base-content/45"><Brain class="h-3.5 w-3.5 text-accent" /> Ejercicios (SRS)</div>
-          <p class="mt-2 font-mono text-xl font-medium">{stats.dueReview}</p>
-          <p class="mt-1 text-[10px] text-base-content/35">Vencidos para repasar hoy</p>
+      <section class="mt-5 grid grid-cols-2 gap-2.5 sm:mt-6 sm:grid-cols-4 sm:gap-3">
+        <div class={`rounded-2xl px-3 py-3 sm:px-4 sm:py-4 ${stats.dueReview > 0 ? "bg-accent/[0.08] ring-1 ring-accent/20" : "bg-base-200"}`}>
+          <div class="flex items-center gap-2 text-[10px] text-base-content/45 sm:text-[11px]"><Brain class="h-3.5 w-3.5 text-accent" /> <span class="truncate">SRS</span></div>
+          <p class="mt-1.5 font-mono text-lg font-medium sm:mt-2 sm:text-xl">{stats.dueReview}</p>
+          <p class="mt-0.5 text-[10px] text-base-content/35 sm:mt-1">Para repasar</p>
         </div>
-        <div class="rounded-2xl bg-base-200 px-4 py-4">
-          <div class="flex items-center gap-2 text-[11px] text-base-content/45"><Target class="h-3.5 w-3.5" /> A reforzar</div>
-          <p class="mt-2 font-mono text-xl font-medium">{stats.weak}</p>
-          <p class="mt-1 text-[10px] text-base-content/35">Fallos o con más intentos</p>
+        <div class="rounded-2xl bg-base-200 px-3 py-3 sm:px-4 sm:py-4">
+          <div class="flex items-center gap-2 text-[10px] text-base-content/45 sm:text-[11px]"><Target class="h-3.5 w-3.5" /> <span class="truncate">Reforzar</span></div>
+          <p class="mt-1.5 font-mono text-lg font-medium sm:mt-2 sm:text-xl">{stats.weak}</p>
+          <p class="mt-0.5 text-[10px] text-base-content/35 sm:mt-1">Más difíciles</p>
         </div>
-        <div class={`rounded-2xl px-4 py-4 ${stats.duePhrases > 0 ? "bg-accent/[0.08] ring-1 ring-accent/20" : "bg-base-200"}`}>
-          <div class="flex items-center gap-2 text-[11px] text-base-content/45"><BookText class="h-3.5 w-3.5 text-accent" /> Frases/Diccionario (flashcards)</div>
-          <p class="mt-2 font-mono text-xl font-medium">{stats.duePhrases}</p>
-          <p class="mt-1 text-[10px] text-base-content/35">Vencidas para repasar con tus notas</p>
+        <div class={`rounded-2xl px-3 py-3 sm:px-4 sm:py-4 ${stats.duePhrases > 0 ? "bg-accent/[0.08] ring-1 ring-accent/20" : "bg-base-200"}`}>
+          <div class="flex items-center gap-2 text-[10px] text-base-content/45 sm:text-[11px]"><BookText class="h-3.5 w-3.5 text-accent" /> <span class="truncate">Frases</span></div>
+          <p class="mt-1.5 font-mono text-lg font-medium sm:mt-2 sm:text-xl">{stats.duePhrases}</p>
+          <p class="mt-0.5 text-[10px] text-base-content/35 sm:mt-1">Flashcards</p>
         </div>
-        <div class="rounded-2xl bg-base-200 px-4 py-4">
-          <div class="flex items-center gap-2 text-[11px] text-base-content/45"><CheckCircle2 class="h-3.5 w-3.5" /> Sin intentar</div>
-          <p class="mt-2 font-mono text-xl font-medium">{stats.unseen}</p>
-          <p class="mt-1 text-[10px] text-base-content/35">Ejercicios nuevos</p>
+        <div class="rounded-2xl bg-base-200 px-3 py-3 sm:px-4 sm:py-4">
+          <div class="flex items-center gap-2 text-[10px] text-base-content/45 sm:text-[11px]"><CheckCircle2 class="h-3.5 w-3.5" /> <span class="truncate">Nuevos</span></div>
+          <p class="mt-1.5 font-mono text-lg font-medium sm:mt-2 sm:text-xl">{stats.unseen}</p>
+          <p class="mt-0.5 text-[10px] text-base-content/35 sm:mt-1">Sin intentar</p>
         </div>
       </section>
 
-      <section class="mt-6 rounded-2xl bg-base-200 p-4 sm:p-5">
-        <div class="flex flex-wrap items-center gap-3">
-          <div class="flex flex-wrap gap-2">
-            {([
-              ["review", "Ejercicios (SRS) · Repasar hoy"],
-              ["weak", "Ejercicios · Reforzar"],
-              ["new", "Ejercicios · Nuevos"],
-              ["mix", "Ejercicios · Mezcla inteligente"],
-              ["phrases", "Frases/Diccionario (flashcards)"],
-            ] as const).map(([id, label]) => (
+      <section class="mt-5 rounded-2xl bg-base-200 p-3.5 sm:mt-6 sm:p-5">
+        <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+          <div class="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+            {MODE_OPTIONS.map(({ id, label, short }) => (
               <button
                 key={id}
                 type="button"
                 onClick={() => { setMode(id); setSeed((s) => s + 1); }}
-                class={`rounded-xl px-3.5 py-2 text-sm transition ${mode === id ? "bg-base-content text-base-100" : "bg-base-100 text-base-content/60 hover:text-base-content"}`}
+                class={`min-h-10 rounded-xl px-3 py-2 text-left text-[13px] transition sm:text-sm ${mode === id ? "bg-base-content text-base-100" : "bg-base-100 text-base-content/65 hover:text-base-content"}`}
               >
-                {label}
+                <span class="sm:hidden">{short}</span>
+                <span class="hidden sm:inline">{label}</span>
                 {id === "review" && stats.dueReview > 0 && (
-                  <span class="ml-1.5 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-accent/20 px-1.5 py-0.5 font-mono text-[10px] text-accent">
+                  <span class={`ml-1.5 inline-flex min-w-[1.25rem] items-center justify-center rounded-full px-1.5 py-0.5 font-mono text-[10px] ${mode === id ? "bg-base-100/20 text-base-100" : "bg-accent/20 text-accent"}`}>
                     {stats.dueReview}
                   </span>
                 )}
                 {id === "phrases" && stats.duePhrases > 0 && (
-                  <span class="ml-1.5 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-accent/20 px-1.5 py-0.5 font-mono text-[10px] text-accent">
+                  <span class={`ml-1.5 inline-flex min-w-[1.25rem] items-center justify-center rounded-full px-1.5 py-0.5 font-mono text-[10px] ${mode === id ? "bg-base-100/20 text-base-100" : "bg-accent/20 text-accent"}`}>
                     {stats.duePhrases}
                   </span>
                 )}
               </button>
             ))}
           </div>
-          <div class="ml-auto flex items-center gap-2 text-sm text-base-content/55">
-            <span>Preguntas:</span>
-            {[5, 10, 15].map((n) => (
-              <button
-                key={n}
-                type="button"
-                onClick={() => { setCount(n); setSeed((s) => s + 1); }}
-                class={`h-8 w-10 rounded-lg font-mono text-xs ${count === n ? "bg-accent/15 text-accent" : "bg-base-100 text-base-content/50"}`}
-              >
-                {n}
-              </button>
-            ))}
+          <div class="flex items-center justify-between gap-2 text-sm text-base-content/55 sm:ml-auto sm:justify-start">
+            <span class="text-[12px] sm:text-sm">Cantidad</span>
+            <div class="flex items-center gap-1.5">
+              {COUNT_OPTIONS.map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() => { setCount(n); setSeed((s) => s + 1); }}
+                  class={`h-8 w-10 rounded-lg font-mono text-xs ${count === n ? "bg-accent/15 text-accent" : "bg-base-100 text-base-content/50"}`}
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
         {mode !== "phrases" && sources.length > 0 && (
-          <div class="mt-4 flex flex-wrap gap-2">
-            {sources.slice(0, 8).map((s) => (
-              <a key={s.id} href={route(`/session/${s.sessionSlug}`)} class="inline-flex items-center gap-1.5 rounded-full bg-base-100 px-3 py-1 text-[10px] text-base-content/45 hover:text-base-content/70">
-                {s.moduleCode} · {s.sessionTitle}
-                <ArrowRight class="h-3 w-3" />
-              </a>
-            ))}
-            {sources.length > 8 && <span class="px-2 py-1 text-[10px] text-base-content/35">+{sources.length - 8} más</span>}
+          <div class="mt-3 sm:mt-4">
+            <div class="hidden flex-wrap gap-2 sm:flex">
+              {sources.slice(0, 6).map((s) => (
+                <a key={s.id} href={route(`/session/${s.sessionSlug}`)} class="inline-flex max-w-full items-center gap-1.5 rounded-full bg-base-100 px-3 py-1 text-[10px] text-base-content/45 hover:text-base-content/70">
+                  <span class="truncate">{s.moduleCode} · {s.sessionTitle}</span>
+                  <ArrowRight class="h-3 w-3 shrink-0" />
+                </a>
+              ))}
+              {sources.length > 6 && <span class="px-2 py-1 text-[10px] text-base-content/35">+{sources.length - 6} más</span>}
+            </div>
+            <p class="text-[11px] text-base-content/40 sm:hidden">
+              {sources.length} ejercicio{sources.length === 1 ? "" : "s"} de {new Set(sources.map((s) => s.moduleCode)).size} módulo(s) en esta ronda.
+            </p>
           </div>
         )}
       </section>
@@ -228,10 +249,6 @@ function PhraseReviewRunner({ entries }: { entries: PhrasebookEntry[] }) {
     );
   }
 
-  function speakText(text: string) {
-    try { if (typeof window !== "undefined") window.speechSynthesis?.speak(new SpeechSynthesisUtterance(text)); } catch {}
-  }
-
   function answer(correct: boolean) {
     progressStore.reviewPhrase(entry.id, correct);
     setDone((d) => d + 1);
@@ -250,7 +267,15 @@ function PhraseReviewRunner({ entries }: { entries: PhrasebookEntry[] }) {
           <p class="text-[11px] font-medium text-base-content/45">Traduce/recuerda esta frase</p>
           <div class="mt-3 flex items-start justify-between gap-3">
             <p class="font-mono text-lg text-base-content/90 sm:text-xl">{entry.en}</p>
-            <button type="button" onClick={() => speakText(entry.en)} class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-base-200 text-base-content/50 hover:text-base-content/80" aria-label="Escuchar"><Volume2 class="h-4 w-4" /></button>
+            <button
+              type="button"
+              data-speak={entry.en}
+              class="speak-btn flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-base-200 text-base-content/55 transition hover:bg-base-300 hover:text-base-content/80 hover:scale-[1.03] active:scale-95"
+              aria-label={`Escuchar frase: ${entry.en}`}
+              title="Escuchar frase"
+            >
+              <Volume2 class="h-4 w-4" aria-hidden="true" />
+            </button>
           </div>
 
           {!revealed ? (

@@ -26,9 +26,15 @@ export const m9: Module = {
       pronunciation: "In my previous role, I reduced deployment time by 30% by automating our CI pipeline.",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Requiere pasado simple, vocabulario de logros y capacidad de explicar impacto. Esta lección practica STAR y frases de entrevista; escucha/speaking/corrección usan estructuras presentadas aquí.",
+        },
+        {
           type: "technique",
-          name: "Estructura STAR para entrevistas",
-          desc: "Situation, Task, Action, Result. Sé específico: qué hiciste, por qué y qué impacto tuvo. En inglés técnico, evita respuestas vagas; usa métricas y verbos claros (implemented, reduced, led, fixed).",
+          name: "Estructura STAR (entrevistas)",
+          desc: "Situation (contexto), Task (tu rol/objetivo), Action (lo que hiciste), Result (impacto, idealmente medible). Sé específico y usa verbos claros (implemented, reduced, led, fixed).",
         },
         {
           type: "phrases",
@@ -37,17 +43,20 @@ export const m9: Module = {
             { en: "In my previous role, I was responsible for...", es: "En mi rol anterior, era responsable de..." },
             { en: "The main challenge was..., so I decided to...", es: "El principal reto era..., así que decidí..." },
             { en: "As a result, we reduced latency by 20%.", es: "Como resultado, redujimos la latencia un 20%." },
-            { en: "If I had to do it again, I would...", es: "Si tuviera que hacerlo de nuevo, yo..." }
+            { en: "If I could do it again, I would...", es: "Si pudiera hacerlo de nuevo, lo haría..." }
           ],
         },
         {
           type: "vocab",
-          title: "Vocabulario de entrevistas",
+          title: "Vocabulario de entrevistas (nuevo o clave aquí)",
           items: [
             { en: "trade-off", es: "compensación / equilibrio entre opciones", example: "There was a trade-off between speed and reliability." },
             { en: "ownership", es: "responsabilidad y autonomía", example: "I took ownership of the migration." },
             { en: "impact", es: "impacto / resultado medible", example: "We measured the impact on error rates." },
-            { en: "stakeholder", es: "parte interesada", example: "I communicated updates to stakeholders." }
+            { en: "stakeholder", es: "parte interesada", example: "I communicated updates to stakeholders." },
+            { en: "challenge", es: "reto/desafío", example: "The main challenge was high latency." },
+            { en: "responsible for", es: "responsable de", example: "I was responsible for the backend service." },
+            { en: "as a result", es: "como resultado", example: "As a result, we reduced latency by 20%." }
           ],
         },
       ],
@@ -81,10 +90,33 @@ export const m9: Module = {
         {
           id: "m9-l1-e4",
           type: "fill-blank",
-          prompt: "Completa la respuesta con la estructura adecuada.",
+          prompt: "Completa la respuesta con la estructura adecuada (STAR: reto → acción → resultado).",
           template: "The main challenge was ___, so I ___ a caching layer. As a result, we ___ response time.",
           blanks: ["high latency|slow responses", "implemented|added", "reduced|improved"],
           explanation: "Usa causa, acción y resultado medible: challenge → action → result.",
+        },
+        {
+          id: "m9-l1-e5",
+          type: "choice",
+          prompt: "En una entrevista, ¿qué respuesta suena más concreta y profesional?",
+          options: [
+            "I did some backend stuff.",
+            "I worked on performance, I think.",
+            "I reduced API latency by 30% by adding caching and optimizing queries.",
+            "I am good at coding.",
+          ],
+          answer: 2,
+          explanation:
+            "Las respuestas fuertes incluyen acción y resultado medible ('reduced API latency by 30%...').",
+        },
+        {
+          id: "m9-l1-e6",
+          type: "builder",
+          prompt: "Construye: 'Me hice responsable de la migración.'",
+          words: ["I took", "ownership", "of the", "migration."],
+          answer: "I took ownership of the migration.",
+          explanation:
+            "'Take ownership' es una frase clave en entrevistas para mostrar responsabilidad y autonomía (vocabulario de esta lección).",
         }
       ],
     },
@@ -105,9 +137,15 @@ export const m9: Module = {
       pronunciation: "We're investigating the issue. The current impact is limited to EU users, and we'll share an update in 15 minutes.",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Integra comunicación de incidentes (M4), propuestas/demos/feedback (M5–M6) y conectores. Los ejercicios combinan listening, orden de diálogo, roleplay y speaking con el vocabulario de esta sesión.",
+        },
+        {
           type: "technique",
-          name: "Comunicación en incidentes y RFCs",
-          desc: "En incidentes: qué pasa, impacto, qué se está haciendo y cuándo habrá próxima actualización. En RFCs: contexto, propuesta, alternativas y trade-offs. En demos y feedback: sé claro, específico y orientado a acciones.",
+          name: "Comunicar en situaciones críticas y colaborativas",
+          desc: "Incidente: estado + impacto + acción + próxima actualización. RFC/propuesta: contexto + propuesta + alternativas/trade-offs. Demo/feedback: pasos claros y comentarios accionables.",
         },
         {
           type: "phrases",
@@ -179,6 +217,33 @@ export const m9: Module = {
           answer: "Could you give me actionable feedback on this proposal?",
           hint: "Pide feedback concreto y accionable.",
           explanation: "'Actionable feedback' pide comentarios específicos que puedas aplicar.",
+        },
+        {
+          id: "m9-l2-e5",
+          type: "write",
+          prompt: "Escribe un update breve de incidente: impacto + acción + próxima actualización.",
+          answer: "The issue affects some EU users. We're rolling back now and will share an update in 15 minutes.",
+          accept: [
+            "The issue affects some EU users. We are rolling back now and will share an update in 15 minutes.",
+            "The issue impacts some EU users. We're rolling back and will share an update in 15 minutes.",
+          ],
+          hint: "Incluye impacto, acción actual y cuándo habrá próxima actualización.",
+          explanation:
+            "Un buen update de incidente comunica alcance/impacto, qué se está haciendo ahora y cuándo volverás a informar.",
+        },
+        {
+          id: "m9-l2-e6",
+          type: "choice",
+          prompt: "En una propuesta/RFC, quieres explicar el objetivo con claridad. ¿Qué frase encaja mejor?",
+          options: [
+            "The goal of this RFC is to simplify the deployment process.",
+            "RFC goal deploy maybe.",
+            "We do deploy thing.",
+            "This RFC is deploy."
+          ],
+          answer: 0,
+          explanation:
+            "Abre la propuesta con un objetivo claro: 'The goal of this RFC is to...'",
         }
       ],
     },

@@ -14,12 +14,13 @@ const { text, label, class: className } = Astro.props;
   type="button"
   data-speak={text}
   class:list={[
-    "speak-btn inline-flex shrink-0 items-center gap-1.5 rounded-full bg-base-100/80 px-2.5 py-1.5 text-[11px] font-medium text-base-content/55 transition hover:bg-base-100 hover:text-base-content",
+    "speak-btn inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-base-100/80 px-3 text-[11px] font-medium text-base-content/55 transition hover:bg-base-100 hover:text-base-content hover:shadow-sm active:scale-[0.98] focus-visible:outline-none",
+    label ? "min-w-[2.5rem]" : "w-10 px-0",
     className,
   ]}
-  aria-label={`Escuchar en inglés: ${text}`}
-  title="Escuchar en inglés"
+  aria-label={label ? `Escuchar: ${text}` : `Escuchar en inglés: ${text}`}
+  title={label ? `Escuchar: ${label}` : "Escuchar en inglés"}
 >
-  <Volume2 class="h-3.5 w-3.5" />
+  <Volume2 class="h-4 w-4" aria-hidden="true" />
   {label && <span>{label}</span>}
 </button>

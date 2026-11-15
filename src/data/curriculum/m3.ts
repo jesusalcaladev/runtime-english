@@ -27,46 +27,62 @@ export const m3: Module = {
         "Pull before you push to avoid a merge conflict in the main branch.",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Conviene que ya manejes imperativos y verbos técnicos básicos de M1–M2 (run, pull, push, commit, merge, fix, deploy, test). En esta lección aprenderás vocabulario nuevo de Git/errores; los ejercicios usan palabras presentadas aquí (repo, branch, PR, port, process, module, path, etc.).",
+        },
+        {
           type: "technique",
-          name: "Decodificación de Stack Traces",
-          desc: "Los errores en consola siguen patrones predecibles: 'Cannot read property X of undefined' (intentas acceder a algo nulo) o 'Port already in use' (otro servidor sigue corriendo en ese puerto).",
+          name: "Cómo leer un error sin agobiarte",
+          desc: "No necesitas entender todo el stack trace. 1) Busca el mensaje clave ('Port already in use', 'Module not found'). 2) Identifica dónde ocurre (archivo/línea si aparece). 3) Piensa en la causa más común. Los errores siguen patrones repetibles: reconocer el patrón te da el siguiente paso.",
         },
         {
           type: "vocab",
-          title: "Git & GitHub",
+          title: "Git & GitHub (vocabulario nuevo)",
           items: [
-            { en: "repo", es: "repositorio Git", example: "Clone the repo." },
-            { en: "branch", es: "rama de desarrollo", example: "Create a new branch for this feature." },
-            { en: "PR (Pull Request)", es: "solicitud de revisión/cambios", example: "Open a PR when you're done." },
-            { en: "merge", es: "unir ramas", example: "Merge conflict!" },
-            { en: "commit", es: "guardado de cambios", example: "Write a clear commit message." },
-            { en: "push / pull", es: "subir / bajar cambios", example: "Pull before you push." },
-            { en: "clone / fork", es: "copiar local / copiar a tu cuenta", example: "Fork the repo first." },
-            { en: "issue", es: "problema o tarea", example: "Create an issue on GitHub." },
+            { en: "repo (repository)", es: "repositorio de código", example: "Clone the repo.", note: "clone = copiar a tu máquina (verbo nuevo aquí)." },
+            { en: "branch", es: "rama de desarrollo", example: "Create a new branch.", note: "create = crear (nuevo aquí)." },
+            { en: "PR / pull request", es: "solicitud para revisar y unir cambios", example: "Open a PR when you're done.", note: "open = abrir." },
+            { en: "merge", es: "unir cambios/ramas", example: "Merge the PR." },
+            { en: "commit", es: "guardar un conjunto de cambios", example: "Write a clear commit message." },
+            { en: "push / pull", es: "subir / traer cambios", example: "Pull before you push." },
+            { en: "clone / fork", es: "copiar el repo localmente / copiarlo a tu cuenta", example: "Fork the repo, then clone it." },
+            { en: "issue", es: "tarea o problema registrado", example: "Open an issue on GitHub." },
           ],
         },
         {
           type: "table",
-          title: "Errores de consola",
-          columns: ["Error", "Qué significa", "Cómo arreglarlo"],
+          title: "Errores de consola frecuentes (mensaje → causa → acción)",
+          columns: ["Error", "Qué significa", "Acción típica"],
           rows: [
-            ["Syntax error", "Error de sintaxis", "Revisa paréntesis, llaves y puntos y comas."],
-            ["Undefined variable", "Variable no definida", "Declara la variable antes de usarla."],
-            ["Null pointer exception", "Usas algo que es null", "Verifica que el dato no sea null."],
-            ["Timeout", "Se tardó demasiado", "Aumenta el tiempo de espera u optimiza la query."],
-            ["Permission denied", "Sin acceso suficiente", "Cambia permisos o verifica credenciales."],
-            ["Port already in use", "Puerto ocupado", "Mata el proceso anterior o cambia de puerto."],
-            ["Cannot read properties of undefined", "El objeto padre es undefined", "Usa optional chaining (?.) o valida el objeto."],
-            ["Module not found", "No encuentra la librería", "Ejecuta npm install o revisa la ruta relativa."],
-            ["Failed to fetch", "Falló la petición de red", "Verifica la URL del endpoint y la conexión."],
-            ["CORS error", "Bloqueo de origen cruzado", "Configura Access-Control-Allow-Origin en el backend."],
+            ["Syntax error", "Error de sintaxis", "Revisa paréntesis, llaves y comas."],
+            ["Undefined variable", "Variable no definida", "Declara o importa la variable antes de usarla."],
+            ["Null pointer / undefined", "Intentas usar algo que es null/undefined", "Verifica que el valor exista antes de usarlo."],
+            ["Timeout", "Tardó demasiado", "Revisa red/consulta o aumenta el tiempo de espera."],
+            ["Permission denied", "Sin permisos suficientes", "Revisa permisos o credenciales."],
+            ["Port already in use", "El puerto ya está ocupado", "Mata/cierra el proceso anterior o cambia el puerto."],
+            ["Module not found", "No encuentra un módulo/librería", "Ejecuta npm install o revisa la ruta/import."],
+            ["Failed to fetch", "Falló la petición de red", "Revisa URL, servidor y conexión."],
+            ["CORS error", "Bloqueo por origen cruzado", "Configura CORS en el backend."],
+          ],
+        },
+        {
+          type: "phrases",
+          title: "Acciones útiles al ver un error (imperativos)",
+          items: [
+            { en: "Read the error message.", es: "Lee el mensaje de error." },
+            { en: "Check the file and line.", es: "Revisa el archivo y la línea." },
+            { en: "Kill the previous process.", es: "Detén/mata el proceso anterior." },
+            { en: "Change the port.", es: "Cambia el puerto." },
+            { en: "Run npm install.", es: "Ejecuta npm install." },
           ],
         },
         {
           type: "callout",
           tone: "tip",
-          title: "Lee el error con calma",
-          body: "No hace falta entender todo el stack trace de golpe. Busca primero el mensaje clave ('Module not found', 'Permission denied') y la línea donde ocurre. Paso a paso suenas más seguro y aprendes más rápido.",
+          title: "Estrategia",
+          body: "Mensaje clave → posible causa → una acción concreta. Ej.: 'Port already in use' → otro proceso usa el puerto → 'Kill the previous process and change the port.'",
         },
       ],
       exercises: [
@@ -165,9 +181,15 @@ export const m3: Module = {
         "I ran into a bug in staging, so we need to roll back to the previous version.",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Necesitas imperativos y tiempos básicos de M1–M2 (run, pull, push, can, pasado simple como 'ran into'). Aquí aprenderás conceptos de arquitectura y phrasal verbs nuevos como bloques completos; los ejercicios solo usan verbos/estructuras ya vistos más los que se presentan en esta lección.",
+        },
+        {
           type: "technique",
-          name: "Phrasal Verbs de Acción Técnica",
-          desc: "En conversación, 'roll back' suena más natural que 'revert the deployment'; 'revert' también es correcto, pero más formal. Lo mismo pasa con 'set up' frente a 'configure'. Apréndelos como comandos completos, no palabra por palabra.",
+          name: "Phrasal verbs: aprende el bloque completo",
+          desc: "No traduzcas palabra por palabra. 'Set up' = configurar/preparar, 'run into' = encontrarse con (un problema), 'roll back' = revertir. En conversación técnica suenan muy naturales ('roll back the deploy', 'run into a bug'). Memorízalos como chunks.",
         },
         {
           type: "vocab",
@@ -207,8 +229,8 @@ export const m3: Module = {
         {
           type: "callout",
           tone: "tip",
-          title: "Phrasal verbs: aprende el bloque completo",
-          body: "No traduzcas palabra por palabra. Memoriza la combinación como una unidad: 'run into a bug', 'roll back the deploy', 'figure it out'. Así suenas más natural y te cuesta menos en conversaciones reales.",
+          title: "Consejo práctico",
+          body: "Fíjate en el verbo+partícula+objeto como unidad: 'set up the environment', 'run into a bug', 'roll back to the previous version', 'figure out this error'. Repetir el chunk completo te ayuda a usarlo sin traducir.",
         },
       ],
       exercises: [
@@ -282,6 +304,16 @@ export const m3: Module = {
           explanation:
             "'Sync up' es una forma natural y frecuente de pedir que alguien actualice su trabajo con lo más reciente.",
         },
+        {
+          id: "m3-l2-e7",
+          type: "fill-blank",
+          prompt: "Completa con el phrasal verb correcto (de esta lección).",
+          template: "I ___ a bug in staging, so we need to ___ to the previous version.",
+          blanks: ["ran into", "roll back"],
+          hint: "Encontrarse con un problema → 'ran into'. Revertir → 'roll back'.",
+          explanation:
+            "Repaso en contexto: 'ran into a bug' (pasado de 'run into') y 'roll back' son chunks muy comunes en trabajo técnico.",
+        },
       ],
     },
     {
@@ -302,9 +334,15 @@ export const m3: Module = {
         "The unit tests pass, but the end-to-end test is flaky in CI.",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Usarás verbos y estructuras ya vistas (run, pass, fail, add, fix, need to). Esta lección introduce vocabulario de testing (unit/integration/e2e, mock, flaky, regression, edge case); los términos aparecen explicados antes de usarse en ejercicios.",
+        },
+        {
           type: "technique",
-          name: "La pirámide de tests",
-          desc: "Unit tests comprueban una pieza pequeña y aislada. Integration tests comprueban cómo encajan varias piezas. End-to-end tests recorren el flujo completo, como un usuario real. Cuantos más niveles añades, más lentos y frágiles suelen ser.",
+          name: "La pirámide de tests (qué prueba cada nivel)",
+          desc: "Unit tests: una pieza pequeña y aislada (una función). Integration tests: cómo encajan varias piezas (p. ej. app + base de datos). End-to-end (e2e): el flujo completo como un usuario real. Más cobertura de flujo suele implicar tests más lentos y frágiles.",
         },
         {
           type: "vocab",
@@ -368,16 +406,18 @@ export const m3: Module = {
         {
           id: "m3-l3-e4",
           type: "write",
-          prompt: "Escribe en inglés: 'Ese test es flaky; vamos a arreglarlo.'",
-          answer: "That test is flaky; we're going to fix it.",
+          prompt: "Escribe en inglés: 'Ese test es inestable; lo arreglaremos.'",
+          answer: "That test is flaky. We will fix it.",
           accept: [
+            "That test is flaky; we will fix it.",
+            "That test is flaky, we will fix it.",
+            "That test is flaky. We'll fix it.",
+            "That test is flaky; we're going to fix it.",
             "That test is flaky. We are going to fix it.",
-            "That test is flaky, we're going to fix it.",
-            "That test is flaky; we are going to fix it.",
           ],
-          hint: "'We're going to + verbo' expresa un plan.",
+          hint: "Usa 'flaky' y futuro con 'will' ('We will fix it').",
           explanation:
-            "'Going to' es natural para un plan ya decidido; 'fix it' se refiere al test.",
+            "Para un plan/decisión clara puedes usar 'will' (ya visto): 'We will fix it'. También escucharás 'going to', pero aquí priorizamos una forma simple.",
         },
         {
           id: "m3-l3-e5",
@@ -402,6 +442,16 @@ export const m3: Module = {
           explanation:
             "'Edge case' es un caso límite. Pensar en edge cases te ayuda a escribir software más sólido y a comunicarte con precisión.",
         },
+        {
+          id: "m3-l3-e7",
+          type: "fill-blank",
+          prompt: "Completa con el tipo de test correcto (vocabulario de esta lección).",
+          template: "A ___ test checks one function. An ___ test checks how parts work together.",
+          blanks: ["unit", "integration"],
+          hint: "Pieza pequeña aislada → unit. Varias piezas conectadas → integration.",
+          explanation:
+            "Repaso directo de los niveles: 'unit test' (aislado) e 'integration test' (piezas conectadas).",
+        },
       ],
     },
     {
@@ -422,9 +472,15 @@ export const m3: Module = {
         "The endpoint returns a 500 error when the database query fails.",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Ya conoces verbos como call/fetch/return/fail y errores comunes. Aquí aprenderás términos HTTP/BD (request, endpoint, payload, status code, query, migration, cache) usados en las tablas y ejercicios de esta misma lección.",
+        },
+        {
           type: "technique",
-          name: "Anatomía de una petición",
-          desc: "El cliente envía un request a un endpoint con headers y un payload. El servidor responde con un status code y un response body. Si algo falla, el código y el mensaje te dicen dónde mirar.",
+          name: "Anatomía de una petición HTTP",
+          desc: "Cliente → envía un request a un endpoint (URL) con método (GET/POST...), headers y a veces payload/body. Servidor → responde con status code (200, 401, 500...) y body. Para explicar un problema: endpoint/método + status code + causa probable.",
         },
         {
           type: "table",
@@ -517,10 +573,21 @@ export const m3: Module = {
           id: "m3-l4-e6",
           type: "builder",
           prompt: "Construye: 'Ejecuta la migración antes de desplegar.'",
-          words: ["Run", "the migration", "before", "deploying."],
-          answer: "Run the migration before deploying.",
+          words: ["Run", "the migration", "before", "you deploy."],
+          answer: "Run the migration before you deploy.",
           explanation:
-            "Instrucción práctica y muy común en flujos de backend. 'Before deploying' indica el orden correcto.",
+            "Instrucción clara con estructuras ya vistas: imperativo ('Run...') + 'before you deploy' (presente simple).",
+        },
+        {
+          id: "m3-l4-e7",
+          type: "listen",
+          prompt: "Escucha y escribe el reporte del problema (endpoint + código).",
+          audioText: "The API returns a 500 error.",
+          answer: "The API returns a 500 error.",
+          accept: ["The API returns a 500 error"],
+          hint: "Empieza con 'The API returns...'",
+          explanation:
+            "Dictado de una frase modelo para reportar fallos: sujeto (The API) + verbo (returns) + resultado (a 500 error).",
         },
       ],
     },
@@ -542,9 +609,15 @@ export const m3: Module = {
         "I'm getting a TypeError: undefined is not a function at line 42. I think the value is null.",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Esta lección reúne vocabulario de errores (TypeError, stack trace, null/undefined, logs) y frases para pedir ayuda. Todo lo necesario para los ejercicios aparece en los bloques y ejemplos de esta sesión.",
+        },
+        {
           type: "technique",
-          name: "Lee el error de arriba a abajo, pero explica la causa",
-          desc: "El mensaje te dice el tipo de error; el stack trace te dice dónde ocurrió. Al reportarlo, di: 1) el mensaje exacto, 2) dónde pasa (archivo/línea), 3) qué esperabas, 4) qué ya probaste. Eso hace que te ayuden rápido.",
+          name: "Reportar un error: fórmula clara",
+          desc: "1) Mensaje exacto ('I'm getting...'). 2) Dónde ocurre (archivo/línea o función, 'It fails at...'). 3) Qué esperabas vs qué pasa ('I expected..., but...'). 4) Qué ya probaste ('I already checked...'). Así otros pueden ayudarte rápido.",
         },
         {
           type: "vocab",
@@ -567,7 +640,7 @@ export const m3: Module = {
             { en: "It fails at line 42 in auth.ts.", es: "Falla en la línea 42 de auth.ts." },
             { en: "The stack trace points to the login function.", es: "El stack trace apunta a la función de login." },
             { en: "I expected it to return a user, but it returns null.", es: "Esperaba que devolviera un usuario, pero devuelve null." },
-            { en: "I've already checked the logs.", es: "Ya revisé los logs." },
+            { en: "I already checked the logs.", es: "Ya revisé los logs." },
             { en: "Could you help me figure out what's causing this?", es: "¿Me ayudas a ver qué está causando esto?" },
           ],
         },
@@ -585,7 +658,7 @@ export const m3: Module = {
           type: "callout",
           tone: "tip",
           title: "Pedir ayuda es una habilidad",
-          body: "Comparte el error exacto, el archivo/línea y lo que ya probaste. No es molestia: es información útil. En inglés, frases como 'I'm getting this error...' y 'I've already checked...' suenan naturales y colaborativas.",
+          body: "Comparte el error exacto, el archivo/línea y lo que ya probaste. No es molestia: es información útil. En inglés, frases como 'I'm getting this error...' y 'I already checked...' (o 'I've already checked...') suenan naturales y colaborativas.",
         },
       ],
       exercises: [
@@ -652,15 +725,27 @@ export const m3: Module = {
           id: "m3-l5-e6",
           type: "write",
           prompt: "Escríbelo en inglés: 'Ya revisé los logs.'",
-          answer: "I've already checked the logs.",
+          answer: "I already checked the logs.",
           accept: [
+            "I've already checked the logs.",
             "I have already checked the logs.",
-            "I've already checked the logs",
-            "I already checked the logs.",
+            "I already checked the logs",
           ],
-          hint: "Usa 'I've already checked...'",
+          hint: "Puedes usar pasado simple: 'I already checked...'",
           explanation:
-            "Decir lo que ya intentaste ahorra tiempo y muestra iniciativa. Es una frase muy útil y natural al pedir ayuda.",
+            "Decir lo que ya intentaste da contexto útil. 'I already checked the logs.' (pasado simple) es claro; también escucharás 'I've already checked...' en equipos (forma que verás más adelante).",
+        },
+        {
+          id: "m3-l5-e7",
+          type: "dialogue-order",
+          prompt: "Ordena cómo pedir ayuda con un error (de forma clara).",
+          lines: [
+            "I'm getting this error: connection refused.",
+            "It fails in auth.ts when I try to log in.",
+            "I already checked the logs. Any ideas?",
+          ],
+          explanation:
+            "Orden útil: error exacto → dónde/cuándo ocurre → qué ya probaste + pregunta. Así facilitas que te ayuden.",
         },
       ],
     },
@@ -748,6 +833,114 @@ export const m3: Module = {
           options: ["No.", "Could you say that again, please?", "Listen better.", "Again now."],
           answer: 1,
           explanation: "Pedir repetición con cortesía: 'Could you say that again, please?'",
+        }
+      ],
+    },
+    {
+      id: "m3-l7",
+      slug: "practica-git-http-errores",
+      title: "Práctica: Git, HTTP y reporte de errores",
+      step: "A2 · Paso 3.7 · Práctica guiada",
+      cefr: "A2",
+      minutes: 8,
+      summary:
+        "Sesión corta para separar y reforzar m3-l1, m3-l4 y m3-l5: mensajes de error, status codes y reportes claros.",
+      objectives: [
+        "Elegir acciones simples ante errores comunes (puerto, módulo, conexión).",
+        "Describir un fallo HTTP o de runtime con información útil.",
+        "Pedir ayuda con error, ubicación y contexto ya intentado."
+      ],
+      pronunciation:
+        "I'm getting this error: connection refused. The API returns a 500 error. Could you help me?",
+      blocks: [
+        {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Repasa m3-l1 (Git/errores), m3-l4 (API/HTTP) y m3-l5 (stack traces y logs). Esta práctica usa solo términos y frases ya enseñados en esas lecciones.",
+        },
+        {
+          type: "technique",
+          name: "Reportar y actuar con claridad",
+          desc: "Error común → acción típica (p. ej. 'Port already in use' → cambiar puerto/matar proceso). Para pedir ayuda: error exacto + dónde ocurre + qué ya probaste.",
+        },
+        {
+          type: "phrases",
+          title: "Chunks de apoyo",
+          items: [
+            { en: "The API returns a 500 error.", es: "La API devuelve un error 500." },
+            { en: "I'm getting this error: connection refused.", es: "Me está saliendo este error: connection refused." },
+            { en: "It fails at line 42 in auth.ts.", es: "Falla en la línea 42 de auth.ts." },
+            { en: "I already checked the logs.", es: "Ya revisé los logs." }
+          ],
+        }
+      ],
+      exercises: [
+        {
+          id: "m3-l7-e1",
+          type: "choice",
+          prompt: "Ves 'Port already in use'. ¿Qué acción encaja con lo aprendido?",
+          options: [
+            "Kill the previous process or change the port.",
+            "Delete the repo.",
+            "Ignore the error.",
+            "Open a new issue only."
+          ],
+          answer: 0,
+          explanation:
+            "Si el puerto está ocupado, la acción típica es detener el proceso anterior o cambiar el puerto.",
+        },
+        {
+          id: "m3-l7-e2",
+          type: "builder",
+          prompt: "Construye: 'La API devuelve un error 500.'",
+          words: ["The API", "returns", "a 500 error."],
+          answer: "The API returns a 500 error.",
+          explanation:
+            "Frase modelo para reportar un status code del servidor.",
+        },
+        {
+          id: "m3-l7-e3",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Me está saliendo este error: conexión rechazada.'",
+          answer: "I'm getting this error: connection refused.",
+          accept: ["I am getting this error: connection refused."],
+          hint: "Usa 'I'm getting this error: ...'",
+          explanation:
+            "Cita el mensaje exacto para que el reporte sea claro.",
+        },
+        {
+          id: "m3-l7-e4",
+          type: "choice",
+          prompt: "¿Qué mensaje es más útil para pedir ayuda?",
+          options: [
+            "It doesn't work.",
+            "I'm getting this error: connection refused. It fails in auth.ts. I already checked the logs.",
+            "Help now.",
+            "Something is wrong."
+          ],
+          answer: 1,
+          explanation:
+            "Incluye error exacto, ubicación y lo que ya probaste.",
+        },
+        {
+          id: "m3-l7-e5",
+          type: "builder",
+          prompt: "Construye: 'Falla en la línea 42 de auth.ts.'",
+          words: ["It fails", "at line 42", "in auth.ts."],
+          answer: "It fails at line 42 in auth.ts.",
+          explanation:
+            "Indicar archivo y línea ayuda a localizar el problema rápidamente.",
+        },
+        {
+          id: "m3-l7-e6",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Ya revisé los logs.'",
+          answer: "I already checked the logs.",
+          accept: ["I've already checked the logs.", "I have already checked the logs."],
+          hint: "Pasado simple: 'I already checked...'",
+          explanation:
+            "Compartir lo que ya intentaste da contexto y ahorra tiempo.",
         }
       ],
     },

@@ -28,8 +28,14 @@ export const m7: Module = {
         "Don't be a meat proxy. Read the diff before you paste it.",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Este módulo es de comprensión cultural/slang (registro informal). Requiere base de lectura en inglés técnico; no necesitas usar estos términos en contextos formales, pero sí reconocerlos. Presta atención a las advertencias de uso.",
+        },
+        {
           type: "text",
-          body: "En 2026, la conversación técnica cambió de '¿usas IA?' a '¿cómo controlas lo que produce?'. Estas palabras nacieron de esa tensión y ya aparecen en ofertas de trabajo, PRs y canales de Slack.",
+          body: "El slang técnico/IA cambia rápido. Aquí aprenderás a reconocer términos comunes (y cuándo evitarlos). Prioriza entender significado, registro y riesgo de sonar ofensivo o poco profesional.",
         },
         {
           type: "slang",
@@ -64,23 +70,23 @@ export const m7: Module = {
             "Un compañero pega en Slack una respuesta enorme de la IA sin leerla ni validarla. ¿Cómo describes ese patrón?",
           options: [
             "He is a meat proxy",
-            "He is a canary release",
-            "He is rubber ducking",
-            "He is shipping it"
+            "He is fixing a bug",
+            "He is writing tests",
+            "He is reviewing the code"
           ],
           answer: 0,
           explanation:
-            "'Meat proxy' describe a quien reenvía output de IA sin leerlo, entenderlo ni validarlo. No es un cumplido.",
+            "'Meat proxy' describe a quien reenvía output de IA sin leerlo, entenderlo ni validarlo. Es un término informal (úsalo con cuidado y sin atacar a personas).",
         },
         {
           id: "m7-l1-e2",
           type: "choice",
           prompt:
             "¿Qué término describe un entregable de IA que se ve pulido pero obliga a otros a rehacerlo?",
-          options: ["Blast radius", "Workslop", "Context window", "Canary"],
-          answer: 1,
+          options: ["AI slop / workslop", "A rollback", "A hotfix", "A code review"],
+          answer: 0,
           explanation:
-            "'Workslop' es trabajo con apariencia profesional pero hueco, que genera trabajo extra a quien lo recibe.",
+            "'AI slop' o 'workslop' se usa para trabajo generado con IA que parece correcto pero es poco útil y crea trabajo extra. (En esta lección ves ambos términos en el vocabulario.)",
         },
         {
           id: "m7-l1-e3",
@@ -102,6 +108,30 @@ export const m7: Module = {
           ],
           explanation:
             "'Pure' funciona como intensificador. 'Review' se usa tanto para code review como para revisar tests.",
+        },
+        {
+          id: "m7-l1-e5",
+          type: "choice",
+          prompt: "¿En qué contexto es más apropiado usar términos como 'AI slop' o 'meat proxy'?",
+          options: [
+            "En un reporte formal para un cliente externo.",
+            "En un chat interno informal, describiendo un patrón (no atacando a una persona).",
+            "En documentación oficial del producto.",
+            "En cualquier correo sin importar la audiencia.",
+          ],
+          answer: 1,
+          explanation:
+            "Son términos informales y pueden sonar despectivos. Úsalos con cuidado en contextos de confianza y enfocados en el trabajo, no en la persona.",
+        },
+        {
+          id: "m7-l1-e6",
+          type: "write",
+          prompt: "Escribe en inglés: 'No seas un meat proxy. Lee el diff.'",
+          answer: "Don't be a meat proxy. Read the diff.",
+          accept: ["Do not be a meat proxy. Read the diff."],
+          hint: "Usa imperativos: 'Don't be...' y 'Read...'",
+          explanation:
+            "Repaso del chunk visto en la lección: instrucción directa para revisar antes de compartir output de IA.",
         }
       ],
     },
@@ -123,8 +153,14 @@ export const m7: Module = {
         "Less yapping, more code. Sprint ends Friday — lock in.",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Cómo estudiar esta lección",
+          body: "Objetivo principal: reconocer el significado y el registro (casual/meme). Úsalo solo en contextos informales de confianza. Si dudas, elige inglés neutro.",
+        },
+        {
           type: "text",
-          body: "El slang cambia cada temporada. No necesitas producirlo todo, pero sí reconocerlo al instante para no perderte en un canal de equipo, un meme o una call relajada. Estos términos están vivos en noviembre de 2026.",
+          body: "Estos términos aparecen en chats y cultura online. No hace falta usarlos todos: enfócate en entenderlos y en saber cuándo suenan fuera de lugar en un entorno profesional.",
         },
         {
           type: "slang",
@@ -192,6 +228,24 @@ export const m7: Module = {
           answer: 1,
           explanation:
             "'Let him cook' = déjalo trabajar, confía en el proceso. Se usa también con 'her/them'.",
+        },
+        {
+          id: "m7-l2-e5",
+          type: "builder",
+          prompt: "Construye: 'Concéntrate. El sprint termina el viernes.'",
+          words: ["Lock in.", "The sprint", "ends", "Friday."],
+          answer: "Lock in. The sprint ends Friday.",
+          explanation:
+            "'Lock in' es una forma informal de decir 'concéntrate/enfócate' (término visto en esta lección).",
+        },
+        {
+          id: "m7-l2-e6",
+          type: "choice",
+          prompt: "Alguien exagera mucho una situación menor. ¿Qué término encaja mejor en slang informal?",
+          options: ["Delulu", "Lock in", "Let him cook", "Cooked"],
+          answer: 0,
+          explanation:
+            "'Delulu' (de 'delusional') se usa de forma informal para alguien poco realista. Úsalo con cuidado y solo en contexto casual.",
         }
       ],
     },
@@ -213,9 +267,15 @@ export const m7: Module = {
         "Let's take this offline and circle back after the standup. I don't have the bandwidth today.",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Útil conocer dinámica básica de reuniones (M4–M5). Aquí verás jerga común de reuniones; aprende significado, intención y cuándo es mejor usar una alternativa neutra.",
+        },
+        {
           type: "technique",
-          name: "Jerga que ahorra tiempo",
-          desc: "Estas expresiones funcionan cuando destraban una reunión: 'take it offline' saca un tema largo del grupo, 'circle back' fija un momento para retomarlo y 'blocker' nombra lo que impide avanzar. Úsalas para decidir, no para evitar responsabilidades.",
+          name: "Jerga de reuniones: útil si aclara la acción",
+          desc: "'Take it offline' = tratarlo fuera de la reunión; 'circle back' = retomarlo luego; 'bandwidth' = capacidad/tiempo. Úsalas para avanzar, no para evadir. Si el contexto es formal o externo, prefiere frases neutras.",
         },
         {
           type: "vocab",
@@ -299,6 +359,29 @@ export const m7: Module = {
           hint: "Usa 'heads-up'.",
           explanation:
             "'Heads-up' es un aviso previo, normalmente informal pero profesional.",
+        },
+        {
+          id: "m7-l3-e5",
+          type: "choice",
+          prompt: "Quieren ponerse de acuerdo sobre el alcance antes de empezar. ¿Qué dices?",
+          options: [
+            "Let's align on the scope.",
+            "Let's take the scope offline.",
+            "We are cooked on scope.",
+            "Ship the scope."
+          ],
+          answer: 0,
+          explanation:
+            "'Align on the scope' significa ponerse de acuerdo sobre el alcance (vocabulario de esta lección).",
+        },
+        {
+          id: "m7-l3-e6",
+          type: "builder",
+          prompt: "Construye: 'Yo me encargo de esa tarea.'",
+          words: ["I'll own", "that", "action item."],
+          answer: "I'll own that action item.",
+          explanation:
+            "'Own that action item' expresa responsabilidad clara sobre una tarea acordada en la reunión.",
         }
       ],
     },
@@ -320,9 +403,15 @@ export const m7: Module = {
         "LGTM with one nit. Ship it, and we'll pay down the tech debt next sprint.",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Requiere conocer code reviews y PRs (M4–M5). Esta lección refuerza términos informales comunes en reviews (LGTM, nit, bikeshedding, ship it, tech debt) y cómo interpretarlos.",
+        },
+        {
           type: "technique",
-          name: "No todo comentario es un bloqueo",
-          desc: "En un review, 'LGTM' significa aprobado; 'nit' es un detalle menor y no debería bloquear el merge; 'bikeshedding' es discutir lo trivial mientras lo importante espera. Saber esta diferencia evita que un review de cinco minutos se convierta en una tarde.",
+          name: "Interpretar señales en un review",
+          desc: "Distingue intención: 'nit' = menor/no bloqueante, 'blocking' = debe resolverse, 'LGTM' = aprobado. 'Bikeshedding' señala discusión sobre detalles triviales. Aclara la intención para evitar malentendidos.",
         },
         {
           type: "vocab",
@@ -407,9 +496,139 @@ export const m7: Module = {
           hint: "Usa 'pay down the tech debt'.",
           explanation:
             "'Pay down debt' se usa tanto para dinero como para deuda técnica: reducirla de forma progresiva.",
+        },
+        {
+          id: "m7-l4-e5",
+          type: "choice",
+          prompt: "Alguien comenta 'nit: rename this variable' en tu PR. ¿Qué implica normalmente?",
+          options: [
+            "Debes rehacer todo el PR.",
+            "Es un detalle menor, normalmente no bloqueante.",
+            "El PR será rechazado.",
+            "Hay un fallo de seguridad crítico.",
+          ],
+          answer: 1,
+          explanation:
+            "'Nit' señala un detalle menor (estilo/claridad). A menos que se indique lo contrario, no suele bloquear el merge.",
+        },
+        {
+          id: "m7-l4-e6",
+          type: "write",
+          prompt: "Escribe en inglés: 'Buen hallazgo, gracias.'",
+          answer: "Good catch, thanks.",
+          accept: ["Good catch, thanks", "Good catch. Thanks."],
+          hint: "Frase corta y común en reviews.",
+          explanation:
+            "Respuesta educada y natural para reconocer un comentario útil en un review.",
+        }
+      ],
+    },
+    {
+      id: "m7-l6",
+      slug: "repaso-slang-uso-y-registro",
+      title: "Repaso: slang, uso y registro",
+      step: "B2 · Especial 7.5 · Práctica guiada",
+      cefr: "B2",
+      minutes: 8,
+      summary:
+        "Sesión corta para separar y reforzar el módulo de slang: significado, intención y cuándo usar o evitar cada término.",
+      objectives: [
+        "Reconocer significado de términos vistos en m7-l1 a m7-l4.",
+        "Elegir alternativas claras y profesionales cuando el contexto lo pide.",
+        "Recordar que el registro importa (informal vs. formal)."
+      ],
+      pronunciation:
+        "LGTM with one nit. Let's circle back later. Don't be a meat proxy.",
+      blocks: [
+        {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Repasa m7-l1 a m7-l4. Esta práctica usa solo términos y ejemplos ya vistos en esas lecciones (IA, reuniones, reviews e internet slang). Objetivo: reconocer y elegir registro adecuado.",
+        },
+        {
+          type: "technique",
+          name: "Entender primero, usar después",
+          desc: "Identifica significado y tono. En contextos formales o con personas externas, prefiere inglés neutro. En chats internos de confianza, algunos términos pueden ser naturales si no atacan a nadie.",
+        },
+        {
+          type: "phrases",
+          title: "Repaso rápido",
+          items: [
+            { en: "AI slop / workslop", es: "output de IA pulido pero poco útil." },
+            { en: "Let's circle back.", es: "Retomemos esto luego (reuniones)." },
+            { en: "LGTM with one nit.", es: "Aprobado con un detalle menor (review)." },
+            { en: "Let him cook.", es: "Déjalo trabajar/confía en el proceso (informal)." }
+          ],
+        }
+      ],
+      exercises: [
+        {
+          id: "m7-l6-e1",
+          type: "choice",
+          prompt: "En un review, alguien aprueba con un detalle menor. ¿Qué expresión encaja?",
+          options: ["LGTM with one nit.", "We are cooked.", "Take it offline.", "AI slop."],
+          answer: 0,
+          explanation:
+            "'LGTM with one nit' indica aprobación con un comentario menor (visto en m7-l4).",
+        },
+        {
+          id: "m7-l6-e2",
+          type: "choice",
+          prompt: "En una reunión, un tema se desvía y quieres tratarlo después. ¿Qué dices?",
+          options: ["Let's take it offline.", "Ship it.", "Let him cook.", "Good catch."],
+          answer: 0,
+          explanation:
+            "'Take it offline' sirve para aparcar el tema y tratarlo fuera de la reunión (m7-l3).",
+        },
+        {
+          id: "m7-l6-e3",
+          type: "builder",
+          prompt: "Construye: 'Aprobado, con un detalle menor.'",
+          words: ["LGTM", "with one", "nit."],
+          answer: "LGTM with one nit.",
+          explanation:
+            "Chunk común en code reviews para aprobar sin bloquear por un detalle pequeño.",
+        },
+        {
+          id: "m7-l6-e4",
+          type: "choice",
+          prompt: "¿Qué opción es más adecuada en un reporte formal para un cliente?",
+          options: [
+            "This deliverable needs revision because some parts are not useful.",
+            "This is pure AI slop.",
+            "This is cooked.",
+            "No cap, this is bad."
+          ],
+          answer: 0,
+          explanation:
+            "En contextos formales es mejor usar inglés neutro y específico en lugar de slang.",
+        },
+        {
+          id: "m7-l6-e5",
+          type: "write",
+          prompt: "Escribe en inglés: 'Retomémoslo después del standup.'",
+          answer: "Let's circle back after the standup.",
+          accept: ["Lets circle back after the standup."],
+          hint: "Usa 'circle back'.",
+          explanation:
+            "Frase de reunión ya vista para proponer retomar un tema más tarde.",
+        },
+        {
+          id: "m7-l6-e6",
+          type: "choice",
+          prompt: "Un compañero reenvía respuestas de IA sin revisarlas. ¿Cómo describes el patrón (con cuidado, sin atacar)?",
+          options: [
+            "Acting as a meat proxy.",
+            "Doing a code review.",
+            "Fixing the bug.",
+            "Writing tests."
+          ],
+          answer: 0,
+          explanation:
+            "'Meat proxy' describe el patrón de reenviar output sin leer/validar (m7-l1). Úsalo con cuidado y en contexto apropiado.",
         }
       ],
     }
-    
   ],
 };

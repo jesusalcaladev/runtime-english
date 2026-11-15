@@ -1,5 +1,5 @@
 ---
-import { Bug, PanelLeft, Search, User } from "@lucide/astro";
+import { PanelLeft, Search, User } from "@lucide/astro";
 import Logo from "../ui/Logo.astro";
 import ProgressPill from "../dashboard/ProgressPill";
 import ThemeToggle from "./ThemeToggle";
@@ -14,58 +14,34 @@ interface Props {
 }
 
 const { a1SessionIds, b1SessionIds, totalSessions, totalExercises } = Astro.props;
+const iconButtonClass =
+  "surface-soft flex h-9 w-9 items-center justify-center rounded-full text-base-content/60 transition hover:bg-base-300 hover:text-base-content";
 ---
 
-<header class="sticky top-0 z-50 bg-base-100/80 backdrop-blur-xl pt-[env(safe-area-inset-top,0px)] print:hidden">
-  <div class="mx-auto flex h-14 w-full max-w-[1600px] items-center justify-between gap-3 px-3 sm:px-5">
-    <div class="flex items-center gap-2.5">
+<header class="sticky top-0 z-50 border-b border-base-content/[0.04] bg-base-100/85 backdrop-blur-xl pt-[env(safe-area-inset-top,0px)] print:hidden">
+  <div class="mx-auto flex h-14 w-full max-w-[1600px] items-center justify-between gap-2 px-2.5 sm:gap-3 sm:px-5">
+    <div class="flex min-w-0 items-center gap-1.5 sm:gap-2.5">
       <button
         id="mobile-menu-btn"
         type="button"
-        class="surface-soft flex h-9 w-9 items-center justify-center rounded-xl text-base-content/65 transition hover:bg-base-200 hover:text-base-content lg:hidden"
-        aria-label="Abrir menú"
+        class="surface-soft flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-base-content/65 transition hover:bg-base-200 hover:text-base-content lg:hidden"
+        aria-label="Abrir menú de navegación"
+        aria-expanded="false"
+        aria-controls="app-sidebar"
         onclick="window.dispatchEvent(new CustomEvent('runtimeenglish:menu'))"
       >
         <PanelLeft class="h-4 w-4" />
       </button>
 
-      <a href={route("/")} class="group flex select-none items-center gap-2.5" aria-label="RuntimeEnglish — inicio">
-        <span class="flex h-8 w-8 items-center justify-center rounded-[10px] bg-base-content text-base-100 transition group-hover:opacity-80">
+      <a href={route("/")} class="group flex min-w-0 select-none items-center gap-2 sm:gap-2.5" aria-label="RuntimeEnglish — inicio">
+        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-base-content text-base-100 transition group-hover:opacity-80">
           <Logo size={20} />
         </span>
-        <span class="flex items-baseline gap-2">
-          <span class="font-pixel-square text-[17px] leading-none">RuntimeEnglish</span>
-          <span class="font-mono text-[10px] font-medium tracking-normal text-base-content/35">
-            Core
-          </span>
-        </span>
+        <span class="font-pixel-square truncate text-[15px] leading-none sm:text-[17px]">RuntimeEnglish</span>
       </a>
     </div>
 
-    <div class="flex items-center gap-1.5 sm:gap-2">
-      <a
-        href={route("/search")}
-        class="surface-soft flex h-9 w-9 items-center justify-center rounded-full text-base-content/60 transition hover:bg-base-300 hover:text-base-content"
-        aria-label="Buscar"
-        title="Buscar"
-      >
-        <Search class="h-4 w-4" />
-      </a>
-      <a
-        href="https://github.com/jesusalcaladev/runtime-english/issues/new/choose"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="surface-soft flex h-9 w-9 items-center justify-center rounded-full text-base-content/60 transition hover:bg-base-300 hover:text-base-content"
-        aria-label="Reportar un problema"
-        title="Reportar un problema"
-      >
-        <Bug class="h-4 w-4" />
-      </a>
-      <div class="mr-1 hidden items-center gap-2 rounded-full bg-base-200 px-3 py-1.5 text-[10px] font-medium text-base-content/50 md:flex">
-        <span class="h-1.5 w-1.5 rounded-full bg-accent"></span>
-        Slang · Nov 2026
-      </div>
-      <InstallAppButton client:only="preact" />
+    <div class="flex shrink-0 items-center gap-0.5 sm:gap-1.5">
       <ProgressPill
         client:only="preact"
         a1SessionIds={a1SessionIds}
@@ -73,13 +49,12 @@ const { a1SessionIds, b1SessionIds, totalSessions, totalExercises } = Astro.prop
         totalSessions={totalSessions}
         totalExercises={totalExercises}
       />
+      <InstallAppButton client:only="preact" />
+      <a href={route("/search")} class={iconButtonClass} aria-label="Buscar" title="Buscar">
+        <Search class="h-4 w-4" />
+      </a>
       <ThemeToggle client:only="preact" />
-      <a
-        href={route("/settings")}
-        class="surface-soft flex h-9 w-9 items-center justify-center rounded-full text-base-content/60 transition hover:bg-base-300 hover:text-base-content"
-        aria-label="Ajustes de perfil"
-        title="Ajustes"
-      >
+      <a href={route("/settings")} class={iconButtonClass} aria-label="Ajustes de perfil" title="Ajustes">
         <User class="h-4 w-4" />
       </a>
     </div>

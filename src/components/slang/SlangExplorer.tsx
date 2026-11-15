@@ -239,10 +239,11 @@ export default function SlangExplorer({ entries }: Props) {
                     <button
                       type="button"
                       data-speak={entry.term}
-                      aria-label={`Escuchar ${entry.term}`}
-                      class="flex h-7 w-7 items-center justify-center rounded-full text-base-content/20 transition hover:bg-base-100 hover:text-base-content/60"
+                      aria-label={`Escuchar término: ${entry.term}`}
+                      title={`Escuchar ${entry.term}`}
+                      class="speak-btn flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-base-content/30 transition hover:bg-base-100 hover:text-base-content/70 hover:scale-[1.03] active:scale-95"
                     >
-                      <Volume2 class="h-3.5 w-3.5" />
+                      <Volume2 class="h-4 w-4" aria-hidden="true" />
                     </button>
                     <button
                       type="button"

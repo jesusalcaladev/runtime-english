@@ -1,13 +1,14 @@
 /// <reference lib="webworker" />
 
-type LoadMsg = { type: "load"; device: "webgpu" | "wasm" };
+type LoadMsg = { type: "load"; device: "webgpu" | "wasm"; preferLowMemory?: boolean };
 type GenerateMsg = { type: "generate"; id: number; text: string; speed: number };
 type Msg = LoadMsg | GenerateMsg;
 
 let tts: any = null;
 let loadPromise: Promise<void> | null = null;
+let loadedDevice: "webgpu" | "wasm" | null = null;
 
-async function ensureLoaded(device: "webgpu" | "wasm") {
+async function ensureLoaded(device: "webgpu" | "wasm", preferLowMemory = false) {
   if (tts) return;
   if (loadPromise) return loadPromise;
   loadPromise = (async () => {
@@ -15,20 +16,28 @@ async function ensureLoaded(device: "webgpu" | "wasm") {
       try {
         const { env } = await import("@huggingface/transformers");
         const wasm = (env as any)?.backends?.onnx?.wasm;
-        if (wasm) wasm.numThreads = 1;
+        if (wasm) {
+          // Keep CPU/memory pressure low, especially on mobile.
+          wasm.numThreads = 1;
+          try {
+            const hc = (self as any).navigator?.hardwareConcurrency;
+            if (typeof hc === "number" && hc <= 4) wasm.simd = true;
+          } catch {}
+        }
         if ((env as any).allowRemoteModels === false) (env as any).allowRemoteModels = true;
       } catch {}
 
       let KokoroTTS: any;
       try {
         ({ KokoroTTS } = await import("kokoro-js"));
-      } catch (e) {
+      } catch {
         await new Promise((r) => setTimeout(r, 250));
         ({ KokoroTTS } = await import("kokoro-js"));
       }
 
       const model_id = "onnx-community/Kokoro-82M-v1.0-ONNX";
-      const dtype = device === "webgpu" ? "fp32" : "q8";
+      const requestedDevice = preferLowMemory ? "wasm" : device;
+      const dtype = requestedDevice === "webgpu" ? "fp32" : "q8";
 
       const progress_callback = (info: any) => {
         try {
@@ -39,24 +48,28 @@ async function ensureLoaded(device: "webgpu" | "wasm") {
       try {
         tts = await KokoroTTS.from_pretrained(model_id, {
           dtype,
-          device,
+          device: requestedDevice,
           progress_callback,
         } as any);
-        (self as any).postMessage({ type: "ready", device });
+        loadedDevice = requestedDevice;
+        (self as any).postMessage({ type: "ready", device: requestedDevice });
       } catch (e) {
-        if (device === "webgpu") {
-          (self as any).postMessage({ type: "status", message: "WebGPU no disponible, usando WASM…" });
+        if (requestedDevice === "webgpu") {
+          (self as any).postMessage({ type: "status", message: "WebGPU no disponible o inestable, usando WASM (q8)…" });
           tts = await KokoroTTS.from_pretrained(model_id, {
             dtype: "q8",
             device: "wasm",
             progress_callback,
           } as any);
+          loadedDevice = "wasm";
           (self as any).postMessage({ type: "ready", device: "wasm" });
         } else {
           throw e;
         }
       }
     } catch (err: any) {
+      tts = null;
+      loadedDevice = null;
       const message = err?.message || String(err || "load error");
       (self as any).postMessage({ type: "error", error: message });
       throw err;
@@ -72,14 +85,17 @@ self.onmessage = async (ev: MessageEvent<Msg>) => {
   if (!msg) return;
   if (msg.type === "load") {
     try {
-      await ensureLoaded(msg.device);
+      await ensureLoaded(msg.device, Boolean(msg.preferLowMemory));
     } catch {}
     return;
   }
   if (msg.type === "generate") {
     try {
       if (!tts) throw new Error("TTS not ready");
-      const audio = await tts.generate(msg.text, { voice: "af_heart", speed: msg.speed });
+      // Short texts are cheaper/faster on mobile and reduce generation stalls.
+      const text = String(msg.text || "").trim();
+      if (!text) throw new Error("Empty text");
+      const audio = await tts.generate(text, { voice: "af_heart", speed: msg.speed });
       let buffer: ArrayBuffer;
       let mime = "audio/wav";
       if (audio && typeof audio.toBlob === "function") {
@@ -93,7 +109,7 @@ self.onmessage = async (ev: MessageEvent<Msg>) => {
       } else {
         throw new Error("Unsupported audio output");
       }
-      (self as any).postMessage({ type: "audio", id: msg.id, buffer, mime }, [buffer]);
+      (self as any).postMessage({ type: "audio", id: msg.id, buffer, mime, device: loadedDevice }, [buffer]);
     } catch (err: any) {
       (self as any).postMessage({ type: "gen-error", id: msg.id, error: err?.message || String(err || "generate error") });
     }

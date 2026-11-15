@@ -27,9 +27,15 @@ export const m8: Module = {
         "The client must send a token. You should retry on failure. This field is optional.",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Requiere lectura básica de inglés técnico y verbos modales/imperativos ya vistos. Aquí aprenderás a extraer requisitos (must/should/may), estado (deprecated) y a resumir la acción principal.",
+        },
+        {
           type: "technique",
-          name: "Busca verbos de requisito, no leas todo igual",
-          desc: "En docs/specs, enfócate primero en: must/required (obligatorio), should/recommended (recomendado), may/optional (opcional). Luego identifica sujeto, acción y condición: 'The client must send a token.' Eso te da el 80% del valor en poco tiempo.",
+          name: "Leer docs rápido: identifica requisito y acción",
+          desc: "Escanea primero palabras clave: must/required (obligatorio), should/recommended (recomendado), may/optional (opcional), deprecated/breaking change (riesgo/cambio). Luego resume: quién + qué debe hacer + condición.",
         },
         {
           type: "vocab",
@@ -96,6 +102,25 @@ export const m8: Module = {
           answer: "This field is optional, so we can skip it for now.",
           explanation:
             "'Optional' indica que no es requerido; 'skip it for now' comunica la decisión práctica.",
+        },
+        {
+          id: "m8-l1-e5",
+          type: "choice",
+          prompt: "La doc dice: 'You should retry on failure.' ¿Qué significa 'should' aquí?",
+          options: ["Es obligatorio", "Es recomendado", "Está prohibido", "Es imposible"],
+          answer: 1,
+          explanation:
+            "'Should' indica recomendación (buena práctica), no una obligación estricta como 'must'.",
+        },
+        {
+          id: "m8-l1-e6",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Según la documentación, este endpoint está obsoleto.'",
+          answer: "According to the docs, this endpoint is deprecated.",
+          accept: ["According to the docs, this endpoint is deprecated"],
+          hint: "Usa 'According to the docs...' y 'deprecated'.",
+          explanation:
+            "Frase modelo de la lección para resumir un estado importante encontrado en documentación.",
         }
       ],
     },
@@ -117,9 +142,15 @@ export const m8: Module = {
         "Here's the context. Could you walk me through the fix, call out any edge cases, and keep the API the same?",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Requiere vocabulario técnico general y capacidad de describir tareas/errores. Esta lección introduce vocabulario y frases para trabajar con AI agents/prompts; todo lo usado en ejercicios se presenta en los bloques.",
+        },
+        {
           type: "technique",
-          name: "Ruta limpia: Contexto → Objetivo → Restricciones → Formato → Revisión",
-          desc: "Piensa el prompt como un mini brief: 1) Contexto: qué hay, dónde está y qué pasa ahora. 2) Objetivo: qué resultado quieres (refactor, debug, explain, draft). 3) Restricciones: límites claros (no breaking changes, keep it simple, out of scope). 4) Formato: cómo debe responder (steps, diff, list, JSON). 5) Revisión: pide que señale riesgos o casos borde y tú haces un sanity check final.",
+          name: "Prompt claro para un agente: contexto → objetivo → límites → formato",
+          desc: "1) Contexto: qué sistema/archivo y qué pasa. 2) Objetivo: qué quieres obtener. 3) Restricciones: qué no debe cambiar, alcance, supuestos. 4) Formato de salida: pasos, diff, lista, etc. 5) Revisión: pide edge cases/riesgos y verifica tú el resultado.",
         },
         {
           type: "vocab",
@@ -318,7 +349,7 @@ export const m8: Module = {
       id: "m8-l5",
       slug: "drills-situaciones-reales",
       title: "Drills: cómo dirías y escríbelo",
-      step: "B1 · Paso 8.6 · Práctica guiada",
+      step: "B1 · Paso 8.3 · Práctica guiada",
       cefr: "B1",
       minutes: 12,
       summary:
@@ -332,15 +363,21 @@ export const m8: Module = {
         "I found the root cause. Let me walk you through the fix. Could you take a look when you have a minute?",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Integra vocabulario y estructuras de módulos previos (debug, PR, demo, handoff). Los modelos de frase aparecen en la lección; los ejercicios piden aplicar esos patrones a situaciones concretas.",
+        },
+        {
           type: "technique",
-          name: "Patrón de respuesta rápida",
-          desc: "Para cada situación: 1) contexto corto, 2) hecho principal, 3) siguiente paso. Ej.: 'I found the root cause (hecho). It was a null value (contexto). I'll add a check and push a fix (siguiente paso).'",
+          name: "Responder rápido: contexto → hecho → siguiente paso",
+          desc: "Estructura breve para situaciones reales: qué pasa/contexto, hecho o causa principal, y siguiente acción. Esto funciona en bugs, reviews, demos y handoffs.",
         },
         {
           type: "phrases",
           title: "Modelos por situación",
           items: [
-            { en: "I found the root cause: the token was expired.", es: "Encontré la causa raíz: el token había expirado." },
+            { en: "I found the root cause: the token expired.", es: "Encontré la causa raíz: el token expiró." },
             { en: "I suggest adding a test for this case.", es: "Sugiero agregar un test para este caso." },
             { en: "Let me walk you through the fix.", es: "Déjame mostrarte el arreglo paso a paso." },
             { en: "Could you take a look when you have a minute?", es: "¿Podrías echarle un vistazo cuando tengas un minuto?" },
@@ -360,13 +397,13 @@ export const m8: Module = {
           id: "m8-l5-e1",
           type: "write",
           prompt: "Situación: encontraste la causa de un bug. Escríbelo: 'Encontré la causa raíz: el token había expirado.'",
-          answer: "I found the root cause: the token had expired.",
+          answer: "I found the root cause: the token expired.",
           accept: [
-            "I found the root cause: the token was expired.",
-            "I found the root cause: the token expired."
+            "I found the root cause: the token had expired.",
+            "I found the root cause: the token was expired."
           ],
-          hint: "Usa 'I found the root cause...'",
-          explanation: "Nombrar la causa raíz es claro y profesional en incidentes y debugging.",
+          hint: "Usa 'I found the root cause...' + pasado simple.",
+          explanation: "Nombrar la causa raíz es claro y profesional en incidentes y debugging. Aquí basta con pasado simple ('expired') para indicar qué pasó.",
         },
         {
           id: "m8-l5-e2",
@@ -429,7 +466,7 @@ export const m8: Module = {
       id: "m8-l6",
       slug: "emails-tickets-y-mensajes-profesionales",
       title: "Emails, tickets y mensajes profesionales",
-      step: "B1 · Paso 8.7 · Práctica guiada",
+      step: "B1 · Paso 8.4 · Práctica guiada",
       cefr: "B1",
       minutes: 10,
       summary:
@@ -443,16 +480,22 @@ export const m8: Module = {
         "Hi team, the fix is ready. Please review the ticket when you can. Let me know if you need anything else.",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Requiere formas básicas de estado, peticiones y cierres vistos antes. Aquí se consolidan en plantillas para emails/tickets/chat profesional.",
+        },
+        {
           type: "technique",
-          name: "Mensaje profesional en 3 líneas",
-          desc: "1) Contexto/estado: qué pasó o en qué punto estás. 2) Acción o petición: qué necesitas o qué harás. 3) Cierre: disponibilidad o confirmación. Ejemplo: 'The fix is deployed to staging. Please test the login flow. Let me know if you find any issues.'",
+          name: "Escribir claro en 3 partes",
+          desc: "1) Estado/contexto. 2) Acción o petición concreta. 3) Cierre/seguimiento ('Let me know if...'). Mensajes cortos y estructurados evitan ambigüedad en async.",
         },
         {
           type: "phrases",
           title: "Frases modelo",
           items: [
             { en: "Hi team, here's a quick update.", es: "Hola equipo, aquí va una actualización rápida." },
-            { en: "The issue has been fixed and deployed to staging.", es: "El problema fue arreglado y desplegado a staging." },
+            { en: "The issue is fixed and deployed to staging.", es: "El problema está arreglado y desplegado a staging." },
             { en: "Please review the ticket when you can.", es: "Por favor revisa el ticket cuando puedas." },
             { en: "Let me know if you need any more details.", es: "Avísame si necesitas más detalles." },
             { en: "I'll follow up once I have more information.", es: "Haré seguimiento cuando tenga más información." },
@@ -488,11 +531,11 @@ export const m8: Module = {
         {
           id: "m8-l6-e2",
           type: "builder",
-          prompt: "Construye: 'El problema fue arreglado y desplegado a staging.'",
-          words: ["The issue", "has been fixed", "and deployed", "to staging."],
-          answer: "The issue has been fixed and deployed to staging.",
+          prompt: "Construye: 'El problema está arreglado y desplegado en staging.'",
+          words: ["The issue", "is fixed", "and deployed", "to staging."],
+          answer: "The issue is fixed and deployed to staging.",
           explanation:
-            "Presente perfecto pasivo para comunicar estado/resultado: 'has been fixed and deployed'.",
+            "Forma clara y simple para comunicar el estado actual: 'is fixed and deployed' (resultado/estado). Usa vocabulario ya visto (issue, fix, deploy, staging).",
         },
         {
           id: "m8-l6-e3",
@@ -520,6 +563,25 @@ export const m8: Module = {
           answer: 1,
           explanation:
             "Indicar el siguiente paso o seguimiento ('I'll follow up...') da claridad sobre qué esperar.",
+        },
+        {
+          id: "m8-l6-e5",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Por favor revisa el ticket cuando puedas.'",
+          answer: "Please review the ticket when you can.",
+          accept: ["Please review the ticket when you can"],
+          hint: "Petición concreta + 'when you can'.",
+          explanation:
+            "Pide una acción clara y con cortesía usando una frase modelo de la lección.",
+        },
+        {
+          id: "m8-l6-e6",
+          type: "builder",
+          prompt: "Construye: 'Hola equipo, aquí va una actualización rápida.'",
+          words: ["Hi team,", "here's", "a quick", "update."],
+          answer: "Hi team, here's a quick update.",
+          explanation:
+            "Apertura profesional para emails, tickets o mensajes de chat.",
         }
       ],
     },
@@ -527,7 +589,7 @@ export const m8: Module = {
       id: "m7-l5",
       slug: "repaso-final-practica-extra",
       title: "Repaso final: práctica extra",
-      step: "Extra · Repaso completo",
+      step: "B1-B2 · Paso 8.5 · Repaso final",
       cefr: "B1",
       minutes: 25,
       summary:
@@ -541,9 +603,15 @@ export const m8: Module = {
         "I mean, the build failed, but I fixed it. Actually, we should add a test before we merge.",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Repaso final integrado",
+          body: "Esta sesión mezcla contenidos de todo el curso (verbos, tiempos, PR/git, errores, reuniones, conectores, estimaciones). Úsala como práctica de recuperación: si algo falla, vuelve al módulo correspondiente. Todas las estructuras aparecen en los modelos de esta lección.",
+        },
+        {
           type: "technique",
-          name: "Cómo usar este repaso",
-          desc: "Piensa primero en la idea en español y luego elige la forma más simple y clara en inglés. Si dudas, usa estructuras cortas: sujeto + verbo + complemento. No busques sonar complejo; busca sonar claro. Repite en voz alta las frases correctas para ganar ritmo.",
+          name: "Cómo aprovechar el repaso",
+          desc: "Piensa la idea, elige la forma más simple y clara, y verifica sujeto+tiempo+complemento. Prioriza claridad sobre complejidad. Repetir en voz alta ayuda a fijar ritmo y chunks.",
         },
         {
           type: "callout",
@@ -792,6 +860,449 @@ export const m8: Module = {
           explanation:
             "'To be honest' introduce una opinión directa de forma natural; 'we should add more tests' da una recomendación clara.",
         },
+      ],
+    },
+    {
+      id: "m8-l8",
+      slug: "prompts-ai-practica-enfocada",
+      title: "Práctica enfocada: prompts para AI agents",
+      step: "B1 · Paso 8.6 · Práctica guiada",
+      cefr: "B1",
+      minutes: 10,
+      summary:
+        "Sesión corta para separar y reforzar la práctica de m8-l7: contexto, restricción, revisión y frases nativas en prompts.",
+      objectives: [
+        "Aplicar la estructura contexto → objetivo → límites → formato en situaciones concretas.",
+        "Usar chunks nativos ya vistos (walk me through, call out, sanity check, out of scope).",
+        "Pedir revisiones y cambios sin ambigüedad."
+      ],
+      pronunciation:
+        "Here's the context. Keep the API the same, call out edge cases, and take another pass at the tests.",
+      blocks: [
+        {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Completa primero 'Prompts y trabajo con AI agents' (m8-l7). Esta sesión separa la práctica en drills cortos usando solo el vocabulario y los chunks ya enseñados allí.",
+        },
+        {
+          type: "technique",
+          name: "Plantilla rápida de prompt",
+          desc: "Contexto ('Here's the context...') + objetivo claro + restricción ('Keep the existing behavior the same' / 'out of scope') + revisión ('sanity check', 'call out edge cases').",
+        },
+        {
+          type: "phrases",
+          title: "Chunks de apoyo (ya vistos)",
+          items: [
+            { en: "Here's the context: ...", es: "Aquí está el contexto: ..." },
+            { en: "Keep the existing behavior the same.", es: "Mantén el comportamiento existente igual." },
+            { en: "Call out any edge cases.", es: "Señala cualquier caso límite." },
+            { en: "Can you do a quick sanity check?", es: "¿Puedes hacer una revisión rápida?" }
+          ],
+        }
+      ],
+      exercises: [
+        {
+          id: "m8-l8-e1",
+          type: "choice",
+          prompt: "Quieres pedir contexto y una explicación paso a paso. ¿Qué opción es más clara?",
+          options: [
+            "Fix.",
+            "Here's the context: the login fails. Can you walk me through the fix?",
+            "Explain fast.",
+            "Do something about login."
+          ],
+          answer: 1,
+          explanation:
+            "Da contexto y usa 'walk me through' (chunk ya visto en m8-l7) para pedir una explicación guiada.",
+        },
+        {
+          id: "m8-l8-e2",
+          type: "builder",
+          prompt: "Construye: 'Mantén el comportamiento existente igual.'",
+          words: ["Keep the", "existing behavior", "the same."],
+          answer: "Keep the existing behavior the same.",
+          explanation:
+            "Restricción clara para evitar regresiones (chunk de m8-l7).",
+        },
+        {
+          id: "m8-l8-e3",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Haz una revisión rápida y señala cualquier caso borde.'",
+          answer: "Do a quick sanity check and call out any edge cases.",
+          accept: ["Can you do a quick sanity check and call out any edge cases?"],
+          hint: "Usa 'sanity check' y 'call out any edge cases'.",
+          explanation:
+            "Pide revisión concreta con expresiones nativas ya practicadas.",
+        },
+        {
+          id: "m8-l8-e4",
+          type: "choice",
+          prompt: "Quieres dejar el refactor de base de datos para después. ¿Qué dices?",
+          options: [
+            "Do database refactor now.",
+            "Refactoring the database is out of scope for now.",
+            "Database is maybe later yes.",
+            "No database ever."
+          ],
+          answer: 1,
+          explanation:
+            "'Out of scope for now' delimita claramente el alcance (visto en m8-l7).",
+        },
+        {
+          id: "m8-l8-e5",
+          type: "builder",
+          prompt: "Construye: 'Explícame tu razonamiento paso a paso.'",
+          words: ["Walk me", "through your", "reasoning."],
+          answer: "Walk me through your reasoning.",
+          explanation:
+            "Pide una explicación guiada con un chunk nativo ya enseñado.",
+        },
+        {
+          id: "m8-l8-e6",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Revísalo otra vez y mantenlo simple.'",
+          answer: "Take another pass and keep it simple.",
+          accept: ["Can you take another pass and keep it simple?"],
+          hint: "Usa 'take another pass' y 'keep it simple'.",
+          explanation:
+            "Dos frases nativas de m8-l7 para pedir una mejora clara y sencilla.",
+        }
+      ],
+    },
+    {
+      id: "m8-l9",
+      slug: "repaso-final-comunicacion-entregas",
+      title: "Repaso final: comunicación y entregas",
+      step: "B1-B2 · Paso 8.7 · Repaso final",
+      cefr: "B1",
+      minutes: 12,
+      summary:
+        "Repaso separado y enfocado en comunicación diaria: tiempos básicos, PRs, actualizaciones, bloqueos y conectores.",
+      objectives: [
+        "Practicar updates claros con pasado/presente/futuro y siguiente paso.",
+        "Reforzar frases de PR, bloqueos, estimaciones y conectores ya vistos.",
+        "Ganar fluidez en mensajes cortos y profesionales."
+      ],
+      pronunciation:
+        "I fixed the bug, I'm testing it now, and I'll open a PR today. Actually, I'm blocked by API access.",
+      blocks: [
+        {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Complementa el repaso final integrado (m7-l5) separando la práctica en comunicación y entregas. Usa solo estructuras y chunks ya trabajados en el curso (tiempos básicos, PR, async, conectores, estimaciones).",
+        },
+        {
+          type: "technique",
+          name: "Estructura de update corto",
+          desc: "Qué pasó (pasado) → qué haces ahora (presente continuo/estado) → siguiente paso (will/can/next step). Añade bloqueo o conector si hace falta.",
+        },
+        {
+          type: "phrases",
+          title: "Modelos de repaso",
+          items: [
+            { en: "I fixed the bug and opened a PR.", es: "Arreglé el bug y abrí un PR." },
+            { en: "I'm blocked by API access.", es: "Estoy bloqueado por el acceso a la API." },
+            { en: "Actually, the issue is in the frontend.", es: "En realidad, el problema está en el frontend." },
+            { en: "It will take two to three days, assuming the API is stable.", es: "Tomará dos o tres días, suponiendo que la API sea estable." }
+          ],
+        },
+        {
+          type: "table",
+          title: "Marcos rápidos",
+          columns: ["Situación", "Marco"],
+          rows: [
+            ["Estado + siguiente paso", "I'm working on [tarea]. Next step: [acción]."],
+            ["Bloqueo", "I'm blocked by [causa]."],
+            ["Corrección", "Actually, [hecho correcto]."],
+            ["Estimación", "It will take [rango], assuming [supuesto]."]
+          ],
+        }
+      ],
+      exercises: [
+        {
+          id: "m8-l9-e1",
+          type: "builder",
+          prompt: "Construye: 'Arreglé el bug y abrí un PR.'",
+          words: ["I fixed", "the bug", "and opened", "a PR."],
+          answer: "I fixed the bug and opened a PR.",
+          explanation:
+            "Dos acciones completadas en pasado simple: forma clara y común en updates.",
+        },
+        {
+          id: "m8-l9-e2",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Estoy bloqueado por el acceso a la API.'",
+          answer: "I'm blocked by API access.",
+          accept: ["I am blocked by API access.", "I'm blocked by access to the API."],
+          hint: "Usa 'I'm blocked by...'",
+          explanation:
+            "Comunica bloqueo y causa de forma directa.",
+        },
+        {
+          id: "m8-l9-e3",
+          type: "choice",
+          prompt: "Quieres corregir un malentendido: el problema está en el frontend. ¿Qué dices?",
+          options: [
+            "Basically, backend.",
+            "Actually, the issue is in the frontend.",
+            "Anyway, issue frontend.",
+            "Currently maybe backend."
+          ],
+          answer: 1,
+          explanation:
+            "'Actually' corrige o aclara información previa.",
+        },
+        {
+          id: "m8-l9-e4",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Tomará dos o tres días, suponiendo que la API sea estable.'",
+          answer: "It will take two to three days, assuming the API is stable.",
+          accept: ["It'll take two to three days, assuming the API is stable."],
+          hint: "Usa 'It will take...' y 'assuming...'",
+          explanation:
+            "Estimación profesional con rango y supuesto explícito.",
+        },
+        {
+          id: "m8-l9-e5",
+          type: "builder",
+          prompt: "Construye: 'Estoy trabajando en los tests. Próximo paso: abrir el PR.'",
+          words: ["I'm working on", "the tests.", "Next step:", "open the PR."],
+          answer: "I'm working on the tests. Next step: open the PR.",
+          explanation:
+            "Update corto con estado actual y siguiente paso.",
+        },
+        {
+          id: "m8-l9-e6",
+          type: "choice",
+          prompt: "En un PR, los tests pasan y quieres dar luz verde. ¿Qué opción es adecuada?",
+          options: [
+            "Bad tests.",
+            "LGTM, we can merge.",
+            "No idea.",
+            "Ship never."
+          ],
+          answer: 1,
+          explanation:
+            "'LGTM' (visto en el curso) indica aprobación; combinarlo con el siguiente paso es claro.",
+        }
+      ],
+    },
+    {
+      id: "m8-l10",
+      slug: "repaso-final-tiempos-errores-acciones",
+      title: "Repaso final: tiempos, errores y acciones",
+      step: "B1-B2 · Paso 8.8 · Repaso final",
+      cefr: "B1",
+      minutes: 10,
+      summary:
+        "Repaso separado para practicar tiempos básicos, reportes de errores y acciones técnicas con frases cortas.",
+      objectives: [
+        "Usar presente continuo, pasado simple y 'will' en contexto técnico.",
+        "Reportar un problema y decir qué haces o harás después.",
+        "Reforzar imperativos y vocabulario de acciones ya vistos."
+      ],
+      pronunciation:
+        "The build failed, but I'm fixing it now. I'll push the fix after the tests pass.",
+      blocks: [
+        {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Complementa el repaso integrado (m7-l5) y el repaso de comunicación (m8-l9) separando la práctica en tiempos, errores y acciones. Usa estructuras y vocabulario ya trabajados en M1–M5.",
+        },
+        {
+          type: "technique",
+          name: "Narrativa corta de un problema",
+          desc: "Qué pasó (pasado): 'The build failed.' Qué haces ahora (continuo): 'I'm fixing it now.' Siguiente paso (futuro): 'I'll push the fix tomorrow.'",
+        },
+        {
+          type: "phrases",
+          title: "Modelos de repaso",
+          items: [
+            { en: "The build failed, but I'm fixing it now.", es: "El build falló, pero lo estoy arreglando ahora." },
+            { en: "I fixed the bug and pushed the changes.", es: "Arreglé el bug y subí los cambios." },
+            { en: "I'll deploy the fix after the tests pass.", es: "Desplegaré el arreglo cuando pasen los tests." },
+            { en: "Never commit secrets to the repository.", es: "Nunca subas secretos al repositorio." }
+          ],
+        }
+      ],
+      exercises: [
+        {
+          id: "m8-l10-e1",
+          type: "choice",
+          prompt: "¿Cómo describes lo que estás haciendo ahora?",
+          options: [
+            "I fix the bug now.",
+            "I'm fixing the bug now.",
+            "I fixed the bug now.",
+            "I will fixing the bug now."
+          ],
+          answer: 1,
+          explanation:
+            "Acción en curso en este momento: presente continuo ('I'm fixing...').",
+        },
+        {
+          id: "m8-l10-e2",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Arreglé el bug y subí los cambios.'",
+          answer: "I fixed the bug and pushed the changes.",
+          accept: ["I fixed the bug and pushed the changes"],
+          hint: "Dos acciones terminadas en pasado simple.",
+          explanation:
+            "'Fixed' y 'pushed' son acciones completadas en el pasado.",
+        },
+        {
+          id: "m8-l10-e3",
+          type: "builder",
+          prompt: "Construye: 'El build falló, pero lo estoy arreglando ahora.'",
+          words: ["The build failed,", "but I'm fixing", "it now."],
+          answer: "The build failed, but I'm fixing it now.",
+          explanation:
+            "Combina pasado (lo que pasó) y presente continuo (lo que haces ahora).",
+        },
+        {
+          id: "m8-l10-e4",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Desplegaré el arreglo mañana.'",
+          answer: "I'll deploy the fix tomorrow.",
+          accept: ["I will deploy the fix tomorrow."],
+          hint: "Usa 'I'll deploy...' + 'tomorrow'.",
+          explanation:
+            "Futuro simple con 'will' para el siguiente paso.",
+        },
+        {
+          id: "m8-l10-e5",
+          type: "choice",
+          prompt: "Quieres dar una regla de seguridad clara. ¿Qué opción es correcta?",
+          options: [
+            "Never commit secrets to the repository.",
+            "Sometimes commit secrets.",
+            "Commit secrets now.",
+            "Secrets are good in repo."
+          ],
+          answer: 0,
+          explanation:
+            "Imperativo negativo para una regla: 'Never commit secrets...'",
+        },
+        {
+          id: "m8-l10-e6",
+          type: "builder",
+          prompt: "Construye: 'Trae los últimos cambios y ejecuta los tests.'",
+          words: ["Pull", "the latest changes", "and run", "the tests."],
+          answer: "Pull the latest changes and run the tests.",
+          explanation:
+            "Secuencia de imperativos clara, muy común en trabajo técnico.",
+        }
+      ],
+    },
+    {
+      id: "m8-l11",
+      slug: "practica-iterar-y-revisar-agente",
+      title: "Práctica: iterar y revisar con un AI agent",
+      step: "B1 · Paso 8.9 · Práctica guiada",
+      cefr: "B1",
+      minutes: 8,
+      summary:
+        "Sesión corta para separar y reforzar la iteración con agentes: revisar, simplificar, acotar alcance y verificar.",
+      objectives: [
+        "Pedir otra revisión o simplificación con frases nativas ya vistas.",
+        "Delimitar alcance y mantener el comportamiento existente.",
+        "Solicitar revisiones rápidas y explicaciones claras."
+      ],
+      pronunciation:
+        "Can you take another pass, keep it simple, and do a quick sanity check?",
+      blocks: [
+        {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Completa 'Prompts y trabajo con AI agents' (m8-l7) y, si puedes, la práctica enfocada (m8-l8). Aquí refuerzas iteración y revisión usando solo chunks ya enseñados.",
+        },
+        {
+          type: "technique",
+          name: "Iterar con claridad",
+          desc: "Para mejorar una respuesta: 'take another pass', 'keep it simple', 'explain it in plain English'. Para controlar cambios: 'out of scope', 'keep the existing behavior the same'. Para verificar: 'sanity check', 'call out edge cases'.",
+        },
+        {
+          type: "phrases",
+          title: "Chunks de iteración (ya vistos)",
+          items: [
+            { en: "Can you take another pass and keep it simple?", es: "¿Puedes revisarlo otra vez y mantenerlo simple?" },
+            { en: "Let's keep this out of scope for now.", es: "Dejemos esto fuera del alcance por ahora." },
+            { en: "Do a quick sanity check.", es: "Haz una revisión rápida." },
+            { en: "Explain it in plain English.", es: "Explícalo en inglés sencillo." }
+          ],
+        }
+      ],
+      exercises: [
+        {
+          id: "m8-l11-e1",
+          type: "choice",
+          prompt: "Quieres que el agente mejore la respuesta sin complicarla. ¿Qué dices?",
+          options: [
+            "Make it harder.",
+            "Can you take another pass and keep it simple?",
+            "Do nothing.",
+            "Change everything."
+          ],
+          answer: 1,
+          explanation:
+            "'Take another pass' pide otra revisión y 'keep it simple' indica el estilo deseado (chunks de m8-l7).",
+        },
+        {
+          id: "m8-l11-e2",
+          type: "builder",
+          prompt: "Construye: 'Dejemos esto fuera del alcance por ahora.'",
+          words: ["Let's keep", "this out of scope", "for now."],
+          answer: "Let's keep this out of scope for now.",
+          explanation:
+            "Delimitar alcance evita trabajo innecesario y mantiene el foco.",
+        },
+        {
+          id: "m8-l11-e3",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Haz una revisión rápida.'",
+          answer: "Do a quick sanity check.",
+          accept: ["Can you do a quick sanity check?"],
+          hint: "Usa 'sanity check'.",
+          explanation:
+            "'Sanity check' es una revisión rápida para ver si algo tiene sentido.",
+        },
+        {
+          id: "m8-l11-e4",
+          type: "choice",
+          prompt: "Quieres una explicación fácil de entender. ¿Qué frase es mejor?",
+          options: [
+            "Explain it in plain English.",
+            "Explain it in complex English.",
+            "No explain.",
+            "Explain later never."
+          ],
+          answer: 0,
+          explanation:
+            "'In plain English' pide una explicación simple y clara.",
+        },
+        {
+          id: "m8-l11-e5",
+          type: "builder",
+          prompt: "Construye: 'Mantén el comportamiento existente igual.'",
+          words: ["Keep the", "existing behavior", "the same."],
+          answer: "Keep the existing behavior the same.",
+          explanation:
+            "Restricción clave para evitar regresiones al iterar cambios.",
+        },
+        {
+          id: "m8-l11-e6",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Revísalo otra vez y mantenlo simple.'",
+          answer: "Take another pass and keep it simple.",
+          accept: ["Can you take another pass and keep it simple?"],
+          hint: "Usa 'take another pass' y 'keep it simple'.",
+          explanation:
+            "Combinación nativa y clara para pedir una iteración mejor enfocada.",
+        }
       ],
     },
   ],

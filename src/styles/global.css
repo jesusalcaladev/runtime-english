@@ -219,6 +219,38 @@
     color: var(--color-accent);
   }
 
+  [data-speak][data-speak-loading="true"] {
+    position: relative;
+  }
+
+  [data-speak][data-speak-loading="true"]::after {
+    content: "";
+    position: absolute;
+    right: 0.4rem;
+    top: 50%;
+    width: 0.7rem;
+    height: 0.7rem;
+    margin-top: -0.35rem;
+    border-radius: 9999px;
+    border: 2px solid color-mix(in oklab, var(--color-accent) 25%, transparent);
+    border-top-color: var(--color-accent);
+    animation: speak-spin 0.7s linear infinite;
+    pointer-events: none;
+  }
+
+  button[data-speak].btn[data-speak-loading="true"],
+  a[data-speak].btn[data-speak-loading="true"] {
+    padding-right: 1.9rem;
+  }
+
+  [data-speak][data-speak-loading="true"] [data-speak-loading-hide] {
+    opacity: 0;
+  }
+
+  @keyframes speak-spin {
+    to { transform: rotate(360deg); }
+  }
+
   html[data-tts="off"] [data-speak] {
     display: none !important;
   }

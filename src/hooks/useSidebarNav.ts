@@ -33,13 +33,49 @@ export function useSidebarNav() {
   }, []);
 
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
+    const isMobileViewport = () =>
+      typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches;
+
+    const menuBtn = () =>
+      document.getElementById("mobile-menu-btn") as HTMLButtonElement | null;
+
+    const updateScrollLock = () => {
+      if (open && isMobileViewport()) {
+        document.body.style.overflow = "hidden";
+      } else {
+        document.body.style.overflow = "";
+      }
+      menuBtn()?.setAttribute("aria-expanded", open ? "true" : "false");
+    };
+
+    updateScrollLock();
+    window.addEventListener("resize", updateScrollLock);
+
+    if (open && isMobileViewport()) {
+      window.setTimeout(() => {
+        const first = document.querySelector<HTMLElement>(
+          '#app-sidebar a[href], #app-sidebar button:not([disabled])',
+        );
+        first?.focus();
+      }, 0);
     }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape" || !open) return;
+      event.preventDefault();
+      setOpen(false);
+      menuBtn()?.focus();
+    };
+    document.addEventListener("keydown", onKeyDown);
+
     return () => {
+      window.removeEventListener("resize", updateScrollLock);
+      document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = "";
+      menuBtn()?.setAttribute("aria-expanded", "false");
+      if (open && isMobileViewport()) {
+        menuBtn()?.focus();
+      }
     };
   }, [open]);
 

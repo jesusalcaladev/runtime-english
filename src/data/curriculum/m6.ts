@@ -27,20 +27,28 @@ export const m6: Module = {
         "The token leaked. We need to rotate the API keys and review the permissions.",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Requiere vocabulario de credenciales/tokens/logs y estructuras para reportar acciones ('We need to...', 'I'm rotating...'). Esta lección introduce términos de seguridad (leak, rotate, least privilege, vulnerability) usados en los ejercicios.",
+        },
+        {
           type: "technique",
-          name: "Precisión antes que alarma",
-          desc: "En seguridad, las palabras importan: 'leaked' no es lo mismo que 'stolen', y 'rotate a key' no es 'delete a key'. Comunica el hecho, el impacto y la acción inmediata: 'A token leaked in the logs. I'm rotating it now.'",
+          name: "Comunicar seguridad con precisión",
+          desc: "Describe hecho + impacto + acción: qué se expuso ('token leaked'), dónde/alcance si se sabe, y qué haces ahora ('rotate the key', 'revoke access'). Usa términos precisos: leak/expose, rotate, revoke, patch.",
         },
         {
           type: "vocab",
-          title: "Vocabulario de seguridad",
+          title: "Vocabulario de seguridad (nuevo en esta lección)",
           items: [
             { en: "secret", es: "secreto o credencial sensible", example: "Never commit secrets to the repository." },
             { en: "credential", es: "credencial de acceso", example: "The credentials expired." },
-            { en: "leak", es: "filtración o exposición", example: "The key leaked in a public repo." },
-            { en: "rotate", es: "rotar o cambiar una clave", example: "We rotate the keys every 90 days." },
-            { en: "least privilege", es: "mínimo privilegio", example: "Use least privilege for service accounts." },
+            { en: "leak / leaked", es: "filtrar / filtrado o expuesto", example: "The key leaked in a public repo." },
+            { en: "rotate", es: "rotar/cambiar una clave y revocar la anterior", example: "We rotate the keys every 90 days." },
+            { en: "permission(s)", es: "permiso(s) de acceso", example: "This service has too many permissions." },
+            { en: "least privilege", es: "principio de mínimo privilegio", example: "Use least privilege for service accounts." },
             { en: "vulnerability", es: "vulnerabilidad", example: "The vulnerability was patched." },
+            { en: "patch / patched", es: "parchear / parcheado", example: "The vulnerability was patched this morning." },
           ],
         },
         {
@@ -114,6 +122,29 @@ export const m6: Module = {
           explanation:
             "En inglés técnico, 'commit secrets' es la forma habitual de hablar de subir credenciales al control de versiones.",
         },
+        {
+          id: "m6-l1-e5",
+          type: "choice",
+          prompt: "¿Qué frase comunica mejor el problema y la acción inmediata?",
+          options: [
+            "Something is wrong with security.",
+            "A token leaked in the logs. I'm rotating it now.",
+            "The token is bad.",
+            "We had a small issue maybe.",
+          ],
+          answer: 1,
+          explanation:
+            "Buena comunicación de seguridad: hecho concreto ('leaked in the logs') + acción inmediata ('I'm rotating it now').",
+        },
+        {
+          id: "m6-l1-e6",
+          type: "builder",
+          prompt: "Construye: 'Este servicio tiene demasiados permisos. Deberíamos aplicar mínimo privilegio.'",
+          words: ["This service has", "too many permissions.", "We should apply", "least privilege."],
+          answer: "This service has too many permissions. We should apply least privilege.",
+          explanation:
+            "Identificas el problema (demasiados permisos) y propones la práctica correcta: 'least privilege' (mínimo privilegio).",
+        },
       ],
     },
     {
@@ -134,9 +165,15 @@ export const m6: Module = {
         "We can cache reads to reduce latency, but that adds complexity around consistency.",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Útil conocer vocabulario de APIs/BD y poder explicar causas/consecuencias ('to reduce latency', 'adds complexity'). Esta lección enseña términos y marcos para conversaciones de system design.",
+        },
+        {
           type: "technique",
-          name: "Cuatro movimientos, no una lista de tecnologías",
-          desc: "1) Aclara requisitos: usuarios, lecturas, escrituras y latencia. 2) Estima la escala. 3) Dibuja los componentes principales. 4) Defiende dos trade-offs y elige uno. Una entrevista no evalúa si nombras más herramientas, sino si razonas con ellas.",
+          name: "System design: razonar, no listar tecnologías",
+          desc: "1) Requisitos y restricciones (usuarios, lecturas/escrituras, latencia). 2) Escala aproximada. 3) Componentes y flujo. 4) Trade-offs (beneficio vs coste/riesgo). Explica por qué eliges una opción.",
         },
         {
           type: "vocab",
@@ -224,6 +261,30 @@ export const m6: Module = {
           explanation:
             "Un 'single point of failure' es un componente cuya caída tumba todo el sistema.",
         },
+        {
+          id: "m6-l2-e5",
+          type: "choice",
+          prompt: "¿Qué frase explica un trade-off de forma clara?",
+          options: [
+            "Caching is good.",
+            "We can cache reads to reduce latency, but it adds complexity.",
+            "Use cache always.",
+            "Latency is a problem.",
+          ],
+          answer: 1,
+          explanation:
+            "Un buen trade-off menciona beneficio y coste: 'reduce latency, but it adds complexity'.",
+        },
+        {
+          id: "m6-l2-e6",
+          type: "write",
+          prompt: "Escribe en inglés: 'Empecemos por los requisitos.'",
+          answer: "Let's start with the requirements.",
+          accept: ["Let us start with the requirements."],
+          hint: "Usa 'Let's start with...'",
+          explanation:
+            "En system design, empezar por requisitos evita diseñar a ciegas. 'Let's...' propone el siguiente paso.",
+        },
       ],
     },
     {
@@ -244,9 +305,15 @@ export const m6: Module = {
         "The p95 latency doubled after the deploy. Let's profile the endpoint before we optimize.",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Se apoya en vocabulario de APIs/servicios y comparaciones simples. Aquí se introducen métricas y términos de performance (latency, p95, CPU-bound, I/O-bound, memory leak, profiling).",
+        },
+        {
           type: "technique",
-          name: "Medir, localizar, cambiar, volver a medir",
-          desc: "No optimices por intuición. Primero mide ('p95 latency doubled'), después localiza ('the endpoint is CPU-bound'), cambia una cosa y vuelve a medir. Una mejora sin medición es solo una opinión.",
+          name: "Performance: medir antes de optimizar",
+          desc: "Mide (p. ej. p95 latency), localiza el cuello de botella (CPU/IO/DB/query), aplica un cambio y vuelve a medir. Describe el resultado con datos y menciona el trade-off si existe.",
         },
         {
           type: "vocab",
@@ -324,6 +391,29 @@ export const m6: Module = {
           explanation:
             "'Doubled' significa que se multiplicó por dos; es una forma precisa de describir una regresión.",
         },
+        {
+          id: "m6-l3-e5",
+          type: "choice",
+          prompt: "El servicio usa mucho CPU al procesar peticiones. ¿Cómo lo describes?",
+          options: [
+            "The service is I/O-bound.",
+            "The service is CPU-bound.",
+            "The service is memory-bound only.",
+            "The service is down.",
+          ],
+          answer: 1,
+          explanation:
+            "'CPU-bound' indica que el rendimiento está limitado por procesamiento (CPU), no por red o disco.",
+        },
+        {
+          id: "m6-l3-e6",
+          type: "builder",
+          prompt: "Construye: 'Perfila el endpoint antes de optimizar.'",
+          words: ["Profile", "the endpoint", "before you optimize."],
+          answer: "Profile the endpoint before you optimize.",
+          explanation:
+            "Imperativo con paso concreto: primero perfilar/midir, luego optimizar. Usa estructuras ya vistas.",
+        },
       ],
     },
     {
@@ -344,9 +434,15 @@ export const m6: Module = {
         "We rotated the leaked key, identified the database as the bottleneck, and measured p95 latency before optimizing.",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Checkpoint de integración (M6)",
+          body: "Repasa seguridad, system design y performance vistos en este módulo. Responde desde memoria y, si fallas, vuelve a la lección concreta. El objetivo es usar los términos y acciones correctas con claridad.",
+        },
+        {
           type: "technique",
-          name: "Recupera, no releas",
-          desc: "Intenta responder desde memoria: qué harías, qué término usarías y por qué. Si dudas, vuelve a la sesión específica y repite el ejercicio. Este checkpoint mezcla seguridad, system design y performance para fijar lo aprendido.",
+          name: "Recuperación activa",
+          desc: "Intenta producir la respuesta (qué harías, qué término usarías) antes de releer. Mezclar temas (rotar claves, bottlenecks, métricas) ayuda a fijar el conocimiento en contextos reales.",
         },
         {
           type: "phrases",
@@ -433,6 +529,16 @@ export const m6: Module = {
           hint: "Usa 'p95 latency increased...'",
           explanation:
             "Describir la regresión con una métrica concreta (p95) hace el reporte útil y accionable.",
+        },
+        {
+          id: "m6-l4-e7",
+          type: "fill-blank",
+          prompt: "Completa el resumen: acción de seguridad y causa de rendimiento.",
+          template: "We need to ___ the leaked key. The database is the ___.",
+          blanks: ["rotate", "bottleneck"],
+          hint: "Clave expuesta → rotate. Punto que limita rendimiento → bottleneck.",
+          explanation:
+            "Checkpoint: recuerda acciones y términos clave de seguridad ('rotate') y performance/arquitectura ('bottleneck').",
         },
       ],
     },

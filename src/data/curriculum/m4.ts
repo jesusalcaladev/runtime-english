@@ -27,9 +27,15 @@ export const m4: Module = {
         "I finished the API integration yesterday, and today I am working on the login tests.",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Se asume que dominas tiempos básicos de M2 (pasado simple para ayer, presente continuo para ahora) y verbos de trabajo (finish, work on, fix, push, review). Aquí practicarás frases y estructura de standup; el vocabulario nuevo aparece en los ejemplos.",
+        },
+        {
           type: "technique",
-          name: "Estructura de 3 Puntos (Yesterday / Today / Blockers)",
-          desc: "En un daily de 60 segundos solo necesitas tres conectores: 'Yesterday I finished...', 'Today I'm working on...', 'I'm blocked by...'.",
+          name: "Estructura de 3 puntos (Yesterday / Today / Blockers)",
+          desc: "En un daily breve: 1) 'Yesterday I...' (qué terminaste/hiciste). 2) 'Today I'm working on...' (en qué estás ahora). 3) 'I'm blocked by...' o 'No blockers' (estado). Frases cortas y concretas son más claras que explicaciones largas.",
         },
         {
           type: "phrases",
@@ -161,8 +167,14 @@ export const m4: Module = {
         "Non-blocking: could we rename this variable for clarity? LGTM otherwise.",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Necesitas vocabulario de Git/PR (M3, M5) y estructuras para sugerir ('Could we...?', 'I'd suggest...'). Esta lección enseña etiquetas y frases específicas de code review; todo lo usado en ejercicios está en las tablas/frases.",
+        },
+        {
           type: "text",
-          body: "Un code review mal escrito genera fricción. El inglés profesional usa marcadores explícitos de intención: 'nit' (detalle menor), 'non-blocking' (sugerencia, no impide aprobar) y 'blocking' (hay que resolverlo antes del merge).",
+          body: "Un code review útil es claro y respetuoso. Marca tu intención: 'nit' (detalle menor), 'non-blocking' (sugerencia que no bloquea), 'blocking' (debe resolverse antes del merge). Así el autor sabe qué es urgente y qué es opcional.",
         },
         {
           type: "table",
@@ -245,6 +257,34 @@ export const m4: Module = {
           explanation:
             "'Address comments' significa aplicar los cambios pedidos en un review. 'PTAL' = Please Take Another Look.",
         },
+        {
+          id: "m4-l2-e5",
+          type: "fix-error",
+          prompt: "Haz el comentario de review más claro y profesional.",
+          sentence: "This is wrong. Change it.",
+          answer: "This might break when the input is null. Could you add a check?",
+          accept: [
+            "This could break when the input is null. Could we add a check?",
+            "This might break with null input. Could you add a check?",
+          ],
+          hint: "Incluye impacto/riesgo y una sugerencia concreta ('Could you...?').",
+          explanation:
+            "Feedback útil: señala el problema o riesgo y propone una acción concreta, en lugar de solo decir que está mal.",
+        },
+        {
+          id: "m4-l2-e6",
+          type: "choice",
+          prompt: "¿Qué significa 'LGTM' en un code review?",
+          options: [
+            "Necesita más trabajo antes de aprobar.",
+            "Looks Good To Me: lo apruebas.",
+            "Es un error bloqueante.",
+            "Hay que borrar el PR.",
+          ],
+          answer: 1,
+          explanation:
+            "'LGTM' (Looks Good To Me) indica aprobación del cambio. A veces se añade una condición: 'LGTM once tests pass.'",
+        },
       ],
     },
     {
@@ -265,9 +305,15 @@ export const m4: Module = {
         "We have a production outage. I'm rolling back the last deploy to reduce the blast radius.",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Requiere presente continuo para estado actual ('We're rolling back'), pasado/futuro básico y vocabulario de deploy (M2–M3). Se introducen términos de incidente (outage, degradation, mitigation, root cause, blast radius) en esta lección.",
+        },
+        {
           type: "technique",
-          name: "Flujo de un incidente",
-          desc: "Primero reconoce el impacto ('We have an outage'), después mitiga ('We're rolling back'), comunica el estado y solo al final escribe el postmortem con la causa raíz. En incidentes, la claridad importa más que la elegancia.",
+          name: "Flujo de comunicación en un incidente",
+          desc: "1) Impacto: qué pasa ('We have an outage/degradation'). 2) Mitigación: qué estás haciendo ahora ('We're rolling back / investigating'). 3) Actualizaciones: cuándo volverás a informar. 4) Después: causa raíz y postmortem sin culpas. Claridad y frecuencia > perfección.",
         },
         {
           type: "phrases",
@@ -340,6 +386,32 @@ export const m4: Module = {
           explanation:
             "Un postmortem útil nombra la causa raíz sin atacar a la persona que hizo el cambio.",
         },
+        {
+          id: "m4-l3-e5",
+          type: "dialogue-order",
+          prompt: "Ordena la comunicación básica de un incidente.",
+          lines: [
+            "We have a production outage.",
+            "I'm rolling back the last deploy now.",
+            "I'll send an update in 15 minutes.",
+          ],
+          explanation:
+            "Secuencia clara: impacto → mitigación en curso → próxima actualización. Esto da calma y contexto al equipo.",
+        },
+        {
+          id: "m4-l3-e6",
+          type: "choice",
+          prompt: "¿Qué pregunta ayuda a entender el alcance del problema?",
+          options: [
+            "What's the blast radius?",
+            "Who wrote this code?",
+            "Can we deploy again?",
+            "Is this funny?",
+          ],
+          answer: 0,
+          explanation:
+            "'Blast radius' se refiere al alcance/impacto del incidente (qué usuarios, servicios o regiones se ven afectados).",
+        },
       ],
     },
     {
@@ -360,9 +432,15 @@ export const m4: Module = {
         "My estimate is two to three days, assuming the API is stable.",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Usarás futuro/will, condicionales simples en contexto ('assuming...', 'if...') y vocabulario de tareas/scope. Las frases clave se enseñan aquí antes de los ejercicios.",
+        },
+        {
           type: "technique",
-          name: "Estima con rango, supuesto y consecuencia",
-          desc: "Una estimación profesional tiene tres piezas: el rango ('two to three days'), el supuesto ('assuming the API is stable') y la consecuencia ('if it isn't, we'll need another day'). Así el equipo puede decidir, no solo esperar.",
+          name: "Estimar bien: rango + supuesto + opción",
+          desc: "Evita una cifra única. Da un rango ('two to three days'), aclara el supuesto ('assuming the API is stable') y ofrece opciones si cambia ('if X slips, we can cut Y'). Esto ayuda a decidir, no solo a esperar.",
         },
         {
           type: "phrases",
@@ -435,6 +513,29 @@ export const m4: Module = {
           explanation:
             "'Hit a deadline' significa llegar a la fecha; 'scope' es el alcance del trabajo.",
         },
+        {
+          id: "m4-l4-e5",
+          type: "builder",
+          prompt: "Construye: 'Mi estimación es de dos a tres días, suponiendo que la API sea estable.'",
+          words: ["My estimate is", "two to three days,", "assuming the API", "is stable."],
+          answer: "My estimate is two to three days, assuming the API is stable.",
+          explanation:
+            "Estimación profesional: rango + supuesto explícito. Así el equipo entiende de qué depende el plazo.",
+        },
+        {
+          id: "m4-l4-e6",
+          type: "choice",
+          prompt: "Quieren añadir otra tarea y el plazo es ajustado. ¿Qué respuesta es más profesional?",
+          options: [
+            "I can do everything.",
+            "If we add that, something else will slip. Which one is the priority?",
+            "No, I won't do it.",
+            "Maybe, I don't know.",
+          ],
+          answer: 1,
+          explanation:
+            "Explicas el impacto (trade-off) y pides priorizar. Es claro, colaborativo y realista.",
+        },
       ],
     },
     {
@@ -455,9 +556,15 @@ export const m4: Module = {
         "I'm trying to fix this bug, but I'm stuck. Could you take a look when you have a minute?",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Se basa en vocabulario de errores/debug y frases de petición ('Could you...?', presente continuo/pasado para lo intentado). Esta lección organiza ese conocimiento en una plantilla práctica.",
+        },
+        {
           type: "technique",
-          name: "Pedir ayuda bien = contexto + intento + pregunta",
-          desc: "No digas solo 'it doesn't work'. Explica: 1) qué intentas lograr, 2) qué ya probaste, 3) qué pasa ahora, 4) qué ayuda necesitas. Una buena pregunta ahorra tiempo a todos y recibe mejores respuestas.",
+          name: "Pedir ayuda útil: contexto + intento + pregunta",
+          desc: "Incluye: 1) objetivo ('I'm trying to...'), 2) lo que pasa/error, 3) lo que ya probaste ('I already tried...'), 4) pregunta concreta ('Could you take a look?', 'Any ideas?'). Así evitas idas y vueltas.",
         },
         {
           type: "phrases",
@@ -466,7 +573,7 @@ export const m4: Module = {
             { en: "I'm stuck on this issue.", es: "Estoy atascado con este problema." },
             { en: "Could you take a look when you have a minute?", es: "¿Podrías echarle un vistazo cuando tengas un minuto?" },
             { en: "I'm trying to reproduce the bug, but I can't.", es: "Estoy intentando reproducir el bug, pero no puedo." },
-            { en: "I've already tried restarting the service.", es: "Ya intenté reiniciar el servicio." },
+            { en: "I already tried restarting the service.", es: "Ya intenté reiniciar el servicio." },
             { en: "What am I missing?", es: "¿Qué se me está pasando?" },
             { en: "Any ideas on what could be causing this?", es: "¿Alguna idea de qué podría estar causando esto?" },
           ],
@@ -476,7 +583,7 @@ export const m4: Module = {
           title: "De vaga a útil",
           columns: ["Mensaje vago", "Mensaje útil"],
           rows: [
-            ["It doesn't work.", "The API returns 500 when I send an empty array. I've checked the logs."],
+            ["It doesn't work.", "The API returns 500 when I send an empty array. I already checked the logs."],
             ["Can you help?", "Could you take a look at this PR? I'm not sure about the error handling."],
             ["I don't get it.", "I'm trying to understand why the cache is stale. What am I missing?"],
           ],
@@ -490,7 +597,7 @@ export const m4: Module = {
           options: [
             "Help!!!",
             "It doesn't work.",
-            "I'm stuck on a bug: the API returns 500 with an empty array. I've checked the logs. Any ideas?",
+            "I'm stuck on a bug: the API returns 500 with an empty array. I already checked the logs. Any ideas?",
             "Fix this.",
           ],
           answer: 2,
@@ -510,14 +617,15 @@ export const m4: Module = {
           id: "m4-l5-e3",
           type: "write",
           prompt: "Escríbelo en inglés: 'Ya intenté reiniciar el servicio.'",
-          answer: "I've already tried restarting the service.",
+          answer: "I already tried restarting the service.",
           accept: [
+            "I've already tried restarting the service.",
             "I have already tried restarting the service.",
-            "I already tried restarting the service.",
+            "I already tried restarting the service",
           ],
-          hint: "Usa 'I've already tried...'.",
+          hint: "Usa 'I already tried...' (pasado simple).",
           explanation:
-            "Decir lo que ya probaste evita sugerencias repetidas y muestra contexto.",
+            "Decir lo que ya probaste evita sugerencias repetidas y muestra contexto. Aquí usamos pasado simple, una forma clara y ya conocida.",
         },
         {
           id: "m4-l5-e4",
@@ -532,6 +640,28 @@ export const m4: Module = {
           answer: 1,
           explanation:
             "'What am I missing?' pide que te señalen lo que no estás considerando en el problema.",
+        },
+        {
+          id: "m4-l5-e5",
+          type: "write",
+          prompt: "Escribe en inglés: 'Estoy intentando reproducir el bug, pero no puedo.'",
+          answer: "I'm trying to reproduce the bug, but I can't.",
+          accept: [
+            "I am trying to reproduce the bug, but I can't.",
+            "I'm trying to reproduce the bug, but I cannot.",
+          ],
+          hint: "Usa 'I'm trying to reproduce the bug...'",
+          explanation:
+            "Dar contexto de lo que intentas hacer ayuda a que otros entiendan dónde necesitas apoyo.",
+        },
+        {
+          id: "m4-l5-e6",
+          type: "builder",
+          prompt: "Construye: 'Ya intenté reiniciar el servicio, pero sigue fallando.'",
+          words: ["I already tried", "restarting the service,", "but it still fails."],
+          answer: "I already tried restarting the service, but it still fails.",
+          explanation:
+            "Contexto + intento previo + resultado actual: una forma clara y útil de pedir ayuda.",
         },
       ],
     },
@@ -553,9 +683,15 @@ export const m4: Module = {
         "I suspect the issue is in the cache. Let's check the logs. What do you think?",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Requiere frases para proponer ('Let's...', 'What if we...?'), expresar hipótesis ('I suspect...', 'I'm not sure') y vocabulario ya visto (bug, test, log, cache, function). Todo se modela en las frases de esta sesión.",
+        },
+        {
           type: "technique",
-          name: "Piensa en voz alta, pero con estructura",
-          desc: "En pair programming, di qué ves, qué sospechas y qué harás: 'I see X, I suspect Y, let's try Z.' Esto mantiene a la otra persona alineada y hace el debugging más rápido.",
+          name: "Pensar en voz alta con estructura",
+          desc: "En pair/debugging: observa ('I see...'), plantea hipótesis ('I suspect... / I think...'), propone acción ('Let's try/check...') y confirma ('Does that make sense?'). Mantiene a ambos alineados.",
         },
         {
           type: "phrases",
@@ -623,6 +759,141 @@ export const m4: Module = {
           explanation:
             "Validar la idea ('That makes sense') y proponer el siguiente paso ('Let's try it') mantiene el flujo.",
         },
+        {
+          id: "m4-l6-e5",
+          type: "listen",
+          prompt: "Escucha y escribe la propuesta de debugging en pareja.",
+          audioText: "What if we add a log here?",
+          answer: "What if we add a log here?",
+          accept: ["What if we add a log here"],
+          hint: "Empieza con 'What if we...'",
+          explanation:
+            "'What if we...?' es una forma colaborativa de proponer una hipótesis o experimento rápido.",
+        },
+        {
+          id: "m4-l6-e6",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Déjame compartir mi pantalla.'",
+          answer: "Let me share my screen.",
+          accept: ["Let me share my screen"],
+          hint: "Usa 'Let me share...'",
+          explanation:
+            "Frase práctica y común en pair programming o llamadas para mostrar el problema en vivo.",
+        },
+      ],
+    },
+    {
+      id: "m4-l7",
+      slug: "practica-daily-ayuda-y-pair",
+      title: "Práctica: daily, ayuda y colaboración",
+      step: "B1 · Paso 4.7 · Práctica guiada",
+      cefr: "B1",
+      minutes: 8,
+      summary:
+        "Sesión corta para separar y reforzar comunicación diaria: updates, pedir ayuda con contexto y colaborar en vivo.",
+      objectives: [
+        "Dar un update breve (ayer/hoy/bloqueo) con frases ya conocidas.",
+        "Pedir ayuda de forma clara con contexto e intentos previos.",
+        "Usar frases simples para pair programming y debugging."
+      ],
+      pronunciation:
+        "Yesterday I fixed the bug. Today I'm working on tests. I'm stuck, so could you take a look?",
+      blocks: [
+        {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Repasa y combina lo visto en m4-l1 (daily/standup), m4-l5 (pedir ayuda y contexto) y m4-l6 (pair programming). Esta práctica usa solo estructuras y chunks ya enseñados en esas lecciones.",
+        },
+        {
+          type: "technique",
+          name: "Tres marcos útiles",
+          desc: "Daily: 'Yesterday..., Today..., I'm blocked by / No blockers.' Ayuda: objetivo + problema + 'I already tried...' + pregunta. Pair: 'I suspect...', 'What if we...?', 'Can you walk me through...?'",
+        },
+        {
+          type: "phrases",
+          title: "Chunks de apoyo",
+          items: [
+            { en: "Yesterday I finished the integration. Today I'm working on the tests.", es: "Ayer terminé la integración. Hoy estoy trabajando en los tests." },
+            { en: "I'm stuck on this issue. Could you take a look?", es: "Estoy atascado con este problema. ¿Podrías echarle un vistazo?" },
+            { en: "I already tried restarting the service.", es: "Ya intenté reiniciar el servicio." },
+            { en: "What if we add a log here?", es: "¿Y si agregamos un log aquí?" }
+          ],
+        }
+      ],
+      exercises: [
+        {
+          id: "m4-l7-e1",
+          type: "builder",
+          prompt: "Construye un update corto: 'Ayer terminé la integración. Hoy estoy trabajando en los tests.'",
+          words: ["Yesterday I finished", "the integration.", "Today I'm working on", "the tests."],
+          answer: "Yesterday I finished the integration. Today I'm working on the tests.",
+          explanation:
+            "Estructura clara de daily: qué hiciste ayer y qué haces hoy.",
+        },
+        {
+          id: "m4-l7-e2",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Estoy atascado con este problema. ¿Podrías echarle un vistazo?'",
+          answer: "I'm stuck on this issue. Could you take a look?",
+          accept: [
+            "I am stuck on this issue. Could you take a look?",
+            "I'm stuck on this issue. Could you take a look when you have a minute?"
+          ],
+          hint: "Usa 'I'm stuck on...' y 'Could you take a look?'",
+          explanation:
+            "Pedir ayuda con problema claro y petición concreta es directo y profesional.",
+        },
+        {
+          id: "m4-l7-e3",
+          type: "choice",
+          prompt: "Quieres proponer una hipótesis en pair programming. ¿Qué opción es mejor?",
+          options: [
+            "What if we add a log here?",
+            "Add log now.",
+            "Log maybe.",
+            "You add log."
+          ],
+          answer: 0,
+          explanation:
+            "'What if we...?' propone una idea de forma colaborativa.",
+        },
+        {
+          id: "m4-l7-e4",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Ya intenté reiniciar el servicio.'",
+          answer: "I already tried restarting the service.",
+          accept: [
+            "I've already tried restarting the service.",
+            "I have already tried restarting the service."
+          ],
+          hint: "Usa 'I already tried...'",
+          explanation:
+            "Compartir lo que ya probaste da contexto útil al pedir ayuda.",
+        },
+        {
+          id: "m4-l7-e5",
+          type: "builder",
+          prompt: "Construye: 'Sospecho que el problema está en la caché.'",
+          words: ["I suspect", "the issue", "is in", "the cache."],
+          answer: "I suspect the issue is in the cache.",
+          explanation:
+            "'I suspect...' expresa una hipótesis mientras depuran juntos.",
+        },
+        {
+          id: "m4-l7-e6",
+          type: "choice",
+          prompt: "En tu daily no tienes impedimentos. ¿Qué dices?",
+          options: [
+            "No blockers on my side.",
+            "I have many blockers.",
+            "Blocker yes.",
+            "Maybe blocked."
+          ],
+          answer: 0,
+          explanation:
+            "Es una forma clara y natural de cerrar tu update cuando no hay bloqueos.",
+        }
       ],
     },
   ],

@@ -24,11 +24,6 @@ import {
 } from "lucide-preact";
 import { progressStore, type PhrasebookEntry } from "../../lib/progress";
 import { useDictionary } from "../../hooks/useDictionary";
-import { speak } from "../../lib/speech";
-
-function speakText(text: string) {
-  speak(text);
-}
 
 function mastery(entry: PhrasebookEntry) {
   if (entry.correct >= 3) return { label: "Dominada", pct: 100, tone: "text-accent bg-accent/10" };
@@ -116,9 +111,21 @@ export default function DictionaryView() {
                 <p class="font-mono text-lg font-medium text-base-content sm:text-xl">{card.en}</p>
               </div>
               <div class="mt-3 flex justify-center gap-2">
-                <button type="button" onClick={() => speakText(card.en)} class="btn btn-ghost btn-sm h-9 gap-2 rounded-xl bg-base-200"><Volume2 class="h-4 w-4" /> Escuchar</button>
-                <button type="button" onClick={() => setRevealed((v) => !v)} class="btn btn-ghost btn-sm h-9 gap-2 rounded-xl bg-base-200">
-                  {revealed ? <EyeOff class="h-4 w-4" /> : <Eye class="h-4 w-4" />} {revealed ? "Ocultar" : "Revelar significado"}
+                <button
+                  type="button"
+                  data-speak={card.en}
+                  class="btn btn-ghost btn-sm h-10 cursor-pointer gap-2 rounded-xl bg-base-200 transition hover:bg-base-300 hover:text-base-content active:scale-[0.99]"
+                  aria-label={`Escuchar frase: ${card.en}`}
+                >
+                  <Volume2 class="h-4 w-4" aria-hidden="true" /> Escuchar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRevealed((v) => !v)}
+                  class="btn btn-ghost btn-sm h-10 cursor-pointer gap-2 rounded-xl bg-base-200 transition hover:bg-base-300 hover:text-base-content active:scale-[0.99]"
+                  aria-pressed={revealed}
+                >
+                  {revealed ? <EyeOff class="h-4 w-4" aria-hidden="true" /> : <Eye class="h-4 w-4" aria-hidden="true" />} {revealed ? "Ocultar" : "Revelar significado"}
                 </button>
               </div>
               {revealed ? (
@@ -185,30 +192,38 @@ export default function DictionaryView() {
       </section>
 
       <section class="rounded-3xl bg-base-200 p-4">
-        <button type="button" onClick={() => setShowAdd((v) => !v)} class="flex w-full items-center justify-between gap-2 text-left">
-          <span class="flex items-center gap-2 text-sm font-medium"><Plus class="h-4 w-4 text-base-content/50" /> Añadir manualmente y ayuda</span>
-          {showAdd ? <ChevronUp class="h-4 w-4 text-base-content/40" /> : <ChevronDown class="h-4 w-4 text-base-content/40" />}
+        <button
+          type="button"
+          onClick={() => setShowAdd((v) => !v)}
+          class="flex w-full cursor-pointer items-center justify-between gap-2 text-left transition hover:text-base-content"
+          aria-expanded={showAdd}
+        >
+          <span class="flex items-center gap-2 text-sm font-medium">
+            <Plus class="h-4 w-4 text-base-content/50" /> Añadir frase o ver ayuda
+          </span>
+          <ChevronDown class={`h-4 w-4 text-base-content/40 transition-transform duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] ${showAdd ? "rotate-180" : ""}`} aria-hidden="true" />
         </button>
-        {showAdd && (
-          <div class="mt-4 space-y-3 border-t border-base-content/10 pt-4">
-            <div class="grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
-              <input value={manualEn} onInput={(e) => setManualEn((e.target as HTMLInputElement).value)} placeholder="Frase en inglés (ej. I pushed the fix)" class="h-10 rounded-xl bg-base-100 px-3 text-sm" />
-              <input value={manualEs} onInput={(e) => setManualEs((e.target as HTMLInputElement).value)} placeholder="Significado en español" class="h-10 rounded-xl bg-base-100 px-3 text-sm" />
-              <button type="button" onClick={addManual} class="btn btn-primary btn-sm h-10 rounded-xl px-4">Añadir</button>
+        <div class={`grid transition-[grid-template-rows,opacity] duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] ${showAdd ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
+          <div class="overflow-hidden">
+            <div class="mt-4 space-y-3 border-t border-base-content/10 pt-4">
+              <div class="grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
+                <input value={manualEn} onInput={(e) => setManualEn((e.target as HTMLInputElement).value)} placeholder="Frase en inglés" class="h-10 rounded-xl bg-base-100 px-3 text-sm" />
+                <input value={manualEs} onInput={(e) => setManualEs((e.target as HTMLInputElement).value)} placeholder="Significado" class="h-10 rounded-xl bg-base-100 px-3 text-sm" />
+                <button type="button" onClick={addManual} class="btn btn-primary btn-sm h-10 rounded-xl px-4">Añadir</button>
+              </div>
+              <ul class="space-y-1 text-[12px] leading-relaxed text-base-content/55">
+                <li>• Se guarda al acertar ejercicios, desde lecciones o manualmente.</li>
+                <li>• Puedes añadir notas, ejemplos, etiquetas y dificultad para repasar mejor.</li>
+                <li>• Se sincroniza con tu cuenta (si inicias sesión).</li>
+              </ul>
+              {total > 0 && !state.dictionaryBackfilledAt && (
+                <button type="button" onClick={() => progressStore.backfillPhrasebook()} class="btn btn-ghost btn-sm h-9 gap-2 rounded-xl bg-base-100 px-3">
+                  <Download class="h-4 w-4" /> Importar frases iniciales
+                </button>
+              )}
             </div>
-            <ul class="space-y-1.5 text-[12px] leading-relaxed text-base-content/55">
-              <li>• Se actualiza automáticamente al acertar ejercicios, guardar desde lecciones o añadir manualmente.</li>
-              <li>• Edita significados, notas, ejemplos, etiquetas y dificultad para repasar con tu propio contexto.</li>
-              <li>• Se sincroniza con tu cuenta (si inicias sesión) junto con tu progreso.</li>
-              <li>• Usa <span class="font-medium">flashcards</span> para repaso espaciado (SRS) de las frases vencidas.</li>
-            </ul>
-            {total > 0 && !state.dictionaryBackfilledAt && (
-              <button type="button" onClick={() => progressStore.backfillPhrasebook()} class="btn btn-ghost btn-sm h-9 gap-2 rounded-xl bg-base-100 px-3">
-                <Download class="h-4 w-4" /> Ejecutar backfill inicial
-              </button>
-            )}
           </div>
-        )}
+        </div>
       </section>
     </div>
   );
@@ -256,10 +271,41 @@ function PhraseCard({ entry, editing, onEdit, onClose }: { entry: PhrasebookEntr
           )}
         </div>
         <div class="flex shrink-0 items-center gap-0.5">
-          <button type="button" onClick={() => speakText(entry.en)} class="flex h-8 w-8 items-center justify-center rounded-full text-base-content/35 hover:bg-base-100 hover:text-base-content/70" aria-label="Escuchar"><Volume2 class="h-4 w-4" /></button>
-          <button type="button" onClick={() => progressStore.togglePhrase(entry.en, entry.es, entry.source || "Diccionario")} class={`flex h-8 w-8 items-center justify-center rounded-full ${entry.saved ? "text-accent bg-accent/10" : "text-base-content/30 hover:bg-base-100"}`} aria-label={entry.saved ? "Quitar de guardados" : "Guardar"}>{entry.saved ? <BookmarkCheck class="h-4 w-4" /> : <Bookmark class="h-4 w-4" />}</button>
-          <button type="button" onClick={onEdit} class={`flex h-8 w-8 items-center justify-center rounded-full ${editing ? "bg-base-content text-base-100" : "text-base-content/30 hover:bg-base-100"}`} aria-label="Editar">{editing ? <ChevronUp class="h-4 w-4" /> : <Pencil class="h-3.5 w-3.5" />}</button>
-          <button type="button" onClick={() => progressStore.removePhrase(entry.id)} class="flex h-8 w-8 items-center justify-center rounded-full text-base-content/25 hover:bg-error/10 hover:text-error" aria-label="Eliminar"><Trash2 class="h-3.5 w-3.5" /></button>
+          <button
+            type="button"
+            data-speak={entry.en}
+            class="speak-btn flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-base-content/40 transition hover:bg-base-100 hover:text-base-content/70 hover:scale-[1.03] active:scale-95"
+            aria-label={`Escuchar frase: ${entry.en}`}
+            title="Escuchar frase"
+          >
+            <Volume2 class="h-4 w-4" aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            onClick={() => progressStore.togglePhrase(entry.en, entry.es, entry.source || "Diccionario")}
+            class={`flex h-10 w-10 items-center justify-center rounded-full ${entry.saved ? "text-accent bg-accent/10" : "text-base-content/35 hover:bg-base-100"}`}
+            aria-label={entry.saved ? "Quitar de guardados" : "Guardar frase"}
+            aria-pressed={entry.saved}
+          >
+            {entry.saved ? <BookmarkCheck class="h-4 w-4" aria-hidden="true" /> : <Bookmark class="h-4 w-4" aria-hidden="true" />}
+          </button>
+          <button
+            type="button"
+            onClick={onEdit}
+            class={`flex h-10 w-10 items-center justify-center rounded-full ${editing ? "bg-base-content text-base-100" : "text-base-content/35 hover:bg-base-100"}`}
+            aria-label={editing ? "Cerrar edición" : "Editar frase"}
+            aria-expanded={editing}
+          >
+            {editing ? <ChevronUp class="h-4 w-4" aria-hidden="true" /> : <Pencil class="h-4 w-4" aria-hidden="true" />}
+          </button>
+          <button
+            type="button"
+            onClick={() => progressStore.removePhrase(entry.id)}
+            class="flex h-10 w-10 items-center justify-center rounded-full text-base-content/30 hover:bg-error/10 hover:text-error"
+            aria-label={`Eliminar frase: ${entry.en}`}
+          >
+            <Trash2 class="h-4 w-4" aria-hidden="true" />
+          </button>
         </div>
       </div>
 

@@ -27,15 +27,21 @@ export const m2: Module = {
         "Yesterday I fixed the bug, now I am running tests, and tomorrow I will deploy.",
       blocks: [
         {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Debes sentirte cómodo con los verbos básicos del Módulo 1 (be/have/do/need/think, verbos técnicos como run/fix/push/pull) y la regla de tercera persona (-s). Aquí aprenderás cuándo usar cada tiempo; los ejemplos usan vocabulario ya visto en M1 (bug, tests, code, deploy, PR, database).",
+        },
+        {
           type: "technique",
-          name: "Matriz Temporal del Sprint",
-          desc: "1) Lo que el código HACE → presente simple. 2) Lo que estás HACIENDO ahora → presente continuo (-ing). 3) Lo que YA hiciste → pasado simple (-ed / irregular). 4) Lo que HARÁS luego → futuro simple (will).",
+          name: "Matriz Temporal del Sprint (qué tiempo usar)",
+          desc: "1) Lo que el código HACE o es verdad general → presente simple ('returns', 'is'). 2) Lo que está pasando AHORA MISMO → presente continuo ('I'm fixing', 'is failing'). 3) Lo que YA pasó en un momento cerrado → pasado simple ('fixed yesterday', 'crashed at 3am'). 4) Lo que HARÁS / plan o decisión → futuro simple con 'will' ('I will deploy').",
         },
         {
           type: "callout",
           tone: "info",
           title: "¿Y el present perfect?",
-          body: "'I've finished the API' es habitual en standups. Lo verás en B1 con más detalle. Por ahora, si necesitas hablar de algo terminado, usa pasado simple con un marcador claro: 'I finished it yesterday' o 'I finished it this morning'.",
+          body: "'I've finished the API' es habitual en standups. Lo verás con más detalle más adelante. Por ahora, si necesitas hablar de algo terminado, usa pasado simple con un marcador claro: 'I finished it yesterday' o 'I finished it this morning'.",
         },
         {
           type: "tenses",
@@ -162,6 +168,16 @@ export const m2: Module = {
           answer: "I'm reviewing your PR right now.",
           explanation:
             "Presente continuo + 'right now' comunica lo que está pasando en este momento, sin sonar robótico.",
+        },
+        {
+          id: "m2-l1-e7",
+          type: "fill-blank",
+          prompt: "Completa con el tiempo correcto según la pista.",
+          template: "Yesterday I ___ the bug. Now I ___ the tests. Tomorrow I ___ the fix.",
+          blanks: ["fixed", "am running|I'm running", "will deploy|'ll deploy"],
+          hint: "Pasado (yesterday) → fixed. Ahora (now) → am running. Mañana (tomorrow) → will deploy.",
+          explanation:
+            "Una misma historia en tres tiempos: pasado simple, presente continuo y futuro con 'will'. Los marcadores de tiempo te dicen cuál usar.",
         },
       ],
     },
@@ -319,10 +335,117 @@ export const m2: Module = {
       ],
     },
     {
+      id: "m2-l3",
+      slug: "practica-tiempos-bug",
+      title: "Práctica: pasado, ahora y siguiente paso",
+      step: "A2 · Paso 2.3 · Práctica guiada",
+      cefr: "A2",
+      minutes: 8,
+      summary:
+        "Sesión corta para separar la práctica de m2-l2: narra un bug con pasado, presente continuo y futuro en drills simples.",
+      objectives: [
+        "Contar qué pasó con pasado simple y marcador de tiempo.",
+        "Explicar qué haces ahora con presente continuo.",
+        "Indicar el siguiente paso con 'will'."
+      ],
+      pronunciation:
+        "I found the bug yesterday. I'm fixing it now. I'll deploy the fix tomorrow.",
+      blocks: [
+        {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Completa primero 'Cuenta un bug en pasado, presente y futuro' (m2-l2). Esta práctica separa la narrativa en ejercicios cortos usando solo tiempos y frases ya trabajados.",
+        },
+        {
+          type: "technique",
+          name: "Una idea, un tiempo",
+          desc: "Pasado para lo que ya ocurrió ('I found...', 'it crashed...'), presente continuo para lo que haces ahora ('I'm fixing...'), y 'will' para el siguiente paso ('I'll deploy...').",
+        },
+        {
+          type: "phrases",
+          title: "Modelos de apoyo",
+          items: [
+            { en: "I found a bug yesterday.", es: "Encontré un bug ayer." },
+            { en: "I'm fixing it now.", es: "Lo estoy arreglando ahora." },
+            { en: "I'll deploy the fix tomorrow.", es: "Desplegaré el arreglo mañana." }
+          ],
+        }
+      ],
+      exercises: [
+        {
+          id: "m2-l3-e1",
+          type: "choice",
+          prompt: "¿Qué frase describe lo que ya pasó ayer?",
+          options: [
+            "I find a bug yesterday.",
+            "I found a bug yesterday.",
+            "I'm finding a bug yesterday.",
+            "I will find a bug yesterday."
+          ],
+          answer: 1,
+          explanation:
+            "Para un evento terminado en el pasado usa pasado simple: 'I found a bug yesterday.'",
+        },
+        {
+          id: "m2-l3-e2",
+          type: "builder",
+          prompt: "Construye: 'Lo estoy arreglando ahora.'",
+          words: ["I'm fixing", "it", "now."],
+          answer: "I'm fixing it now.",
+          explanation:
+            "Presente continuo para una acción en curso: 'I'm fixing it now.'",
+        },
+        {
+          id: "m2-l3-e3",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Desplegaré el arreglo mañana.'",
+          answer: "I'll deploy the fix tomorrow.",
+          accept: ["I will deploy the fix tomorrow."],
+          hint: "Usa 'I'll deploy...' + 'tomorrow'.",
+          explanation:
+            "Futuro simple con 'will' para el siguiente paso.",
+        },
+        {
+          id: "m2-l3-e4",
+          type: "choice",
+          prompt: "Quieres decir que el problema sigue abierto ahora. ¿Cuál es correcta?",
+          options: [
+            "The issue is still open.",
+            "The issue still opened.",
+            "The issue was still open tomorrow.",
+            "The issue is still opening yesterday."
+          ],
+          answer: 0,
+          explanation:
+            "'Is still open' describe el estado actual de forma simple y clara.",
+        },
+        {
+          id: "m2-l3-e5",
+          type: "builder",
+          prompt: "Construye: 'Encontré el bug ayer y lo estoy arreglando ahora.'",
+          words: ["I found the bug yesterday", "and", "I'm fixing it now."],
+          answer: "I found the bug yesterday and I'm fixing it now.",
+          explanation:
+            "Combina pasado (qué pasó) y presente continuo (qué haces ahora) en una frase clara.",
+        },
+        {
+          id: "m2-l3-e6",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Lo arreglaré después de los tests.'",
+          answer: "I'll fix it after the tests.",
+          accept: ["I will fix it after the tests."],
+          hint: "Usa 'I'll fix it after...'",
+          explanation:
+            "'Will' + verbo base expresa el siguiente paso; 'after the tests' da el momento/condición.",
+        }
+      ],
+    },
+    {
       id: "m8-l2",
       slug: "pronunciacion-funcional-devs",
       title: "Pronunciación funcional para developers",
-      step: "A2 · Paso 2.3 · Pronunciación",
+      step: "A2 · Paso 2.4 · Pronunciación",
       cefr: "A2",
       minutes: 8,
       summary:

@@ -14,12 +14,14 @@ type Stage = ReturnType<typeof getUiStage>;
 
 function SessionRow({
   session,
+  moduleId,
   nextSessionId,
   completedSessions,
   stage,
   goal,
 }: {
   session: NavSession;
+  moduleId: string;
   nextSessionId: string;
   completedSessions: Record<string, number>;
   stage: Stage;
@@ -28,6 +30,8 @@ function SessionRow({
   const complete = Boolean(completedSessions[session.id]);
   const isNext = session.id === nextSessionId && !complete;
   const goalRelevant = goal !== "all" && isSessionRelevantToGoal(session.slug, goal);
+  const isIntegrated = !session.id.startsWith(`${moduleId}-`);
+  const isCheckpoint = /checkpoint|repaso|integrad/i.test(`${session.step} ${session.title}`);
 
   return (
     <a
@@ -66,6 +70,16 @@ function SessionRow({
               {tAction(stage, "continueHere")}
             </span>
           )}
+          {isIntegrated && (
+            <span className="rounded-full bg-base-content/[0.06] px-2 py-0.5 text-[9px] font-medium text-base-content/45" title="Sesión integrada en esta parte del recorrido">
+              Integrada
+            </span>
+          )}
+          {isCheckpoint && !isIntegrated && (
+            <span className="rounded-full bg-base-content/[0.06] px-2 py-0.5 text-[9px] font-medium text-base-content/45">
+              Repaso
+            </span>
+          )}
           {goalRelevant && !complete && (
             <span className="inline-flex items-center gap-1 rounded-full bg-base-content/[0.06] px-2 py-0.5 text-[9px] font-medium text-base-content/50" title="Recomendada para tu objetivo">
               <Target className="h-2.5 w-2.5 text-accent/70" /> Meta
@@ -82,6 +96,7 @@ function SessionRow({
             <Layers className="h-3 w-3" />
             {session.exerciseCount} {stage === "es" ? "ej." : "ex."}
           </span>
+          <span className="truncate font-mono text-base-content/30">{session.step}</span>
         </span>
       </span>
 
@@ -136,6 +151,7 @@ function ModuleCard({
           <SessionRow
             key={session.id}
             session={session}
+            moduleId={module.id}
             nextSessionId={nextSessionId}
             completedSessions={completedSessions}
             stage={stage}

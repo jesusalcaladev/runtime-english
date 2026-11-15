@@ -1,4 +1,5 @@
-import { useState } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
+import type { ComponentType } from "preact";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -32,6 +33,7 @@ import { getDuePhraseEntries, getReviewStats, progressStore, todayKey } from "..
 import { route } from "../../lib/routes";
 import { aggregateErrorPatterns } from "../../lib/errorPatterns";
 import { getConsistencyFeedback, getConsistencyStats, getLearningRecommendations } from "../../lib/studyPlan";
+import { warmSpeechEngine } from "../../lib/speech";
 import { useProgress } from "../../lib/useProgress";
 
 interface Props {
@@ -55,6 +57,10 @@ export default function Dashboard({
   const stage = getUiStage(state);
   const [showHabits, setShowHabits] = useState(false);
   const [showPatterns, setShowPatterns] = useState(false);
+
+  useEffect(() => {
+    try { warmSpeechEngine(); } catch {}
+  }, []);
 
   const allSessions = modules.flatMap((module) =>
     module.sessions.map((session) => ({ ...session, module })),
@@ -264,73 +270,74 @@ export default function Dashboard({
       )}
 
       {/* Bloque 1: Acción inmediata (Continuar + Repasar hoy unificado) */}
-      <section class="relative mt-2 overflow-hidden rounded-[28px] bg-base-200 p-5 sm:p-8">
+      <section class="relative mt-2 overflow-hidden rounded-[24px] bg-base-200 p-4 sm:rounded-[28px] sm:p-8">
         <div class="pointer-events-none absolute -right-24 -top-28 h-80 w-80 rounded-full bg-accent/[0.07] blur-3xl" />
         <div class="relative">
-          <div class="flex flex-wrap items-end justify-between gap-4">
+          <div class="flex flex-wrap items-end justify-between gap-3 sm:gap-4">
             <div class="min-w-0">
-              <p class="mono-label flex items-center gap-2 text-base-content/50">
+              <p class="mono-label hidden items-center gap-2 text-base-content/50 sm:flex">
                 <span class="h-1.5 w-1.5 rounded-full bg-accent" />
                 {t(stage, "workspace")} · RuntimeEnglish
               </p>
-              <h1 class="font-pixel mt-2 text-[2.2rem] leading-[1.02] tracking-tight sm:text-[3rem]">
+              <h1 class="font-pixel mt-0 text-[1.95rem] leading-[1.02] tracking-tight sm:mt-2 sm:text-[3rem]">
                 {greeting}
               </h1>
             </div>
-            <span class="flex items-center gap-2 rounded-full bg-base-100/70 px-3 py-1.5">
+            <span class="flex items-center gap-2 rounded-full bg-base-100/70 px-2.5 py-1.5 sm:px-3">
               <span class="h-2 w-2 rounded-full bg-accent" />
               <span class="font-mono text-[11px] font-semibold text-base-content/80">{cefr}</span>
-              <span class="text-[10px] text-base-content/30">·</span>
-              <span class="text-[11px] font-medium text-base-content/55">Nivel {xpLevel} · {levelLabel}</span>
+              <span class="hidden text-[10px] text-base-content/30 sm:inline">·</span>
+              <span class="hidden text-[11px] font-medium text-base-content/55 sm:inline">Nivel {xpLevel} · {levelLabel}</span>
             </span>
           </div>
 
-          <div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
+          <div class="mt-5 grid gap-4 sm:mt-6 sm:gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
             <div class="max-w-2xl">
-              <div class="flex flex-wrap items-center gap-2.5">
+              <div class="flex flex-wrap items-center gap-2 sm:gap-2.5">
                 <span class="mono-label text-accent">{t(stage, "nextUp")}</span>
                 <span class="rounded-full bg-base-300/70 px-2.5 py-1 font-mono text-[10px] font-medium text-base-content/55">
                   {nextSession.module.code} · {nextSession.step}
                 </span>
               </div>
-              <h2 class="mt-3 text-balance text-[1.45rem] font-semibold leading-snug tracking-tight text-base-content/95 sm:text-[1.75rem]">
+              <h2 class="mt-2.5 text-balance text-[1.3rem] font-semibold leading-snug tracking-tight text-base-content/95 sm:mt-3 sm:text-[1.75rem]">
                 {nextSession.title}
               </h2>
-              <p class="mt-2 max-w-xl text-[14px] leading-7 text-base-content/60">{nextSession.summary}</p>
-              <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] text-base-content/55">
+              <p class="mt-2 max-w-xl text-[13px] leading-6 text-base-content/60 sm:text-[14px] sm:leading-7">{nextSession.summary}</p>
+              <div class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] text-base-content/55 sm:mt-4 sm:gap-x-4 sm:gap-y-2 sm:text-[12px]">
                 <span class="flex items-center gap-1.5"><Clock class="h-4 w-4 text-base-content/40" />{nextSession.minutes} {t(stage, "minutes")}</span>
                 <span class="flex items-center gap-1.5"><Layers class="h-4 w-4 text-base-content/40" />{nextSession.exerciseCount} {t(stage, "exercises")}</span>
                 <span class="rounded-full bg-base-100/80 px-2.5 py-1 font-mono text-[10px] font-semibold text-base-content/65">{nextSession.cefr}</span>
               </div>
 
-              <div class="mt-6 flex flex-wrap items-center gap-2.5">
-                <a href={route(`/session/${nextSession.slug}`)} class="btn btn-primary h-11 gap-2 rounded-xl px-5 text-[14px]">
+              <div class="mt-5 flex flex-col gap-2 sm:mt-6 sm:flex-row sm:flex-wrap sm:items-center sm:gap-2.5">
+                <a href={route(`/session/${nextSession.slug}`)} class="btn btn-primary h-11 w-full gap-2 rounded-xl px-5 text-[14px] sm:w-auto">
                   <Play class="h-4 w-4 fill-current" />
                   {doneSessions > 0 ? t(stage, "continue") : t(stage, "start")}
                 </a>
                 {totalDue > 0 ? (
-                  <a href={route(reviewHref)} class="btn btn-ghost h-11 gap-2 rounded-xl bg-accent/10 px-4 text-accent hover:bg-accent/15 ring-1 ring-accent/20">
+                  <a href={route(reviewHref)} class="btn btn-ghost h-11 w-full gap-2 rounded-xl bg-accent/10 px-4 text-accent ring-1 ring-accent/20 hover:bg-accent/15 sm:w-auto">
                     <RotateCcw class="h-4 w-4" />
-                    {reviewLabel}
+                    <span class="sm:hidden">Repasar ({totalDue})</span>
+                    <span class="hidden sm:inline">{reviewLabel}</span>
                   </a>
                 ) : (
-                  <a href={route("/practice")} class="btn btn-ghost h-11 gap-2 rounded-xl bg-base-100/60 px-4 text-base-content/70 hover:bg-base-100">
+                  <a href={route("/practice")} class="btn btn-ghost h-11 w-full gap-2 rounded-xl bg-base-100/60 px-4 text-base-content/70 hover:bg-base-100 sm:w-auto">
                     <Zap class="h-4 w-4" /> Práctica rápida
                   </a>
                 )}
                 {review.due > 0 && duePhrases > 0 && (
-                  <a href={route("/dictionary?review=1")} class="btn btn-ghost h-10 gap-2 rounded-xl px-3 text-base-content/60">
+                  <a href={route("/dictionary?review=1")} class="btn btn-ghost h-10 w-full gap-2 rounded-xl px-3 text-base-content/60 sm:w-auto">
                     <BookText class="h-4 w-4" /> Flashcards ({duePhrases})
                   </a>
                 )}
               </div>
 
               {showGoalPick && goalSession && (
-                <a href={route(`/session/${goalSession.slug}`)} class="mt-4 flex items-center gap-3.5 rounded-2xl bg-base-100/60 px-4 py-3.5 transition hover:bg-base-100/85">
+                <a href={route(`/session/${goalSession.slug}`)} class="mt-4 flex items-center gap-3 rounded-2xl bg-base-100/60 px-3.5 py-3 transition hover:bg-base-100/85 sm:gap-3.5 sm:px-4 sm:py-3.5">
                   <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent/10 text-accent"><Target class="h-4 w-4" /></span>
                   <span class="min-w-0 flex-1">
                     <span class="block text-[11px] font-medium tracking-wide text-accent/85">Para tu objetivo · {goalLabel}</span>
-                    <span class="mt-0.5 block truncate text-[14px] font-medium text-base-content/85">{goalSession.title}</span>
+                    <span class="mt-0.5 block truncate text-[13px] font-medium text-base-content/85 sm:text-[14px]">{goalSession.title}</span>
                     <span class="mt-0.5 block text-[11px] text-base-content/45">{goalSession.module.shortTitle} · {goalSession.cefr}</span>
                   </span>
                   <ArrowRight class="h-4 w-4 shrink-0 text-base-content/35" />
@@ -339,9 +346,9 @@ export default function Dashboard({
             </div>
 
             {/* Progreso compacto dentro del bloque 1 */}
-            <div class="flex items-center gap-4 rounded-2xl bg-base-100/50 p-4 lg:min-w-[220px] lg:flex-col lg:items-stretch">
-              <div class="flex items-center gap-4 lg:justify-center">
-                <div class="relative flex h-[56px] w-[56px] shrink-0 items-center justify-center">
+            <div class="flex items-center gap-3 rounded-2xl bg-base-100/50 p-3 sm:gap-4 sm:p-4 lg:min-w-[220px] lg:flex-col lg:items-stretch">
+              <div class="flex w-full items-center gap-3 sm:gap-4 lg:justify-center">
+                <div class="relative flex h-[52px] w-[52px] shrink-0 items-center justify-center sm:h-[56px] sm:w-[56px]">
                   <svg viewBox="0 0 100 100" class="h-full w-full -rotate-90" aria-hidden="true">
                     <circle cx="50" cy="50" r="38" fill="none" stroke="currentColor" strokeWidth="12" class="text-base-content/[0.08]" />
                     <circle cx="50" cy="50" r="38" fill="none" stroke="var(--color-accent)" strokeWidth="12" strokeLinecap="round"
@@ -350,13 +357,13 @@ export default function Dashboard({
                       class="transition-[stroke-dashoffset] duration-700 ease-out" />
                   </svg>
                   <div class="absolute inset-0 flex flex-col items-center justify-center">
-                    <span class="font-mono text-[0.75rem] font-semibold tracking-tight">{pct}%</span>
+                    <span class="font-mono text-[0.72rem] font-semibold tracking-tight sm:text-[0.75rem]">{pct}%</span>
                   </div>
                 </div>
-                <div class="space-y-0.5">
+                <div class="min-w-0 flex-1 space-y-0.5">
                   <p class="text-[11px] font-medium text-base-content/70">Progreso total</p>
                   <p class="font-mono text-[11px] text-base-content/55">{doneExercises}/{totalExercises} ejercicios</p>
-                  <p class="text-[10px] text-base-content/40">{doneSessions}/{totalSessions} sesiones</p>
+                  <p class="text-[10px] text-base-content/40">{doneSessions}/{totalSessions} sesiones · Nivel {xpLevel}</p>
                 </div>
               </div>
             </div>
@@ -521,7 +528,17 @@ export default function Dashboard({
   );
 }
 
-function Metric({ icon: Icon, label, value, detail }: { icon: any; label: string; value: string; detail: string }) {
+function Metric({
+  icon: Icon,
+  label,
+  value,
+  detail,
+}: {
+  icon: ComponentType<{ class?: string }>;
+  label: string;
+  value: string;
+  detail: string;
+}) {
   return (
     <div class="rounded-2xl bg-base-200 px-4 py-4">
       <div class="flex items-center justify-between">

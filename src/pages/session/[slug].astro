@@ -95,7 +95,7 @@ const exerciseIds = session.exercises.map((exercise) => exercise.id);
         <LessonBlocks blocks={session.blocks} />
       </div>
 
-      <aside class="space-y-3 lg:sticky lg:top-20">
+      <aside class="hidden space-y-3 lg:block lg:sticky lg:top-20">
         <SessionProgressCard
           client:only="preact"
           sessionId={session.id}
