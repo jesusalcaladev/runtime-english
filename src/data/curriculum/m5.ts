@@ -1346,5 +1346,113 @@ export const m5: Module = {
         }
       ],
     },
+    {
+      id: "m5-l11",
+      slug: "practica-entrevistas-y-demos",
+      title: "Práctica: entrevistas y demos técnicas",
+      step: "B1-B2 · Paso 5.11 · Práctica guiada",
+      cefr: "B1",
+      minutes: 8,
+      summary:
+        "Sesión corta para separar y reforzar m5-l3 y m5-l5: hablar de experiencia, trade-offs y explicar un cambio o demo con claridad.",
+      objectives: [
+        "Describir experiencia y decisiones técnicas con frases ya vistas.",
+        "Explicar un cambio (antes/ahora) y su impacto.",
+        "Hacer preguntas claras en contexto de entrevista o demo."
+      ],
+      pronunciation:
+        "I have three years of experience. Let me walk you through the change. Now, it handles the error correctly.",
+      blocks: [
+        {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Repasa m5-l3 (entrevistas técnicas) y m5-l5 (explicar cambios y dar una demo corta). Esta práctica usa solo chunks y estructuras ya enseñados en esas lecciones."
+        },
+        {
+          type: "technique",
+          name: "Contar experiencia y explicar un cambio",
+          desc: "Entrevista: experiencia ('I have... years of experience'), decisiones/trade-offs ('The main trade-off was...'), preguntas. Demo: guía ('Let me walk you through...'), antes/ahora ('Before..., Now...') e impacto."
+        },
+        {
+          type: "phrases",
+          title: "Chunks de apoyo",
+          items: [
+            { en: "I have three years of experience as a backend developer.", es: "Tengo tres años de experiencia como desarrollador backend." },
+            { en: "The main trade-off was latency versus cost.", es: "El principal compromiso fue latencia frente a coste." },
+            { en: "Let me walk you through the change.", es: "Déjame explicarte el cambio paso a paso." },
+            { en: "Now, it handles the error correctly.", es: "Ahora, maneja el error correctamente." }
+          ]
+        }
+      ],
+      exercises: [
+        {
+          id: "m5-l11-e1",
+          type: "choice",
+          prompt: "En una entrevista quieres mencionar tu experiencia. ¿Qué opción encaja?",
+          options: [
+            "I have three years of experience as a backend developer.",
+            "I experience three years backend.",
+            "Three years I am experience.",
+            "I have experience three years developer."
+          ],
+          answer: 0,
+          explanation:
+            "Frase modelo clara para hablar de experiencia en una entrevista (m5-l3)."
+        },
+        {
+          id: "m5-l11-e2",
+          type: "builder",
+          prompt: "Construye: 'Déjame explicarte el cambio paso a paso.'",
+          words: ["Let me", "walk you through", "the change."],
+          answer: "Let me walk you through the change.",
+          explanation:
+            "'Walk you through' es una forma natural de guiar a alguien por un cambio o demo."
+        },
+        {
+          id: "m5-l11-e3",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Ahora, maneja el error correctamente.'",
+          answer: "Now, it handles the error correctly.",
+          accept: ["Now it handles the error correctly."],
+          hint: "Contrasta el estado actual: 'Now, it handles...'",
+          explanation:
+            "En una demo, 'Now...' muestra el resultado después del cambio."
+        },
+        {
+          id: "m5-l11-e4",
+          type: "choice",
+          prompt: "Quieres explicar una decisión técnica en una entrevista. ¿Qué dices?",
+          options: [
+            "The main trade-off was latency versus cost.",
+            "The main bug was latency versus cost.",
+            "The main test was latency versus cost.",
+            "The main deploy was latency versus cost."
+          ],
+          answer: 0,
+          explanation:
+            "'Trade-off' describe un compromiso entre dos factores (m5-l3)."
+        },
+        {
+          id: "m5-l11-e5",
+          type: "builder",
+          prompt: "Construye: '¿Podrías contarme más sobre la rotación de guardias?'",
+          words: ["Could you tell me more", "about the on-call", "rotation?"],
+          answer: "Could you tell me more about the on-call rotation?",
+          explanation:
+            "Pregunta educada y específica, útil al final de una entrevista."
+        },
+        {
+          id: "m5-l11-e6",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Antes de este cambio, la app fallaba al iniciar sesión.'",
+          answer: "Before this change, the app crashed on login.",
+          accept: ["Before this change the app crashed on login."],
+          hint: "Usa 'Before this change...' y pasado simple 'crashed'.",
+          explanation:
+            "Describir el estado anterior ayuda a explicar el valor del cambio en una demo."
+        }
+      ],
+    },
   ],
 };
