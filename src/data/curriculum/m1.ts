@@ -695,6 +695,19 @@ export const m1: Module = {
           explanation:
             "'I think' + cláusula es una forma simple de compartir tu hipótesis en debugging.",
         },
+        {
+          id: "m1-l5-e6",
+          type: "write",
+          prompt: "Escribe en inglés: 'La función devuelve un valor.'",
+          answer: "The function returns a value.",
+          accept: [
+            "This function returns a value.",
+            "The function returns a value",
+          ],
+          hint: "Tercera persona singular: 'returns'.",
+          explanation:
+            "Repaso de patrón clave de m1-l1: sujeto técnico + verbo en presente simple.",
+        },
       ],
     },
     {
