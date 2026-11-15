@@ -47,7 +47,7 @@ function GitHubIcon(props: { class?: string }) {
 import type { LearningGoal } from "../../lib/goals";
 import type { StudyPlan } from "../../lib/progress";
 import { getLanguageStatus } from "../../lib/i18n";
-import { kokoroIsCached, loadKokoro, stopSpeech } from "../../lib/speech";
+import { kokoroIsCached, loadKokoro, maybeWarmKokoroInBackground, stopSpeech, warmSpeechEngine } from "../../lib/speech";
 import { signInWithProvider, signOut } from "../../lib/auth";
 import { isSupabaseConfigured } from "../../lib/supabase";
 import { clearSyncError } from "../../lib/progressSync";
@@ -911,14 +911,18 @@ export default function SettingsPanel() {
               </button>
             </div>
             <div class="mt-3 flex flex-wrap gap-1.5">
-              {[0.75, 1, 1.25].map((rate) => {
-                const active = state.settings.ttsRate === rate;
+              {[0.6, 0.75, 0.85, 1, 1.1, 1.25, 1.5, 1.75].map((rate) => {
+                const active = Math.abs((state.settings.ttsRate ?? 1) - rate) < 0.01;
                 return (
                   <button
                     key={rate}
                     type="button"
-                    onClick={() => progressStore.setSettings({ ttsRate: rate })}
-                    class={`rounded-full px-3.5 py-2 font-mono text-xs font-medium transition ${active ? "bg-base-content text-base-100" : "bg-base-100/50 text-base-content/45 hover:bg-base-100 hover:text-base-content/70"}`}
+                    onClick={() => {
+                      progressStore.setSettings({ ttsRate: rate });
+                      // Warm Kokoro with the new speed context so next playback feels instant.
+                      warmSpeechEngine();
+                    }}
+                    class={`rounded-full px-3 py-2 font-mono text-[11px] font-medium transition ${active ? "bg-base-content text-base-100" : "bg-base-100/50 text-base-content/45 hover:bg-base-100 hover:text-base-content/70"}`}
                   >
                     {rate}x
                   </button>
@@ -992,7 +996,10 @@ export default function SettingsPanel() {
                       type="button"
                       onClick={() => {
                         progressStore.setSettings({ ttsEngine: opt.value });
-                        if (opt.value === "kokoro" && kokoro.state === "idle") void loadKokoro();
+                        if (opt.value === "kokoro") {
+                          if (kokoro.state === "idle" || kokoro.state === "error") void loadKokoro();
+                          else maybeWarmKokoroInBackground();
+                        }
                       }}
                       class={`rounded-xl p-3 text-left transition ${active ? "bg-base-100" : "bg-base-100/40 hover:bg-base-100/70"}`}
                     >

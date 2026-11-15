@@ -15,7 +15,6 @@ export const m9: Module = {
       title: "Entrevista técnica y comportamental",
       step: "B1 · Paso 9.1",
       cefr: "B1",
-      minutes: 12,
       summary:
         "Responde con claridad en entrevistas: estructura tu experiencia, impacto y aprendizaje.",
       objectives: [
@@ -126,7 +125,6 @@ export const m9: Module = {
       title: "Incidentes, RFCs, demos y feedback",
       step: "B2 · Paso 9.2",
       cefr: "B2",
-      minutes: 14,
       summary:
         "Comunícate en situaciones críticas y colaborativas: incidentes, propuestas, demos y feedback.",
       objectives: [
@@ -253,7 +251,6 @@ export const m9: Module = {
       title: "Práctica: comunicación senior (entrevista, RFC y demos)",
       step: "B2 · Paso 9.3 · Práctica guiada",
       cefr: "B2",
-      minutes: 8,
       summary:
         "Sesión corta para separar y reforzar m9-l1 y m9-l2: impacto en entrevistas, comunicación de incidentes, RFCs y demos.",
       objectives: [

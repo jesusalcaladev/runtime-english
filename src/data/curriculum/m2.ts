@@ -15,7 +15,6 @@ export const m2: Module = {
       title: "Los 4 tiempos que usarás cada día",
       step: "A2 · Paso 2.1",
       cefr: "A2",
-      minutes: 14,
       summary:
         "Presente, continuo, pasado y futuro cubren la mayor parte del trabajo diario. Empieza por estos cuatro y deja el present perfect para B1.",
       objectives: [
@@ -187,7 +186,6 @@ export const m2: Module = {
       title: "Cuenta un bug en pasado, presente y futuro",
       step: "A2 · Paso 2.2",
       cefr: "A2",
-      minutes: 11,
       summary:
         "Cuenta una sola historia con tres tiempos: qué encontraste, qué estás haciendo y cuándo lo vas a arreglar.",
       objectives: [
@@ -340,7 +338,6 @@ export const m2: Module = {
       title: "Práctica: pasado, ahora y siguiente paso",
       step: "A2 · Paso 2.3 · Práctica guiada",
       cefr: "A2",
-      minutes: 8,
       summary:
         "Sesión corta para separar la práctica de m2-l2: narra un bug con pasado, presente continuo y futuro en drills simples.",
       objectives: [
@@ -447,7 +444,6 @@ export const m2: Module = {
       title: "Pronunciación funcional para developers",
       step: "A2 · Paso 2.4 · Pronunciación",
       cefr: "A2",
-      minutes: 8,
       summary:
         "Practica palabras técnicas que se confunden al hablar: query, cache, route, queue, height y más.",
       objectives: [

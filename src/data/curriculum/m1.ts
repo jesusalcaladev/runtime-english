@@ -15,7 +15,6 @@ export const m1: Module = {
       title: "Los 10 Verbos Reyes en Contexto Técnico",
       step: "A1 · Paso 1.1",
       cefr: "A1",
-      minutes: 12,
       summary:
         "Aprende los 10 verbos básicos que usarás en casi todas las frases técnicas, con la regla clave: en tercera persona (it/the server/the function) el verbo suele llevar -s.",
       objectives: [
@@ -165,7 +164,6 @@ export const m1: Module = {
       title: "Los 20 Verbos Técnicos Diarios",
       step: "A2 · Paso 1.2",
       cefr: "A2",
-      minutes: 14,
       summary:
         "Los verbos de acción más usados en terminal, Git y documentación. Aquí aprenderás el imperativo (instrucciones como 'Run the tests') y a describir qué hace el código en presente simple.",
       objectives: [
@@ -316,7 +314,6 @@ export const m1: Module = {
       title: "Números, versiones y fechas sin trabarte",
       step: "A2 · Paso 1.3",
       cefr: "A2",
-      minutes: 9,
       summary:
         "Di versiones, cantidades, horas y fechas con naturalidad en una call, un changelog o un ticket.",
       objectives: [
@@ -464,7 +461,6 @@ export const m1: Module = {
       title: "Preguntar y pedir aclaraciones sin miedo",
       step: "A2 · Paso 1.4",
       cefr: "A2",
-      minutes: 9,
       summary:
         "Las preguntas de rescate que necesitas cuando no entiendes una palabra, un acento o una tarea.",
       objectives: [
@@ -608,7 +604,6 @@ export const m1: Module = {
       title: "Checkpoint: fundamentos en uso real",
       step: "A2 · Paso 1.5 · Checkpoint",
       cefr: "A2",
-      minutes: 7,
       summary:
         "Recupera lo esencial del módulo sin releer: verbos, acciones técnicas, números y cómo pedir aclaración.",
       objectives: [
@@ -716,7 +711,6 @@ export const m1: Module = {
       title: "Práctica: verbos técnicos en acción",
       step: "A2 · Paso 1.6 · Práctica guiada",
       cefr: "A2",
-      minutes: 8,
       summary:
         "Sesión corta para separar y reforzar m1-l2: imperativos, secuencias y descripciones simples con verbos técnicos.",
       objectives: [
@@ -814,7 +808,6 @@ export const m1: Module = {
       title: "Práctica mixta: fundamentos en acción",
       step: "A2 · Paso 1.7 · Práctica guiada",
       cefr: "A2",
-      minutes: 8,
       summary:
         "Sesión corta para mezclar y reforzar lo esencial de m1-l1 a m1-l4: verbos, acciones técnicas, versiones/números y aclaraciones.",
       objectives: [

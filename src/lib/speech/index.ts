@@ -25,7 +25,7 @@ export type { KokoroStatus, SpeechRecognitionResult } from "./types";
 export { getSpeechRate, isSpeechEnabled } from "./platform";
 export { ensureMicrophonePermission, isSpeechRecognitionSupported, recognizeOnce } from "./recognition";
 export { speechMatchScore } from "./match";
-export { getKokoroStatus, kokoroIsCached, loadKokoro, subscribeKokoroStatus };
+export { getKokoroStatus, kokoroIsCached, loadKokoro, maybeWarmKokoroInBackground, subscribeKokoroStatus };
 
 const KOKORO_AUTOLOAD_IDLE_TIMEOUT_MS = 6_000;
 const KOKORO_AUTOLOAD_FALLBACK_DELAY_MS = 2_500;
@@ -70,7 +70,7 @@ export function warmSpeechEngine(): void {
     }
 
     // Warm Kokoro in background when selected/cached so first playback starts faster.
-    if (getSpeechEngine() === "kokoro" && kokoroIsCached() && !isKokoroReady() && !isKokoroLoading()) {
+    if (getSpeechEngine() === "kokoro") {
       maybeWarmKokoroInBackground();
     }
   } catch {

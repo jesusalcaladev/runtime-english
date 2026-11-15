@@ -5,6 +5,7 @@ import SlangExplorer from "../components/slang/SlangExplorer";
 import PageHeader from "../components/ui/PageHeader.astro";
 import { SLANG } from "../data/slang";
 import { ALL_SESSIONS } from "../data/curriculum";
+import { getSessionMinutes } from "../lib/sessionTime";
 import { route } from "../lib/routes";
 
 const newTerms = SLANG.filter((entry) => entry.status === "2026").length;
@@ -109,7 +110,7 @@ const slangSessions = ALL_SESSIONS.filter((entry) => entry.module.id === "m7").m
               {session.summary}
             </p>
             <p class="mt-3 text-[11px] text-base-content/50">
-              {session.minutes} min · {session.exercises.length} ejercicios
+              {getSessionMinutes(session)} min · {session.exercises.length} ejercicios
             </p>
           </a>
         ))}

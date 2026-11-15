@@ -15,7 +15,6 @@ export const m4: Module = {
       title: "Fórmulas Exactas para Daily Standup",
       step: "B1 · Paso 4.1",
       cefr: "B1",
-      minutes: 11,
       summary:
         "No traduzcas mentalmente. Usa los bloques estándar de equipos ágiles internacionales.",
       objectives: [
@@ -155,7 +154,6 @@ export const m4: Module = {
       title: "Code Review: cómo comentar sin sonar agresivo",
       step: "B2 · Paso 4.2",
       cefr: "B2",
-      minutes: 11,
       summary:
         "Nit, blocking, non-blocking, LGTM: el idioma exacto para dar feedback útil y recibirlo sin fricción.",
       objectives: [
@@ -293,7 +291,6 @@ export const m4: Module = {
       title: "Incidentes, on-call y postmortems",
       step: "B2 · Paso 4.3",
       cefr: "B2",
-      minutes: 11,
       summary:
         "Comunica una caída, coordina la mitigación y escribe un postmortem sin buscar culpables.",
       objectives: [
@@ -420,7 +417,6 @@ export const m4: Module = {
       title: "Estimaciones, plazos y decir que no",
       step: "B2 · Paso 4.4",
       cefr: "B2",
-      minutes: 12,
       summary:
         "Da estimaciones con supuestos, negocia el alcance y di que no sin cerrar la conversación.",
       objectives: [
@@ -544,7 +540,6 @@ export const m4: Module = {
       title: "Pedir ayuda y dar contexto técnico",
       step: "B1 · Paso 4.5",
       cefr: "B1",
-      minutes: 10,
       summary:
         "Pide ayuda sin sonar perdido: explica qué intentas hacer, qué probaste y qué necesitas exactamente.",
       objectives: [
@@ -671,7 +666,6 @@ export const m4: Module = {
       title: "Pair programming y debugging en vivo",
       step: "B1 · Paso 4.6",
       cefr: "B1",
-      minutes: 11,
       summary:
         "Narra lo que piensas, propone hipótesis y colabora en vivo sin perder claridad.",
       objectives: [
@@ -788,7 +782,6 @@ export const m4: Module = {
       title: "Práctica: daily, ayuda y colaboración",
       step: "B1 · Paso 4.7 · Práctica guiada",
       cefr: "B1",
-      minutes: 8,
       summary:
         "Sesión corta para separar y reforzar comunicación diaria: updates, pedir ayuda con contexto y colaborar en vivo.",
       objectives: [
@@ -902,7 +895,6 @@ export const m4: Module = {
       title: "Práctica: code reviews, incidentes y plazos",
       step: "B1-B2 · Paso 4.8 · Práctica guiada",
       cefr: "B1",
-      minutes: 8,
       summary:
         "Sesión corta para separar y reforzar m4-l2, m4-l3 y m4-l4: feedback en reviews, comunicación en incidentes y manejo de plazos.",
       objectives: [

@@ -15,7 +15,6 @@ export const m6: Module = {
       title: "Seguridad, secretos y accesos",
       step: "B2 · Paso 6.1",
       cefr: "B2",
-      minutes: 11,
       summary:
         "Habla de credenciales, filtraciones y permisos con precisión, sin alarmismo y sin exponer datos.",
       objectives: [
@@ -153,7 +152,6 @@ export const m6: Module = {
       title: "System design en una conversación",
       step: "B2 · Paso 6.2",
       cefr: "B2",
-      minutes: 13,
       summary:
         "Conduce una conversación de arquitectura: aclara requisitos, estima escala y defiende trade-offs.",
       objectives: [
@@ -293,7 +291,6 @@ export const m6: Module = {
       title: "Performance, profiling y límites",
       step: "B2 · Paso 6.3",
       cefr: "B2",
-      minutes: 12,
       summary:
         "Mide antes de optimizar, lee percentiles y explica si el problema es CPU, memoria, red o base de datos.",
       objectives: [
@@ -422,7 +419,6 @@ export const m6: Module = {
       title: "Checkpoint: seguridad, arquitectura y performance",
       step: "B2 · Paso 6.4 · Checkpoint",
       cefr: "B2",
-      minutes: 8,
       summary:
         "Recuperación activa de lo esencial: secretos, trade-offs, cuellos de botella y métricas antes de optimizar.",
       objectives: [
@@ -548,7 +544,6 @@ export const m6: Module = {
       title: "Práctica: seguridad, arquitectura y performance",
       step: "B2 · Paso 6.5 · Práctica guiada",
       cefr: "B2",
-      minutes: 8,
       summary:
         "Sesión corta para separar y reforzar m6-l1 a m6-l3: respuesta a secretos expuestos, trade-offs y diagnóstico de rendimiento.",
       objectives: [

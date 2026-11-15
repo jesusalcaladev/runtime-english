@@ -15,7 +15,6 @@ export const m8: Module = {
       title: "Lectura rápida de docs y specs",
       step: "B1 · Paso 8.1",
       cefr: "B1",
-      minutes: 10,
       summary:
         "Identifica en un texto técnico qué es obligatorio, recomendado y cuál es el siguiente paso.",
       objectives: [
@@ -130,7 +129,6 @@ export const m8: Module = {
       title: "Prompts y trabajo con AI agents",
       step: "B1 · Paso 8.2",
       cefr: "B1",
-      minutes: 14,
       summary:
         "Ruta completa para hablarle a un AI agent en inglés claro y natural: plan del prompt, vocabulario técnico y expresiones nativas para pedir, acotar e iterar.",
       objectives: [
@@ -351,7 +349,6 @@ export const m8: Module = {
       title: "Drills: cómo dirías y escríbelo",
       step: "B1 · Paso 8.3 · Práctica guiada",
       cefr: "B1",
-      minutes: 12,
       summary:
         "Ejercicios guiados por situación real: bug, review, demo, ayuda y handoff. Piensa, escribe y compara.",
       objectives: [
@@ -468,7 +465,6 @@ export const m8: Module = {
       title: "Emails, tickets y mensajes profesionales",
       step: "B1 · Paso 8.4 · Práctica guiada",
       cefr: "B1",
-      minutes: 10,
       summary:
         "Escribe mensajes claros para reportar avances, pedir acciones y cerrar tareas sin ambigüedad.",
       objectives: [
@@ -591,7 +587,6 @@ export const m8: Module = {
       title: "Repaso final: práctica extra",
       step: "B1-B2 · Paso 8.5 · Repaso final",
       cefr: "B1",
-      minutes: 25,
       summary:
         "Una sesión larga e intuitiva para repasar todo: cómo dirías esto, escríbelo, arma frases y elige la mejor opción.",
       objectives: [
@@ -868,7 +863,6 @@ export const m8: Module = {
       title: "Práctica enfocada: prompts para AI agents",
       step: "B1 · Paso 8.6 · Práctica guiada",
       cefr: "B1",
-      minutes: 10,
       summary:
         "Sesión corta para separar y reforzar la práctica de m8-l7: contexto, restricción, revisión y frases nativas en prompts.",
       objectives: [
@@ -976,7 +970,6 @@ export const m8: Module = {
       title: "Repaso final: comunicación y entregas",
       step: "B1-B2 · Paso 8.7 · Repaso final",
       cefr: "B1",
-      minutes: 12,
       summary:
         "Repaso separado y enfocado en comunicación diaria: tiempos básicos, PRs, actualizaciones, bloqueos y conectores.",
       objectives: [
@@ -1095,7 +1088,6 @@ export const m8: Module = {
       title: "Repaso final: tiempos, errores y acciones",
       step: "B1-B2 · Paso 8.8 · Repaso final",
       cefr: "B1",
-      minutes: 10,
       summary:
         "Repaso separado para practicar tiempos básicos, reportes de errores y acciones técnicas con frases cortas.",
       objectives: [
@@ -1203,7 +1195,6 @@ export const m8: Module = {
       title: "Práctica: iterar y revisar con un AI agent",
       step: "B1 · Paso 8.9 · Práctica guiada",
       cefr: "B1",
-      minutes: 8,
       summary:
         "Sesión corta para separar y reforzar la iteración con agentes: revisar, simplificar, acotar alcance y verificar.",
       objectives: [
@@ -1311,7 +1302,6 @@ export const m8: Module = {
       title: "Repaso final: lectura, preguntas y aclaraciones",
       step: "A2-B1 · Paso 8.10 · Repaso final",
       cefr: "A2",
-      minutes: 8,
       summary:
         "Sesión corta para separar y reforzar lectura rápida de docs y cómo pedir aclaraciones con frases ya conocidas.",
       objectives: [

@@ -15,7 +15,6 @@ export const m3: Module = {
       title: "Git, GitHub y Mensajes de Error en Consola",
       step: "A2 · Paso 3.1",
       cefr: "A2",
-      minutes: 12,
       summary:
         "Lee cualquier stack trace o flujo de Git sin abrir el traductor y entiende qué te está pidiendo el sistema.",
       objectives: [
@@ -169,7 +168,6 @@ export const m3: Module = {
       title: "Conceptos de arquitectura + phrasal verbs para dev",
       step: "A2 · Paso 3.2",
       cefr: "A2",
-      minutes: 14,
       summary:
         "Los términos de arquitectura y los 14 phrasal verbs que escucharás en cada llamada técnica.",
       objectives: [
@@ -322,7 +320,6 @@ export const m3: Module = {
       title: "Testing y calidad sin traductor",
       step: "A2 · Paso 3.3",
       cefr: "A2",
-      minutes: 10,
       summary:
         "Unit, integration, e2e, mocks y tests flaky: el vocabulario para hablar de calidad con tu equipo.",
       objectives: [
@@ -460,7 +457,6 @@ export const m3: Module = {
       title: "API, HTTP y bases de datos",
       step: "A2 · Paso 3.4",
       cefr: "A2",
-      minutes: 11,
       summary:
         "Endpoints, status codes, payloads y queries: el inglés que aparece en cada petición.",
       objectives: [
@@ -597,7 +593,6 @@ export const m3: Module = {
       title: "Errores, stack traces y logs",
       step: "A2 · Paso 3.5",
       cefr: "A2",
-      minutes: 12,
       summary:
         "Lee mensajes de error y stack traces, explica qué pasó y pide ayuda con el contexto exacto.",
       objectives: [
@@ -755,7 +750,6 @@ export const m3: Module = {
       title: "Micro-repaso: fundamentos A1-A2",
       step: "A2 · Paso 3.6 · Checkpoint",
       cefr: "A2",
-      minutes: 8,
       summary:
         "Repaso corto y espaciado de lo esencial: verbos, errores simples, aclarar y acciones diarias.",
       objectives: [
@@ -842,7 +836,6 @@ export const m3: Module = {
       title: "Práctica: Git, HTTP y reporte de errores",
       step: "A2 · Paso 3.7 · Práctica guiada",
       cefr: "A2",
-      minutes: 8,
       summary:
         "Sesión corta para separar y reforzar m3-l1, m3-l4 y m3-l5: mensajes de error, status codes y reportes claros.",
       objectives: [

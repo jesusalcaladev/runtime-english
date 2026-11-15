@@ -15,7 +15,6 @@ export const m5: Module = {
       title: "Conventional Commits, Pull Requests y Preguntas Técnicas",
       step: "B2 · Paso 5.1",
       cefr: "B2",
-      minutes: 14,
       summary:
         "Escribe como un ingeniero senior en repositorios open-source y equipos globales.",
       objectives: [
@@ -173,7 +172,6 @@ export const m5: Module = {
       title: "Slack, email y trabajo asíncrono",
       step: "B2 · Paso 5.2",
       cefr: "B2",
-      minutes: 10,
       summary:
         "Escribe mensajes que se entiendan sin contexto: heads-up, ETA, follow-up y loop in.",
       objectives: [
@@ -308,7 +306,6 @@ export const m5: Module = {
       title: "Entrevistas técnicas en inglés",
       step: "B2 · Paso 5.3",
       cefr: "B2",
-      minutes: 12,
       summary:
         "Preséntate, cuenta una historia con STAR y habla de trade-offs sin memorizar un guion.",
       objectives: [
@@ -444,7 +441,6 @@ export const m5: Module = {
       title: "Conectores y discourse markers",
       step: "B1 · Paso 5.4",
       cefr: "B1",
-      minutes: 10,
       summary:
         "Usa I mean, actually, basically y otros conectores para sonar natural, aclarar ideas y ordenar tu mensaje.",
       objectives: [
@@ -579,7 +575,6 @@ export const m5: Module = {
       title: "Explicar cambios y dar una demo corta",
       step: "B1 · Paso 5.5",
       cefr: "B1",
-      minutes: 10,
       summary:
         "Explica qué cambiaste, por qué y cómo probarlo en una demo breve y clara.",
       objectives: [
@@ -712,7 +707,6 @@ export const m5: Module = {
       title: "Comentarios de PR: claros y profesionales",
       step: "B2 · Paso 5.6",
       cefr: "B2",
-      minutes: 12,
       summary:
         "Aprueba, pide cambios o sugiere mejoras con comentarios concretos, amables y accionables.",
       objectives: [
@@ -856,7 +850,6 @@ export const m5: Module = {
       title: "Reuniones cortas y actualizaciones claras",
       step: "B1 · Paso 5.7",
       cefr: "B1",
-      minutes: 10,
       summary:
         "Da updates en 30 segundos, pide aclaración, interrumpe con respeto y cierra con próximos pasos.",
       objectives: [
@@ -992,7 +985,6 @@ export const m5: Module = {
       title: "Async avanzado: tickets y mensajes que funcionan",
       step: "B2 · Paso 5.8",
       cefr: "B2",
-      minutes: 12,
       summary:
         "Escribe tickets, handoffs y actualizaciones async con contexto, estado y siguiente acción claros.",
       objectives: [
@@ -1132,7 +1124,6 @@ export const m5: Module = {
       title: "Micro-repaso: comunicación B1-B2",
       step: "B1 · Paso 5.9 · Checkpoint",
       cefr: "B1",
-      minutes: 10,
       summary:
         "Repaso mixto de PRs, async, incidentes, conectores y estimaciones con drills rápidos.",
       objectives: [
@@ -1249,7 +1240,6 @@ export const m5: Module = {
       title: "Práctica: PRs, async y feedback claro",
       step: "B1-B2 · Paso 5.10 · Práctica guiada",
       cefr: "B1",
-      minutes: 8,
       summary:
         "Sesión corta para separar y reforzar comunicación escrita: commits/PR, mensajes async y feedback accionable.",
       objectives: [
@@ -1352,7 +1342,6 @@ export const m5: Module = {
       title: "Práctica: entrevistas y demos técnicas",
       step: "B1-B2 · Paso 5.11 · Práctica guiada",
       cefr: "B1",
-      minutes: 8,
       summary:
         "Sesión corta para separar y reforzar m5-l3 y m5-l5: hablar de experiencia, trade-offs y explicar un cambio o demo con claridad.",
       objectives: [
@@ -1460,7 +1449,6 @@ export const m5: Module = {
       title: "Práctica: conectores y reuniones cortas",
       step: "B1 · Paso 5.12 · Práctica guiada",
       cefr: "B1",
-      minutes: 8,
       summary:
         "Sesión corta para separar y reforzar m5-l4 y m5-l7: conectores/discourse markers y frases para reuniones breves y actualizaciones.",
       objectives: [

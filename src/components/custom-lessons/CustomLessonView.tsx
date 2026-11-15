@@ -1,6 +1,7 @@
 import { useEffect, useState } from "preact/hooks";
 import { ArrowLeft, BookOpen, Clock, Layers, Trash2 } from "lucide-preact";
 import { route } from "../../lib/routes";
+import { getSessionMinutes } from "../../lib/sessionTime";
 import { emitToast } from "../../lib/toast";
 import { deleteCustomLesson, getCustomLesson, type CustomLesson } from "../../lib/customLessons";
 import ExerciseRunner from "../exercise/ExerciseRunner";
@@ -60,7 +61,7 @@ export default function CustomLessonView() {
         <div class="flex flex-wrap items-center gap-2">
           <span class="rounded-full bg-accent/10 px-2.5 py-1 text-[10px] font-medium text-accent">{lesson.cefr}</span>
           <span class="flex items-center gap-1.5 rounded-full bg-base-200 px-2.5 py-1 text-[10px] text-base-content/45">
-            <Clock class="h-3 w-3" /> {lesson.minutes} min
+            <Clock class="h-3 w-3" /> {getSessionMinutes(lesson)} min
           </span>
           <span class="flex items-center gap-1.5 rounded-full bg-base-200 px-2.5 py-1 text-[10px] text-base-content/45">
             <Layers class="h-3 w-3" /> {lesson.exercises.length} ejercicios

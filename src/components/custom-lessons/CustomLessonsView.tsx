@@ -10,6 +10,7 @@ import {
   Wand2,
 } from "lucide-preact";
 import { route } from "../../lib/routes";
+import { getSessionMinutes } from "../../lib/sessionTime";
 import { emitToast } from "../../lib/toast";
 import {
   buildAiLessonPrompt,
@@ -150,6 +151,7 @@ export default function CustomLessonsView() {
                 <ul class="list-disc space-y-1 pl-4">
                   <li>Solicita únicamente JSON válido (sin markdown ni texto adicional).</li>
                   <li>Define la estructura y los campos requeridos para cada tipo de ejercicio.</li>
+                  <li>No pide duración: los minutos se calculan automáticamente según el contenido.</li>
                   <li>Incluye un ejemplo completo para reducir errores de formato.</li>
                 </ul>
               </div>
@@ -204,7 +206,7 @@ export default function CustomLessonsView() {
               </div>
               <p class="text-[11px] leading-relaxed text-base-content/45">
                 <Lightbulb class="mr-1 inline h-3.5 w-3.5 text-warning/70" />
-                Se guarda localmente en este dispositivo. Si la IA añade texto extra fuera del JSON, bórralo y deja solo el objeto JSON.
+                Se guarda localmente en este dispositivo. La duración se calcula automáticamente. Si la IA añade texto extra fuera del JSON o incluye <code>"minutes"</code>, no pasa nada: pégalo y la app lo ajustará.
               </p>
             </div>
           </div>
@@ -229,7 +231,7 @@ export default function CustomLessonsView() {
                 <div class="min-w-0">
                   <div class="flex flex-wrap items-center gap-1.5">
                     <span class="rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent">{lesson.cefr}</span>
-                    <span class="rounded-full bg-base-100/70 px-2 py-0.5 text-[10px] text-base-content/45">{lesson.minutes} min</span>
+                    <span class="rounded-full bg-base-100/70 px-2 py-0.5 text-[10px] text-base-content/45">{getSessionMinutes(lesson)} min</span>
                   </div>
                   <h3 class="mt-2 line-clamp-2 text-sm font-semibold leading-snug">{lesson.title}</h3>
                   <p class="mt-1 line-clamp-2 text-[12px] leading-relaxed text-base-content/55">{lesson.summary}</p>

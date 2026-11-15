@@ -1,3 +1,4 @@
+import { getSessionMinutes } from "./sessionTime";
 import type { ContentBlock, Exercise, Session } from "./types";
 
 export interface CustomLesson extends Session {
@@ -299,7 +300,6 @@ export function importCustomLessonJson(raw: unknown, options?: { source?: "manua
     title,
     step: asString(raw.step)?.trim() || "Custom",
     cefr: (asString(raw.cefr) as CustomLesson["cefr"]) || "A2",
-    minutes: typeof raw.minutes === "number" && Number.isFinite(raw.minutes) ? Math.max(1, Math.round(raw.minutes)) : 10,
     summary: asString(raw.summary)?.trim() || `Lección personalizada sobre ${title}.`,
     objectives,
     blocks,
@@ -310,6 +310,7 @@ export function importCustomLessonJson(raw: unknown, options?: { source?: "manua
     source: options?.source ?? "manual",
     topic: options?.topic?.trim() || undefined,
   };
+  lesson.minutes = getSessionMinutes(lesson);
 
   return { ok: true, lesson, errors: [] };
 }
@@ -346,11 +347,12 @@ export function buildAiLessonPrompt(topic: string): string {
     '  "title": "string",',
     '  "summary": "string",',
     '  "cefr": "A1" | "A2" | "B1" | "B2",',
-    '  "minutes": number,',
     '  "objectives": ["string", "string", "string"],',
     '  "blocks": [ ...4 a 6 bloques válidos... ],',
     '  "exercises": [ ...6 ejercicios válidos... ]',
     "}",
+    "",
+    "NOTA: No incluyas \"minutes\"; la duración se calcula automáticamente a partir del contenido.",
     "",
     "BLOQUES PERMITIDOS (usa solo estos tipos):",
     '1) { "type": "technique", "name": "string", "desc": "string" }',
@@ -400,7 +402,6 @@ export function buildAiLessonPrompt(topic: string): string {
     '  "title": "Have to para obligaciones en el trabajo dev",',
     '  "summary": "Aprende a usar have to para hablar de obligaciones y tareas necesarias en contextos de desarrollo de software.",',
     '  "cefr": "A2",',
-    '  "minutes": 12,',
     '  "objectives": [',
     '    "Usar have to para expresar obligaciones en inglés.",',
     '    "Formar oraciones afirmativas y corregir errores comunes.",',

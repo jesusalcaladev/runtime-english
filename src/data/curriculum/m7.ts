@@ -16,7 +16,6 @@ export const m7: Module = {
       title: "El slang de IA que define 2026",
       step: "B2 · Especial 7.1",
       cefr: "B2",
-      minutes: 12,
       summary:
         "Vibe coding, AI slop, workslop, meat proxy: el vocabulario con el que los equipos hablan hoy de la IA.",
       objectives: [
@@ -141,7 +140,6 @@ export const m7: Module = {
       title: "Internet slang: entiende memes y calls",
       step: "B2 · Especial 7.2",
       cefr: "B2",
-      minutes: 10,
       summary:
         "Cooked, aura farming, glazing, yapping, delulu, lock in: el inglés informal que se cuela en equipos remotos.",
       objectives: [
@@ -255,7 +253,6 @@ export const m7: Module = {
       title: "Slang de reuniones: prioridades y tiempo",
       step: "B2 · Especial 7.3",
       cefr: "B2",
-      minutes: 10,
       summary:
         "Entiende y usa el vocabulario real de reuniones: circle back, take it offline, bandwidth y blockers.",
       objectives: [
@@ -391,7 +388,6 @@ export const m7: Module = {
       title: "Slang de reviews y código",
       step: "B2 · Especial 7.4",
       cefr: "B2",
-      minutes: 10,
       summary:
         "Lee comentarios de review sin malinterpretarlos: LGTM, nit, bikeshedding, tech debt y ship it.",
       objectives: [
@@ -529,7 +525,6 @@ export const m7: Module = {
       title: "Repaso: slang, uso y registro",
       step: "B2 · Especial 7.5 · Práctica guiada",
       cefr: "B2",
-      minutes: 8,
       summary:
         "Sesión corta para separar y reforzar el módulo de slang: significado, intención y cuándo usar o evitar cada término.",
       objectives: [

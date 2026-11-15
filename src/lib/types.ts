@@ -140,7 +140,8 @@ export interface Session {
   title: string;
   step: string;
   cefr: Cefr;
-  minutes: number;
+  /** Duración estimada en minutos. Si se omite, se calcula automáticamente del contenido. */
+  minutes?: number;
   summary: string;
   objectives: string[];
   blocks: ContentBlock[];
