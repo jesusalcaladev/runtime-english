@@ -896,5 +896,113 @@ export const m4: Module = {
         }
       ],
     },
+    {
+      id: "m4-l8",
+      slug: "practica-reviews-incidentes-y-plazos",
+      title: "Práctica: code reviews, incidentes y plazos",
+      step: "B1-B2 · Paso 4.8 · Práctica guiada",
+      cefr: "B1",
+      minutes: 8,
+      summary:
+        "Sesión corta para separar y reforzar m4-l2, m4-l3 y m4-l4: feedback en reviews, comunicación en incidentes y manejo de plazos.",
+      objectives: [
+        "Dar sugerencias y comentarios de code review de forma clara y profesional.",
+        "Comunicar estado y acciones durante un incidente.",
+        "Hablar de estimaciones, prioridades y alcance con frases ya vistas."
+      ],
+      pronunciation:
+        "Could we rename this variable for clarity? I'm rolling back the last deploy. My estimate is two to three days.",
+      blocks: [
+        {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Repasa m4-l2 (code review), m4-l3 (incidentes, on-call y postmortems) y m4-l4 (estimaciones, plazos y decir que no). Esta práctica usa solo chunks y estructuras ya enseñados en esas lecciones."
+        },
+        {
+          type: "technique",
+          name: "Tres contextos, lenguaje claro",
+          desc: "Reviews: sugerencias y prioridad ('Could we...?', 'blocking/non-blocking'). Incidentes: estado y acción ('We have a production outage', 'I'm rolling back...', 'We're back to normal'). Plazos: estimación y alcance ('My estimate is...', 'Can we descope something?', 'What's the hard deadline?')."
+        },
+        {
+          type: "phrases",
+          title: "Chunks de apoyo",
+          items: [
+            { en: "Could we rename this variable for clarity?", es: "¿Podríamos renombrar esta variable para mayor claridad?" },
+            { en: "I'm rolling back the last deploy.", es: "Estoy revirtiendo el último despliegue." },
+            { en: "My estimate is two to three days.", es: "Mi estimación es de dos a tres días." },
+            { en: "What's the hard deadline?", es: "¿Cuál es la fecha límite estricta?" }
+          ]
+        }
+      ],
+      exercises: [
+        {
+          id: "m4-l8-e1",
+          type: "choice",
+          prompt: "Quieres sugerir un cambio de nombre en un code review de forma amable. ¿Qué dices?",
+          options: [
+            "Rename this now.",
+            "Could we rename this variable for clarity?",
+            "Bad name.",
+            "This is wrong."
+          ],
+          answer: 1,
+          explanation:
+            "'Could we...?' propone el cambio de forma colaborativa y profesional (m4-l2)."
+        },
+        {
+          id: "m4-l8-e2",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Estoy revirtiendo el último despliegue.'",
+          answer: "I'm rolling back the last deploy.",
+          accept: ["I am rolling back the last deploy."],
+          hint: "Usa presente continuo: 'I'm rolling back...'",
+          explanation:
+            "En un incidente, comunicar la acción en curso es clave (m4-l3)."
+        },
+        {
+          id: "m4-l8-e3",
+          type: "builder",
+          prompt: "Construye: 'Mi estimación es de dos a tres días.'",
+          words: ["My estimate", "is two", "to three days."],
+          answer: "My estimate is two to three days.",
+          explanation:
+            "Dar una estimación clara ayuda a alinear expectativas (m4-l4)."
+        },
+        {
+          id: "m4-l8-e4",
+          type: "choice",
+          prompt: "El servicio ya se recuperó después de un incidente. ¿Qué dices?",
+          options: [
+            "We're back to normal.",
+            "We have a production outage.",
+            "The root cause is unknown forever.",
+            "I'm investigating now."
+          ],
+          answer: 0,
+          explanation:
+            "'We're back to normal' comunica que el servicio se ha estabilizado (m4-l3)."
+        },
+        {
+          id: "m4-l8-e5",
+          type: "write",
+          prompt: "Escríbelo en inglés: '¿Cuál es la fecha límite estricta?'",
+          answer: "What's the hard deadline?",
+          accept: ["What is the hard deadline?"],
+          hint: "Pregunta directa: 'What's the hard deadline?'",
+          explanation:
+            "Aclara si hay una fecha límite no negociable para priorizar (m4-l4)."
+        },
+        {
+          id: "m4-l8-e6",
+          type: "builder",
+          prompt: "Construye: 'Esto es un problema bloqueante porque afecta a producción.'",
+          words: ["This is a blocking issue", "because it affects", "production."],
+          answer: "This is a blocking issue because it affects production.",
+          explanation:
+            "En un review, explicar por qué algo es bloqueante ayuda a priorizarlo (m4-l2)."
+        }
+      ],
+    },
   ],
 };
