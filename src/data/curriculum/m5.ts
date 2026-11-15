@@ -1454,5 +1454,113 @@ export const m5: Module = {
         }
       ],
     },
+    {
+      id: "m5-l12",
+      slug: "practica-conectores-y-reuniones-cortas",
+      title: "Práctica: conectores y reuniones cortas",
+      step: "B1 · Paso 5.12 · Práctica guiada",
+      cefr: "B1",
+      minutes: 8,
+      summary:
+        "Sesión corta para separar y reforzar m5-l4 y m5-l7: conectores/discourse markers y frases para reuniones breves y actualizaciones.",
+      objectives: [
+        "Usar conectores comunes para explicar, corregir o resumir con claridad.",
+        "Dar updates breves y pedir aclaración o confirmación en reuniones.",
+        "Cerrar con próximos pasos o acciones de forma natural."
+      ],
+      pronunciation:
+        "Actually, the issue was caused by a typo. Quick update: the feature is ready for review. What are the next steps?",
+      blocks: [
+        {
+          type: "callout",
+          tone: "info",
+          title: "Antes de esta lección",
+          body: "Repasa m5-l4 (conectores y discourse markers) y m5-l7 (reuniones cortas y actualizaciones claras). Esta práctica usa solo chunks y estructuras ya enseñados en esas lecciones."
+        },
+        {
+          type: "technique",
+          name: "Conectar ideas y ser claro en vivo",
+          desc: "Conectores: 'actually' corrige, 'basically' resume, 'I mean' aclara, 'anyway' retoma el tema. Reuniones: 'Quick update...', 'Just to confirm...', 'Sorry to interrupt...', 'What are the next steps?'"
+        },
+        {
+          type: "phrases",
+          title: "Chunks de apoyo",
+          items: [
+            { en: "Actually, the issue was caused by a typo.", es: "En realidad, el problema fue causado por un error tipográfico." },
+            { en: "Basically, we need to clear the cache.", es: "Básicamente, necesitamos limpiar la caché." },
+            { en: "Quick update: the feature is ready for review.", es: "Actualización rápida: la función está lista para revisión." },
+            { en: "Just to confirm, we're launching on Monday, right?", es: "Solo para confirmar, lanzamos el lunes, ¿verdad?" }
+          ]
+        }
+      ],
+      exercises: [
+        {
+          id: "m5-l12-e1",
+          type: "choice",
+          prompt: "Quieres corregir una idea y dar la causa real del problema. ¿Qué conector encaja?",
+          options: [
+            "Actually, the issue was caused by a typo.",
+            "Anyway, the issue was caused by a typo.",
+            "Basically, the issue was caused by a typo.",
+            "You know, the issue was caused by a typo."
+          ],
+          answer: 0,
+          explanation:
+            "'Actually' se usa para corregir o precisar información (m5-l4)."
+        },
+        {
+          id: "m5-l12-e2",
+          type: "builder",
+          prompt: "Construye: 'Actualización rápida: la función está lista para revisión.'",
+          words: ["Quick update:", "the feature is", "ready for review."],
+          answer: "Quick update: the feature is ready for review.",
+          explanation:
+            "'Quick update:' es una forma directa de dar una actualización breve (m5-l7)."
+        },
+        {
+          id: "m5-l12-e3",
+          type: "write",
+          prompt: "Escríbelo en inglés: 'Básicamente, necesitamos limpiar la caché.'",
+          answer: "Basically, we need to clear the cache.",
+          accept: ["Basically we need to clear the cache."],
+          hint: "Usa 'Basically, ...'",
+          explanation:
+            "'Basically' resume la idea principal de forma sencilla (m5-l4)."
+        },
+        {
+          id: "m5-l12-e4",
+          type: "choice",
+          prompt: "En una reunión quieres confirmar algo antes de seguir. ¿Qué dices?",
+          options: [
+            "Just to confirm, we're launching on Monday, right?",
+            "Anyway, we're launching on Monday.",
+            "You know, we're launching on Monday.",
+            "I mean, launch Monday maybe."
+          ],
+          answer: 0,
+          explanation:
+            "'Just to confirm...' sirve para verificar que entendiste bien (m5-l7)."
+        },
+        {
+          id: "m5-l12-e5",
+          type: "write",
+          prompt: "Escríbelo en inglés: '¿Cuáles son los próximos pasos?'",
+          answer: "What are the next steps?",
+          accept: ["What are the next steps"],
+          hint: "Pregunta directa sobre acciones siguientes.",
+          explanation:
+            "Cierra reuniones o conversaciones aclarando qué sigue (m5-l7)."
+        },
+        {
+          id: "m5-l12-e6",
+          type: "builder",
+          prompt: "Construye: 'De todos modos, volvamos al tema principal.'",
+          words: ["Anyway,", "back to", "the main issue."],
+          answer: "Anyway, back to the main issue.",
+          explanation:
+            "'Anyway' ayuda a retomar el tema principal después de una digresión (m5-l4)."
+        }
+      ],
+    },
   ],
 };
