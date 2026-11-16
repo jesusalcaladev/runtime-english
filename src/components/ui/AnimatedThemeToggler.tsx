@@ -1,14 +1,14 @@
-import { useCallback, useEffect, useRef, useState } from "preact/hooks"
-import { Moon, Sun } from "lucide-preact"
+import { Moon, Sun } from 'lucide-preact'
+import { useCallback, useEffect, useRef, useState } from 'preact/hooks'
 
 export type TransitionVariant =
-  | "circle"
-  | "square"
-  | "triangle"
-  | "diamond"
-  | "hexagon"
-  | "rectangle"
-  | "star"
+  | 'circle'
+  | 'square'
+  | 'triangle'
+  | 'diamond'
+  | 'hexagon'
+  | 'rectangle'
+  | 'star'
 
 interface AnimatedThemeTogglerProps {
   class?: string
@@ -20,14 +20,14 @@ interface AnimatedThemeTogglerProps {
    * Controlled theme value. When provided, the parent owns persistence
    * (e.g. a theme provider) and this component will not write to localStorage.
    */
-  theme?: "light" | "dark"
+  theme?: 'light' | 'dark'
   /** Called on toggle. Pair with `theme` for controlled usage. */
-  onThemeChange?: (theme: "light" | "dark") => void
+  onThemeChange?: (theme: 'light' | 'dark') => void
   [key: string]: unknown
 }
 
 function polygonCollapsed(point: string, vertexCount: number): string {
-  const pairs = Array.from({ length: vertexCount }, () => point).join(", ")
+  const pairs = Array.from({ length: vertexCount }, () => point).join(', ')
   return `polygon(${pairs})`
 }
 
@@ -37,7 +37,7 @@ function getThemeTransitionClipPaths(
   cy: number,
   maxRadius: number,
   viewportWidth: number,
-  viewportHeight: number
+  viewportHeight: number,
 ): [string, string] {
   const toX = (x: number) => `${(x / viewportWidth) * 100}%`
   const toY = (y: number) => `${(y / viewportHeight) * 100}%`
@@ -46,12 +46,12 @@ function getThemeTransitionClipPaths(
     `${(r / (Math.hypot(viewportWidth, viewportHeight) / Math.SQRT2)) * 100}%`
 
   switch (variant) {
-    case "circle":
+    case 'circle':
       return [
         `circle(0% at ${point(cx, cy)})`,
         `circle(${toRadius(maxRadius)} at ${point(cx, cy)})`,
       ]
-    case "square": {
+    case 'square': {
       const halfW = Math.max(cx, viewportWidth - cx)
       const halfH = Math.max(cy, viewportHeight - cy)
       const halfSide = Math.max(halfW, halfH) * 1.05
@@ -60,42 +60,36 @@ function getThemeTransitionClipPaths(
         point(cx + halfSide, cy - halfSide),
         point(cx + halfSide, cy + halfSide),
         point(cx - halfSide, cy + halfSide),
-      ].join(", ")
+      ].join(', ')
       return [polygonCollapsed(point(cx, cy), 4), `polygon(${end})`]
     }
-    case "triangle": {
+    case 'triangle': {
       const scale = maxRadius * 2.2
       const dx = (Math.sqrt(3) / 2) * scale
       const verts = [
         point(cx, cy - scale),
         point(cx + dx, cy + 0.5 * scale),
         point(cx - dx, cy + 0.5 * scale),
-      ].join(", ")
+      ].join(', ')
       return [polygonCollapsed(point(cx, cy), 3), `polygon(${verts})`]
     }
-    case "diamond": {
+    case 'diamond': {
       const R = maxRadius * Math.SQRT2
-      const end = [
-        point(cx, cy - R),
-        point(cx + R, cy),
-        point(cx, cy + R),
-        point(cx - R, cy),
-      ].join(", ")
+      const end = [point(cx, cy - R), point(cx + R, cy), point(cx, cy + R), point(cx - R, cy)].join(
+        ', ',
+      )
       return [polygonCollapsed(point(cx, cy), 4), `polygon(${end})`]
     }
-    case "hexagon": {
+    case 'hexagon': {
       const R = maxRadius * Math.SQRT2
       const verts: string[] = []
       for (let i = 0; i < 6; i++) {
         const a = -Math.PI / 2 + (i * Math.PI) / 3
         verts.push(point(cx + R * Math.cos(a), cy + R * Math.sin(a)))
       }
-      return [
-        polygonCollapsed(point(cx, cy), 6),
-        `polygon(${verts.join(", ")})`,
-      ]
+      return [polygonCollapsed(point(cx, cy), 6), `polygon(${verts.join(', ')})`]
     }
-    case "rectangle": {
+    case 'rectangle': {
       const halfW = Math.max(cx, viewportWidth - cx)
       const halfH = Math.max(cy, viewportHeight - cy)
       const end = [
@@ -103,28 +97,26 @@ function getThemeTransitionClipPaths(
         point(cx + halfW, cy - halfH),
         point(cx + halfW, cy + halfH),
         point(cx - halfW, cy + halfH),
-      ].join(", ")
+      ].join(', ')
       return [polygonCollapsed(point(cx, cy), 4), `polygon(${end})`]
     }
-    case "star": {
+    case 'star': {
       const R = maxRadius * Math.SQRT2 * 1.03
       const innerRatio = 0.42
       const starPolygon = (radius: number) => {
         const verts: string[] = []
         for (let i = 0; i < 5; i++) {
           const outerA = -Math.PI / 2 + (i * 2 * Math.PI) / 5
-          verts.push(
-            point(cx + radius * Math.cos(outerA), cy + radius * Math.sin(outerA))
-          )
+          verts.push(point(cx + radius * Math.cos(outerA), cy + radius * Math.sin(outerA)))
           const innerA = outerA + Math.PI / 5
           verts.push(
             point(
               cx + radius * innerRatio * Math.cos(innerA),
-              cy + radius * innerRatio * Math.sin(innerA)
-            )
+              cy + radius * innerRatio * Math.sin(innerA),
+            ),
           )
         }
-        return `polygon(${verts.join(", ")})`
+        return `polygon(${verts.join(', ')})`
       }
       const startR = Math.max(2, R * 0.025)
       return [starPolygon(startR), starPolygon(R)]
@@ -146,11 +138,11 @@ export const AnimatedThemeToggler = ({
   onThemeChange,
   ...props
 }: AnimatedThemeTogglerProps) => {
-  const shape = variant ?? "circle"
+  const shape = variant ?? 'circle'
   const isControlled = theme !== undefined
   const [mounted, setMounted] = useState(false)
   const [internalIsDark, setInternalIsDark] = useState(false)
-  const isDark = isControlled ? theme === "dark" : internalIsDark
+  const isDark = isControlled ? theme === 'dark' : internalIsDark
   const buttonRef = useRef<HTMLButtonElement>(null)
   const isTransitioningRef = useRef(false)
   const activeAnimRef = useRef<Animation | null>(null)
@@ -164,10 +156,10 @@ export const AnimatedThemeToggler = ({
     return () => {
       cancelAnim()
       const root = document.documentElement
-      if (root.dataset.magicuiThemeVt !== "active") return
+      if (root.dataset.magicuiThemeVt !== 'active') return
       delete root.dataset.magicuiThemeVt
-      root.style.removeProperty("--magicui-theme-toggle-vt-duration")
-      root.style.removeProperty("--magicui-theme-vt-clip-from")
+      root.style.removeProperty('--magicui-theme-toggle-vt-duration')
+      root.style.removeProperty('--magicui-theme-vt-clip-from')
     }
   }, [cancelAnim])
 
@@ -180,12 +172,11 @@ export const AnimatedThemeToggler = ({
 
     const updateTheme = () => {
       const root = document.documentElement
-      const stored = localStorage.getItem("theme")
+      const stored = localStorage.getItem('theme')
       const dark =
-        stored === "dark" ||
-        stored === "light"
-          ? stored === "dark"
-          : root.classList.contains("dark")
+        stored === 'dark' || stored === 'light'
+          ? stored === 'dark'
+          : root.classList.contains('dark')
       setInternalIsDark(dark)
     }
 
@@ -194,13 +185,13 @@ export const AnimatedThemeToggler = ({
     const observer = new MutationObserver(updateTheme)
     observer.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ["class"],
+      attributeFilter: ['class'],
     })
 
-    window.addEventListener("storage", updateTheme)
+    window.addEventListener('storage', updateTheme)
     return () => {
       observer.disconnect()
-      window.removeEventListener("storage", updateTheme)
+      window.removeEventListener('storage', updateTheme)
     }
   }, [isControlled])
 
@@ -209,7 +200,7 @@ export const AnimatedThemeToggler = ({
     if (
       !button ||
       isTransitioningRef.current ||
-      document.documentElement.dataset.magicuiThemeVt === "active"
+      document.documentElement.dataset.magicuiThemeVt === 'active'
     )
       return
 
@@ -227,24 +218,21 @@ export const AnimatedThemeToggler = ({
       y = top + height / 2
     }
 
-    const maxRadius = Math.hypot(
-      Math.max(x, viewportWidth - x),
-      Math.max(y, viewportHeight - y)
-    )
+    const maxRadius = Math.hypot(Math.max(x, viewportWidth - x), Math.max(y, viewportHeight - y))
 
-    const nextTheme = isDark ? "light" : "dark"
+    const nextTheme = isDark ? 'light' : 'dark'
 
     const applyTheme = () => {
-      document.documentElement.classList.toggle("dark", nextTheme === "dark")
+      document.documentElement.classList.toggle('dark', nextTheme === 'dark')
       if (isControlled) {
         onThemeChange?.(nextTheme)
       } else {
-        setInternalIsDark(nextTheme === "dark")
-        localStorage.setItem("theme", nextTheme)
+        setInternalIsDark(nextTheme === 'dark')
+        localStorage.setItem('theme', nextTheme)
       }
     }
 
-    if (typeof document.startViewTransition !== "function") {
+    if (typeof document.startViewTransition !== 'function') {
       applyTheme()
       return
     }
@@ -255,19 +243,19 @@ export const AnimatedThemeToggler = ({
       y,
       maxRadius,
       viewportWidth,
-      viewportHeight
+      viewportHeight,
     )
 
     const root = document.documentElement
-    root.dataset.magicuiThemeVt = "active"
-    root.style.setProperty("--magicui-theme-toggle-vt-duration", `${duration}ms`)
-    root.style.setProperty("--magicui-theme-vt-clip-from", clipPath[0])
+    root.dataset.magicuiThemeVt = 'active'
+    root.style.setProperty('--magicui-theme-toggle-vt-duration', `${duration}ms`)
+    root.style.setProperty('--magicui-theme-vt-clip-from', clipPath[0])
 
     const cleanup = () => {
       isTransitioningRef.current = false
       delete root.dataset.magicuiThemeVt
-      root.style.removeProperty("--magicui-theme-toggle-vt-duration")
-      root.style.removeProperty("--magicui-theme-vt-clip-from")
+      root.style.removeProperty('--magicui-theme-toggle-vt-duration')
+      root.style.removeProperty('--magicui-theme-vt-clip-from')
       cancelAnim()
     }
 
@@ -276,38 +264,30 @@ export const AnimatedThemeToggler = ({
       applyTheme()
     })
 
-    if (typeof transition?.finished?.finally === "function") {
+    if (typeof transition?.finished?.finally === 'function') {
       transition.finished.finally(cleanup).catch(() => {})
     } else {
       cleanup()
     }
 
     const ready = transition?.ready
-    if (ready && typeof ready.then === "function") {
+    if (ready && typeof ready.then === 'function') {
       ready
         .then(() => {
           const anim = document.documentElement.animate(
             { clipPath },
             {
               duration,
-              easing: shape === "star" ? "linear" : "ease-in-out",
-              fill: "forwards",
-              pseudoElement: "::view-transition-new(root)",
-            }
+              easing: shape === 'star' ? 'linear' : 'ease-in-out',
+              fill: 'forwards',
+              pseudoElement: '::view-transition-new(root)',
+            },
           )
           activeAnimRef.current = anim
         })
         .catch(() => {})
     }
-  }, [
-    shape,
-    fromCenter,
-    duration,
-    isDark,
-    isControlled,
-    onThemeChange,
-    cancelAnim,
-  ])
+  }, [shape, fromCenter, duration, isDark, isControlled, onThemeChange, cancelAnim])
 
   if (!mounted) {
     return (
@@ -331,14 +311,12 @@ export const AnimatedThemeToggler = ({
       ref={buttonRef}
       onClick={toggleTheme}
       class={className}
-      aria-label={isDark ? "Cambiar a tema claro" : "Cambiar a tema oscuro"}
+      aria-label={isDark ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
       aria-pressed={isDark}
       {...props}
     >
       {isDark ? <Sun /> : <Moon />}
-      <span class="sr-only">
-        {isDark ? "Cambiar a tema claro" : "Cambiar a tema oscuro"}
-      </span>
+      <span class="sr-only">{isDark ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}</span>
     </button>
   )
 }

@@ -57,7 +57,7 @@ export PATH="$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$PATH"
 npm run android:apk
 ```
 
-- Debug APK generated/copied to: `apks/RuntimeEnglish-v1.1.0-debug.apk` (name depends on Gradle variant/versioning).
+- APKs generados se copian a `apks/` con el nombre `RuntimeEnglish-v<version>-<variant>.apk` (por ejemplo, `apks/RuntimeEnglish-v1.2.3-debug.apk`).
 - If Gradle fails due to missing licenses/SDK components, install/accept the required SDK components; if Java is missing, check `JAVA_HOME`.
 
 ## Architecture and key behavior
@@ -66,6 +66,7 @@ npm run android:apk
 
 - `astro.config.mjs` has **prefetch** enabled (`prefetchAll: true`, `defaultStrategy: "viewport"`) and `build.format: "file"` to generate `.html` pages (e.g. `slang.html`, `session/<slug>.html`).
 - **Internal routes (important for APK):** Capacitor Android serves extensionless routes as `index.html` when `server.html5mode` is active (default), causing `ClientRouter`/`fetch` for `/slang` or `/session/...` to receive the dashboard. Therefore, **every internal page link must go through `route()`** (`src/lib/routes.ts`), which adds `.html` to internal routes (preserving `/`, anchors, query strings, and external URLs). Never hardcode extensionless page routes (`/slang`, `/session/x`); use `route("/slang")`, `route(\`/session/${slug}\`)`, etc. Assets with extensions (`/favicon.svg`, `/_astro/*`, `manifest.webmanifest`) are not modified.
+- **PWA manifest:** la fuente canónica es `manifest` en `astro.config.mjs` (integración `@vite-pwa/astro`), que genera `/manifest.webmanifest` en build. Evita mantener un `public/manifest.webmanifest` manual en paralelo salvo que se cambie explícitamente la estrategia de generación.
 - `BaseLayout.astro` uses **`ClientRouter`** (`astro:transitions`) and `transition:persist` on sidebar/toasts to keep shell state/UI across pages (fluid, app-like navigation without full reloads).
   - **Android/Capacitor:** The back button is handled with `@capacitor/app`. Avoid overriding/stubbing navigation APIs or forcing `window.location` globally on native except for diagnostics, as it can break client routing. Always validate in the APK that links navigate to the correct page.
 - `public/sw.js` + registration in the layout provide basic cache/offline behavior on **web** (network-first for HTML, cache-first for static assets, `runtimeenglish-v2` cache, no HTML fallback to the dashboard). On **native (Capacitor)** the layout unregisters SWs and clears `runtimeenglish-*` caches to avoid serving stale HTML; the APK already ships local content.
@@ -117,30 +118,13 @@ Simple implemented flow: the installed APK (native Android) checks a remote JSON
 
 ### How to publish a new update (APK)
 
-1. **Increment the Android version** in `android/app/build.gradle`:
-   - Increase `versionCode` (integer, required to detect updates).
-   - Update `versionName` (user-visible, e.g. `1.2.3`).
-2. **Build the APK** (local artifact, not versioned in git):
+Use the full, reproducible checklist in [RELEASING.md](RELEASING.md). Summary:
 
-   ```bash
-   export JAVA_HOME="$HOME/jdks/jdk-21.0.13+9"
-   export ANDROID_HOME="$HOME/android-sdk"
-   export PATH="$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$PATH"
-   npm run android:apk
-   ```
-
-   - Copies APKs to `apks/` (ignored in git).
-3. **Publish the APK on GitHub Releases** (requires authenticated `gh`):
-   - Create/publish a release with a version tag (e.g. `v1.2.3`) and upload the asset as `RuntimeEnglish.apk` so the stable `/releases/latest/download/RuntimeEnglish.apk` link works.
-   - Example: `gh release create v1.2.3 apks/RuntimeEnglish-v1.2.3-debug.apk#RuntimeEnglish.apk --title "RuntimeEnglish v1.2.3" --notes "..."`
-4. **Update the manifest** `public/app-update.json` and push it to the repo/hosting configured in `PUBLIC_APP_UPDATE_URL`:
-   - `versionCode`/`versionName`: must match the published APK.
-   - `apkUrl`: URL of that version's release asset (e.g. `https://github.com/jesusalcaladev/runtime-english/releases/download/v1.2.3/RuntimeEnglish.apk`).
-   - `title`/`notes`: notice text.
-5. **Behavior in the installed app:**
-   - The APK checks `PUBLIC_APP_UPDATE_URL`, compares `versionCode`, and shows **Update** if a newer version is available.
-   - When **Update** is tapped, the APK download opens (release asset); the user must install it manually.
-   - Native changes always require a new APK; this flow does not replace native code OTA.
+1. **Bump and align versions:** update `package.json` (+ lockfile root version), `android/app/build.gradle` (`versionCode`/`versionName`), and prepare matching `public/app-update.json` values for the same release.
+2. **Validate and build:** run checks/tests/build, then build Android artifacts (`pnpm android:apk` for debug/testing, `pnpm android:apk:release` for release artifacts copied to `apks/`).
+3. **Sign and verify:** publishable APKs must be **signed release** builds (keystore/signing config is local/uncommitted in this repo). Verify install/version (`versionCode`/`versionName`) before publishing.
+4. **Publish GitHub Release:** tag the release (e.g. `v1.2.3`) and upload the signed APK as `RuntimeEnglish.apk` (stable `releases/latest/download/RuntimeEnglish.apk` URL), with versioned release notes.
+5. **Update manifest and verify flow:** set `public/app-update.json` (`versionName`, `versionCode`, `apkUrl`, `title`, `notes`) to the published release, push to the URL served by `PUBLIC_APP_UPDATE_URL`, and confirm an older install detects and opens the update.
 
 ## Working conventions
 

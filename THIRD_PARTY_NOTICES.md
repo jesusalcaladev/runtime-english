@@ -7,6 +7,7 @@ This document lists third-party software, assets, and services used by **Runtime
 ## 1. Project-owned material
 
 Unless otherwise noted, the following are created by the RuntimeEnglish authors and distributed as part of this project under `GPL-3.0-or-later`:
+
 - Application source code in this repository
 - Curriculum and learning content in `src/data/curriculum/` and `src/data/slang.ts` (including text/exercises authored for this project)
 - Project-specific UI/content and configuration authored for this repository
@@ -17,49 +18,49 @@ If any material in the repository is not original or is subject to different ter
 
 The table below reflects direct dependencies/devDependencies and the license field reported by the installed package metadata at the time this file was generated. Transitive dependencies may have additional licenses; review your lockfile/install tree for a complete picture.
 
-| Package | Installed version | License (reported) |
-| --- | ---: | --- |
-| @astrojs/check | 0.9.12 | MIT |
-| @astrojs/preact | 6.1.6 | MIT |
-| @biomejs/biome | 2.6.7 | MIT OR Apache-2.0 |
-| @capacitor-community/text-to-speech | 8.0.2 | MIT |
-| @capacitor/android | 8.6.2 | MIT |
-| @capacitor/app | 8.1.2 | MIT |
-| @capacitor/browser | 8.0.5 | MIT |
-| @capacitor/cli | 8.6.2 | MIT |
-| @capacitor/core | 8.6.2 | MIT |
-| @capacitor/local-notifications | 8.3.1 | MIT |
-| @fontsource-variable/geist | 5.3.0 | OFL-1.1 |
-| @fontsource-variable/geist-mono | 5.3.0 | OFL-1.1 |
-| @fontsource-variable/geist-pixel | 5.3.1 | OFL-1.1 |
-| @huggingface/transformers | 3.8.1 | Apache-2.0 |
-| @lucide/astro | 1.72.0 | ISC |
-| @nanostores/preact | 1.1.1 | MIT |
-| @playwright/test | 1.65.1 | Apache-2.0 |
-| @react-pdf/renderer | 4.9.0 | MIT |
-| @supabase/supabase-js | 2.119.0 | MIT |
-| @tailwindcss/vite | 4.3.5 | MIT |
-| @testing-library/dom | 10.4.2 | MIT |
-| @testing-library/preact | 3.2.6 | MIT |
-| @testing-library/user-event | 14.6.10 | MIT |
-| @vite-pwa/astro | 2.0.2 | MIT |
-| @vitest/coverage-v8 | 2.1.9 | MIT |
-| astro | 7.4.11 | MIT |
-| daisyui | 5.8.0 | MIT |
-| date-fns | 4.4.0 | MIT |
-| happy-dom | 21.0.4 | MIT |
-| jspdf | 4.2.1 | MIT |
-| kokoro-js | 1.2.1 | Apache-2.0 |
-| lucide-preact | 1.72.0 | ISC |
-| minisearch | 7.2.0 | MIT |
-| msw | 2.15.0 | MIT |
-| nanostores | 1.5.5 | MIT |
-| preact | 11.2.0 | MIT |
-| tailwindcss | 4.3.5 | MIT |
-| ts-fsrs | 6.0.0 | MIT |
-| typescript | 5.9.3 | Apache-2.0 |
-| vitest | 2.1.9 | MIT |
-| zod | 4.6.7 | MIT |
+| Package                             | Installed version | License (reported) |
+| ----------------------------------- | ----------------: | ------------------ |
+| @astrojs/check                      |            0.9.12 | MIT                |
+| @astrojs/preact                     |             6.1.6 | MIT                |
+| @biomejs/biome                      |             2.6.7 | MIT OR Apache-2.0  |
+| @capacitor-community/text-to-speech |             8.0.2 | MIT                |
+| @capacitor/android                  |             8.6.2 | MIT                |
+| @capacitor/app                      |             8.1.2 | MIT                |
+| @capacitor/browser                  |             8.0.5 | MIT                |
+| @capacitor/cli                      |             8.6.2 | MIT                |
+| @capacitor/core                     |             8.6.2 | MIT                |
+| @capacitor/local-notifications      |             8.3.1 | MIT                |
+| @fontsource-variable/geist          |             5.3.0 | OFL-1.1            |
+| @fontsource-variable/geist-mono     |             5.3.0 | OFL-1.1            |
+| @fontsource-variable/geist-pixel    |             5.3.1 | OFL-1.1            |
+| @huggingface/transformers           |             3.8.1 | Apache-2.0         |
+| @lucide/astro                       |            1.72.0 | ISC                |
+| @nanostores/preact                  |             1.1.1 | MIT                |
+| @playwright/test                    |            1.65.1 | Apache-2.0         |
+| @react-pdf/renderer                 |             4.9.0 | MIT                |
+| @supabase/supabase-js               |           2.119.0 | MIT                |
+| @tailwindcss/vite                   |             4.3.5 | MIT                |
+| @testing-library/dom                |            10.4.2 | MIT                |
+| @testing-library/preact             |             3.2.6 | MIT                |
+| @testing-library/user-event         |           14.6.10 | MIT                |
+| @vite-pwa/astro                     |             2.0.2 | MIT                |
+| @vitest/coverage-v8                 |             2.1.9 | MIT                |
+| astro                               |            7.4.11 | MIT                |
+| daisyui                             |             5.8.0 | MIT                |
+| date-fns                            |             4.4.0 | MIT                |
+| happy-dom                           |            21.0.4 | MIT                |
+| jspdf                               |             4.2.1 | MIT                |
+| kokoro-js                           |             1.2.1 | Apache-2.0         |
+| lucide-preact                       |            1.72.0 | ISC                |
+| minisearch                          |             7.2.0 | MIT                |
+| msw                                 |            2.15.0 | MIT                |
+| nanostores                          |             1.5.5 | MIT                |
+| preact                              |            11.2.0 | MIT                |
+| tailwindcss                         |             4.3.5 | MIT                |
+| ts-fsrs                             |             6.0.0 | MIT                |
+| typescript                          |             5.9.3 | Apache-2.0         |
+| vitest                              |             2.1.9 | MIT                |
+| zod                                 |             4.6.7 | MIT                |
 
 **Note:** Some packages are dual-licensed or have additional bundled components. Always consult each package's own `LICENSE`/`NOTICE` files in `node_modules/<package>/` (or upstream repository) for authoritative terms.
 
@@ -77,6 +78,7 @@ The table below reflects direct dependencies/devDependencies and the license fie
 ## 5. Android / Capacitor and Gradle dependencies
 
 The Android app in `android/` is built with Capacitor and the Android/Gradle ecosystem. In addition to npm packages, Android builds may include:
+
 - Capacitor Android libraries/plugins
 - AndroidX, Google, Kotlin/Java, and other Maven/Gradle dependencies
 - Platform SDK components and build tools (not redistributed by this repo except as required by build artifacts)
@@ -99,4 +101,4 @@ These components have their own licenses. When distributing APKs/binaries, revie
 
 ---
 
-*This file is informational and not legal advice.* For authoritative terms, consult the license texts provided by each upstream project/component.
+_This file is informational and not legal advice._ For authoritative terms, consult the license texts provided by each upstream project/component.

@@ -1,7 +1,7 @@
 ---
-import BaseLayout from "../layouts/BaseLayout.astro";
-import PracticeView from "../components/practice/PracticeView";
-import { ALL_SESSIONS } from "../data/curriculum";
+import PracticeView from '../components/practice/PracticeView'
+import { ALL_SESSIONS } from '../data/curriculum'
+import BaseLayout from '../layouts/BaseLayout.astro'
 
 const items = ALL_SESSIONS.flatMap(({ session, module }) =>
   session.exercises.map((exercise) => ({
@@ -12,7 +12,7 @@ const items = ALL_SESSIONS.flatMap(({ session, module }) =>
     moduleCode: module.code,
     cefr: session.cefr,
   })),
-);
+)
 ---
 
 <BaseLayout title="Práctica rápida · RuntimeEnglish" description="Repasa con ejercicios mezclados y enfócate en lo que más te cuesta.">

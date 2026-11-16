@@ -1,10 +1,10 @@
 ---
-import { Trophy } from "@lucide/astro";
-import BaseLayout from "../layouts/BaseLayout.astro";
-import AchievementsGrid from "../components/achievements/AchievementsGrid";
-import PageHeader from "../components/ui/PageHeader.astro";
-import { ACHIEVEMENTS } from "../lib/achievements";
-import { TOTAL_EXERCISES, TOTAL_SESSIONS } from "../data/curriculum";
+import { Trophy } from '@lucide/astro'
+import AchievementsGrid from '../components/achievements/AchievementsGrid'
+import PageHeader from '../components/ui/PageHeader.astro'
+import { TOTAL_EXERCISES, TOTAL_SESSIONS } from '../data/curriculum'
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { ACHIEVEMENTS } from '../lib/achievements'
 
 const achievements = ACHIEVEMENTS.map(({ id, title, description, icon, tier, xp }) => ({
   id,
@@ -13,8 +13,8 @@ const achievements = ACHIEVEMENTS.map(({ id, title, description, icon, tier, xp 
   icon,
   tier,
   xp,
-}));
-const totalXp = ACHIEVEMENTS.reduce((total, achievement) => total + achievement.xp, 0);
+}))
+const totalXp = ACHIEVEMENTS.reduce((total, achievement) => total + achievement.xp, 0)
 ---
 
 <BaseLayout

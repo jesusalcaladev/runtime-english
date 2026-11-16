@@ -1,1 +1,1 @@
-export * from "./speech/index";
+export * from './speech/index'

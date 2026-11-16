@@ -1,16 +1,11 @@
 ---
-import BaseLayout from "../layouts/BaseLayout.astro";
-import Dashboard from "../components/dashboard/Dashboard";
-import { ACHIEVEMENTS } from "../lib/achievements";
-import {
-  TOTAL_EXERCISES,
-  TOTAL_SESSIONS,
-  getAllExerciseIds,
-  getNavData,
-} from "../data/curriculum";
+import Dashboard from '../components/dashboard/Dashboard'
+import { getAllExerciseIds, getNavData, TOTAL_EXERCISES, TOTAL_SESSIONS } from '../data/curriculum'
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { ACHIEVEMENTS } from '../lib/achievements'
 
-const modules = getNavData();
-const exerciseIds = getAllExerciseIds();
+const modules = getNavData()
+const exerciseIds = getAllExerciseIds()
 ---
 
 <BaseLayout>

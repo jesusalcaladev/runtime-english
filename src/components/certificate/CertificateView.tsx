@@ -1,21 +1,31 @@
-import { useEffect, useMemo, useState } from "preact/hooks";
-import { Award, Check, Cloud, Copy, ExternalLink, Info, Loader2, RefreshCw, ShieldCheck } from "lucide-preact";
-import { route } from "../../lib/routes";
-import { certificateShareUrl, issueCertificate, verifyCertificate } from "../../lib/certificates";
-import { progressStore, type CertificateState } from "../../lib/progress";
-import { isSupabaseConfigured, supabase } from "../../lib/supabase";
-import { useProgress } from "../../lib/useProgress";
-import { emitToast } from "../../lib/toast";
+import {
+  Award,
+  Check,
+  Cloud,
+  Copy,
+  ExternalLink,
+  Info,
+  Loader2,
+  RefreshCw,
+  ShieldCheck,
+} from 'lucide-preact'
+import { useEffect, useMemo, useState } from 'preact/hooks'
+import { certificateShareUrl, issueCertificate, verifyCertificate } from '../../lib/certificates'
+import { type CertificateState, progressStore } from '../../lib/progress'
+import { route } from '../../lib/routes'
+import { isSupabaseConfigured, supabase } from '../../lib/supabase'
+import { emitToast } from '../../lib/toast'
+import { useProgress } from '../../lib/useProgress'
 
 interface Props {
-  totalSessions: number;
-  totalExercises: number;
+  totalSessions: number
+  totalExercises: number
 }
 
-type Theme = "pearl" | "white" | "dark";
+type Theme = 'pearl' | 'white' | 'dark'
 
 function shortId(seed: number): string {
-  return seed.toString(36).toUpperCase().slice(-6).padStart(6, "0");
+  return seed.toString(36).toUpperCase().slice(-6).padStart(6, '0')
 }
 
 const certStyles = `
@@ -49,41 +59,54 @@ const certStyles = `
     .studio-wrapper { padding:0 !important; min-height:auto !important; display:block !important; }
     .certificate-sheet { width:100vw !important; height:100vh !important; max-width:none !important; box-shadow:none !important; border-radius:0 !important; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
   }
-`;
+`
 
 export default function CertificateView({ totalSessions, totalExercises }: Props) {
-  const state = useProgress();
-  const [theme, setTheme] = useState<Theme>("pearl");
-  const [issuing, setIssuing] = useState(false);
-  const [verifying, setVerifying] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [authed, setAuthed] = useState(false);
+  const state = useProgress()
+  const [theme, setTheme] = useState<Theme>('pearl')
+  const [issuing, setIssuing] = useState(false)
+  const [verifying, setVerifying] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const [authed, setAuthed] = useState(false)
 
   useEffect(() => {
-    if (!isSupabaseConfigured() || !supabase) return;
-    supabase.auth.getSession().then(({ data }) => setAuthed(Boolean(data.session?.user)));
-    const { data } = supabase.auth.onAuthStateChange((_e, session) => setAuthed(Boolean(session?.user)));
-    return () => data.subscription.unsubscribe();
-  }, []);
+    if (!isSupabaseConfigured() || !supabase) return
+    supabase.auth.getSession().then(({ data }) => setAuthed(Boolean(data.session?.user)))
+    const { data } = supabase.auth.onAuthStateChange((_e, session) =>
+      setAuthed(Boolean(session?.user)),
+    )
+    return () => data.subscription.unsubscribe()
+  }, [])
 
-  const doneSessions = Object.keys(state.completedSessions).length;
-  const doneExercises = Object.keys(state.completedExercises).length;
-  let devMode = false;
+  const doneSessions = Object.keys(state.completedSessions).length
+  const doneExercises = Object.keys(state.completedExercises).length
+  let devMode = false
   try {
-    devMode = typeof window !== "undefined" && (window.localStorage.getItem("runtimeenglish_dev") === "1" || window.localStorage.getItem("deveng_dev") === "1");
+    devMode =
+      typeof window !== 'undefined' &&
+      (window.localStorage.getItem('runtimeenglish_dev') === '1' ||
+        window.localStorage.getItem('deveng_dev') === '1')
   } catch {}
-  const complete = devMode || (doneSessions >= totalSessions && doneExercises >= totalExercises);
+  const complete = devMode || (doneSessions >= totalSessions && doneExercises >= totalExercises)
 
-  const name = (state.settings.name || "").trim() || "Developer";
-  const completionTimestamp = Math.max(0, ...Object.values(state.completedSessions), ...Object.values(state.completedExercises));
-  const completionDate = new Date(completionTimestamp || Date.now()).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
-  const derivedId = shortId(completionTimestamp || state.startedAt || Date.now());
-  const cert = state.certificate;
-  const issueId = (cert?.id || derivedId).toUpperCase();
-  const issuedAtIso = cert?.issuedAt || new Date(completionTimestamp || Date.now()).toISOString();
-  const displayDate = cert?.completionDate || completionDate;
-  const shareUrl = useMemo(() => certificateShareUrl(issueId), [issueId]);
-  const issueEndpointConfigured = Boolean(import.meta.env.PUBLIC_CERTIFICATE_ISSUE_URL);
+  const name = (state.settings.name || '').trim() || 'Developer'
+  const completionTimestamp = Math.max(
+    0,
+    ...Object.values(state.completedSessions),
+    ...Object.values(state.completedExercises),
+  )
+  const completionDate = new Date(completionTimestamp || Date.now()).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
+  const derivedId = shortId(completionTimestamp || state.startedAt || Date.now())
+  const cert = state.certificate
+  const issueId = (cert?.id || derivedId).toUpperCase()
+  const issuedAtIso = cert?.issuedAt || new Date(completionTimestamp || Date.now()).toISOString()
+  const displayDate = cert?.completionDate || completionDate
+  const shareUrl = useMemo(() => certificateShareUrl(issueId), [issueId])
+  const issueEndpointConfigured = Boolean(import.meta.env.PUBLIC_CERTIFICATE_ISSUE_URL)
 
   function buildCertificateRecord(overrides: Partial<CertificateState> = {}): CertificateState {
     return {
@@ -91,113 +114,115 @@ export default function CertificateView({ totalSessions, totalExercises }: Props
       name,
       issuedAt: issuedAtIso,
       completionDate: displayDate,
-      status: cert?.status ?? "local",
-      issuedBy: cert?.issuedBy ?? "local",
+      status: cert?.status ?? 'local',
+      issuedBy: cert?.issuedBy ?? 'local',
       userId: cert?.userId ?? null,
       shareUrl,
       lastError: cert?.lastError ?? null,
       lastVerifiedAt: cert?.lastVerifiedAt ?? null,
       ...overrides,
-    };
+    }
   }
 
   async function ensureLocalCertificate() {
-    if (!complete) return;
-    progressStore.setCertificate(buildCertificateRecord());
+    if (!complete) return
+    progressStore.setCertificate(buildCertificateRecord())
   }
 
   async function doIssue(auto = false) {
-    if (!complete) return;
-    await ensureLocalCertificate();
+    if (!complete) return
+    await ensureLocalCertificate()
     if (!issueEndpointConfigured) {
-      progressStore.setCertificate(buildCertificateRecord({ status: "local", issuedBy: "local" }));
-      return;
+      progressStore.setCertificate(buildCertificateRecord({ status: 'local', issuedBy: 'local' }))
+      return
     }
 
-    setIssuing(true);
+    setIssuing(true)
     const res = await issueCertificate({
       id: issueId,
       name,
       issued_at: issuedAtIso,
       completion_date: displayDate,
-    });
-    setIssuing(false);
+    })
+    setIssuing(false)
 
     if (res.ok) {
       progressStore.setCertificate(
         buildCertificateRecord({
-          status: "issued",
-          issuedBy: "server",
+          status: 'issued',
+          issuedBy: 'server',
           lastError: null,
         }),
-      );
+      )
       if (!auto) {
         emitToast(
-          authed ? "Certificado emitido y vinculado a tu cuenta." : "Certificado emitido en el registro verificable.",
-          "success",
-        );
+          authed
+            ? 'Certificado emitido y vinculado a tu cuenta.'
+            : 'Certificado emitido en el registro verificable.',
+          'success',
+        )
       }
-      return;
+      return
     }
 
     progressStore.setCertificate(
       buildCertificateRecord({
-        status: cert?.status === "issued" || cert?.status === "verified" ? cert.status : "pending",
-        issuedBy: cert?.issuedBy ?? "local",
-        lastError: res.error || "No se pudo emitir en servidor.",
+        status: cert?.status === 'issued' || cert?.status === 'verified' ? cert.status : 'pending',
+        issuedBy: cert?.issuedBy ?? 'local',
+        lastError: res.error || 'No se pudo emitir en servidor.',
       }),
-    );
-    if (!auto) emitToast(`No se pudo emitir en servidor: ${res.error || "error"}`, "error");
+    )
+    if (!auto) emitToast(`No se pudo emitir en servidor: ${res.error || 'error'}`, 'error')
   }
 
   async function doVerify() {
-    setVerifying(true);
-    const res = await verifyCertificate(issueId);
-    setVerifying(false);
+    setVerifying(true)
+    const res = await verifyCertificate(issueId)
+    setVerifying(false)
 
     if (res.ok && res.certificate) {
       progressStore.setCertificate(
         buildCertificateRecord({
           name: res.certificate.name || name,
           issuedAt: res.certificate.issued_at || issuedAtIso,
-          status: "verified",
-          issuedBy: "server",
+          status: 'verified',
+          issuedBy: 'server',
           lastVerifiedAt: new Date().toISOString(),
           lastError: null,
         }),
-      );
-      emitToast("Certificado verificado correctamente en el registro.", "success");
-      return;
+      )
+      emitToast('Certificado verificado correctamente en el registro.', 'success')
+      return
     }
 
-    if (!autoIssueRan) await ensureLocalCertificate();
-    if (cert?.status === "issued" || cert?.status === "verified") {
+    if (!autoIssueRan) await ensureLocalCertificate()
+    if (cert?.status === 'issued' || cert?.status === 'verified') {
       progressStore.setCertificate(
         buildCertificateRecord({
-          status: "issued",
-          lastError: res.error || "No verificado aún",
+          status: 'issued',
+          lastError: res.error || 'No verificado aún',
         }),
-      );
+      )
     }
 
     emitToast(
-      res.error === "not_found"
-        ? "Aún no aparece en el registro verificable. Intenta emitirlo."
-        : `Verificación no disponible: ${res.error || "error"}`,
-      res.error === "not_found" ? "info" : "error",
-    );
+      res.error === 'not_found'
+        ? 'Aún no aparece en el registro verificable. Intenta emitirlo.'
+        : `Verificación no disponible: ${res.error || 'error'}`,
+      res.error === 'not_found' ? 'info' : 'error',
+    )
   }
 
-  const [autoIssueRan, setAutoIssueRan] = useState(false);
+  const [autoIssueRan, setAutoIssueRan] = useState(false)
   useEffect(() => {
-    if (!complete || autoIssueRan) return;
-    setAutoIssueRan(true);
+    if (!complete || autoIssueRan) return
+    setAutoIssueRan(true)
     void (async () => {
-      await ensureLocalCertificate();
-      await doIssue(true);
-    })();
+      await ensureLocalCertificate()
+      await doIssue(true)
+    })()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [complete, issueId, name, issuedAtIso, displayDate]);
+  }, [complete, issueId, name, issuedAtIso, displayDate])
 
   if (!complete) {
     return (
@@ -206,29 +231,57 @@ export default function CertificateView({ totalSessions, totalExercises }: Props
           <Award class="h-7 w-7" />
         </div>
         <h1 class="font-pixel mt-5 text-[2.1rem] tracking-tight">Certificate locked</h1>
-        <p class="mt-3 text-sm leading-7 text-base-content/60">Complete all sessions and exercises to unlock your certificate.</p>
-        <p class="mt-4 font-mono text-[11px] text-base-content/45">{doneSessions}/{totalSessions} sessions · {doneExercises}/{totalExercises} exercises</p>
-        <a href={route("/")} class="btn btn-primary mt-6 h-10 rounded-xl px-5">Continue learning</a>
+        <p class="mt-3 text-sm leading-7 text-base-content/60">
+          Complete all sessions and exercises to unlock your certificate.
+        </p>
+        <p class="mt-4 font-mono text-[11px] text-base-content/45">
+          {doneSessions}/{totalSessions} sessions · {doneExercises}/{totalExercises} exercises
+        </p>
+        <a href={route('/')} class="btn btn-primary mt-6 h-10 rounded-xl px-5">
+          Continue learning
+        </a>
       </div>
-    );
+    )
   }
 
-  const status = cert?.status || "local";
-  const statusLabel = status === "verified" ? "Verificado en registro" : status === "issued" ? "Emitido en servidor" : status === "pending" ? "Emisión pendiente" : status === "error" ? "Error de emisión" : "Certificado local";
-  const statusTone = status === "verified" || status === "issued" ? "text-success bg-success/10" : status === "pending" ? "text-warning bg-warning/10" : status === "error" ? "text-error bg-error/10" : "text-base-content/60 bg-base-100/70";
+  const status = cert?.status || 'local'
+  const statusLabel =
+    status === 'verified'
+      ? 'Verificado en registro'
+      : status === 'issued'
+        ? 'Emitido en servidor'
+        : status === 'pending'
+          ? 'Emisión pendiente'
+          : status === 'error'
+            ? 'Error de emisión'
+            : 'Certificado local'
+  const statusTone =
+    status === 'verified' || status === 'issued'
+      ? 'text-success bg-success/10'
+      : status === 'pending'
+        ? 'text-warning bg-warning/10'
+        : status === 'error'
+          ? 'text-error bg-error/10'
+          : 'text-base-content/60 bg-base-100/70'
 
   const btn = (t: Theme, label: string) => (
-    <button type="button" onClick={() => setTheme(t)} class={`rounded-full px-3.5 py-2 text-xs font-medium transition ${theme === t ? "bg-base-content text-base-100" : "bg-base-100/50 text-base-content/45 hover:bg-base-100 hover:text-base-content/70"}`}>{label}</button>
-  );
+    <button
+      type="button"
+      onClick={() => setTheme(t)}
+      class={`rounded-full px-3.5 py-2 text-xs font-medium transition ${theme === t ? 'bg-base-content text-base-100' : 'bg-base-100/50 text-base-content/45 hover:bg-base-100 hover:text-base-content/70'}`}
+    >
+      {label}
+    </button>
+  )
 
   async function copyShare() {
     try {
-      await navigator.clipboard.writeText(shareUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-      emitToast("Enlace de verificación copiado.", "success");
+      await navigator.clipboard.writeText(shareUrl)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+      emitToast('Enlace de verificación copiado.', 'success')
     } catch {
-      emitToast("No se pudo copiar el enlace.", "error");
+      emitToast('No se pudo copiar el enlace.', 'error')
     }
   }
 
@@ -237,16 +290,23 @@ export default function CertificateView({ totalSessions, totalExercises }: Props
       <style>{certStyles}</style>
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+      <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet"
+      />
 
       <div class="no-print mx-auto mb-4 w-full max-w-[1056px] space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div class="flex flex-wrap items-center gap-1.5">
-            {btn("pearl", "Papel marfil")}
-            {btn("white", "Blanco puro")}
-            {btn("dark", "Edición oscura")}
+            {btn('pearl', 'Papel marfil')}
+            {btn('white', 'Blanco puro')}
+            {btn('dark', 'Edición oscura')}
           </div>
-          <button type="button" onClick={() => window.print()} class="btn btn-primary btn-sm h-9 gap-2 rounded-xl px-4 font-semibold">
+          <button
+            type="button"
+            onClick={() => window.print()}
+            class="btn btn-primary btn-sm h-9 gap-2 rounded-xl px-4 font-semibold"
+          >
             <span>Imprimir / PDF</span>
           </button>
         </div>
@@ -255,45 +315,101 @@ export default function CertificateView({ totalSessions, totalExercises }: Props
           <div class="flex flex-wrap items-start justify-between gap-3">
             <div class="min-w-0">
               <div class="flex flex-wrap items-center gap-2">
-                <span class={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-medium ${statusTone}`}>
+                <span
+                  class={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-medium ${statusTone}`}
+                >
                   <ShieldCheck class="h-3 w-3" /> {statusLabel}
                 </span>
-                {authed && <span class="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2 py-1 text-[10px] text-accent"><Cloud class="h-3 w-3" /> Vinculado a tu cuenta</span>}
+                {authed && (
+                  <span class="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2 py-1 text-[10px] text-accent">
+                    <Cloud class="h-3 w-3" /> Vinculado a tu cuenta
+                  </span>
+                )}
               </div>
               <p class="mt-2 text-[11px] leading-relaxed text-base-content/60">
-                ID <span class="font-mono font-semibold text-base-content/80">{issueId}</span>. {issueEndpointConfigured ? "Emisión automática en registro verificable" : "Registro verificable no configurado en este entorno"}{authed ? " y asociado a tu cuenta al emitir." : ". Inicia sesión para vincularlo a tu cuenta."}
+                ID <span class="font-mono font-semibold text-base-content/80">{issueId}</span>.{' '}
+                {issueEndpointConfigured
+                  ? 'Emisión automática en registro verificable'
+                  : 'Registro verificable no configurado en este entorno'}
+                {authed
+                  ? ' y asociado a tu cuenta al emitir.'
+                  : '. Inicia sesión para vincularlo a tu cuenta.'}
               </p>
-              {cert?.lastError && <p class="mt-1 text-[10px] text-error/80">Último aviso: {cert.lastError}</p>}
-              {cert?.lastVerifiedAt && <p class="mt-1 text-[10px] text-success/80">Última verificación: {new Date(cert.lastVerifiedAt).toLocaleString()}</p>}
+              {cert?.lastError && (
+                <p class="mt-1 text-[10px] text-error/80">Último aviso: {cert.lastError}</p>
+              )}
+              {cert?.lastVerifiedAt && (
+                <p class="mt-1 text-[10px] text-success/80">
+                  Última verificación: {new Date(cert.lastVerifiedAt).toLocaleString()}
+                </p>
+              )}
             </div>
             <div class="flex flex-wrap gap-2">
               {issueEndpointConfigured && (
-                <button type="button" disabled={issuing} onClick={() => void doIssue(false)} class="flex items-center gap-1.5 rounded-xl bg-base-100 px-3 py-2 text-[11px] font-medium hover:bg-base-100/80 disabled:opacity-50">
-                  {issuing ? <Loader2 class="h-3.5 w-3.5 animate-spin" /> : <RefreshCw class="h-3.5 w-3.5" />} Emitir/actualizar registro
+                <button
+                  type="button"
+                  disabled={issuing}
+                  onClick={() => void doIssue(false)}
+                  class="flex items-center gap-1.5 rounded-xl bg-base-100 px-3 py-2 text-[11px] font-medium hover:bg-base-100/80 disabled:opacity-50"
+                >
+                  {issuing ? (
+                    <Loader2 class="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <RefreshCw class="h-3.5 w-3.5" />
+                  )}{' '}
+                  Emitir/actualizar registro
                 </button>
               )}
-              <button type="button" disabled={verifying || !isSupabaseConfigured()} onClick={() => void doVerify()} class="flex items-center gap-1.5 rounded-xl bg-base-100 px-3 py-2 text-[11px] font-medium hover:bg-base-100/80 disabled:opacity-50">
-                {verifying ? <Loader2 class="h-3.5 w-3.5 animate-spin" /> : <ShieldCheck class="h-3.5 w-3.5" />} Verificar
+              <button
+                type="button"
+                disabled={verifying || !isSupabaseConfigured()}
+                onClick={() => void doVerify()}
+                class="flex items-center gap-1.5 rounded-xl bg-base-100 px-3 py-2 text-[11px] font-medium hover:bg-base-100/80 disabled:opacity-50"
+              >
+                {verifying ? (
+                  <Loader2 class="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <ShieldCheck class="h-3.5 w-3.5" />
+                )}{' '}
+                Verificar
               </button>
             </div>
           </div>
           <div class="mt-3 flex flex-wrap items-center gap-2 rounded-xl bg-base-100/50 p-2.5">
-            <span class="min-w-0 flex-1 truncate font-mono text-[10px] text-base-content/55">{shareUrl}</span>
-            <button type="button" onClick={() => void copyShare()} class="flex items-center gap-1 rounded-lg bg-base-200 px-2.5 py-1.5 text-[10px] font-medium hover:bg-base-300">
-              {copied ? <Check class="h-3 w-3" /> : <Copy class="h-3 w-3" />} {copied ? "Copiado" : "Copiar enlace"}
+            <span class="min-w-0 flex-1 truncate font-mono text-[10px] text-base-content/55">
+              {shareUrl}
+            </span>
+            <button
+              type="button"
+              onClick={() => void copyShare()}
+              class="flex items-center gap-1 rounded-lg bg-base-200 px-2.5 py-1.5 text-[10px] font-medium hover:bg-base-300"
+            >
+              {copied ? <Check class="h-3 w-3" /> : <Copy class="h-3 w-3" />}{' '}
+              {copied ? 'Copiado' : 'Copiar enlace'}
             </button>
-            <a href={shareUrl} target="_blank" rel="noreferrer" class="flex items-center gap-1 rounded-lg bg-base-200 px-2.5 py-1.5 text-[10px] font-medium hover:bg-base-300">
+            <a
+              href={shareUrl}
+              target="_blank"
+              rel="noreferrer"
+              class="flex items-center gap-1 rounded-lg bg-base-200 px-2.5 py-1.5 text-[10px] font-medium hover:bg-base-300"
+            >
               <ExternalLink class="h-3 w-3" /> Abrir verificación
             </a>
           </div>
           <p class="mt-2 flex items-start gap-1.5 text-[10px] leading-relaxed text-base-content/40">
-            <Info class="mt-0.5 h-3 w-3 shrink-0" /> Comparte el enlace para que terceros verifiquen el ID. Si no hay backend configurado, el certificado sigue disponible localmente y se incluirá en tu respaldo/sincronización.
+            <Info class="mt-0.5 h-3 w-3 shrink-0" /> Comparte el enlace para que terceros verifiquen
+            el ID. Si no hay backend configurado, el certificado sigue disponible localmente y se
+            incluirá en tu respaldo/sincronización.
           </p>
         </div>
       </div>
 
       <div class="studio-wrapper w-full flex items-center justify-center">
-        <main id="certificate" data-theme={theme} class="certificate-sheet rounded-sm flex flex-col justify-between px-10 py-12 sm:px-20 sm:py-16 select-none">
+        <main
+          id="certificate"
+          data-theme={theme}
+          class="certificate-sheet rounded-sm flex flex-col justify-between px-10 py-12 sm:px-20 sm:py-16 select-none"
+        >
           <div class="paper-texture"></div>
           <div class="frame-outer"></div>
           <div class="frame-inner"></div>
@@ -304,50 +420,90 @@ export default function CertificateView({ totalSessions, totalExercises }: Props
 
           <header class="relative z-10 flex flex-col items-center text-center pt-1 sm:pt-2">
             <div class="flex items-center gap-2.5 mb-4 sm:mb-5">
-              <span class="text-[11px] sm:text-xs font-semibold tracking-[0.35em] uppercase text-secondary-theme">RUNTIMEENGLISH</span>
+              <span class="text-[11px] sm:text-xs font-semibold tracking-[0.35em] uppercase text-secondary-theme">
+                RUNTIMEENGLISH
+              </span>
             </div>
             <div class="level-badge px-4 py-1 rounded-full">
-              <span class="font-mono-tech text-[11px] sm:text-xs font-medium tracking-[0.2em]">A1 — B2</span>
+              <span class="font-mono-tech text-[11px] sm:text-xs font-medium tracking-[0.2em]">
+                A1 — B2
+              </span>
             </div>
           </header>
 
           <section class="relative z-10 flex flex-col items-center text-center my-auto py-4">
-            <p class="text-[10px] sm:text-xs font-semibold tracking-[0.28em] uppercase text-secondary-theme mb-3 sm:mb-4">CERTIFICATE OF COMPLETION</p>
+            <p class="text-[10px] sm:text-xs font-semibold tracking-[0.28em] uppercase text-secondary-theme mb-3 sm:mb-4">
+              CERTIFICATE OF COMPLETION
+            </p>
             <h1 class="font-mono-tech text-2xl sm:text-4xl md:text-[42px] font-medium tracking-tight text-primary-theme leading-tight">
-              <span class="text-muted-theme font-normal opacity-60 mr-1 sm:mr-2">[</span>English for Programmers<span class="text-muted-theme font-normal opacity-60 ml-1 sm:ml-2">]</span>
+              <span class="text-muted-theme font-normal opacity-60 mr-1 sm:mr-2">[</span>English for
+              Programmers<span class="text-muted-theme font-normal opacity-60 ml-1 sm:ml-2">]</span>
             </h1>
             <div class="w-12 h-[1px] divider-line my-5 sm:my-7"></div>
-            <p class="text-xs sm:text-sm font-normal text-secondary-theme mb-1.5 sm:mb-2">Awarded to</p>
-            <h2 class="text-3xl sm:text-5xl font-bold tracking-tight text-primary-theme mb-2.5 sm:mb-3">{name}</h2>
-            <p class="text-xs sm:text-sm font-medium tracking-wide text-secondary-theme">Technical English for Developers</p>
+            <p class="text-xs sm:text-sm font-normal text-secondary-theme mb-1.5 sm:mb-2">
+              Awarded to
+            </p>
+            <h2 class="text-3xl sm:text-5xl font-bold tracking-tight text-primary-theme mb-2.5 sm:mb-3">
+              {name}
+            </h2>
+            <p class="text-xs sm:text-sm font-medium tracking-wide text-secondary-theme">
+              Technical English for Developers
+            </p>
           </section>
 
           <footer class="relative z-10 grid grid-cols-3 items-end pt-2 sm:pt-4 pb-1 sm:pb-2 px-2 sm:px-6">
             <div class="text-left">
-              <p class="text-[9px] sm:text-[10px] font-semibold tracking-[0.22em] uppercase text-muted-theme mb-1">ISSUED ON</p>
+              <p class="text-[9px] sm:text-[10px] font-semibold tracking-[0.22em] uppercase text-muted-theme mb-1">
+                ISSUED ON
+              </p>
               <p class="text-xs sm:text-sm font-medium text-primary-theme">{displayDate}</p>
-              <p class="text-[10px] sm:text-xs text-muted-theme mt-0.5">Program: <span class="text-secondary-theme font-medium">RuntimeEnglish</span></p>
+              <p class="text-[10px] sm:text-xs text-muted-theme mt-0.5">
+                Program: <span class="text-secondary-theme font-medium">RuntimeEnglish</span>
+              </p>
             </div>
             <div class="flex flex-col items-center justify-center">
               <div class="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center mb-1.5">
-                <svg viewBox="0 0 64 64" fill="none" class="w-full h-full seal-svg" stroke-width="1.2">
+                <svg
+                  viewBox="0 0 64 64"
+                  fill="none"
+                  class="w-full h-full seal-svg"
+                  stroke-width="1.2"
+                >
                   <circle cx="32" cy="32" r="28" stroke-dasharray="2 2" opacity="0.6" />
                   <circle cx="32" cy="32" r="23" />
-                  <polyline points="26 26 20 32 26 38" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                  <polyline points="38 26 44 32 38 38" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                  <polyline
+                    points="26 26 20 32 26 38"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <polyline
+                    points="38 26 44 32 38 38"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
                   <line x1="34" y1="24" x2="30" y2="40" stroke-width="1.5" stroke-linecap="round" />
                 </svg>
               </div>
-              <span class="font-mono-tech text-[8px] sm:text-[9px] tracking-[0.25em] uppercase text-muted-theme">{status === "verified" ? "VERIFIED" : status === "issued" ? "REGISTERED" : "ISSUED"}</span>
+              <span class="font-mono-tech text-[8px] sm:text-[9px] tracking-[0.25em] uppercase text-muted-theme">
+                {status === 'verified' ? 'VERIFIED' : status === 'issued' ? 'REGISTERED' : 'ISSUED'}
+              </span>
             </div>
             <div class="text-right">
-              <p class="text-[9px] sm:text-[10px] font-semibold tracking-[0.22em] uppercase text-muted-theme mb-1">CERTIFICATE ID</p>
-              <p class="font-mono-tech text-xs sm:text-sm font-semibold tracking-wider text-primary-theme">{issueId}</p>
-              <p class="text-[10px] sm:text-xs text-muted-theme mt-0.5 break-all">{shareUrl.replace(/^https?:\/\//, "")}</p>
+              <p class="text-[9px] sm:text-[10px] font-semibold tracking-[0.22em] uppercase text-muted-theme mb-1">
+                CERTIFICATE ID
+              </p>
+              <p class="font-mono-tech text-xs sm:text-sm font-semibold tracking-wider text-primary-theme">
+                {issueId}
+              </p>
+              <p class="text-[10px] sm:text-xs text-muted-theme mt-0.5 break-all">
+                {shareUrl.replace(/^https?:\/\//, '')}
+              </p>
             </div>
           </footer>
         </main>
       </div>
     </div>
-  );
+  )
 }

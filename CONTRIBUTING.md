@@ -122,8 +122,8 @@ If you add behavior or fix a bug, include or update tests when practical.
 ```bash
 pnpm android:sync        # Build web + sync to android/
 pnpm android:open        # Open in Android Studio
-pnpm android:apk         # Sync + debug APK build
-pnpm android:apk:release # Sync + release APK build
+pnpm android:apk         # Sync + debug APK build (copied to apks/)
+pnpm android:apk:release # Sync + release APK build (copied to apks/)
 ```
 
 ### Local JDK/SDK environment (example)
@@ -146,7 +146,7 @@ pnpm android:apk
 
 ### Commits
 
-- Write clear commit messages that explain *what* and *why*.
+- Write clear commit messages that explain _what_ and _why_.
 - Keep commits logically scoped when possible.
 - Avoid committing generated artifacts unless the repository workflow expects them (ask/verify if unsure).
 

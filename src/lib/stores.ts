@@ -1,9 +1,9 @@
-import { atom } from "nanostores";
-import { getSyncStatus, type SyncStatus, subscribeSyncStatus } from "./progressSync";
+import { atom } from 'nanostores'
+import { getSyncStatus, type SyncStatus, subscribeSyncStatus } from './progressSync'
 
 function defaultSyncStatus(): SyncStatus {
   try {
-    return getSyncStatus();
+    return getSyncStatus()
   } catch {
     return {
       userId: null,
@@ -17,33 +17,33 @@ function defaultSyncStatus(): SyncStatus {
       nextRetryAt: null,
       history: [],
       conflictCount: 0,
-      phase: "idle",
+      phase: 'idle',
       online: true,
       configured: false,
-    } as SyncStatus;
+    } as SyncStatus
   }
 }
 
-export const syncStatusAtom = atom<SyncStatus>(defaultSyncStatus());
+export const syncStatusAtom = atom<SyncStatus>(defaultSyncStatus())
 
-let initialized = false;
+let initialized = false
 
 export function initSyncStatusStore(): () => void {
-  if (typeof window === "undefined") {
-    return () => {};
+  if (typeof window === 'undefined') {
+    return () => {}
   }
   if (!initialized) {
-    initialized = true;
+    initialized = true
     try {
-      syncStatusAtom.set(getSyncStatus());
+      syncStatusAtom.set(getSyncStatus())
       subscribeSyncStatus((status) => {
-        syncStatusAtom.set(status);
-      });
+        syncStatusAtom.set(status)
+      })
     } catch {
       // ignore subscription errors; status will refresh on next init/check
     }
   }
   return () => {
     // Keep shared subscription alive across hook consumers.
-  };
+  }
 }

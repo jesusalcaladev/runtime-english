@@ -1,23 +1,23 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   esbuild: {
-    jsx: "automatic",
-    jsxImportSource: "preact",
+    jsx: 'automatic',
+    jsxImportSource: 'preact',
   },
   test: {
-    include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
+    include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
     globals: false,
     coverage: {
-      provider: "v8",
-      reporter: ["text", "html", "lcov"],
-      include: ["src/lib/**", "src/hooks/**", "src/components/**"],
-      exclude: ["src/**/*.test.ts", "src/**/*.test.tsx", "src/**/types.ts"],
+      provider: 'v8',
+      reporter: ['text', 'html', 'lcov'],
+      include: ['src/lib/**', 'src/hooks/**', 'src/components/**'],
+      exclude: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'src/**/types.ts'],
     },
     environmentMatchGlobs: [
-      ["src/**/*.component.test.tsx", "happy-dom"],
-      ["src/**/*.ui.test.tsx", "happy-dom"],
-      ["src/hooks/**/*.test.tsx", "happy-dom"],
+      ['src/**/*.component.test.tsx', 'happy-dom'],
+      ['src/**/*.ui.test.tsx', 'happy-dom'],
+      ['src/hooks/**/*.test.tsx', 'happy-dom'],
     ],
   },
-});
+})

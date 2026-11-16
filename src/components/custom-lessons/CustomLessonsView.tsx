@@ -1,67 +1,58 @@
-import { useMemo, useState } from "preact/hooks";
-import {
-  BookPlus,
-  Copy,
-  FileJson,
-  Lightbulb,
-  Plus,
-  Sparkles,
-  Trash2,
-  Wand2,
-} from "lucide-preact";
-import { route } from "../../lib/routes";
-import { getSessionMinutes } from "../../lib/sessionTime";
-import { emitToast } from "../../lib/toast";
+import { BookPlus, Copy, FileJson, Lightbulb, Plus, Sparkles, Trash2, Wand2 } from 'lucide-preact'
+import { useMemo, useState } from 'preact/hooks'
 import {
   buildAiLessonPrompt,
+  type CustomLesson,
   deleteCustomLesson,
   getCustomLesson,
   importCustomLessonJson,
   loadCustomLessons,
   upsertCustomLesson,
-  type CustomLesson,
-} from "../../lib/customLessons";
+} from '../../lib/customLessons'
+import { route } from '../../lib/routes'
+import { getSessionMinutes } from '../../lib/sessionTime'
+import { emitToast } from '../../lib/toast'
 
 function formatDate(ts: number): string {
   try {
-    return new Date(ts).toLocaleDateString();
+    return new Date(ts).toLocaleDateString()
   } catch {
-    return "";
+    return ''
   }
 }
 
 export default function CustomLessonsView() {
-  const [lessons, setLessons] = useState<CustomLesson[]>(() => loadCustomLessons());
-  const [showAdd, setShowAdd] = useState(false);
-  const [topic, setTopic] = useState("have to / must / should");
-  const [jsonText, setJsonText] = useState("");
-  const [errors, setErrors] = useState<string[]>([]);
-  const [importing, setImporting] = useState(false);
+  const [lessons, setLessons] = useState<CustomLesson[]>(() => loadCustomLessons())
+  const [showAdd, setShowAdd] = useState(false)
+  const [topic, setTopic] = useState('have to / must / should')
+  const [jsonText, setJsonText] = useState('')
+  const [errors, setErrors] = useState<string[]>([])
+  const [importing, setImporting] = useState(false)
 
-  const prompt = useMemo(() => buildAiLessonPrompt(topic), [topic]);
+  const prompt = useMemo(() => buildAiLessonPrompt(topic), [topic])
 
   function refresh() {
-    setLessons(loadCustomLessons());
+    setLessons(loadCustomLessons())
   }
 
   async function copyPrompt() {
     try {
-      await navigator.clipboard.writeText(prompt);
-      emitToast("Prompt copiado. Pégalo en tu IA favorita.", "success");
+      await navigator.clipboard.writeText(prompt)
+      emitToast('Prompt copiado. Pégalo en tu IA favorita.', 'success')
     } catch {
-      emitToast("No se pudo copiar el prompt.", "error");
+      emitToast('No se pudo copiar el prompt.', 'error')
     }
   }
 
   function handleImport() {
-    setImporting(true);
-    setErrors([]);
+    setImporting(true)
+    setErrors([])
     try {
-      const parsed = JSON.parse(jsonText) as unknown;
-      const result = importCustomLessonJson(parsed, { source: "ai", topic });
+      const parsed = JSON.parse(jsonText) as unknown
+      const result = importCustomLessonJson(parsed, { source: 'ai', topic })
       if (!result.ok || !result.lesson) {
-        setErrors(result.errors.length ? result.errors : ["No se pudo importar la lección."]);
-        return;
+        setErrors(result.errors.length ? result.errors : ['No se pudo importar la lección.'])
+        return
       }
 
       // Avoid accidental exact-id collisions by regenerating id if it already exists.
@@ -70,27 +61,27 @@ export default function CustomLessonsView() {
           ...result.lesson,
           id: `${result.lesson.id}-${Math.random().toString(36).slice(2, 6)}`,
           updatedAt: Date.now(),
-        };
+        }
       }
 
-      upsertCustomLesson(result.lesson);
-      setJsonText("");
-      setShowAdd(false);
-      refresh();
-      emitToast("Lección guardada en Mis lecciones.", "success");
-      window.location.href = route(`/my-lesson?id=${encodeURIComponent(result.lesson.id)}`);
+      upsertCustomLesson(result.lesson)
+      setJsonText('')
+      setShowAdd(false)
+      refresh()
+      emitToast('Lección guardada en Mis lecciones.', 'success')
+      window.location.href = route(`/my-lesson?id=${encodeURIComponent(result.lesson.id)}`)
     } catch {
-      setErrors(["JSON inválido. Revisa comas, comillas y llaves."]);
+      setErrors(['JSON inválido. Revisa comas, comillas y llaves.'])
     } finally {
-      setImporting(false);
+      setImporting(false)
     }
   }
 
   function handleDelete(id: string) {
-    if (!window.confirm("¿Eliminar esta lección personalizada?")) return;
-    deleteCustomLesson(id);
-    refresh();
-    emitToast("Lección eliminada.", "success");
+    if (!window.confirm('¿Eliminar esta lección personalizada?')) return
+    deleteCustomLesson(id)
+    refresh()
+    emitToast('Lección eliminada.', 'success')
   }
 
   return (
@@ -100,8 +91,9 @@ export default function CustomLessonsView() {
           <p class="mono-label">Personaliza tu aprendizaje</p>
           <h2 class="font-pixel mt-1 text-[2rem] leading-none tracking-tight">Mis lecciones</h2>
           <p class="mt-2 max-w-2xl text-sm leading-relaxed text-base-content/55">
-            Crea tus propias lecciones (por ejemplo: <span class="font-medium text-base-content/75">have to</span>,
-            phrasal verbs, entrevistas, etc.). Copia un prompt optimizado, pídelo a una IA y pega el JSON aquí.
+            Crea tus propias lecciones (por ejemplo:{' '}
+            <span class="font-medium text-base-content/75">have to</span>, phrasal verbs,
+            entrevistas, etc.). Copia un prompt optimizado, pídelo a una IA y pega el JSON aquí.
           </p>
         </div>
         <button
@@ -110,7 +102,7 @@ export default function CustomLessonsView() {
           class="btn btn-primary h-10 rounded-xl px-4"
         >
           <Plus class="h-4 w-4" />
-          {showAdd ? "Cerrar" : "Agregar lección"}
+          {showAdd ? 'Cerrar' : 'Agregar lección'}
         </button>
       </div>
 
@@ -123,7 +115,8 @@ export default function CustomLessonsView() {
             <div class="min-w-0 flex-1">
               <h3 class="text-sm font-semibold">Agregar lección con IA (flujo rápido)</h3>
               <p class="mt-1 text-[12px] leading-relaxed text-base-content/55">
-                1) Escribe el tema. 2) Copia el prompt. 3) Pégalo en ChatGPT/DeepSeek/Gemini. 4) Copia el JSON que te devuelva. 5) Pégalo y guárdalo aquí.
+                1) Escribe el tema. 2) Copia el prompt. 3) Pégalo en ChatGPT/DeepSeek/Gemini. 4)
+                Copia el JSON que te devuelva. 5) Pégalo y guárdalo aquí.
               </p>
             </div>
           </div>
@@ -136,7 +129,9 @@ export default function CustomLessonsView() {
               </div>
 
               <label class="flex flex-col gap-1.5">
-                <span class="text-[11px] font-medium text-base-content/45">Tema que quieres aprender</span>
+                <span class="text-[11px] font-medium text-base-content/45">
+                  Tema que quieres aprender
+                </span>
                 <input
                   type="text"
                   value={topic}
@@ -147,11 +142,15 @@ export default function CustomLessonsView() {
               </label>
 
               <div class="space-y-2 rounded-xl bg-base-100 p-3 text-[12px] leading-relaxed text-base-content/65">
-                <p class="font-medium text-base-content/80">Prompt optimizado para generar una lección compatible</p>
+                <p class="font-medium text-base-content/80">
+                  Prompt optimizado para generar una lección compatible
+                </p>
                 <ul class="list-disc space-y-1 pl-4">
                   <li>Solicita únicamente JSON válido (sin markdown ni texto adicional).</li>
                   <li>Define la estructura y los campos requeridos para cada tipo de ejercicio.</li>
-                  <li>No pide duración: los minutos se calculan automáticamente según el contenido.</li>
+                  <li>
+                    No pide duración: los minutos se calculan automáticamente según el contenido.
+                  </li>
                   <li>Incluye un ejemplo completo para reducir errores de formato.</li>
                 </ul>
               </div>
@@ -161,7 +160,8 @@ export default function CustomLessonsView() {
               </button>
 
               <p class="text-[11px] leading-relaxed text-base-content/45">
-                Recomendación: pide a la IA que no cambie la estructura ni los tipos de ejercicios del ejemplo.
+                Recomendación: pide a la IA que no cambie la estructura ni los tipos de ejercicios
+                del ejemplo.
               </p>
             </div>
 
@@ -174,8 +174,10 @@ export default function CustomLessonsView() {
                 <span class="text-[11px] font-medium text-base-content/45">JSON de la lección</span>
                 <textarea
                   value={jsonText}
-                  onInput={(event) => setJsonText((event.currentTarget as HTMLTextAreaElement).value)}
-                  placeholder='Pega aquí SOLO el JSON (debe empezar con { y terminar con })'
+                  onInput={(event) =>
+                    setJsonText((event.currentTarget as HTMLTextAreaElement).value)
+                  }
+                  placeholder="Pega aquí SOLO el JSON (debe empezar con { y terminar con })"
                   class="min-h-[320px] w-full rounded-xl bg-base-100 p-3 font-mono text-[12px] leading-relaxed"
                 />
               </label>
@@ -190,14 +192,20 @@ export default function CustomLessonsView() {
                 </div>
               )}
               <div class="flex flex-wrap items-center gap-2">
-                <button type="button" onClick={handleImport} disabled={importing || !jsonText.trim()} class="btn btn-primary btn-sm rounded-lg">
-                  <BookPlus class="h-3.5 w-3.5" /> {importing ? "Guardando..." : "Validar y guardar lección"}
+                <button
+                  type="button"
+                  onClick={handleImport}
+                  disabled={importing || !jsonText.trim()}
+                  class="btn btn-primary btn-sm rounded-lg"
+                >
+                  <BookPlus class="h-3.5 w-3.5" />{' '}
+                  {importing ? 'Guardando...' : 'Validar y guardar lección'}
                 </button>
                 <button
                   type="button"
                   onClick={() => {
-                    setJsonText("");
-                    setErrors([]);
+                    setJsonText('')
+                    setErrors([])
                   }}
                   class="btn btn-ghost btn-sm rounded-lg"
                 >
@@ -206,7 +214,9 @@ export default function CustomLessonsView() {
               </div>
               <p class="text-[11px] leading-relaxed text-base-content/45">
                 <Lightbulb class="mr-1 inline h-3.5 w-3.5 text-warning/70" />
-                Se guarda localmente en este dispositivo. La duración se calcula automáticamente. Si la IA añade texto extra fuera del JSON o incluye <code>"minutes"</code>, no pasa nada: pégalo y la app lo ajustará.
+                Se guarda localmente en este dispositivo. La duración se calcula automáticamente. Si
+                la IA añade texto extra fuera del JSON o incluye <code>"minutes"</code>, no pasa
+                nada: pégalo y la app lo ajustará.
               </p>
             </div>
           </div>
@@ -220,21 +230,33 @@ export default function CustomLessonsView() {
           </div>
           <h3 class="mt-4 text-sm font-semibold">Aún no tienes lecciones personalizadas</h3>
           <p class="mt-2 text-sm text-base-content/55">
-            Agrega tu primera lección con un tema que quieras practicar (por ejemplo, <span class="font-medium">have to</span>).
+            Agrega tu primera lección con un tema que quieras practicar (por ejemplo,{' '}
+            <span class="font-medium">have to</span>).
           </p>
         </div>
       ) : (
         <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {lessons.map((lesson) => (
-            <article key={lesson.id} class="group rounded-2xl bg-base-200 p-4 transition hover:bg-base-300/50">
+            <article
+              key={lesson.id}
+              class="group rounded-2xl bg-base-200 p-4 transition hover:bg-base-300/50"
+            >
               <div class="flex items-start justify-between gap-2">
                 <div class="min-w-0">
                   <div class="flex flex-wrap items-center gap-1.5">
-                    <span class="rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent">{lesson.cefr}</span>
-                    <span class="rounded-full bg-base-100/70 px-2 py-0.5 text-[10px] text-base-content/45">{getSessionMinutes(lesson)} min</span>
+                    <span class="rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent">
+                      {lesson.cefr}
+                    </span>
+                    <span class="rounded-full bg-base-100/70 px-2 py-0.5 text-[10px] text-base-content/45">
+                      {getSessionMinutes(lesson)} min
+                    </span>
                   </div>
-                  <h3 class="mt-2 line-clamp-2 text-sm font-semibold leading-snug">{lesson.title}</h3>
-                  <p class="mt-1 line-clamp-2 text-[12px] leading-relaxed text-base-content/55">{lesson.summary}</p>
+                  <h3 class="mt-2 line-clamp-2 text-sm font-semibold leading-snug">
+                    {lesson.title}
+                  </h3>
+                  <p class="mt-1 line-clamp-2 text-[12px] leading-relaxed text-base-content/55">
+                    {lesson.summary}
+                  </p>
                 </div>
               </div>
               <div class="mt-3 flex flex-wrap items-center gap-2 text-[10px] text-base-content/40">
@@ -249,7 +271,10 @@ export default function CustomLessonsView() {
                 ) : null}
               </div>
               <div class="mt-4 flex items-center gap-2">
-                <a href={route(`/my-lesson?id=${encodeURIComponent(lesson.id)}`)} class="btn btn-sm btn-primary flex-1 rounded-lg">
+                <a
+                  href={route(`/my-lesson?id=${encodeURIComponent(lesson.id)}`)}
+                  class="btn btn-sm btn-primary flex-1 rounded-lg"
+                >
                   Abrir lección
                 </a>
                 <button
@@ -267,5 +292,5 @@ export default function CustomLessonsView() {
         </div>
       )}
     </div>
-  );
+  )
 }

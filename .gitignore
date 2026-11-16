@@ -46,3 +46,7 @@ public/*.apk
 
 # coverage reports
 coverage/
+
+# playwright
+test-results/
+playwright-report/

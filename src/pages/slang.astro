@@ -1,19 +1,19 @@
 ---
-import { Sparkles, TrendingUp, CalendarClock, Languages, TriangleAlert } from "@lucide/astro";
-import BaseLayout from "../layouts/BaseLayout.astro";
-import SlangExplorer from "../components/slang/SlangExplorer";
-import PageHeader from "../components/ui/PageHeader.astro";
-import { SLANG } from "../data/slang";
-import { ALL_SESSIONS } from "../data/curriculum";
-import { getSessionMinutes } from "../lib/sessionTime";
-import { route } from "../lib/routes";
+import { CalendarClock, Languages, Sparkles, TrendingUp, TriangleAlert } from '@lucide/astro'
+import SlangExplorer from '../components/slang/SlangExplorer'
+import PageHeader from '../components/ui/PageHeader.astro'
+import { ALL_SESSIONS } from '../data/curriculum'
+import { SLANG } from '../data/slang'
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { route } from '../lib/routes'
+import { getSessionMinutes } from '../lib/sessionTime'
 
-const newTerms = SLANG.filter((entry) => entry.status === "2026").length;
-const rising = SLANG.filter((entry) => entry.status === "en alza").length;
-const categories = new Set(SLANG.map((entry) => entry.category)).size;
-const slangSessions = ALL_SESSIONS.filter((entry) => entry.module.id === "m7").map(
+const newTerms = SLANG.filter((entry) => entry.status === '2026').length
+const rising = SLANG.filter((entry) => entry.status === 'en alza').length
+const categories = new Set(SLANG.map((entry) => entry.category)).size
+const slangSessions = ALL_SESSIONS.filter((entry) => entry.module.id === 'm7').map(
   (entry) => entry.session,
-);
+)
 ---
 
 <BaseLayout

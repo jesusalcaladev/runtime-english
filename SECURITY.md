@@ -4,9 +4,9 @@
 
 RuntimeEnglish is under active development. Security fixes are generally applied to the latest code on the default branch (`main`) and to current deployed/released versions when applicable.
 
-| Version / Branch | Supported |
-| --- | --- |
-| `main` (latest) | Yes |
+| Version / Branch       | Supported   |
+| ---------------------- | ----------- |
+| `main` (latest)        | Yes         |
 | Older commits/releases | Best effort |
 
 ## Reporting a vulnerability

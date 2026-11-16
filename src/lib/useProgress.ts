@@ -1,1 +1,1 @@
-export { useProgress } from "../hooks/useProgress";
+export { useProgress } from '../hooks/useProgress'

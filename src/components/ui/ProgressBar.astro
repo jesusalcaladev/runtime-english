@@ -1,13 +1,13 @@
 ---
 interface Props {
-  value: number;
-  label?: string;
-  class?: string;
-  tone?: "primary" | "muted";
+  value: number
+  label?: string
+  class?: string
+  tone?: 'primary' | 'muted'
 }
 
-const { value, label, class: className, tone = "primary" } = Astro.props;
-const safeValue = Math.max(0, Math.min(100, Math.round(value)));
+const { value, label, class: className, tone = 'primary' } = Astro.props
+const safeValue = Math.max(0, Math.min(100, Math.round(value)))
 ---
 
 <div

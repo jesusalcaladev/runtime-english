@@ -1,4 +1,3 @@
-import { useMemo, useState } from "preact/hooks";
 import {
   Bookmark,
   BookmarkCheck,
@@ -11,51 +10,52 @@ import {
   Users,
   Volume2,
   X,
-} from "lucide-preact";
-import type { SlangEntry } from "../../lib/types";
-import { progressStore } from "../../lib/progress";
-import { useProgress } from "../../lib/useProgress";
+} from 'lucide-preact'
+import { useMemo, useState } from 'preact/hooks'
+import { progressStore } from '../../lib/progress'
+import type { SlangEntry } from '../../lib/types'
+import { useProgress } from '../../lib/useProgress'
 
 interface Props {
-  entries: SlangEntry[];
+  entries: SlangEntry[]
 }
 
 const CATEGORIES = [
-  { id: "all", label: "Todo", icon: Sparkles },
-  { id: "ai", label: "IA & dev", icon: Bot },
-  { id: "dev", label: "Día a día", icon: Terminal },
-  { id: "work", label: "Reuniones", icon: Users },
-  { id: "internet", label: "Internet", icon: Globe },
-] as const;
+  { id: 'all', label: 'Todo', icon: Sparkles },
+  { id: 'ai', label: 'IA & dev', icon: Bot },
+  { id: 'dev', label: 'Día a día', icon: Terminal },
+  { id: 'work', label: 'Reuniones', icon: Users },
+  { id: 'internet', label: 'Internet', icon: Globe },
+] as const
 
 export default function SlangExplorer({ entries }: Props) {
-  const state = useProgress();
-  const [query, setQuery] = useState("");
-  const [category, setCategory] = useState<(typeof CATEGORIES)[number]["id"]>("all");
-  const [onlySaved, setOnlySaved] = useState(false);
-  const [onlyNew, setOnlyNew] = useState(false);
+  const state = useProgress()
+  const [query, setQuery] = useState('')
+  const [category, setCategory] = useState<(typeof CATEGORIES)[number]['id']>('all')
+  const [onlySaved, setOnlySaved] = useState(false)
+  const [onlyNew, setOnlyNew] = useState(false)
 
   const filtered = useMemo(() => {
-    const search = query.trim().toLowerCase();
+    const search = query.trim().toLowerCase()
     return entries.filter((entry) => {
-      if (category !== "all" && entry.category !== category) return false;
-      if (onlySaved && !state.savedSlang.includes(entry.id)) return false;
-      if (onlyNew && entry.status !== "2026") return false;
-      if (!search) return true;
+      if (category !== 'all' && entry.category !== category) return false
+      if (onlySaved && !state.savedSlang.includes(entry.id)) return false
+      if (onlyNew && entry.status !== '2026') return false
+      if (!search) return true
       return [entry.term, entry.meaningEs, entry.meaningEn, entry.example, entry.exampleEs]
-        .join(" ")
+        .join(' ')
         .toLowerCase()
-        .includes(search);
-    });
-  }, [entries, query, category, onlySaved, onlyNew, state.savedSlang]);
+        .includes(search)
+    })
+  }, [entries, query, category, onlySaved, onlyNew, state.savedSlang])
 
-  const newCount = entries.filter((entry) => entry.status === "2026").length;
+  const newCount = entries.filter((entry) => entry.status === '2026').length
 
   function clearFilters() {
-    setQuery("");
-    setCategory("all");
-    setOnlySaved(false);
-    setOnlyNew(false);
+    setQuery('')
+    setCategory('all')
+    setOnlySaved(false)
+    setOnlyNew(false)
   }
 
   return (
@@ -74,7 +74,7 @@ export default function SlangExplorer({ entries }: Props) {
             {query && (
               <button
                 type="button"
-                onClick={() => setQuery("")}
+                onClick={() => setQuery('')}
                 class="absolute right-2.5 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-base-content/25 transition hover:bg-base-300 hover:text-base-content/60"
                 aria-label="Limpiar búsqueda"
               >
@@ -89,12 +89,13 @@ export default function SlangExplorer({ entries }: Props) {
               onClick={() => setOnlyNew((value) => !value)}
               class={`flex items-center gap-1.5 rounded-full px-3 py-2 text-[12px] font-medium transition ${
                 onlyNew
-                  ? "bg-accent/12 text-accent"
-                  : "text-base-content/45 hover:bg-base-300/70 hover:text-base-content/70"
+                  ? 'bg-accent/12 text-accent'
+                  : 'text-base-content/45 hover:bg-base-300/70 hover:text-base-content/70'
               }`}
             >
               <Sparkles class="h-3 w-3" />
-              <span class="hidden sm:inline">Solo 2026</span><span class="sm:hidden">2026</span>
+              <span class="hidden sm:inline">Solo 2026</span>
+              <span class="sm:hidden">2026</span>
               <span class="hidden font-mono text-[9px] opacity-60 sm:inline">{newCount}</span>
             </button>
             <button
@@ -102,14 +103,17 @@ export default function SlangExplorer({ entries }: Props) {
               onClick={() => setOnlySaved((value) => !value)}
               class={`flex items-center gap-1.5 rounded-full px-3 py-2 text-[12px] font-medium transition ${
                 onlySaved
-                  ? "bg-accent text-accent-content shadow-sm"
-                  : "bg-base-100 text-base-content/70 hover:bg-base-300/70 hover:text-base-content"
+                  ? 'bg-accent text-accent-content shadow-sm'
+                  : 'bg-base-100 text-base-content/70 hover:bg-base-300/70 hover:text-base-content'
               }`}
               aria-pressed={onlySaved}
             >
               {onlySaved ? <BookmarkCheck class="h-3.5 w-3.5" /> : <Bookmark class="h-3.5 w-3.5" />}
-              <span class="hidden sm:inline">Mis guardados</span><span class="sm:hidden">Guardados</span>
-              <span class={`rounded-full px-1.5 py-0.5 font-mono text-[10px] ${onlySaved ? "bg-accent-content/15" : "bg-base-200 text-base-content/60"}`}>
+              <span class="hidden sm:inline">Mis guardados</span>
+              <span class="sm:hidden">Guardados</span>
+              <span
+                class={`rounded-full px-1.5 py-0.5 font-mono text-[10px] ${onlySaved ? 'bg-accent-content/15' : 'bg-base-200 text-base-content/60'}`}
+              >
                 {state.savedSlang.length}
               </span>
             </button>
@@ -119,10 +123,10 @@ export default function SlangExplorer({ entries }: Props) {
         <div class="mt-3 flex flex-wrap gap-1">
           {CATEGORIES.map((item) => {
             const count =
-              item.id === "all"
+              item.id === 'all'
                 ? entries.length
-                : entries.filter((entry) => entry.category === item.id).length;
-            const active = category === item.id;
+                : entries.filter((entry) => entry.category === item.id).length
+            const active = category === item.id
             return (
               <button
                 key={item.id}
@@ -130,15 +134,15 @@ export default function SlangExplorer({ entries }: Props) {
                 onClick={() => setCategory(item.id)}
                 class={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium transition ${
                   active
-                    ? "bg-base-100 text-base-content"
-                    : "text-base-content/40 hover:bg-base-300/60 hover:text-base-content/65"
+                    ? 'bg-base-100 text-base-content'
+                    : 'text-base-content/40 hover:bg-base-300/60 hover:text-base-content/65'
                 }`}
               >
                 <item.icon class="h-3 w-3" />
                 {item.label}
                 <span class="hidden font-mono text-[9px] opacity-50 sm:inline">{count}</span>
               </button>
-            );
+            )
           })}
         </div>
       </div>
@@ -152,7 +156,8 @@ export default function SlangExplorer({ entries }: Props) {
             <div>
               <p class="text-[13px] font-medium text-base-content/85">Tus términos guardados</p>
               <p class="hidden text-[11px] text-base-content/50 sm:block">
-                {state.savedSlang.length} guardado{state.savedSlang.length === 1 ? "" : "s"} · se actualiza cuando marcas términos
+                {state.savedSlang.length} guardado{state.savedSlang.length === 1 ? '' : 's'} · se
+                actualiza cuando marcas términos
               </p>
             </div>
           </div>
@@ -170,7 +175,9 @@ export default function SlangExplorer({ entries }: Props) {
         <div class="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-base-200 px-4 py-3">
           <p class="text-[13px] text-base-content/70">
             <span class="sm:hidden">Guardados ({filtered.length})</span>
-            <span class="hidden sm:inline">Mostrando tu lista personal de slang guardado ({filtered.length}).</span>
+            <span class="hidden sm:inline">
+              Mostrando tu lista personal de slang guardado ({filtered.length}).
+            </span>
           </p>
           <button
             type="button"
@@ -185,7 +192,7 @@ export default function SlangExplorer({ entries }: Props) {
       <div class="flex items-center justify-between gap-3 px-1">
         <p class="text-[12px] text-base-content/55">
           <span class="font-mono font-medium text-base-content">{filtered.length}</span> términos
-          {onlySaved ? " guardados" : ""} <span class="hidden sm:inline">· nov 2026</span>
+          {onlySaved ? ' guardados' : ''} <span class="hidden sm:inline">· nov 2026</span>
         </p>
         <p class="hidden items-center gap-1.5 text-[11px] text-base-content/50 sm:flex">
           <Bookmark class="h-3 w-3" />
@@ -207,13 +214,13 @@ export default function SlangExplorer({ entries }: Props) {
       ) : (
         <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {filtered.map((entry) => {
-            const saved = state.savedSlang.includes(entry.id);
-            const categoryLabel = CATEGORIES.find((item) => item.id === entry.category)?.label;
+            const saved = state.savedSlang.includes(entry.id)
+            const categoryLabel = CATEGORIES.find((item) => item.id === entry.category)?.label
             return (
               <article
                 key={entry.id}
                 class={`group flex flex-col rounded-2xl p-4 transition ${
-                  saved ? "bg-accent/[0.06]" : "bg-base-200 hover:bg-base-300/55"
+                  saved ? 'bg-accent/[0.06]' : 'bg-base-200 hover:bg-base-300/55'
                 }`}
               >
                 <div class="flex items-start justify-between gap-2">
@@ -222,11 +229,11 @@ export default function SlangExplorer({ entries }: Props) {
                       <h3 class="font-mono text-[15px] font-medium tracking-tight">{entry.term}</h3>
                       <span
                         class={`rounded-full px-2 py-0.5 text-[8px] font-medium tracking-wide ${
-                          entry.status === "2026"
-                            ? "bg-accent/10 text-accent"
-                            : entry.status === "en alza"
-                              ? "bg-info/10 text-info"
-                              : "bg-base-100/60 text-base-content/35"
+                          entry.status === '2026'
+                            ? 'bg-accent/10 text-accent'
+                            : entry.status === 'en alza'
+                              ? 'bg-info/10 text-info'
+                              : 'bg-base-100/60 text-base-content/35'
                         }`}
                       >
                         {entry.status}
@@ -251,17 +258,13 @@ export default function SlangExplorer({ entries }: Props) {
                       onClick={() => progressStore.toggleSavedSlang(entry.id)}
                       class={`flex h-7 w-7 items-center justify-center rounded-full transition ${
                         saved
-                          ? "bg-accent/10 text-accent"
-                          : "text-base-content/20 hover:bg-base-100 hover:text-base-content/60"
+                          ? 'bg-accent/10 text-accent'
+                          : 'text-base-content/20 hover:bg-base-100 hover:text-base-content/60'
                       }`}
-                      aria-label={saved ? "Quitar de guardados" : "Guardar término"}
+                      aria-label={saved ? 'Quitar de guardados' : 'Guardar término'}
                       aria-pressed={saved}
                     >
-                      {saved ? (
-                        <BookmarkCheck class="h-4 w-4" />
-                      ) : (
-                        <Bookmark class="h-4 w-4" />
-                      )}
+                      {saved ? <BookmarkCheck class="h-4 w-4" /> : <Bookmark class="h-4 w-4" />}
                     </button>
                   </div>
                 </div>
@@ -290,10 +293,10 @@ export default function SlangExplorer({ entries }: Props) {
                   {entry.updated}
                 </p>
               </article>
-            );
+            )
           })}
         </div>
       )}
     </div>
-  );
+  )
 }

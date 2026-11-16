@@ -1,18 +1,18 @@
 ---
 interface Props {
-  tone?: "primary" | "neutral" | "accent" | "warning" | "danger";
-  class?: string;
+  tone?: 'primary' | 'neutral' | 'accent' | 'warning' | 'danger'
+  class?: string
 }
 
-const { tone = "neutral", class: className } = Astro.props;
+const { tone = 'neutral', class: className } = Astro.props
 
 const tones: Record<string, string> = {
-  primary: "bg-base-content text-base-100",
-  neutral: "bg-base-200 text-base-content/60",
-  accent: "bg-accent/10 text-accent",
-  warning: "bg-warning/10 text-warning",
-  danger: "bg-error/10 text-error",
-};
+  primary: 'bg-base-content text-base-100',
+  neutral: 'bg-base-200 text-base-content/60',
+  accent: 'bg-accent/10 text-accent',
+  warning: 'bg-warning/10 text-warning',
+  danger: 'bg-error/10 text-error',
+}
 ---
 
 <span

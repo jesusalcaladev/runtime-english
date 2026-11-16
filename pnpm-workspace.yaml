@@ -7,11 +7,11 @@ allowBuilds:
   sharp: false
 minimumReleaseAgeExclude:
   - daisyui@5.8.0
-  - '@capacitor/android@8.6.2'
-  - '@capacitor/cli@8.6.2'
-  - '@capacitor/core@8.6.2'
-  - '@astrojs/preact-renderer@0.1.3'
-  - '@astrojs/preact@6.1.6'
-  - '@playwright/test@1.65.1'
+  - "@capacitor/android@8.6.2"
+  - "@capacitor/cli@8.6.2"
+  - "@capacitor/core@8.6.2"
+  - "@astrojs/preact-renderer@0.1.3"
+  - "@astrojs/preact@6.1.6"
+  - "@playwright/test@1.65.1"
   - playwright-core@1.65.1
   - playwright@1.65.1

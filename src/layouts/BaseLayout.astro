@@ -1,61 +1,57 @@
 ---
-import "@fontsource-variable/geist";
-import "@fontsource-variable/geist-mono";
-import "@fontsource-variable/geist-pixel";
-import "../styles/global.css";
-import { ClientRouter } from "astro:transitions";
-
-import Topbar from "../components/layout/Topbar.astro";
-import SidebarNav from "../components/layout/SidebarNav";
-import ToastHost from "../components/layout/ToastHost";
-import AppUpdateBanner from "../components/layout/AppUpdateBanner";
-import {
-  ALL_SESSIONS,
-  TOTAL_EXERCISES,
-  TOTAL_SESSIONS,
-  getNavData,
-} from "../data/curriculum";
+import '@fontsource-variable/geist'
+import '@fontsource-variable/geist-mono'
+import '@fontsource-variable/geist-pixel'
+import '../styles/global.css'
+import { ClientRouter } from 'astro:transitions'
+import AppUpdateBanner from '../components/layout/AppUpdateBanner'
+import SidebarNav from '../components/layout/SidebarNav'
+import ToastHost from '../components/layout/ToastHost'
+import Topbar from '../components/layout/Topbar.astro'
+import { ALL_SESSIONS, getNavData, TOTAL_EXERCISES, TOTAL_SESSIONS } from '../data/curriculum'
 
 interface Props {
-  title?: string;
-  description?: string;
-  fullWidth?: boolean;
-  image?: string;
-  noindex?: boolean;
-  type?: "website" | "article";
+  title?: string
+  description?: string
+  fullWidth?: boolean
+  image?: string
+  noindex?: boolean
+  type?: 'website' | 'article'
 }
 
 const {
-  title = "RuntimeEnglish — Inglés técnico para developers",
-  description = "Aprende inglés técnico de A1 a B2 con sesiones cortas, ejercicios reales y el slang de 2026.",
+  title = 'RuntimeEnglish — Inglés técnico para developers',
+  description = 'Aprende inglés técnico de A1 a B2 con sesiones cortas, ejercicios reales y el slang de 2026.',
   fullWidth = false,
-  image = "/favicon.svg",
+  image = '/favicon.svg',
   noindex = false,
-  type = "website",
-} = Astro.props;
+  type = 'website',
+} = Astro.props
 
-const site = Astro.site?.toString().replace(/\/$/, "") ?? (Astro.url ? `${Astro.url.protocol}//${Astro.url.host}` : "");
-const canonicalUrl = site ? new URL(Astro.url.pathname, site).toString() : Astro.url.toString();
-const imageUrl = image.startsWith("http") ? image : (site ? new URL(image, site).toString() : image);
-const siteName = "RuntimeEnglish";
-const locale = "es_ES";
+const site =
+  Astro.site?.toString().replace(/\/$/, '') ??
+  (Astro.url ? `${Astro.url.protocol}//${Astro.url.host}` : '')
+const canonicalUrl = site ? new URL(Astro.url.pathname, site).toString() : Astro.url.toString()
+const imageUrl = image.startsWith('http') ? image : site ? new URL(image, site).toString() : image
+const siteName = 'RuntimeEnglish'
+const locale = 'es_ES'
 const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
   name: siteName,
   description,
   url: canonicalUrl,
-  inLanguage: "es",
-  applicationCategory: "EducationalApplication",
-};
+  inLanguage: 'es',
+  applicationCategory: 'EducationalApplication',
+}
 
-const nav = getNavData();
-const a1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "A1-A2").map(
+const nav = getNavData()
+const a1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === 'A1-A2').map(
   (entry) => entry.session.id,
-);
-const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B2").map(
+)
+const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === 'B1-B2').map(
   (entry) => entry.session.id,
-);
+)
 ---
 
 <!doctype html>
@@ -281,14 +277,17 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === "B1-B
           if (!(button instanceof HTMLElement)) return;
           try { warmSpeechEngine(); } catch {}
         };
-        document.addEventListener("pointerdown", warmOnIntent, { passive: true });
-        document.addEventListener("focusin", warmOnIntent);
+        document.addEventListener("pointerdown", warmOnIntent, { passive: true, capture: true });
+        document.addEventListener("pointerenter", warmOnIntent, { passive: true, capture: true });
+        document.addEventListener("touchstart", warmOnIntent, { passive: true, capture: true });
+        document.addEventListener("focusin", warmOnIntent, true);
         document.addEventListener("click", (event) => {
           const target = event.target;
           if (!(target instanceof Element)) return;
           const button = target.closest("[data-speak]");
           if (!(button instanceof HTMLElement)) return;
           event.preventDefault();
+          try { warmSpeechEngine(); } catch {}
           speak(button.dataset.speak ?? "", button);
         });
       }

@@ -1,18 +1,19 @@
 ---
-import { Volume2 } from "@lucide/astro";
+import { AudioLines, LoaderCircle, Volume2 } from '@lucide/astro'
 
 interface Props {
-  text: string;
-  label?: string;
-  class?: string;
+  text: string
+  label?: string
+  class?: string
 }
 
-const { text, label, class: className } = Astro.props;
+const { text, label, class: className } = Astro.props
 ---
 
 <button
   type="button"
   data-speak={text}
+  data-speak-state="idle"
   class:list={[
     "speak-btn inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-base-100/80 px-3 text-[11px] font-medium text-base-content/55 transition hover:bg-base-100 hover:text-base-content hover:shadow-sm active:scale-[0.98] focus-visible:outline-none",
     label ? "min-w-[2.5rem]" : "w-10 px-0",
@@ -21,6 +22,14 @@ const { text, label, class: className } = Astro.props;
   aria-label={label ? `Escuchar: ${text}` : `Escuchar en inglés: ${text}`}
   title={label ? `Escuchar: ${label}` : "Escuchar en inglés"}
 >
-  <Volume2 class="h-4 w-4" aria-hidden="true" />
-  {label && <span>{label}</span>}
+  <span class="speak-icon speak-icon-idle" data-speak-loading-hide aria-hidden="true">
+    <Volume2 class="h-4 w-4" />
+  </span>
+  <span class="speak-icon speak-icon-loading" aria-hidden="true">
+    <LoaderCircle class="h-4 w-4 animate-spin" />
+  </span>
+  <span class="speak-icon speak-icon-playing" aria-hidden="true">
+    <AudioLines class="h-4 w-4" />
+  </span>
+  {label && <span class="speak-label">{label}</span>}
 </button>

@@ -1,102 +1,104 @@
 ---
-import BaseLayout from "../layouts/BaseLayout.astro";
-import SearchView from "../components/search/SearchView";
-import { ALL_SESSIONS } from "../data/curriculum";
-import { SLANG } from "../data/slang";
-import { route } from "../lib/routes";
+import SearchView from '../components/search/SearchView'
+import { ALL_SESSIONS } from '../data/curriculum'
+import { SLANG } from '../data/slang'
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { route } from '../lib/routes'
 
 interface SearchItem {
-  kind: "session" | "vocab" | "phrase" | "slang" | "exercise";
-  title: string;
-  body: string;
-  href: string;
-  meta: string;
+  kind: 'session' | 'vocab' | 'phrase' | 'slang' | 'exercise'
+  title: string
+  body: string
+  href: string
+  meta: string
 }
 
-const items: SearchItem[] = [];
+const items: SearchItem[] = []
 
 for (const { session, module } of ALL_SESSIONS) {
   items.push({
-    kind: "session",
+    kind: 'session',
     title: session.title,
-    body: [session.summary, ...session.objectives].join(" "),
+    body: [session.summary, ...session.objectives].join(' '),
     href: route(`/session/${session.slug}`),
     meta: `${module.code} · ${session.step} · ${session.cefr}`,
-  });
+  })
 
   for (const exercise of session.exercises) {
-    const bodyParts = [exercise.prompt];
-    if (exercise.type === "choice") bodyParts.push(...exercise.options);
-    if (exercise.type === "builder") bodyParts.push(...exercise.words, exercise.answer);
-    if (exercise.type === "write") bodyParts.push(exercise.answer, ...(exercise.accept ?? []));
+    const bodyParts = [exercise.prompt]
+    if (exercise.type === 'choice') bodyParts.push(...exercise.options)
+    if (exercise.type === 'builder') bodyParts.push(...exercise.words, exercise.answer)
+    if (exercise.type === 'write') bodyParts.push(exercise.answer, ...(exercise.accept ?? []))
     items.push({
-      kind: "exercise",
+      kind: 'exercise',
       title: session.title,
-      body: bodyParts.join(" "),
+      body: bodyParts.join(' '),
       href: route(`/session/${session.slug}#practica`),
       meta: `${module.code} · Ejercicio`,
-    });
+    })
   }
 
   for (const block of session.blocks) {
-    if (block.type === "vocab") {
+    if (block.type === 'vocab') {
       for (const entry of block.items) {
         items.push({
-          kind: "vocab",
+          kind: 'vocab',
           title: entry.en,
-          body: [entry.es, entry.example, entry.note].filter(Boolean).join(" "),
+          body: [entry.es, entry.example, entry.note].filter(Boolean).join(' '),
           href: route(`/session/${session.slug}`),
           meta: `${session.title} · Vocabulario`,
-        });
+        })
       }
-    } else if (block.type === "phrases") {
+    } else if (block.type === 'phrases') {
       for (const phrase of block.items) {
         items.push({
-          kind: "phrase",
+          kind: 'phrase',
           title: phrase.en,
           body: phrase.es,
           href: route(`/session/${session.slug}`),
           meta: `${session.title} · Frase`,
-        });
+        })
       }
-    } else if (block.type === "technique") {
+    } else if (block.type === 'technique') {
       items.push({
-        kind: "session",
+        kind: 'session',
         title: block.name,
         body: block.desc,
         href: route(`/session/${session.slug}`),
         meta: `${session.title} · Técnica`,
-      });
-    } else if (block.type === "text" || block.type === "callout") {
-      const body = "body" in block ? block.body : "";
-      const title = "title" in block ? block.title : session.title;
+      })
+    } else if (block.type === 'text' || block.type === 'callout') {
+      const body = 'body' in block ? block.body : ''
+      const title = 'title' in block ? block.title : session.title
       items.push({
-        kind: "session",
+        kind: 'session',
         title: title || session.title,
         body,
         href: route(`/session/${session.slug}`),
         meta: `${session.title}`,
-      });
-    } else if (block.type === "table") {
+      })
+    } else if (block.type === 'table') {
       items.push({
-        kind: "session",
+        kind: 'session',
         title: block.title ?? session.title,
-        body: [...block.columns, ...block.rows.flat()].join(" "),
+        body: [...block.columns, ...block.rows.flat()].join(' '),
         href: route(`/session/${session.slug}`),
         meta: `${session.title} · Tabla`,
-      });
+      })
     }
   }
 }
 
 for (const term of SLANG) {
   items.push({
-    kind: "slang",
+    kind: 'slang',
     title: term.term,
-    body: [term.meaningEs, term.meaningEn, term.example, term.exampleEs, term.caution ?? ""].join(" "),
-    href: route("/slang"),
+    body: [term.meaningEs, term.meaningEn, term.example, term.exampleEs, term.caution ?? ''].join(
+      ' ',
+    ),
+    href: route('/slang'),
     meta: `Slang · ${term.category} · ${term.status}`,
-  });
+  })
 }
 ---
 

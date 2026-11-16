@@ -1,21 +1,21 @@
 ---
-import { PanelLeft, Search, User } from "@lucide/astro";
-import Logo from "../ui/Logo.astro";
-import ProgressPill from "../dashboard/ProgressPill";
-import ThemeToggle from "./ThemeToggle";
-import InstallAppButton from "./InstallAppButton";
-import { route } from "../../lib/routes";
+import { PanelLeft, Search, User } from '@lucide/astro'
+import { route } from '../../lib/routes'
+import ProgressPill from '../dashboard/ProgressPill'
+import Logo from '../ui/Logo.astro'
+import InstallAppButton from './InstallAppButton'
+import ThemeToggle from './ThemeToggle'
 
 interface Props {
-  a1SessionIds: string[];
-  b1SessionIds: string[];
-  totalSessions: number;
-  totalExercises: number;
+  a1SessionIds: string[]
+  b1SessionIds: string[]
+  totalSessions: number
+  totalExercises: number
 }
 
-const { a1SessionIds, b1SessionIds, totalSessions, totalExercises } = Astro.props;
+const { a1SessionIds, b1SessionIds, totalSessions, totalExercises } = Astro.props
 const iconButtonClass =
-  "surface-soft flex h-9 w-9 items-center justify-center rounded-full text-base-content/60 transition hover:bg-base-300 hover:text-base-content";
+  'surface-soft flex h-9 w-9 items-center justify-center rounded-full text-base-content/60 transition hover:bg-base-300 hover:text-base-content'
 ---
 
 <header class="sticky top-0 z-50 border-b border-base-content/[0.04] bg-base-100/85 backdrop-blur-xl pt-[env(safe-area-inset-top,0px)] print:hidden">

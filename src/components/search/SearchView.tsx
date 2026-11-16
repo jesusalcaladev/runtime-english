@@ -1,38 +1,38 @@
-import { useMemo, useState } from "preact/hooks";
-import { ArrowRight, BookOpen, Code2, MessageSquareText, Search, Sparkles } from "lucide-preact";
+import { ArrowRight, BookOpen, Code2, MessageSquareText, Search, Sparkles } from 'lucide-preact'
+import { useMemo, useState } from 'preact/hooks'
 
 interface SearchItem {
-  kind: "session" | "vocab" | "phrase" | "slang" | "exercise";
-  title: string;
-  body: string;
-  href: string;
-  meta: string;
+  kind: 'session' | 'vocab' | 'phrase' | 'slang' | 'exercise'
+  title: string
+  body: string
+  href: string
+  meta: string
 }
 
 interface Props {
-  items: SearchItem[];
+  items: SearchItem[]
 }
 
 function normalize(value: string): string {
   return value
     .toLowerCase()
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")
-    .replace(/[^a-z0-9\s]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
 const kindMeta = {
-  session: { label: "Sesión", icon: BookOpen },
-  vocab: { label: "Vocabulario", icon: Code2 },
-  phrase: { label: "Frase", icon: MessageSquareText },
-  slang: { label: "Slang", icon: Sparkles },
-  exercise: { label: "Ejercicio", icon: Code2 },
-} as const;
+  session: { label: 'Sesión', icon: BookOpen },
+  vocab: { label: 'Vocabulario', icon: Code2 },
+  phrase: { label: 'Frase', icon: MessageSquareText },
+  slang: { label: 'Slang', icon: Sparkles },
+  exercise: { label: 'Ejercicio', icon: Code2 },
+} as const
 
 export default function SearchView({ items }: Props) {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('')
 
   const indexed = useMemo(
     () =>
@@ -41,28 +41,28 @@ export default function SearchView({ items }: Props) {
         haystack: normalize(`${item.title} ${item.body} ${item.meta}`),
       })),
     [items],
-  );
+  )
 
   const results = useMemo(() => {
-    const q = normalize(query);
-    if (q.length < 2) return [];
-    const terms = q.split(" ").filter(Boolean);
+    const q = normalize(query)
+    if (q.length < 2) return []
+    const terms = q.split(' ').filter(Boolean)
     const scored = indexed
       .map(({ item, haystack }) => {
-        if (!terms.every((term) => haystack.includes(term))) return null;
-        let score = 0;
-        const title = normalize(item.title);
+        if (!terms.every((term) => haystack.includes(term))) return null
+        let score = 0
+        const title = normalize(item.title)
         for (const term of terms) {
-          if (title.includes(term)) score += 3;
-          if (haystack.includes(term)) score += 1;
+          if (title.includes(term)) score += 3
+          if (haystack.includes(term)) score += 1
         }
-        return { item, score };
+        return { item, score }
       })
       .filter((entry): entry is { item: SearchItem; score: number } => Boolean(entry))
       .sort((a, b) => b.score - a.score)
-      .slice(0, 60);
-    return scored.map((entry) => entry.item);
-  }, [indexed, query]);
+      .slice(0, 60)
+    return scored.map((entry) => entry.item)
+  }, [indexed, query])
 
   return (
     <div class="mx-auto max-w-[920px] animate-fade-up">
@@ -88,7 +88,6 @@ export default function SearchView({ items }: Props) {
             onInput={(event) => setQuery((event.currentTarget as HTMLInputElement).value)}
             placeholder="Ej. pull request, deployment, bug, async, rizz..."
             class="w-full bg-transparent text-sm outline-none placeholder:text-base-content/30"
-            autoFocus
           />
         </label>
       </div>
@@ -101,14 +100,16 @@ export default function SearchView({ items }: Props) {
         ) : results.length === 0 ? (
           <div class="rounded-2xl bg-base-200/60 px-4 py-7 text-center sm:px-5 sm:py-8">
             <p class="text-sm text-base-content/55">Sin resultados para "{query}".</p>
-            <p class="mt-1 text-xs text-base-content/35">Prueba con otra palabra o en inglés/español.</p>
+            <p class="mt-1 text-xs text-base-content/35">
+              Prueba con otra palabra o en inglés/español.
+            </p>
           </div>
         ) : (
           <div class="space-y-2">
             <p class="px-1 text-[11px] text-base-content/40">{results.length} resultados</p>
             {results.map((item, index) => {
-              const meta = kindMeta[item.kind];
-              const Icon = meta.icon;
+              const meta = kindMeta[item.kind]
+              const Icon = meta.icon
               return (
                 <a
                   key={`${item.href}-${item.title}-${index}`}
@@ -121,18 +122,22 @@ export default function SearchView({ items }: Props) {
                         <Icon class="h-3 w-3" />
                         {meta.label}
                       </span>
-                      <span class="hidden truncate text-[10px] text-base-content/35 sm:inline">{item.meta}</span>
+                      <span class="hidden truncate text-[10px] text-base-content/35 sm:inline">
+                        {item.meta}
+                      </span>
                     </div>
                     <p class="mt-2 text-sm font-medium text-base-content/85">{item.title}</p>
-                    <p class="mt-1 line-clamp-2 text-xs leading-5 text-base-content/45">{item.body}</p>
+                    <p class="mt-1 line-clamp-2 text-xs leading-5 text-base-content/45">
+                      {item.body}
+                    </p>
                   </div>
                   <ArrowRight class="mt-1 h-4 w-4 shrink-0 text-base-content/20 transition group-hover:translate-x-0.5 group-hover:text-accent/70" />
                 </a>
-              );
+              )
             })}
           </div>
         )}
       </div>
     </div>
-  );
+  )
 }

@@ -1,21 +1,24 @@
-import { useEffect, useState } from "preact/hooks";
-import { CircleAlert, CircleCheck, Info, Trophy } from "lucide-preact";
-import { subscribeToasts, type ToastMessage } from "../../lib/toast";
+import { CircleAlert, CircleCheck, Info, Trophy } from 'lucide-preact'
+import { useEffect, useState } from 'preact/hooks'
+import { subscribeToasts, type ToastMessage } from '../../lib/toast'
 
 export default function ToastHost() {
-  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const [toasts, setToasts] = useState<ToastMessage[]>([])
 
   useEffect(() => {
     return subscribeToasts((toast) => {
-      setToasts((current) => [...current, toast]);
+      setToasts((current) => [...current, toast])
       window.setTimeout(() => {
-        setToasts((current) => current.filter((item) => item.id !== toast.id));
-      }, 4200);
-    });
-  }, []);
+        setToasts((current) => current.filter((item) => item.id !== toast.id))
+      }, 4200)
+    })
+  }, [])
 
   return (
-    <div data-toast-host class="pointer-events-none fixed bottom-4 right-4 z-[60] flex w-[calc(100%-2rem)] max-w-sm flex-col gap-2 print:hidden">
+    <div
+      data-toast-host
+      class="pointer-events-none fixed bottom-4 right-4 z-[60] flex w-[calc(100%-2rem)] max-w-sm flex-col gap-2 print:hidden"
+    >
       {toasts.map((toast) => (
         <div
           key={toast.id}
@@ -24,18 +27,18 @@ export default function ToastHost() {
         >
           <span
             class={
-              toast.type === "achievement"
-                ? "mt-0.5 text-warning"
-                : toast.type === "error"
-                  ? "mt-0.5 text-error"
-                  : "mt-0.5 text-accent"
+              toast.type === 'achievement'
+                ? 'mt-0.5 text-warning'
+                : toast.type === 'error'
+                  ? 'mt-0.5 text-error'
+                  : 'mt-0.5 text-accent'
             }
           >
-            {toast.type === "achievement" ? (
+            {toast.type === 'achievement' ? (
               <Trophy class="h-4 w-4" />
-            ) : toast.type === "error" ? (
+            ) : toast.type === 'error' ? (
               <CircleAlert class="h-4 w-4" />
-            ) : toast.type === "info" ? (
+            ) : toast.type === 'info' ? (
               <Info class="h-4 w-4" />
             ) : (
               <CircleCheck class="h-4 w-4" />
@@ -45,5 +48,5 @@ export default function ToastHost() {
         </div>
       ))}
     </div>
-  );
+  )
 }

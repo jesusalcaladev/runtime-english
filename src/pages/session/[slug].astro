@@ -1,51 +1,40 @@
 ---
-import {
-  ArrowLeft,
-  ArrowRight,
-  ArrowDown,
-  Clock,
-  Layers,
-  Target,
-} from "@lucide/astro";
-import BaseLayout from "../../layouts/BaseLayout.astro";
-import LessonBlocks from "../../components/session/LessonBlocks.astro";
-import ExerciseRunner from "../../components/exercise/ExerciseRunner";
-import SessionProgressCard from "../../components/session/SessionProgressCard";
-import SpeakButton from "../../components/ui/SpeakButton.astro";
-import Badge from "../../components/ui/Badge.astro";
-import PageHeader from "../../components/ui/PageHeader.astro";
-import {
-  ALL_SESSIONS,
-  getAdjacentSession,
-  type SessionWithModule,
-} from "../../data/curriculum";
-import { getSessionMinutes } from "../../lib/sessionTime";
-import { route } from "../../lib/routes";
-import type { Module, Session } from "../../lib/types";
+import { ArrowDown, ArrowLeft, ArrowRight, Clock, Layers, Target } from '@lucide/astro'
+import ExerciseRunner from '../../components/exercise/ExerciseRunner'
+import LessonBlocks from '../../components/session/LessonBlocks.astro'
+import SessionProgressCard from '../../components/session/SessionProgressCard'
+import Badge from '../../components/ui/Badge.astro'
+import PageHeader from '../../components/ui/PageHeader.astro'
+import SpeakButton from '../../components/ui/SpeakButton.astro'
+import { ALL_SESSIONS, getAdjacentSession, type SessionWithModule } from '../../data/curriculum'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import { route } from '../../lib/routes'
+import { getSessionMinutes } from '../../lib/sessionTime'
+import type { Module, Session } from '../../lib/types'
 
 interface Props {
-  session: Session;
-  module: Module;
-  previous?: SessionWithModule;
-  next?: SessionWithModule;
+  session: Session
+  module: Module
+  previous?: SessionWithModule
+  next?: SessionWithModule
 }
 
 export function getStaticPaths() {
   return ALL_SESSIONS.map(({ session, module }) => {
-    const { previous, next } = getAdjacentSession(session.id);
+    const { previous, next } = getAdjacentSession(session.id)
     return {
       params: { slug: session.slug },
       props: { session, module, previous, next },
-    };
-  });
+    }
+  })
 }
 
-const { session, module, previous, next } = Astro.props as Props;
+const { session, module, previous, next } = Astro.props as Props
 const nextForRunner = next
   ? { slug: next.session.slug, title: next.session.title, step: next.session.step }
-  : null;
-const position = ALL_SESSIONS.findIndex((entry) => entry.session.id === session.id) + 1;
-const exerciseIds = session.exercises.map((exercise) => exercise.id);
+  : null
+const position = ALL_SESSIONS.findIndex((entry) => entry.session.id === session.id) + 1
+const exerciseIds = session.exercises.map((exercise) => exercise.id)
 ---
 
 <BaseLayout title={`${session.title} · RuntimeEnglish`} description={session.summary}>

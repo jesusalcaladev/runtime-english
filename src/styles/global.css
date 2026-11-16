@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where([data-theme=runtimeenglish-dark], [data-theme=runtimeenglish-dark] *));
+@custom-variant dark (
+  &:where([data-theme="runtimeenglish-dark"], [data-theme="runtimeenglish-dark"] *)
+);
 
 @plugin "daisyui" {
   themes: false;
@@ -77,8 +79,9 @@
 }
 
 @theme {
-  --font-sans: "Geist Variable", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", sans-serif;
+  --font-sans:
+    "Geist Variable", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
   --font-mono: "Geist Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
   --font-display: "Geist Pixel Variable", "Geist Variable", ui-sans-serif, system-ui, sans-serif;
   --animate-fade-up: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -214,24 +217,52 @@
     box-shadow: none;
   }
 
-  .speak-btn[data-speaking="true"] {
+  .speak-btn[data-speaking="true"],
+  [data-speak][data-speaking="true"] {
     background: color-mix(in oklab, var(--color-accent) 12%, transparent);
     color: var(--color-accent);
   }
 
-  [data-speak][data-speak-loading="true"] {
-    position: relative;
-    padding-right: 1.9rem;
+  [data-speak] .speak-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  [data-speak] .speak-icon-loading,
+  [data-speak] .speak-icon-playing {
+    display: none;
+  }
+  [data-speak][data-speak-loading="true"] .speak-icon-idle,
+  [data-speak][data-speak-loading="true"] .speak-icon-playing {
+    display: none;
+  }
+  [data-speak][data-speak-loading="true"] .speak-icon-loading {
+    display: inline-flex;
+  }
+  [data-speak][data-speaking="true"]:not([data-speak-loading="true"]) .speak-icon-idle,
+  [data-speak][data-speaking="true"]:not([data-speak-loading="true"]) .speak-icon-loading {
+    display: none;
+  }
+  [data-speak][data-speaking="true"]:not([data-speak-loading="true"]) .speak-icon-playing {
+    display: inline-flex;
   }
 
-  [data-speak][data-speak-loading="true"]::after {
+  /* Legacy speak buttons (no explicit state icons): keep loading indicator centered, not overlaying content */
+  [data-speak][data-speak-loading="true"]:not(:has(.speak-icon)) {
+    position: relative;
+  }
+  [data-speak][data-speak-loading="true"]:not(:has(.speak-icon)) > * {
+    opacity: 0;
+  }
+  [data-speak][data-speak-loading="true"]:not(:has(.speak-icon))::after {
     content: "";
     position: absolute;
-    right: 0.6rem;
+    left: 50%;
     top: 50%;
-    width: 0.7rem;
-    height: 0.7rem;
-    margin-top: -0.35rem;
+    width: 0.85rem;
+    height: 0.85rem;
+    margin-left: -0.425rem;
+    margin-top: -0.425rem;
     border-radius: 9999px;
     border: 2px solid color-mix(in oklab, var(--color-accent) 25%, transparent);
     border-top-color: var(--color-accent);
@@ -244,11 +275,13 @@
   }
 
   @keyframes speak-spin {
-    to { transform: rotate(360deg); }
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   html[data-tts="off"] [data-speak] {
-    display: none !important;
+    display: none;
   }
 }
 
@@ -305,18 +338,18 @@
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+    transition-duration: 0.01ms;
+    scroll-behavior: auto;
   }
 }
 
 @media print {
   html,
   body {
-    background: #ffffff !important;
-    color: #111111 !important;
+    background: #ffffff;
+    color: #111111;
   }
 
   header,
@@ -324,20 +357,20 @@
   nav,
   [data-toast-host],
   .no-print {
-    display: none !important;
+    display: none;
   }
 
   main {
-    padding: 0 !important;
-    margin: 0 !important;
-    max-width: none !important;
+    padding: 0;
+    margin: 0;
+    max-width: none;
   }
 
   .certificate-sheet {
-    margin: 0 auto !important;
-    width: 100% !important;
-    max-width: none !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
+    margin: 0 auto;
+    width: 100%;
+    max-width: none;
+    border-radius: 0;
+    box-shadow: none;
   }
 }

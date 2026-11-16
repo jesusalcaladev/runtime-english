@@ -15,6 +15,8 @@
       "!**/android",
       "!**/supabase",
       "!**/apks",
+      "!**/coverage",
+      "!**/test-results",
       "!**/pnpm-lock.yaml",
       "!**/package-lock.json",
       "!**/*.min.*"
@@ -29,7 +31,44 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "preset": "recommended"
+      "preset": "recommended",
+      "a11y": {
+        "noSvgWithoutTitle": "warn",
+        "useSemanticElements": "warn"
+      },
+      "complexity": {
+        "useOptionalChain": "warn"
+      },
+      "suspicious": {
+        "noExplicitAny": "warn"
+      },
+      "style": {
+        "noNonNullAssertion": "warn"
+      }
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["**/*.astro"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noUnusedImports": "off",
+            "noUnusedVariables": "off"
+          }
+        }
+      }
+    }
+  ],
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    },
+    "formatter": {
+      "enabled": true
+    },
+    "linter": {
+      "enabled": true
     }
   },
   "javascript": {

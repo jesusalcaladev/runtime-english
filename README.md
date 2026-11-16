@@ -138,12 +138,15 @@ pnpm android:open
 > Notes:
 > - Internal web routes must remain compatible with Capacitor static output (`.html` routing handled in-app). Use the project's route helper for internal links when modifying navigation.
 > - APK binaries are not tracked in git. Local builds are copied to `apks/` and should be distributed via **GitHub Releases** (the web "Descargar APK" button and `public/app-update.json` point to release assets). Keep `app-update.json` and the release APK in sync when publishing a new version.
+> - Release/publication checklist (version alignment, signed release APKs, GitHub Release assets, and `public/app-update.json`): see [RELEASING.md](RELEASING.md).
 
 ## Progress, sync, and certificates
 
 - **Local-first progress:** user progress/settings are stored locally in the browser/app storage.
 - **Export/import:** the app supports backup/restore flows in settings (JSON) for moving progress.
-- **Optional Supabase features:** authentication, progress sync, and certificate issuance/verification are supported when Supabase is configured and deployed (see `supabase/` for SQL, migrations, and edge functions).
+- **Optional Supabase features:** authentication, progress sync, and certificate issuance/verification are supported when Supabase is configured and deployed.
+  - Setup/ops (schema, migrations, Auth config, Edge Function deploy, secrets/vars, verification checklist): see [`supabase/README.md`](supabase/README.md).
+  - SQL/functions in repo: [`supabase/setup.sql`](supabase/setup.sql), [`supabase/migrations/`](supabase/migrations), [`supabase/functions/issue-certificate/`](supabase/functions/issue-certificate/).
 - **Schema migrations:** progress/state migrations are handled in code to preserve compatibility across app updates where possible.
 
 ## Pronunciation (TTS)
@@ -160,6 +163,7 @@ If a browser lacks usable system voices, the HQ voice option can provide a more 
 
 - Use the existing project patterns (Astro + Preact islands, Tailwind/daisyUI, current theme tokens).
 - Keep internal navigation compatible with Capacitor static routing (see `src/lib/routes.ts` and `AGENT.md`).
+- **PWA manifest:** the canonical source is the `manifest` config in `astro.config.mjs` (`@vite-pwa/astro`), which generates `manifest.webmanifest` during build/dev as needed. Do not add a separate source `public/manifest.webmanifest` unless you intentionally stop generating it from config.
 - Do not modify brand/logo assets unless explicitly intended.
 - Run checks/build/tests relevant to your changes before opening a PR.
 

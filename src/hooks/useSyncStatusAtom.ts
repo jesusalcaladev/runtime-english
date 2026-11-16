@@ -1,1 +1,1 @@
-export { useSyncStatus as useSyncStatusAtom } from "./useSyncStatus";
+export { useSyncStatus as useSyncStatusAtom } from './useSyncStatus'
