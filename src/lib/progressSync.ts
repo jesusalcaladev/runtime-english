@@ -8,6 +8,13 @@ import type {
 } from './progress'
 import { parseCompactState } from './progressSchema'
 import { supabase } from './supabase'
+import {
+  type CompactVideoLab,
+  compactVideoLab,
+  createDefaultVideoLabState,
+  expandVideoLab,
+  mergeVideoLabStates,
+} from './videoLabState'
 
 const TABLE = 'user_progress'
 const SYNC_META_KEY = 'runtimeenglish_sync_meta_v1'
@@ -57,7 +64,7 @@ interface CompactSettingsState {
   im?: 'auto' | 'es' | 'mixed' | 'en'
   tts?: boolean
   rate?: number
-  eng?: 'system' | 'kokoro'
+  eng?: 'system' | 'kokoro' | 'piper'
   lng?: 'en-US' | 'en-GB'
   name?: string
   ob?: boolean
@@ -101,6 +108,7 @@ interface CompactProgressState {
   ac?: Record<string, number>
   sk?: CompactStreakState
   se?: CompactSettingsState
+  vl?: CompactVideoLab
 }
 
 type UnknownRecord = Record<string, unknown>
@@ -257,6 +265,8 @@ export function compactState(state: ProgressState): Record<string, unknown> {
   if (!isEmptyRecord(state.phrasebook)) compact.pb = state.phrasebook
   if (state.certificate) compact.cert = state.certificate
   if (!isEmptyRecord(state.achievements)) compact.ac = state.achievements
+  const videoLab = compactVideoLab(state.videoLab ?? createDefaultVideoLabState())
+  if (videoLab) compact.vl = videoLab
   if (state.streak.current || state.streak.longest || state.streak.lastActiveDate) {
     compact.sk = state.streak
   }
@@ -422,7 +432,7 @@ function toCompactState(raw: unknown): CompactProgressState | null {
 export function expandState(raw: unknown, defaults: ProgressState): ProgressState {
   if (!isRecord(raw)) return defaults
 
-  const compactCandidate = 'v' in raw || 'ce' in raw || 'cs' in raw || 'se' in raw
+  const compactCandidate = 'v' in raw || 'ce' in raw || 'cs' in raw || 'se' in raw || 'vl' in raw
   if (!compactCandidate) {
     return { ...defaults, ...(raw as Partial<ProgressState>) } as ProgressState
   }
@@ -446,7 +456,7 @@ export function expandState(raw: unknown, defaults: ProgressState): ProgressStat
         : defaults.settings.immersion,
     ttsEnabled: typeof settings.tts === 'boolean' ? settings.tts : defaults.settings.ttsEnabled,
     ttsRate: toFiniteNumber(settings.rate, defaults.settings.ttsRate),
-    ttsEngine: settings.eng === 'kokoro' ? 'kokoro' : 'system',
+    ttsEngine: settings.eng === 'kokoro' || settings.eng === 'piper' ? settings.eng : 'system',
     speechLanguage: settings.lng === 'en-GB' ? 'en-GB' : 'en-US',
     name: toStringValue(settings.name, ''),
     onboarded: Boolean(settings.ob),
@@ -480,6 +490,7 @@ export function expandState(raw: unknown, defaults: ProgressState): ProgressStat
     phrasebook: asPhrasebookRecord(compact.pb),
     certificate: asCertificate(compact.cert),
     achievements: asNumberRecord(compact.ac),
+    videoLab: compact.vl ? expandVideoLab(compact.vl) : createDefaultVideoLabState(),
     streak: {
       current: toFiniteNumber(streak.current, 0),
       longest: toFiniteNumber(streak.longest, 0),
@@ -697,6 +708,10 @@ export function mergeProgressDetailed(local: ProgressState, remote: ProgressStat
   const phrasebook = mergePhrasebook(local.phrasebook, remote.phrasebook)
   const certificate = mergeCertificate(local.certificate, remote.certificate)
   const achievements = unionMinTs(local.achievements ?? {}, remote.achievements ?? {})
+  const videoLab = mergeVideoLabStates(
+    local.videoLab ?? createDefaultVideoLabState(),
+    remote.videoLab ?? createDefaultVideoLabState(),
+  )
   const streak = mergeStreak(local.streak, remote.streak)
   const xp = Math.max(
     local.xp ?? 0,
@@ -726,6 +741,7 @@ export function mergeProgressDetailed(local: ProgressState, remote: ProgressStat
     phrasebook,
     certificate,
     achievements,
+    videoLab,
     streak,
     xp,
     startedAt: Math.min(local.startedAt ?? Date.now(), remote.startedAt ?? Date.now()),

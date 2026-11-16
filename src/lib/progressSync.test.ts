@@ -140,4 +140,67 @@ describe('progressSync', () => {
     expect(res.merged.certificate?.status).toBe('verified')
     expect(res.merged.certificate?.userId).toBe('u1')
   })
+
+  it('syncs VideoLab progress and quiz results inside the same compact row', () => {
+    const state = createDefaultState()
+    state.videoLab.progress['lesson-1'] = {
+      position: 42.123,
+      duration: 337,
+      completed: false,
+      updatedAt: 1000,
+    }
+    state.videoLab.quiz['lesson-1'] = {
+      attempts: [
+        {
+          questionIds: ['q1', 'q2'],
+          answers: { q1: 0, q2: 1 },
+          correct: 1,
+          total: 2,
+          missedQuestionIds: ['q2'],
+          at: 2000,
+        },
+      ],
+      bestCorrect: 1,
+      missedQuestionIds: ['q2'],
+    }
+
+    const compact = compactState(state)
+    const expanded = expandState(compact, createDefaultState())
+
+    expect(expanded.videoLab.progress['lesson-1'].position).toBeCloseTo(42.12, 1)
+    expect(expanded.videoLab.progress['lesson-1'].updatedAt).toBe(1000)
+    expect(expanded.videoLab.quiz['lesson-1'].attempts[0].answers.q2).toBe(1)
+    expect(expanded.videoLab.quiz['lesson-1'].missedQuestionIds).toEqual(['q2'])
+  })
+
+  it('merges VideoLab data keeping the newest position and the best score', () => {
+    const local = createDefaultState()
+    const remote = createDefaultState()
+    local.videoLab.progress['lesson-1'] = {
+      position: 42,
+      duration: 337,
+      completed: false,
+      updatedAt: 1000,
+    }
+    remote.videoLab.progress['lesson-1'] = {
+      position: 90,
+      duration: 337,
+      completed: false,
+      updatedAt: 2000,
+    }
+    local.videoLab.quiz['lesson-1'] = {
+      attempts: [],
+      bestCorrect: 3,
+      missedQuestionIds: [],
+    }
+    remote.videoLab.quiz['lesson-1'] = {
+      attempts: [],
+      bestCorrect: 1,
+      missedQuestionIds: [],
+    }
+
+    const merged = mergeProgressDetailed(local, remote).merged
+    expect(merged.videoLab.progress['lesson-1'].position).toBe(90)
+    expect(merged.videoLab.quiz['lesson-1'].bestCorrect).toBe(3)
+  })
 })

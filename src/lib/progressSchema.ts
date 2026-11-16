@@ -3,7 +3,7 @@ import { z } from 'zod'
 export const learningGoalSchema = z.enum(['daily', 'interviews', 'work', 'all'])
 export const immersionSchema = z.enum(['auto', 'es', 'mixed', 'en'])
 export const themeSchema = z.enum(['light', 'dark'])
-export const ttsEngineSchema = z.enum(['system', 'kokoro'])
+export const ttsEngineSchema = z.enum(['system', 'kokoro', 'piper'])
 
 export const remindersSchema = z.object({
   enabled: z.boolean().catch(false),
@@ -45,6 +45,8 @@ export const settingsSchema = z.object({
   immersion: immersionSchema.catch('auto'),
   ttsEnabled: z.boolean().catch(true),
   ttsRate: z.number().refine(Number.isFinite).catch(1),
+  ttsPitch: z.number().min(0.5).max(2).refine(Number.isFinite).catch(1).optional(),
+  ttsVoiceName: z.string().max(120).catch('').optional(),
   ttsEngine: ttsEngineSchema.catch('system'),
   speechLanguage: z.enum(['en-US', 'en-GB']).catch('en-US'),
   reminders: remindersSchema.catch({ enabled: false, time: '20:00', lastNudgeDate: null }),

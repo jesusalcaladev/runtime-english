@@ -44,7 +44,9 @@ export interface ProgressSettings {
   immersion: 'auto' | 'es' | 'mixed' | 'en'
   ttsEnabled: boolean
   ttsRate: number
-  ttsEngine: 'system' | 'kokoro'
+  ttsPitch?: number
+  ttsVoiceName?: string
+  ttsEngine: 'system' | 'kokoro' | 'piper'
   speechLanguage: 'en-US' | 'en-GB'
   reminders: ReminderSettings
   name: string
@@ -108,6 +110,17 @@ export interface ErrorEvent {
   at: number
 }
 
+import {
+  createDefaultVideoLabState,
+  mergeVideoLabStates,
+  normalizeVideoLab,
+  readLegacyVideoLab,
+  type VideoLabState,
+  type VideoProgress,
+  type VideoQuizAttempt,
+  type VideoQuizProgress,
+} from './videoLabState'
+
 export interface ProgressState {
   version: number
   xp: number
@@ -128,6 +141,9 @@ export interface ProgressState {
   settings: ProgressSettings
   startedAt: number
   dictionaryBackfilledAt?: number | null
+  /** Progreso y quiz de VideoLab (sincronizado en el mismo JSON de Supabase). */
+  videoLab: VideoLabState
+  videoLabMigratedAt?: number | null
 }
 
 export interface ProgressExportEnvelope {
@@ -183,6 +199,8 @@ export function createDefaultState(): ProgressState {
     },
     startedAt: Date.now(),
     dictionaryBackfilledAt: null,
+    videoLab: createDefaultVideoLabState(),
+    videoLabMigratedAt: null,
   }
 }
 
@@ -513,6 +531,8 @@ export function mergeState(raw: unknown): ProgressState {
       defaults.streak,
     ),
     dictionaryBackfilledAt: getNumber(mergedBase.dictionaryBackfilledAt) ?? null,
+    videoLab: normalizeVideoLab(mergedBase.videoLab),
+    videoLabMigratedAt: getNumber(mergedBase.videoLabMigratedAt) ?? null,
     settings: sanitizeSettings(
       { ...defaults.settings, ...(toRecord(mergedBase.settings) as Partial<ProgressSettings>) },
       defaults.settings,
@@ -577,6 +597,21 @@ class ProgressStore {
         }
       })
       this.initCloudSync()
+      // One-time migration: VideoLab used to live in its own localStorage keys.
+      if (!this.state.videoLabMigratedAt) {
+        const legacy = readLegacyVideoLab()
+        if (legacy) {
+          this.state = {
+            ...this.state,
+            videoLab: mergeVideoLabStates(legacy, this.state.videoLab),
+            videoLabMigratedAt: Date.now(),
+          }
+          this.persist()
+        } else {
+          this.state = { ...this.state, videoLabMigratedAt: Date.now() }
+          this.persist()
+        }
+      }
       // One-time dictionary backfill (imports content vocabulary/phrases and previously learned items)
       if (!this.state.dictionaryBackfilledAt) {
         try {
@@ -674,6 +709,42 @@ class ProgressStore {
 
   update(updater: (state: ProgressState) => ProgressState) {
     this.commit(updater(this.getState()))
+  }
+
+  saveVideoProgress(lessonId: string, progress: VideoProgress) {
+    this.update((state) => ({
+      ...state,
+      videoLab: {
+        ...state.videoLab,
+        progress: { ...state.videoLab.progress, [lessonId]: progress },
+      },
+    }))
+  }
+
+  saveVideoQuizAttempt(lessonId: string, attempt: VideoQuizAttempt): VideoQuizProgress {
+    const current = this.getState().videoLab.quiz[lessonId]
+    const attempts = [attempt, ...(current?.attempts ?? [])].slice(0, 5)
+    const updated: VideoQuizProgress = {
+      attempts,
+      bestCorrect: Math.max(attempt.correct, current?.bestCorrect ?? 0),
+      missedQuestionIds: attempt.missedQuestionIds.filter((id) => attempt.questionIds.includes(id)),
+    }
+    this.update((state) => ({
+      ...state,
+      videoLab: {
+        ...state.videoLab,
+        quiz: { ...state.videoLab.quiz, [lessonId]: updated },
+      },
+    }))
+    return updated
+  }
+
+  clearVideoQuizProgress(lessonId: string) {
+    this.update((state) => {
+      const quiz = { ...state.videoLab.quiz }
+      delete quiz[lessonId]
+      return { ...state, videoLab: { ...state.videoLab, quiz } }
+    })
   }
 
   private evaluate(state: ProgressState) {
