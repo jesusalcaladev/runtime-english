@@ -453,34 +453,6 @@ export const m7: Module = {
             "'Own that action item' expresa responsabilidad clara sobre una tarea acordada en la reunión.",
         },
         {
-          id: 'm7-l3-e7',
-          type: 'choice',
-          prompt: 'En la conversación, ¿de qué hablaron Maya y Leo?',
-          options: [
-            'De las prioridades y un bloqueo con el acceso a la API.',
-            'De los resultados de un code review.',
-            'De la estimación de un sprint.',
-            'De un error de CORS en staging.',
-          ],
-          answer: 0,
-          explanation:
-            "Maya dice 'Let's align on priorities' y Leo responde 'The API access issue is my only blocker'.",
-        },
-        {
-          id: 'm7-l3-e8',
-          type: 'choice',
-          prompt: '¿Qué acordaron sobre el problema de la API?',
-          options: [
-            'Aparcarlo y retomarlo después del standup; Leo se encargará de la tarea.',
-            'Resolverlo antes de que termine la reunión.',
-            'Ignorarlo por falta de tiempo.',
-            'Pasárselo a otro equipo.',
-          ],
-          answer: 0,
-          explanation:
-            "Maya propone 'let's put it in the parking lot and circle back after the standup' y Leo dice 'I'll own that action item'.",
-        },
-        {
           id: 'm7-l3-e9',
           type: 'shadow',
           prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',

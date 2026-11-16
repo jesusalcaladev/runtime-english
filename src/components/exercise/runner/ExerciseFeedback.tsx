@@ -4,6 +4,7 @@ import type { UiStage } from '../../../lib/i18n'
 import { tAction } from '../../../lib/i18n'
 import type { PhrasebookEntry } from '../../../lib/progress'
 import { route } from '../../../lib/routes'
+import MiniDrill from './MiniDrill'
 import type { RunnerStatus } from './utils'
 
 interface Props {
@@ -14,6 +15,7 @@ interface Props {
   detectedSkills: ErrorSkill[]
   showPhraseHint: boolean
   phraseEntry?: PhrasebookEntry
+  drillSkill?: ErrorSkill
 }
 
 export function ExerciseFeedback({
@@ -24,6 +26,7 @@ export function ExerciseFeedback({
   detectedSkills,
   showPhraseHint,
   phraseEntry,
+  drillSkill,
 }: Props) {
   return (
     <div
@@ -72,13 +75,10 @@ export function ExerciseFeedback({
               {correctAnswerText}
             </p>
           </div>
-          <p class="hidden text-[11px] leading-relaxed text-base-content/55 sm:block">
-            Revísala y practícala: al acertarla se guardará en tu diccionario.
-          </p>
           {detectedSkills.length > 0 && (
             <div class="flex flex-wrap items-center gap-1.5">
-              <span class="text-[10px] font-medium text-base-content/45">Patrón a reforzar:</span>
-              {detectedSkills.map((skill) => (
+              <span class="text-[10px] font-medium text-base-content/45">Patrón:</span>
+              {detectedSkills.slice(0, 2).map((skill) => (
                 <span
                   key={skill}
                   class="rounded-full bg-base-100/80 px-2 py-0.5 text-[10px] font-medium text-error/80 ring-1 ring-error/10"
@@ -134,6 +134,12 @@ export function ExerciseFeedback({
               Marcada como difícil
             </p>
           )}
+        </div>
+      )}
+
+      {drillSkill && status === 'incorrect' && (
+        <div class="mt-2 border-t border-error/10 pt-2">
+          <MiniDrill skill={drillSkill} />
         </div>
       )}
     </div>

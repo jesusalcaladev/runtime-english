@@ -236,19 +236,6 @@ export const m6: Module = {
             "Leo dice 'The auth token leaked in the logs again': el token se filtró en los logs.",
         },
         {
-          id: 'm6-l1-e8',
-          type: 'choice',
-          prompt: '¿Qué hará Leo con la clave expuesta?',
-          options: [
-            'Rotarla y revocar la anterior.',
-            'Publicarla en Slack para que el equipo la vea.',
-            'Ignorarla porque los logs son privados.',
-          ],
-          answer: 0,
-          explanation:
-            "Leo responde 'I'll rotate it and revoke the old one': rotar implica reemplazar la clave y revocar la anterior.",
-        },
-        {
           id: 'm6-l1-e9',
           type: 'shadow',
           prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',

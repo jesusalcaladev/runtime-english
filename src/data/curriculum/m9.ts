@@ -187,16 +187,6 @@ export const m9: Module = {
           explanation: "En inglés se dice 'responsible for', no 'responsible of'.",
         },
         {
-          id: 'm9-l1-e4',
-          type: 'fill-blank',
-          prompt:
-            'Completa la respuesta con la estructura adecuada (STAR: reto → acción → resultado).',
-          template:
-            'The main challenge was ___, so I ___ a caching layer. As a result, we ___ response time.',
-          blanks: ['high latency|slow responses', 'implemented|added', 'reduced|improved'],
-          explanation: 'Usa causa, acción y resultado medible: challenge → action → result.',
-        },
-        {
           id: 'm9-l1-e5',
           type: 'choice',
           prompt: 'En una entrevista, ¿qué respuesta suena más concreta y profesional?',
@@ -232,45 +222,6 @@ export const m9: Module = {
           answer: 0,
           explanation:
             "Leo dice 'Latency was high' y 'I took ownership of the migration and added caching'.",
-        },
-        {
-          id: 'm9-l1-e8',
-          type: 'choice',
-          prompt: '¿Cuál fue el resultado medible y el trade-off que mencionó Leo?',
-          options: [
-            'Redujeron la latencia un 30%; hubo un trade-off entre velocidad y fiabilidad.',
-            'Redujeron costes un 10%; no hubo trade-off.',
-            'Aumentaron la latencia; el trade-off fue con el equipo.',
-            'No hubo ningún resultado medible.',
-          ],
-          answer: 0,
-          explanation:
-            "Dice 'As a result, we reduced latency by 30%' y 'between speed and reliability' (además de 'I coordinated with stakeholders').",
-        },
-        {
-          id: 'm9-l1-e9',
-          type: 'match',
-          prompt: 'Empareja cada término con su significado.',
-          pairs: [
-            {
-              en: 'In my previous role, I was responsible for...',
-              es: 'En mi rol anterior, era responsable de...',
-            },
-            {
-              en: 'The main challenge was..., so I decided to...',
-              es: 'El principal reto era..., así que decidí...',
-            },
-            {
-              en: 'As a result, we reduced latency by 20%.',
-              es: 'Como resultado, redujimos la latencia un 20%.',
-            },
-            {
-              en: 'If I could do it again, I would...',
-              es: 'Si pudiera hacerlo de nuevo, lo haría...',
-            },
-          ],
-          explanation:
-            'Emparejar el término con su significado refuerza el vocabulario de esta lección.',
         },
         {
           id: 'm9-l1-e10',
@@ -436,19 +387,6 @@ export const m9: Module = {
       ],
       exercises: [
         {
-          id: 'm9-l2-e1',
-          type: 'dialogue-order',
-          prompt: 'Ordena el diálogo de actualización de incidente.',
-          lines: [
-            'We detected an increase in 500 errors.',
-            "What's the current impact?",
-            "It's affecting about 10% of EU users.",
-            "We're rolling back now and will update you in 10 minutes.",
-          ],
-          explanation:
-            'Un buen update de incidente comunica detección, impacto y acción/próximo paso.',
-        },
-        {
           id: 'm9-l2-e2',
           type: 'listen',
           prompt: 'Dictado: escucha el mensaje de demo y escríbelo.',
@@ -457,23 +395,6 @@ export const m9: Module = {
           accept: ["Let me walk you through the demo. First I'll create a new project."],
           hint: "Dos frases: 'Let me walk you through...' y 'First, I will/I'll...'.",
           explanation: 'Frases claras y secuenciales son clave al presentar demos.',
-        },
-        {
-          id: 'm9-l2-e3',
-          type: 'roleplay',
-          prompt: 'Role-play: responde en un incidente en producción.',
-          scenario:
-            'Eres backend on-call. Hay errores 500 tras un deploy y te preguntan por el estado.',
-          goal: 'Explica impacto, acción actual y cuándo darás la próxima actualización.',
-          answer:
-            "We're investigating the issue. The impact is limited to some users, we're rolling back the release, and we'll share an update in 15 minutes.",
-          accept: [
-            'We are investigating the issue. We are rolling back and will share an update in 15 minutes.',
-            "We're investigating the issue, rolling back now, and will share an update in 15 minutes.",
-          ],
-          hint: 'Incluye: investigating, impact, rollback/action, next update.',
-          explanation:
-            'Comunicación de incidentes: estado + impacto + acción + siguiente actualización.',
         },
         {
           id: 'm9-l2-e4',
@@ -512,62 +433,6 @@ export const m9: Module = {
           explanation: "Abre la propuesta con un objetivo claro: 'The goal of this RFC is to...'",
         },
         {
-          id: 'm9-l2-e7',
-          type: 'choice',
-          prompt: 'En el diálogo, ¿cuál fue la causa raíz del incidente y qué acción tomaron?',
-          options: [
-            'La invalidación de caché; revertieron el despliegue.',
-            'Un error de sintaxis; reiniciaron el servidor.',
-            'Falta de tests; desplegaron de nuevo.',
-            'Un problema de base de datos; escalaron al equipo.',
-          ],
-          answer: 0,
-          explanation: "Maya dice 'Yes, cache invalidation. We decided to roll back the release'.",
-        },
-        {
-          id: 'm9-l2-e8',
-          type: 'choice',
-          prompt: '¿Qué le pidió Leo a Maya sobre su RFC y la demo?',
-          options: [
-            'Feedback accionable sobre el RFC y que le mostrara la demo paso a paso.',
-            'Que aprobara el RFC sin cambios.',
-            'Que cancelara la demo.',
-            'Que escribiera el RFC por él.',
-          ],
-          answer: 0,
-          explanation:
-            "Leo pregunta 'Could you give me actionable feedback on my RFC for the fix?' y Maya responde 'let me walk you through the demo first'.",
-        },
-        {
-          id: 'm9-l2-e9',
-          type: 'match',
-          prompt: 'Empareja cada frase con su significado.',
-          pairs: [
-            { en: 'roll back', es: 'revertir un despliegue' },
-            { en: 'bring up', es: 'mencionar un tema' },
-            { en: 'follow up', es: 'dar seguimiento' },
-            { en: 'wrap up', es: 'cerrar la reunión' },
-          ],
-          hint: 'Piensa en incidentes, RFCs y reuniones.',
-          explanation:
-            'Estos chunks aparecen constantemente cuando se comunica un incidente o se cierra una reunión.',
-        },
-        {
-          id: 'm9-l2-e10',
-          type: 'multi-choice',
-          prompt: 'Marca TODAS las frases útiles para comunicar un incidente.',
-          options: [
-            'State the impact and the next update.',
-            'Roll back the release.',
-            'Comment out the failing test.',
-            'Give an ETA for the next update.',
-          ],
-          answers: [0, 1, 3],
-          hint: 'Dos son comunicación clara; una es una acción técnica; una oculta el problema.',
-          explanation:
-            'Comunicar impacto, acción correctiva y próxima actualización es la base de un buen reporte de incidente.',
-        },
-        {
           id: 'm9-l2-e11',
           type: 'shadow',
           prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
@@ -575,6 +440,16 @@ export const m9: Module = {
           hint: 'Tres partes: impacto, acción y siguiente actualización.',
           explanation:
             'Repetir esta estructura en voz alta la deja lista para usarla en el próximo incidente.',
+        },
+        {
+          id: 'm9-l2-e12',
+          type: 'fix-error',
+          prompt: 'Corrige el error en el reporte del incidente.',
+          sentence: 'We roll back the release and we update the channel yesterday.',
+          answer: 'We rolled back the release and updated the channel yesterday.',
+          hint: "'Yesterday' pide pasado simple y evita repetir 'we'.",
+          explanation:
+            'En un reporte de incidente, las acciones pasadas van en pasado simple: rolled back / updated.',
         },
       ],
     },

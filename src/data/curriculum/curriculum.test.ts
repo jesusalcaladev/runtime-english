@@ -184,6 +184,60 @@ describe('curriculum / roadmap integrity', () => {
     }
   })
 
+  it('keeps sessions focused (max 9 exercises and 7 blocks)', () => {
+    for (const { session } of ALL_SESSIONS) {
+      expect(
+        session.exercises.length,
+        `${session.id} has ${session.exercises.length} exercises`,
+      ).toBeLessThanOrEqual(9)
+      expect(
+        session.blocks.length,
+        `${session.id} has ${session.blocks.length} blocks`,
+      ).toBeLessThanOrEqual(7)
+    }
+  })
+
+  it('keeps a consistent learning cycle in every session', () => {
+    const stageByType: Record<string, number> = {
+      choice: 1,
+      match: 1,
+      'multi-choice': 1,
+      listen: 1,
+      'dialogue-order': 1,
+      'fill-blank': 1,
+      'fix-error': 2,
+      'dialogue-branch': 2,
+      builder: 2,
+      write: 3,
+      speak: 3,
+      roleplay: 3,
+      shadow: 3,
+    }
+    const special = new Set([
+      'match',
+      'multi-choice',
+      'shadow',
+      'dialogue-branch',
+      'listen',
+      'speak',
+      'roleplay',
+      'fix-error',
+      'fill-blank',
+      'dialogue-order',
+    ])
+    for (const { session } of ALL_SESSIONS) {
+      const stages = new Set(session.exercises.map((exercise) => stageByType[exercise.type]))
+      for (const stage of [1, 2, 3]) {
+        expect(stages.has(stage), `${session.id} is missing learning stage ${stage}`).toBe(true)
+      }
+      const specialCount = session.exercises.filter((exercise) => special.has(exercise.type)).length
+      expect(
+        specialCount,
+        `${session.id} has ${specialCount} special exercises (max 4)`,
+      ).toBeLessThanOrEqual(4)
+    }
+  })
+
   it('gives every session at least one speaking exercise', () => {
     const speaking = new Set(['speak', 'listen', 'shadow'])
     for (const { session } of ALL_SESSIONS) {

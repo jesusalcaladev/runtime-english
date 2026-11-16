@@ -480,28 +480,6 @@ export const m5: Module = {
             "'Just to confirm...' es una forma educada y clara de verificar entendimiento en trabajo asíncrono.",
         },
         {
-          id: 'm5-l2-e7',
-          type: 'choice',
-          prompt: '¿Cuál fue la causa del bloqueo en la conversación?',
-          options: ['El cambio de la API.', 'Un error de CORS.', 'La falta de permisos.'],
-          answer: 0,
-          explanation:
-            "Leo escribe 'the deploy is blocked by the API change': el cambio de la API es lo que bloquea el despliegue.",
-        },
-        {
-          id: 'm5-l2-e8',
-          type: 'choice',
-          prompt: '¿Qué hará Leo al final?',
-          options: [
-            'Mantener a Maya informada.',
-            'Cerrar el PR sin revisar.',
-            'Borrar el mensaje de Slack.',
-          ],
-          answer: 0,
-          explanation:
-            "Leo cierra con 'I'll keep you posted': promete mantener informada a Maya sin fijar una hora exacta.",
-        },
-        {
           id: 'm5-l2-e9',
           type: 'shadow',
           prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',

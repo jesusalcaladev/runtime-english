@@ -364,28 +364,6 @@ export const m4: Module = {
             "Nombrar el bloqueo y pedir ayuda de forma específica ('Could someone help me with...') es claro, educado y muy natural.",
         },
         {
-          id: 'm4-l1-e7',
-          type: 'choice',
-          prompt: 'En la conversación, ¿qué hizo Leo ayer?',
-          options: [
-            'Terminó la integración de la API y subió el PR.',
-            'Está escribiendo los tests de login.',
-            'Pidió que renovaran el token.',
-          ],
-          answer: 0,
-          explanation:
-            "Leo dijo 'I finished the API integration and pushed the PR': pasado simple para ayer.",
-        },
-        {
-          id: 'm4-l1-e8',
-          type: 'choice',
-          prompt: '¿Cuál es el bloqueo de Leo en la conversación?',
-          options: ['El token de la API', 'La integración de la API', 'Los tests de login'],
-          answer: 0,
-          explanation:
-            "Dice 'I'm blocked by the API token'. Maya se encargará de pedir que lo renueven.",
-        },
-        {
           id: 'm4-l1-e9',
           type: 'shadow',
           prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
@@ -680,19 +658,6 @@ export const m4: Module = {
             "Maya dice 'The null check... Could you add a guard?'. El resto eran non-blocking.",
         },
         {
-          id: 'm4-l2-e8',
-          type: 'choice',
-          prompt: '¿Qué hará Leo después de la revisión?',
-          options: [
-            'Arreglar el null check y avisar a Maya.',
-            'Cerrar el PR sin cambios.',
-            'Pedir otro reviewer.',
-          ],
-          answer: 0,
-          explanation:
-            "Leo responde 'I'll fix it and ping you', y Maya confirma 'LGTM once that's in'.",
-        },
-        {
           id: 'm4-l2-e9',
           type: 'shadow',
           prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
@@ -940,32 +905,6 @@ export const m4: Module = {
           answer: 0,
           explanation:
             "'Blast radius' se refiere al alcance/impacto del incidente (qué usuarios, servicios o regiones se ven afectados).",
-        },
-        {
-          id: 'm4-l3-e7',
-          type: 'choice',
-          prompt: '¿Qué pasó en el incidente de la conversación?',
-          options: [
-            'Una migración defectuosa rompió la tabla de login.',
-            'Un ataque externo tumbó el servicio.',
-            'La caché expiró y subió la latencia.',
-          ],
-          answer: 0,
-          explanation:
-            "Leo dice 'a bad migration had broken the login table before the rollback': la causa fue una migración defectuosa.",
-        },
-        {
-          id: 'm4-l3-e8',
-          type: 'choice',
-          prompt: '¿Qué hará Maya durante el incidente?',
-          options: [
-            'Mandar una actualización cada 15 minutos.',
-            'Revertir el despliegue ella misma.',
-            'Reescribir la migración rota.',
-          ],
-          answer: 0,
-          explanation:
-            "Maya dice 'I'll send an update in 15 minutes': se encarga de mantener informado al equipo.",
         },
         {
           id: 'm4-l3-e9',
@@ -1399,19 +1338,6 @@ export const m4: Module = {
           options: ['En auth.ts, línea 42', 'En el build', 'En la base de datos'],
           answer: 0,
           explanation: "Leo dice 'It fails in auth.ts at line 42' y comparte el stack trace.",
-        },
-        {
-          id: 'm4-l5-e8',
-          type: 'choice',
-          prompt: '¿Qué proponen Maya y Leo al final?',
-          options: [
-            'Hacer pair debugging después del standup.',
-            'Cerrar el ticket sin más datos.',
-            'Desplegar aunque falle el preflight.',
-          ],
-          answer: 0,
-          explanation:
-            'Maya cierra con "Let\'s pair on it after the standup": ayuda en vivo y concreta.',
         },
         {
           id: 'm4-l5-e9',

@@ -246,15 +246,6 @@ export const m3: Module = {
             "Leo dice 'I see Port already in use': otro proceso ocupaba el puerto y Maya le dice que mate el proceso anterior.",
         },
         {
-          id: 'm3-l1-e8',
-          type: 'choice',
-          prompt: '¿Qué le pidió Maya a Leo antes de abrir el PR?',
-          options: ['Crear una rama nueva.', 'Borrar el repo.', 'Desplegar a producción.'],
-          answer: 0,
-          explanation:
-            "Maya dice 'Create a new branch first': así se prepara el trabajo antes del pull request.",
-        },
-        {
           id: 'm3-l1-e9',
           type: 'shadow',
           prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
@@ -970,19 +961,6 @@ export const m3: Module = {
             "Leo dice 'It fails at line 42 in auth.ts': dar archivo y línea hace el reporte preciso.",
         },
         {
-          id: 'm3-l5-e9',
-          type: 'choice',
-          prompt: '¿A qué apunta el stack trace según Leo?',
-          options: [
-            'A la función de login.',
-            'A la función de logout.',
-            'Al archivo de configuración.',
-          ],
-          answer: 0,
-          explanation:
-            "Leo dice 'The stack trace points to the login function': eso indica dónde parece originarse el problema.",
-        },
-        {
           id: 'm3-l5-e10',
           type: 'shadow',
           prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
@@ -1297,32 +1275,6 @@ export const m3: Module = {
           ],
         },
         {
-          type: 'phrases',
-          title: 'Frases listas para usar',
-          items: [
-            {
-              en: 'I ran into a bug in staging, so I dug into the logs.',
-              es: 'Me encontré con un bug en staging, así que investigué los logs.',
-            },
-            {
-              en: 'We tracked it down and rolled back the deploy.',
-              es: 'Lo localizamos y revertimos el despliegue.',
-            },
-            {
-              en: 'Can you bring it up in the standup?',
-              es: '¿Puedes sacarlo en el daily?',
-            },
-            {
-              en: "I'll follow up with the details after the review.",
-              es: 'Daré seguimiento con los detalles después del review.',
-            },
-            {
-              en: "Let's wrap up and spin up a test environment.",
-              es: 'Terminemos y levantemos un entorno de prueba.',
-            },
-          ],
-        },
-        {
           type: 'dialogue',
           title: 'Un bug en staging, paso a paso',
           context: 'Maya y Leo comentan un fallo en staging y deciden qué hacer.',
@@ -1416,19 +1368,6 @@ export const m3: Module = {
             "En phrasal verbs separables con pronombre se dice 'bring it up', no 'bring up it'.",
         },
         {
-          id: 'm3-l8-e5',
-          type: 'dialogue-order',
-          prompt: 'Ordena el diálogo correctamente.',
-          lines: [
-            'A: I ran into a bug in staging this morning.',
-            'B: Let us dig into the logs and track it down.',
-            'A: Good. Then we can roll back the deploy.',
-            'B: I will loop in the on-call engineer.',
-          ],
-          explanation:
-            'Primero aparece el problema, después la investigación, luego la acción y por último avisar a otra persona.',
-        },
-        {
           id: 'm3-l8-e6',
           type: 'write',
           prompt: "Escríbelo en inglés: 'Voy a dar seguimiento con los detalles después.'",
@@ -1440,20 +1379,6 @@ export const m3: Module = {
           hint: "Usa 'I'll follow up with...'",
           explanation:
             "'follow up with' es la forma natural de decir que darás seguimiento a alguien o algo.",
-        },
-        {
-          id: 'm3-l8-e7',
-          type: 'choice',
-          prompt: 'En el diálogo, ¿qué deciden hacer Maya y Leo?',
-          options: [
-            'Roll back the deploy and spin up a test environment.',
-            'Sign up for a new API key.',
-            'Comment out every test in CI.',
-            'Shut down the whole platform.',
-          ],
-          answer: 0,
-          explanation:
-            'Tras localizar el bug, deciden revertir el despliegue y levantar un entorno de prueba.',
         },
         {
           id: 'm3-l8-e8',
@@ -1468,21 +1393,6 @@ export const m3: Module = {
           hint: 'Piensa en el contexto: entorno, bug, reunión y base de datos.',
           explanation:
             'Emparejar el chunk completo con su significado es la forma más rápida de memorizar phrasal verbs.',
-        },
-        {
-          id: 'm3-l8-e9',
-          type: 'multi-choice',
-          prompt: 'Marca TODAS las frases que son acciones de despliegue o entorno.',
-          options: [
-            'Spin up a test database.',
-            'Roll back the release.',
-            'Comment out a console.log.',
-            'Wrap up the meeting.',
-          ],
-          answers: [0, 1],
-          hint: 'Dos son acciones sobre entornos/versiones; las otras son código y reunión.',
-          explanation:
-            "'spin up' (levantar) y 'roll back' (revertir) son acciones de entorno/despliegue.",
         },
         {
           id: 'm3-l8-e10',

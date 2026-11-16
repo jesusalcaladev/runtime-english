@@ -462,15 +462,6 @@ export const m1: Module = {
           explanation:
             "Leo responde 'It says permission denied': 'says' es la forma de tercera persona del verbo 'say'.",
         },
-        {
-          id: 'm1-l1-e10',
-          type: 'choice',
-          prompt: 'Según Maya, ¿qué necesita la API?',
-          options: ['Un token.', 'Dos parámetros.', 'Una página de login.'],
-          answer: 0,
-          explanation:
-            "Maya dice 'I think the API needs a token': 'needs' lleva -s porque 'the API' es tercera persona.",
-        },
       ],
     },
     {
@@ -988,15 +979,6 @@ export const m1: Module = {
           answer: 0,
           explanation:
             "Leo pregunta 'What does flaky mean?': la estructura correcta es 'What does + palabra + mean?'.",
-        },
-        {
-          id: 'm1-l4-e10',
-          type: 'choice',
-          prompt: '¿Qué día desplegarán según la confirmación final?',
-          options: ['El viernes.', 'El lunes.', 'Hoy.'],
-          answer: 0,
-          explanation:
-            "Maya cierra con 'Let me confirm: we deploy on Friday, right?': confirmar evita malentendidos.",
         },
       ],
     },

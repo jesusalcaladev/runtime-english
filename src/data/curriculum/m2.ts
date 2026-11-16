@@ -226,19 +226,6 @@ export const m2: Module = {
             "Maya dice 'I fixed the login bug yesterday': pasado simple con el marcador 'yesterday'.",
         },
         {
-          id: 'm2-l1-e9',
-          type: 'choice',
-          prompt: '¿Qué hará Maya mañana?',
-          options: [
-            'Desplegará el arreglo.',
-            'Arregló el bug de login.',
-            'Está escribiendo tests.',
-          ],
-          answer: 0,
-          explanation:
-            "Maya dice 'I will deploy the fix tomorrow': futuro con 'will' para un plan.",
-        },
-        {
           id: 'm2-l1-e10',
           type: 'shadow',
           prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
@@ -464,28 +451,6 @@ export const m2: Module = {
           hint: 'Usa pasado + presente continuo + futuro.',
           explanation:
             'Role-play: practica una respuesta breve y clara con los tres tiempos clave del día a día.',
-        },
-        {
-          id: 'm2-l2-e10',
-          type: 'choice',
-          prompt: '¿Cuándo encontró Leo el bug?',
-          options: ['Ayer.', 'Ahora mismo.', 'Mañana.'],
-          answer: 0,
-          explanation:
-            "Leo dice 'I found the bug yesterday': pasado simple para una acción ya terminada.",
-        },
-        {
-          id: 'm2-l2-e11',
-          type: 'choice',
-          prompt: '¿Qué hará Leo después de los tests?',
-          options: [
-            'Desplegará el arreglo.',
-            'Encontrará otro bug.',
-            'Cerrará el issue sin arreglarlo.',
-          ],
-          answer: 0,
-          explanation:
-            "Leo responde 'I'll deploy it after the tests pass': futuro con 'will' para el siguiente paso.",
         },
       ],
     },
