@@ -4,7 +4,7 @@ test.describe('custom lessons', () => {
   test('imports a custom lesson from JSON and opens it', async ({ page }) => {
     await page.goto('/my-lessons.html')
 
-    await expect(page.getByRole('heading', { name: 'Mis lecciones' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Mis lecciones', level: 1 })).toBeVisible()
     await page.getByRole('button', { name: 'Agregar lección' }).click()
 
     const lessonJson = JSON.stringify({

@@ -9,21 +9,27 @@ import {
   loadKokoro,
   markKokoroAutoInitStarted,
   maybeWarmKokoroInBackground,
+  prewarmKokoroPhrases,
   speakWithKokoro,
   stopKokoroPlayback,
   subscribeKokoroStatus,
 } from './kokoro'
 import { getSpeechEngine, isNativePlatform, isSpeechEnabled, normalizeSpeechText } from './platform'
+import type { SpeechStyle } from './types'
 import { clearAllSpeakStates, setSpeaking, setSpeakLoading } from './ui'
 
 export { speechMatchScore } from './match'
-export { getSpeechRate, isSpeechEnabled } from './platform'
+export { getSpeechLanguage, getSpeechRate, isSpeechEnabled } from './platform'
 export {
   ensureMicrophonePermission,
+  getMicrophonePermissionStatus,
   isSpeechRecognitionSupported,
   recognizeOnce,
+  releaseMicStream,
+  startMicLevelMeter,
+  stopSpeechRecognition,
 } from './recognition'
-export type { KokoroStatus, SpeechRecognitionResult } from './types'
+export type { KokoroStatus, SpeechRecognitionResult, SpeechStyle } from './types'
 export {
   getKokoroStatus,
   kokoroIsCached,
@@ -35,6 +41,49 @@ export {
 const KOKORO_AUTOLOAD_IDLE_TIMEOUT_MS = 6_000
 const KOKORO_AUTOLOAD_FALLBACK_DELAY_MS = 2_500
 const VOICES_INIT_AUTOLOAD_DELAY_MS = 1_200
+
+let kokoroReadyNoticeShown = false
+
+function notifyKokoroReadyOnce(): void {
+  if (kokoroReadyNoticeShown || getSpeechEngine() !== 'kokoro') return
+  kokoroReadyNoticeShown = true
+  emitToast('Voz HQ lista. Se usará en la próxima reproducción.', 'info')
+}
+
+/** Pre-generate on-screen phrases so the first tap on them is instant. */
+export function warmSpeechPhrases(texts: string[]): void {
+  if (typeof window === 'undefined') return
+  if (!isSpeechEnabled() || getSpeechEngine() !== 'kokoro') return
+  try {
+    prewarmKokoroPhrases(texts)
+  } catch {
+    // Warmup is best effort.
+  }
+}
+
+/** Warm everything a conversation needs: system voices, HQ engine and the exact lines. */
+export function warmConversationPhrases(texts: string[]): void {
+  if (typeof window === 'undefined') return
+  if (!isSpeechEnabled() || texts.length === 0) return
+  try {
+    if (canUseWebSpeech()) primeWebVoices()
+    warmSpeechPhrases(texts)
+    // On native, avoid a heavy uncached model download just by opening a lesson.
+    if (getSpeechEngine() === 'kokoro' && !(isNativePlatform() && !kokoroIsCached())) {
+      void loadKokoro().catch(() => {})
+    }
+  } catch {
+    // Warmup is best effort.
+  }
+}
+
+/** Awaitable single line, used to play a dialogue in order with natural pauses. */
+export async function speakLine(text: string, style?: SpeechStyle): Promise<void> {
+  const cleanText = normalizeSpeechText(text)
+  if (!cleanText || !isSpeechEnabled()) return
+  warmSpeechEngine()
+  await playSpeech(cleanText, null, style)
+}
 
 function canUseWebSpeech(): boolean {
   return typeof window !== 'undefined' && 'speechSynthesis' in window
@@ -64,8 +113,8 @@ function requestIdleOrTimeout(
 function notifySpeechUnavailableAfterBrowserFailure(): void {
   emitToast(
     kokoroIsCached()
-      ? 'The browser voice failed. Load or use the HQ voice (Kokoro) in Settings.'
-      : 'The browser voice is unavailable (common in Brave). Download and use the HQ voice (Kokoro) in Settings → Pronunciation.',
+      ? 'La voz del navegador falló. Carga o usa la voz HQ (Kokoro) en Ajustes.'
+      : 'La voz del navegador no está disponible (común en Brave). Descarga y usa la voz HQ (Kokoro) en Ajustes → Pronunciación.',
     'error',
   )
 }
@@ -159,55 +208,56 @@ async function tryKokoroPlayback(text: string, button?: HTMLElement | null): Pro
   return handled
 }
 
-async function playWithSystemVoice(text: string, button?: HTMLElement | null): Promise<boolean> {
+async function playWithSystemVoice(
+  text: string,
+  button?: HTMLElement | null,
+  style?: SpeechStyle,
+): Promise<boolean> {
   if (isNativePlatform()) {
-    return speakNative(text, button)
+    return speakNative(text, button, style)
   }
 
-  const webHandled = await speakWeb(text, button)
+  const webHandled = await speakWeb(text, button, style)
   if (webHandled) return true
 
   // Browser voice failed (e.g. Brave without voices): try ready Kokoro as fallback.
   return tryKokoroPlayback(text, button)
 }
 
-async function playSpeech(text: string, button?: HTMLElement | null): Promise<void> {
+async function playSpeech(
+  text: string,
+  button?: HTMLElement | null,
+  style?: SpeechStyle,
+): Promise<void> {
   const engine = getSpeechEngine()
 
   if (engine === 'kokoro') {
-    if (!isKokoroReady() && !isKokoroLoading()) {
-      // Start loading on demand when HQ voice is selected but not yet ready.
-      void loadKokoro().catch(() => {})
-    }
-
-    // If HQ voice is loading, wait briefly for it so the user's explicit click can use it
-    // (better UX than silently falling back every time). If it takes too long, fallback.
-    if (!isKokoroReady() && isKokoroLoading()) {
-      const started = Date.now()
-      while (isKokoroLoading() && Date.now() - started < 12_000) {
-        await new Promise((resolve) => setTimeout(resolve, 120))
-      }
-      if (!isKokoroReady() && isKokoroLoading()) {
-        emitToast('La voz HQ (Kokoro) sigue cargando. Usando la voz del sistema por ahora.', 'info')
-      }
+    if (!isKokoroReady()) {
+      // Load (or attach to the in-flight load) in the background. The tap never waits for it.
+      void loadKokoro()
+        .then((ok) => {
+          if (ok) notifyKokoroReadyOnce()
+        })
+        .catch(() => {})
     }
 
     if (isKokoroReady()) {
       const handledByKokoro = await speakWithKokoro(text, button).catch(() => false)
       if (handledByKokoro) return
-
-      const handledBySystem = await playWithSystemVoice(text, button).catch(() => false)
-      if (!handledBySystem) {
-        setSpeaking(button, false)
-        setSpeakLoading(button, false)
-        emitToast('No se pudo reproducir la voz del sistema ni la voz HQ.', 'error')
-      }
-      return
     }
+
+    // HQ model not ready (or generation failed): play immediately with the system voice.
+    const handledBySystem = await playWithSystemVoice(text, button, style).catch(() => false)
+    if (!handledBySystem) {
+      setSpeaking(button, false)
+      setSpeakLoading(button, false)
+      emitToast('No se pudo reproducir la voz del sistema ni la voz HQ.', 'error')
+    }
+    return
   }
 
   if (isNativePlatform()) {
-    const handled = await speakNative(text, button).catch(() => false)
+    const handled = await speakNative(text, button, style).catch(() => false)
     if (!handled) {
       setSpeaking(button, false)
       setSpeakLoading(button, false)
@@ -216,7 +266,7 @@ async function playSpeech(text: string, button?: HTMLElement | null): Promise<vo
     return
   }
 
-  const webHandled = await speakWeb(text, button).catch(() => false)
+  const webHandled = await speakWeb(text, button, style).catch(() => false)
   if (webHandled) return
 
   const handledByKokoroFallback = await tryKokoroPlayback(text, button)
@@ -227,7 +277,7 @@ async function playSpeech(text: string, button?: HTMLElement | null): Promise<vo
   notifySpeechUnavailableAfterBrowserFailure()
 }
 
-export function speak(text: string, button?: HTMLElement | null): void {
+export function speak(text: string, button?: HTMLElement | null, style?: SpeechStyle): void {
   if (typeof window === 'undefined') return
 
   const cleanText = normalizeSpeechText(text)
@@ -241,7 +291,7 @@ export function speak(text: string, button?: HTMLElement | null): void {
   setSpeaking(button, false)
   warmSpeechEngine()
 
-  void playSpeech(cleanText, button)
+  void playSpeech(cleanText, button, style)
     .catch(() => {
       setSpeaking(button, false)
       setSpeakLoading(button, false)

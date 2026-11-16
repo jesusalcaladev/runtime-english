@@ -1,4 +1,5 @@
-import { getSpeechRate, isNativePlatform, wait } from './platform'
+import { getSpeechLanguage, getSpeechRate, isNativePlatform, wait } from './platform'
+import type { SpeechStyle } from './types'
 import { setSpeaking } from './ui'
 
 let cachedVoice: SpeechSynthesisVoice | null = null
@@ -41,7 +42,10 @@ function scoreVoice(voice: SpeechSynthesisVoice): number {
 function pickEnglishVoice(voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null {
   const english = voices.filter(isEnglishVoice)
   if (english.length === 0) return null
-  return [...english].sort((a, b) => scoreVoice(b) - scoreVoice(a))[0] ?? null
+  const preferred = getSpeechLanguage().toLowerCase()
+  const matching = english.filter((voice) => voice.lang.toLowerCase() === preferred)
+  const pool = matching.length > 0 ? matching : english
+  return [...pool].sort((a, b) => scoreVoice(b) - scoreVoice(a))[0] ?? null
 }
 
 export async function getWebVoices(timeoutMs = 1500): Promise<SpeechSynthesisVoice[]> {
@@ -98,13 +102,18 @@ export async function stopNativeSpeech() {
   }
 }
 
-export async function speakNative(text: string, button?: HTMLElement | null): Promise<boolean> {
+export async function speakNative(
+  text: string,
+  button?: HTMLElement | null,
+  style?: SpeechStyle,
+): Promise<boolean> {
   if (!isNativePlatform()) return false
 
   try {
     const { TextToSpeech } = await import('@capacitor-community/text-to-speech')
 
-    let lang = 'en-US'
+    const preferredLang = getSpeechLanguage()
+    let lang: string = preferredLang
     let voice: number | undefined
 
     try {
@@ -113,7 +122,7 @@ export async function speakNative(text: string, button?: HTMLElement | null): Pr
         ? ((supported as { voices: Array<{ lang?: string; index?: number }> }).voices ?? [])
         : []
       const pick =
-        voices.find((item) => (item.lang ?? '').toLowerCase() === 'en-us') ??
+        voices.find((item) => (item.lang ?? '').toLowerCase() === preferredLang.toLowerCase()) ??
         voices.find((item) => (item.lang ?? '').toLowerCase().startsWith('en'))
       if (pick?.lang) lang = pick.lang
       if (typeof pick?.index === 'number') voice = pick.index
@@ -124,8 +133,8 @@ export async function speakNative(text: string, button?: HTMLElement | null): Pr
     const options = {
       text,
       lang,
-      rate: getSpeechRate(),
-      pitch: 1,
+      rate: getSpeechRate() * (style?.rateScale ?? 1),
+      pitch: style?.pitch ?? 1,
       volume: 1,
       ...(typeof voice === 'number' ? { voice } : {}),
       queueStrategy: 0,
@@ -149,7 +158,11 @@ export async function speakNative(text: string, button?: HTMLElement | null): Pr
   }
 }
 
-export async function speakWeb(text: string, button?: HTMLElement | null): Promise<boolean> {
+export async function speakWeb(
+  text: string,
+  button?: HTMLElement | null,
+  style?: SpeechStyle,
+): Promise<boolean> {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
     setSpeaking(button, false)
     return false
@@ -193,8 +206,8 @@ export async function speakWeb(text: string, button?: HTMLElement | null): Promi
       const voice = cachedVoice
 
       utterance.lang = voice?.lang || 'en-US'
-      utterance.rate = getSpeechRate()
-      utterance.pitch = 1
+      utterance.rate = getSpeechRate() * (style?.rateScale ?? 1)
+      utterance.pitch = style?.pitch ?? 1
       utterance.volume = 1
       if (voice) utterance.voice = voice
 

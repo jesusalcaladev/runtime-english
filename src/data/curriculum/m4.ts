@@ -7,8 +7,146 @@ export const m4: Module = {
   title: 'Standups, Reviews e Incidentes',
   shortTitle: 'Standups, Reviews & Incidents',
   description:
-    'Reuniones diarias, bloqueos, code reviews, debate de arquitectura y respuesta a incidentes en producción.',
+    'Tiempos perfectos para updates, reuniones diarias, bloqueos, code reviews, debate de arquitectura y respuesta a incidentes en producción.',
   sessions: [
+    {
+      id: 'm4-l0',
+      slug: 'present-perfect-y-past-perfect',
+      title: 'Present perfect y past perfect: experiencia y cronología',
+      step: 'B1 · Paso 4.0',
+      cefr: 'B1',
+      summary:
+        'Cierra el pendiente de M2: aprende have/has + participio para resultados que importan ahora y had + participio para situar una acción antes de otra en el pasado.',
+      objectives: [
+        'Usar have/has + participio para hablar de experiencia o de un resultado presente.',
+        'Usar had + participio para indicar que algo ocurrió antes de otra acción pasada.',
+        'Diferenciar pasado simple (momento cerrado) de presente perfecto (sin momento cerrado).',
+      ],
+      pronunciation:
+        "I've fixed the bug, but it had already crashed twice before I found the root cause.",
+      blocks: [
+        {
+          type: 'callout',
+          tone: 'info',
+          title: 'Antes de esta lección',
+          body: "Completa M2 (pasado simple con marcadores como 'yesterday' o 'last week') y repasa participios regulares (fixed, deployed, pushed). Esta lección responde al 'lo verás más adelante' del Paso 2.1.",
+        },
+        {
+          type: 'technique',
+          name: 'Dos tiempos, dos ideas claras',
+          desc: "Presente perfecto = have/has + participio. Conecta el pasado con AHORA: 'I've fixed the bug' (ya está arreglado, y eso importa hoy). No decimos cuándo exactamente. Pasado perfecto = had + participio. Algo pasó ANTES de otra acción pasada: 'The token had expired before the request failed'. Con momento cerrado ('yesterday', 'at 3am') sigue siendo más claro el pasado simple: 'I fixed it yesterday'.",
+        },
+        {
+          type: 'table',
+          title: 'Participios que más usarás',
+          columns: ['Verbo', 'Pasado simple', 'Participio'],
+          rows: [
+            ['fix', 'fixed', 'fixed'],
+            ['deploy', 'deployed', 'deployed'],
+            ['push', 'pushed', 'pushed'],
+            ['find', 'found', 'found'],
+            ['break', 'broke', 'broken'],
+            ['go', 'went', 'gone'],
+            ['see', 'saw', 'seen'],
+            ['think', 'thought', 'thought'],
+          ],
+        },
+        {
+          type: 'phrases',
+          title: 'Frases que oirás en equipos',
+          items: [
+            {
+              en: "I've already checked the logs.",
+              es: 'Ya revisé los logs (y eso es lo que importa ahora).',
+            },
+            { en: 'Have you reviewed my PR yet?', es: '¿Ya revisaste mi PR?' },
+            {
+              en: "I hadn't thought about that edge case.",
+              es: 'No había pensado en ese caso límite.',
+            },
+            {
+              en: 'The token had expired before the request failed.',
+              es: 'El token había expirado antes de que fallara la petición.',
+            },
+          ],
+        },
+      ],
+      exercises: [
+        {
+          id: 'm4-l0-e1',
+          type: 'choice',
+          prompt: 'Elige la forma correcta de presente perfecto:',
+          options: [
+            'I have fix the bug.',
+            "I've fixed the bug.",
+            'I has fixed the bug.',
+            "I'm fixed the bug.",
+          ],
+          answer: 1,
+          explanation:
+            "Presente perfecto = have + participio. Con 'I' usamos 'have' ('I've = I have') y el participio de 'fix' es 'fixed'.",
+        },
+        {
+          id: 'm4-l0-e2',
+          type: 'write',
+          prompt: "Escribe en inglés: 'Ya revisé los logs.' (usa presente perfecto)",
+          answer: "I've already checked the logs.",
+          accept: ['I have already checked the logs.'],
+          hint: "Usa 'I've already + participio'.",
+          explanation:
+            "'I've already checked the logs' usa have + participio para decir que la revisión ya está hecha y sigue siendo relevante.",
+        },
+        {
+          id: 'm4-l0-e3',
+          type: 'choice',
+          prompt: "Si dices 'ayer', ¿cuál es la forma correcta?",
+          options: [
+            "I've fixed it yesterday.",
+            'I fixed it yesterday.',
+            'I have fixed it yesterday.',
+            'I fixing it yesterday.',
+          ],
+          answer: 1,
+          explanation:
+            "'Yesterday' es un momento cerrado: pide pasado simple ('I fixed it yesterday'), no presente perfecto.",
+        },
+        {
+          id: 'm4-l0-e4',
+          type: 'builder',
+          prompt: "Construye: 'El token había expirado antes de que fallara la petición.'",
+          words: ['The token had expired', 'before', 'the request failed.'],
+          answer: 'The token had expired before the request failed.',
+          explanation:
+            "Pasado perfecto ('had expired') para la acción anterior y pasado simple ('failed') para la acción posterior.",
+        },
+        {
+          id: 'm4-l0-e5',
+          type: 'choice',
+          prompt:
+            "En un review te dicen: 'Nice catch! I hadn't thought about that edge case.' ¿Qué significa 'hadn't thought'?",
+          options: [
+            'No lo había pensado antes de tu comentario.',
+            'No lo estoy pensando ahora.',
+            'No lo pensaré mañana.',
+            'No lo pensé ayer.',
+          ],
+          answer: 0,
+          explanation:
+            "'Hadn't thought' es had not + participio: algo que no había ocurrido antes de otro momento en el pasado (tu comentario).",
+        },
+        {
+          id: 'm4-l0-e6',
+          type: 'fill-blank',
+          prompt: 'Completa con presente perfecto y pasado perfecto.',
+          template:
+            'I ___ already ___ the logs, but the token ___ expired before the request failed.',
+          blanks: ["have|'ve", 'checked', 'had'],
+          hint: "Primero 'have/ve + participio'; luego 'had' para la acción anterior.",
+          explanation:
+            "Repaso de los dos tiempos nuevos: 'I've already checked...' (resultado ahora) y 'the token had expired...' (antes de otra acción pasada).",
+        },
+      ],
+    },
     {
       id: 'm4-l1',
       slug: 'daily-standup',
@@ -88,10 +226,53 @@ export const m4: Module = {
           ],
         },
         {
-          type: 'callout',
-          tone: 'tip',
-          title: 'Flujo nativo y claro',
-          body: "Habla en frases cortas y concretas: qué hiciste, qué harás y qué te bloquea. Si no hay bloqueo, dilo explícitamente: 'No blockers on my side.' Suena natural, profesional y ahorra tiempo al equipo.",
+          type: 'dialogue',
+          title: 'Daily standup: tu turno en 60 segundos',
+          context: 'Maya lidera el daily y Leo reporta su progreso con la estructura de 3 puntos.',
+          lines: [
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'Morning, Leo. What did you work on yesterday?',
+              es: 'Buenos días, Leo. ¿En qué trabajaste ayer?',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'I finished the API integration and pushed the PR.',
+              es: 'Terminé la integración de la API y subí el PR.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'Nice. What are you working on today?',
+              es: 'Bien. ¿En qué estás trabajando hoy?',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: "I'm writing the login tests. I'm blocked by the API token, though.",
+              es: 'Estoy escribiendo los tests de login. Estoy bloqueado por el token de la API.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: "Got it. I'll ask Platform to refresh it after the standup.",
+              es: 'Entendido. Le pediré a Platform que lo renueve después del daily.',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'Perfect. No other blockers on my side.',
+              es: 'Perfecto. No tengo más bloqueos por mi parte.',
+            },
+          ],
         },
       ],
       exercises: [
@@ -174,6 +355,28 @@ export const m4: Module = {
           explanation:
             "Nombrar el bloqueo y pedir ayuda de forma específica ('Could someone help me with...') es claro, educado y muy natural.",
         },
+        {
+          id: 'm4-l1-e7',
+          type: 'choice',
+          prompt: 'En la conversación, ¿qué hizo Leo ayer?',
+          options: [
+            'Terminó la integración de la API y subió el PR.',
+            'Está escribiendo los tests de login.',
+            'Pidió que renovaran el token.',
+          ],
+          answer: 0,
+          explanation:
+            "Leo dijo 'I finished the API integration and pushed the PR': pasado simple para ayer.",
+        },
+        {
+          id: 'm4-l1-e8',
+          type: 'choice',
+          prompt: '¿Cuál es el bloqueo de Leo en la conversación?',
+          options: ['El token de la API', 'La integración de la API', 'Los tests de login'],
+          answer: 0,
+          explanation:
+            "Dice 'I'm blocked by the API token'. Maya se encargará de pedir que lo renueven.",
+        },
       ],
     },
     {
@@ -195,7 +398,7 @@ export const m4: Module = {
           type: 'callout',
           tone: 'info',
           title: 'Antes de esta lección',
-          body: "Necesitas vocabulario de Git/PR (M3, M5) y estructuras para sugerir ('Could we...?', 'I'd suggest...'). Esta lección enseña etiquetas y frases específicas de code review; todo lo usado en ejercicios está en las tablas/frases.",
+          body: "Necesitas vocabulario de Git/PR de M3 (repo, branch, PR, merge, push) y las bases de M1–M2. Aquí aprenderás etiquetas y frases específicas de code review, incluidas las estructuras para sugerir ('Could we...?', 'I'd suggest...'); todo lo usado en ejercicios está en las tablas/frases.",
         },
         {
           type: 'text',
@@ -253,6 +456,48 @@ export const m4: Module = {
           ],
         },
         {
+          type: 'dialogue',
+          title: 'Code review: signals, impacto y tono',
+          context: 'Maya revisa el PR de Leo y distingue un nit de un comentario bloqueante.',
+          lines: [
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Reviewer',
+              en: 'I left a few comments on your PR. One is a nit, the rest are non-blocking.',
+              es: 'Dejé algunos comentarios en tu PR. Uno es un detalle menor, los demás no bloquean.',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Author',
+              en: 'Thanks. Which one is blocking?',
+              es: 'Gracias. ¿Cuál bloquea?',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Reviewer',
+              en: 'The null check. This might break when the input is null. Could you add a guard?',
+              es: 'La comprobación de null. Esto podría romperse cuando la entrada es null. ¿Podrías añadir una guarda?',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Author',
+              en: "Good catch. I hadn't thought about that edge case. I'll fix it and ping you.",
+              es: 'Buena observación. No había pensado en ese caso límite. Lo arreglo y te aviso.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Reviewer',
+              en: "Great. LGTM once that's in.",
+              es: 'Genial. LGTM cuando esté eso.',
+            },
+          ],
+        },
+        {
           type: 'callout',
           tone: 'tip',
           title: 'La fórmula de feedback B2',
@@ -304,23 +549,25 @@ export const m4: Module = {
             "I've addressed your comments. PTAL.",
             'Addressed your comments. PTAL.',
             'I addressed your comments, PTAL.',
+            'I have addressed your comments. PTAL.',
           ],
+          hint: "Usa 'I addressed...' o 'I've addressed...' y cierra con 'PTAL'.",
           explanation:
-            "'Address comments' significa aplicar los cambios pedidos en un review. 'PTAL' = Please Take Another Look. Puedes decir 'I addressed...' (pasado simple, claro) o 'I've addressed...' (presente perfecto, muy común en equipos).",
+            "'Address comments' significa aplicar los cambios pedidos en un review. 'PTAL' = Please Take Another Look. Puedes decir 'I addressed...' (pasado simple) o 'I've addressed...' (presente perfecto del Paso 4.0, muy común en equipos).",
         },
         {
           id: 'm4-l2-e5',
           type: 'fix-error',
           prompt: 'Haz el comentario de review más claro y profesional.',
           sentence: 'This is wrong. Change it.',
-          answer: 'This might break when the input is null. Could you add a check?',
+          answer: "This isn't quite right. Could you change it?",
           accept: [
-            'This could break when the input is null. Could we add a check?',
-            'This might break with null input. Could you add a check?',
+            "This doesn't look right. Could you change it?",
+            "I don't think this is correct. Could you update it?",
           ],
-          hint: "Incluye impacto/riesgo y una sugerencia concreta ('Could you...?').",
+          hint: "Mantén la idea de 'wrong/change', pero suavízala con 'not quite' y 'Could you...?'.",
           explanation:
-            'Feedback útil: señala el problema o riesgo y propone una acción concreta, en lugar de solo decir que está mal.',
+            "Un review útil suaviza la crítica y pide una acción: 'not quite right' + 'Could you change it?'. No hace falta inventar un riesgo técnico.",
         },
         {
           id: 'm4-l2-e6',
@@ -335,6 +582,28 @@ export const m4: Module = {
           answer: 1,
           explanation:
             "'LGTM' (Looks Good To Me) indica aprobación del cambio. A veces se añade una condición: 'LGTM once tests pass.'",
+        },
+        {
+          id: 'm4-l2-e7',
+          type: 'choice',
+          prompt: 'En la conversación, ¿qué comentario era bloqueante?',
+          options: ['La comprobación de null', 'Un typo', 'El nombre de una variable'],
+          answer: 0,
+          explanation:
+            "Maya dice 'The null check... Could you add a guard?'. El resto eran non-blocking.",
+        },
+        {
+          id: 'm4-l2-e8',
+          type: 'choice',
+          prompt: '¿Qué hará Leo después de la revisión?',
+          options: [
+            'Arreglar el null check y avisar a Maya.',
+            'Cerrar el PR sin cambios.',
+            'Pedir otro reviewer.',
+          ],
+          answer: 0,
+          explanation:
+            "Leo responde 'I'll fix it and ping you', y Maya confirma 'LGTM once that's in'.",
         },
       ],
     },
@@ -417,6 +686,49 @@ export const m4: Module = {
             },
           ],
         },
+        {
+          type: 'dialogue',
+          title: 'Incidente en producción: impacto, mitigación y causa',
+          context:
+            'Maya coordina una caída en producción y Leo investiga la causa mientras aplican la mitigación.',
+          lines: [
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: "We have a production outage. What's the blast radius?",
+              es: 'Tenemos una caída en producción. ¿Cuál es el alcance?',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: "It affects all users in Europe. I'm rolling back the last deploy now.",
+              es: 'Afecta a todos los usuarios en Europa. Estoy revirtiendo el último despliegue ahora.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: "Got it. I'll send an update in 15 minutes. Did the deploy cause it?",
+              es: 'Entendido. Mandaré una actualización en 15 minutos. ¿Lo causó el despliegue?',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'Yes, a bad migration had broken the login table before the rollback.',
+              es: 'Sí, una migración defectuosa había roto la tabla de login antes del rollback.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: "The mitigation is working. We're back to normal. Let's write a blameless postmortem.",
+              es: 'La mitigación está funcionando. Volvimos a la normalidad. Escribamos un postmortem sin culpas.',
+            },
+          ],
+        },
       ],
       exercises: [
         {
@@ -492,6 +804,32 @@ export const m4: Module = {
           answer: 0,
           explanation:
             "'Blast radius' se refiere al alcance/impacto del incidente (qué usuarios, servicios o regiones se ven afectados).",
+        },
+        {
+          id: 'm4-l3-e7',
+          type: 'choice',
+          prompt: '¿Qué pasó en el incidente de la conversación?',
+          options: [
+            'Una migración defectuosa rompió la tabla de login.',
+            'Un ataque externo tumbó el servicio.',
+            'La caché expiró y subió la latencia.',
+          ],
+          answer: 0,
+          explanation:
+            "Leo dice 'a bad migration had broken the login table before the rollback': la causa fue una migración defectuosa.",
+        },
+        {
+          id: 'm4-l3-e8',
+          type: 'choice',
+          prompt: '¿Qué hará Maya durante el incidente?',
+          options: [
+            'Mandar una actualización cada 15 minutos.',
+            'Revertir el despliegue ella misma.',
+            'Reescribir la migración rota.',
+          ],
+          answer: 0,
+          explanation:
+            "Maya dice 'I'll send an update in 15 minutes': se encarga de mantener informado al equipo.",
         },
       ],
     },
@@ -703,6 +1041,55 @@ export const m4: Module = {
             ],
           ],
         },
+        {
+          type: 'dialogue',
+          title: 'Pedir ayuda con contexto (y no perder tiempo)',
+          context: 'Leo reporta un error de CORS en staging y Maya le pide los datos exactos.',
+          lines: [
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: "Quick question about the CORS error. I'm getting it only in staging.",
+              es: 'Pregunta rápida sobre el error de CORS. Solo me sale en staging.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'What have you tried so far?',
+              es: '¿Qué has probado hasta ahora?',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'I already checked the headers and the logs. The preflight request fails.',
+              es: 'Ya revisé las cabeceras y los logs. Falla la petición preflight.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'Can you share the exact error and the file and line? That usually speeds things up.',
+              es: '¿Puedes compartir el error exacto y el archivo y la línea? Eso suele acelerar las cosas.',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: "Sure. It fails in auth.ts at line 42. I'll paste the stack trace here.",
+              es: 'Claro. Falla en auth.ts, línea 42. Pegaré el stack trace aquí.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: "Thanks. Let's pair on it after the standup.",
+              es: 'Gracias. Hagamos pair debugging después del daily.',
+            },
+          ],
+        },
       ],
       exercises: [
         {
@@ -739,7 +1126,7 @@ export const m4: Module = {
           ],
           hint: "Usa 'I already tried...' (pasado simple).",
           explanation:
-            "Decir lo que ya probaste evita sugerencias repetidas y muestra contexto. Aquí usamos pasado simple, una forma clara y ya conocida (también escucharás 'I've already tried...').",
+            "Decir lo que ya probaste evita sugerencias repetidas y muestra contexto. Aquí usamos pasado simple, una forma clara y ya conocida; la alternativa con presente perfecto ('I've already tried...') se explica en el Paso 4.0.",
         },
         {
           id: 'm4-l5-e4',
@@ -776,6 +1163,27 @@ export const m4: Module = {
           answer: 'I already tried restarting the service, but it still fails.',
           explanation:
             'Contexto + intento previo + resultado actual: una forma clara y útil de pedir ayuda.',
+        },
+        {
+          id: 'm4-l5-e7',
+          type: 'choice',
+          prompt: 'En la conversación, ¿dónde falla la petición?',
+          options: ['En auth.ts, línea 42', 'En el build', 'En la base de datos'],
+          answer: 0,
+          explanation: "Leo dice 'It fails in auth.ts at line 42' y comparte el stack trace.",
+        },
+        {
+          id: 'm4-l5-e8',
+          type: 'choice',
+          prompt: '¿Qué proponen Maya y Leo al final?',
+          options: [
+            'Hacer pair debugging después del standup.',
+            'Cerrar el ticket sin más datos.',
+            'Desplegar aunque falle el preflight.',
+          ],
+          answer: 0,
+          explanation:
+            'Maya cierra con "Let\'s pair on it after the standup": ayuda en vivo y concreta.',
         },
       ],
     },
@@ -826,12 +1234,6 @@ export const m4: Module = {
               es: 'Aún no estoy seguro, pero revisemos los tests.',
             },
           ],
-        },
-        {
-          type: 'callout',
-          tone: 'tip',
-          title: 'Usa conectores para pensar en voz alta',
-          body: "Marcadores como 'I mean', 'actually' y 'basically' ayudan a ajustar tu idea en tiempo real: 'Actually, I think the bug is elsewhere.' / 'Basically, we need to validate the input first.'",
         },
       ],
       exercises: [
@@ -990,7 +1392,8 @@ export const m4: Module = {
             'I have already tried restarting the service.',
           ],
           hint: "Usa 'I already tried...'",
-          explanation: 'Compartir lo que ya probaste da contexto útil al pedir ayuda.',
+          explanation:
+            'Compartir lo que ya probaste da contexto útil al pedir ayuda. La variante con presente perfecto ("I\'ve already tried...") se explica en el Paso 4.0.',
         },
         {
           id: 'm4-l7-e5',
@@ -1112,7 +1515,7 @@ export const m4: Module = {
           prompt: "Escríbelo en inglés: '¿Cuál es la fecha límite estricta?'",
           answer: "What's the hard deadline?",
           accept: ['What is the hard deadline?'],
-          hint: "Pregunta directa: 'What's the hard deadline?'",
+          hint: "Usa 'What's the... deadline?' y 'hard' (no negociable).",
           explanation: 'Aclara si hay una fecha límite no negociable para priorizar (m4-l4).',
         },
         {

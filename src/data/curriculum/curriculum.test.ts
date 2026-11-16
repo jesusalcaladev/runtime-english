@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { Exercise, Session } from '../../lib/types'
 import { SLANG } from '../slang'
-import { ALL_SESSIONS, getNavData, MODULES } from './index'
+import { ALL_SESSIONS, getNavData, getSessionById, MODULES } from './index'
 
 const slangIds = new Set(SLANG.map((entry) => entry.id))
 
@@ -69,6 +69,11 @@ function validateExercise(exercise: Exercise, session: Session) {
       expect(exercise.answer.trim().length).toBeGreaterThan(0)
       break
   }
+
+  // Free-text items should always guide the learner with a usable hint.
+  if ('hint' in exercise) {
+    expect(exercise.hint?.trim().length ?? 0).toBeGreaterThan(0)
+  }
 }
 
 describe('curriculum / roadmap integrity', () => {
@@ -121,10 +126,43 @@ describe('curriculum / roadmap integrity', () => {
         expect(integratedLabel).toMatch(/repaso|integrad|checkpoint|micro-repaso/i)
       }
 
-      session.exercises.forEach((exercise) => {
+      for (const block of session.blocks) {
+        if (block.type === 'dialogue') {
+          expect(block.lines.length).toBeGreaterThanOrEqual(2)
+          for (const line of block.lines) {
+            expect(['a', 'b']).toContain(line.speaker)
+            expect(line.name.trim().length).toBeGreaterThan(0)
+            expect(line.en.trim().length).toBeGreaterThan(0)
+          }
+        }
+      }
+
+      for (const exercise of session.exercises) {
         validateExercise(exercise, session)
-      })
+      }
     })
+  })
+
+  it('keeps at most 2 advice blocks per session', () => {
+    for (const { session } of ALL_SESSIONS) {
+      const advice = session.blocks.filter(
+        (block) => block.type === 'technique' || block.type === 'callout',
+      )
+      expect(
+        advice.length,
+        `${session.id} should have at most 2 advice blocks (technique / callout), got ${advice.length}`,
+      ).toBeLessThanOrEqual(2)
+    }
+  })
+
+  it('keeps the dedicated dev phrasal verbs session', () => {
+    const entry = getSessionById('m3-l8')
+    expect(entry?.session.slug).toBe('phrasal-verbs-dev-diario')
+    const rows = (entry?.session.blocks ?? []).flatMap((block) =>
+      block.type === 'table' ? block.rows : [],
+    )
+    expect(rows.length).toBeGreaterThanOrEqual(30)
+    expect(rows.every((row) => row.length === 3)).toBe(true)
   })
 
   it('links slang blocks to real deck entries', () => {

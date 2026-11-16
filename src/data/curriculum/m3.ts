@@ -116,10 +116,53 @@ export const m3: Module = {
           ],
         },
         {
-          type: 'callout',
-          tone: 'tip',
-          title: 'Estrategia',
-          body: "Mensaje clave → posible causa → una acción concreta. Ej.: 'Port already in use' → otro proceso usa el puerto → 'Kill the previous process and change the port.'",
+          type: 'dialogue',
+          title: 'Del error al PR',
+          context: 'Leo ve un error de puerto y Maya le da instrucciones de Git paso a paso.',
+          lines: [
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'Pull before you push.',
+              es: 'Haz pull antes de hacer push.',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: "I did, but I see 'Port already in use'.",
+              es: "Lo hice, pero me sale 'Port already in use'.",
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'Kill the previous process.',
+              es: 'Mata el proceso anterior.',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'OK. Now I need to open a PR.',
+              es: 'Vale. Ahora necesito abrir un PR.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'Create a new branch first.',
+              es: 'Crea una rama nueva primero.',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'Done. The PR is open.',
+              es: 'Listo. El PR está abierto.',
+            },
+          ],
         },
       ],
       exercises: [
@@ -193,6 +236,24 @@ export const m3: Module = {
           hint: "Usa el imperativo 'Open a PR...'",
           explanation: 'Instrucción clara y muy común en equipos: cuándo abrir el pull request.',
         },
+        {
+          id: 'm3-l1-e7',
+          type: 'choice',
+          prompt: '¿Qué error vio Leo en la conversación?',
+          options: ["'Port already in use'", "'Module not found'", "'Permission denied'"],
+          answer: 0,
+          explanation:
+            "Leo dice 'I see Port already in use': otro proceso ocupaba el puerto y Maya le dice que mate el proceso anterior.",
+        },
+        {
+          id: 'm3-l1-e8',
+          type: 'choice',
+          prompt: '¿Qué le pidió Maya a Leo antes de abrir el PR?',
+          options: ['Crear una rama nueva.', 'Borrar el repo.', 'Desplegar a producción.'],
+          answer: 0,
+          explanation:
+            "Maya dice 'Create a new branch first': así se prepara el trabajo antes del pull request.",
+        },
       ],
     },
     {
@@ -260,12 +321,6 @@ export const m3: Module = {
             ['speed up', 'acelerar / optimizar', 'This will speed up the build.'],
             ['shut down', 'apagar servidor', 'The server shut down unexpectedly.'],
           ],
-        },
-        {
-          type: 'callout',
-          tone: 'tip',
-          title: 'Consejo práctico',
-          body: "Fíjate en el verbo+partícula+objeto como unidad: 'set up the environment', 'run into a bug', 'roll back to the previous version', 'figure out this error'. Repetir el chunk completo te ayuda a usarlo sin traducir.",
         },
       ],
       exercises: [
@@ -410,12 +465,6 @@ export const m3: Module = {
             ['End-to-end', 'Un flujo completo de usuario', 'Falla de forma intermitente'],
           ],
         },
-        {
-          type: 'callout',
-          tone: 'tip',
-          title: 'Habla de calidad sin estrés',
-          body: "Frases simples funcionan muy bien: 'The tests pass', 'This test is flaky', 'We need a regression test'. Ser claro y específico vale más que usar términos complejos.",
-        },
       ],
       exercises: [
         {
@@ -550,12 +599,6 @@ export const m3: Module = {
             { en: 'cache', es: 'caché', example: 'The response is stored in the cache.' },
           ],
         },
-        {
-          type: 'callout',
-          tone: 'tip',
-          title: 'Describe el problema en orden',
-          body: "Para sonar claro: endpoint/método → status code → causa probable. Ej.: 'The POST /login endpoint returns 401 because the token is missing.' Orden simple, mensaje potente.",
-        },
       ],
       exercises: [
         {
@@ -601,7 +644,7 @@ export const m3: Module = {
           ],
           hint: "Usa 'failed because' + pasado simple.",
           explanation:
-            "'Expired' es pasado simple (la forma más directa aquí). También escucharás 'had expired' o 'has expired' en otros contextos, pero con lo visto hasta ahora 'expired' es suficiente y claro.",
+            "'Expired' es pasado simple (la forma más directa aquí). 'Had expired' y 'has expired' se explican en el Paso 4.0 (B1); con lo visto hasta ahora 'expired' es suficiente y claro.",
         },
         {
           id: 'm3-l4-e5',
@@ -729,10 +772,54 @@ export const m3: Module = {
           ],
         },
         {
-          type: 'callout',
-          tone: 'tip',
-          title: 'Pedir ayuda es una habilidad',
-          body: "Comparte el error exacto, el archivo/línea y lo que ya probaste. No es molestia: es información útil. En inglés, frases como 'I'm getting this error...' y 'I already checked...' (o 'I've already checked...') suenan naturales y colaborativas.",
+          type: 'dialogue',
+          title: 'Reportar un error con contexto',
+          context:
+            'Leo comparte un TypeError y Maya le pide el archivo, la línea y lo que ya revisó.',
+          lines: [
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: "I'm getting a TypeError: undefined is not a function.",
+              es: 'Me sale un TypeError: undefined is not a function.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'Where does it fail?',
+              es: '¿Dónde falla?',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'It fails at line 42 in auth.ts.',
+              es: 'Falla en la línea 42 de auth.ts.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'What do the logs show?',
+              es: '¿Qué muestran los logs?',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'The stack trace points to the login function.',
+              es: 'El stack trace apunta a la función de login.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'I already checked the logs. Send me the stack trace.',
+              es: 'Ya revisé los logs. Mándame el stack trace.',
+            },
+          ],
         },
       ],
       exercises: [
@@ -805,7 +892,7 @@ export const m3: Module = {
           ],
           hint: "Puedes usar pasado simple: 'I already checked...'",
           explanation:
-            "Decir lo que ya intentaste da contexto útil. 'I already checked the logs.' (pasado simple) es claro; también escucharás 'I've already checked...' en equipos (forma que verás más adelante).",
+            "Decir lo que ya intentaste da contexto útil. 'I already checked the logs.' (pasado simple) es claro; también oirás 'I've already checked...' (presente perfecto, explicado en el Paso 4.0).",
         },
         {
           id: 'm3-l5-e7',
@@ -818,6 +905,32 @@ export const m3: Module = {
           ],
           explanation:
             'Orden útil: error exacto → dónde/cuándo ocurre → qué ya probaste + pregunta. Así facilitas que te ayuden.',
+        },
+        {
+          id: 'm3-l5-e8',
+          type: 'choice',
+          prompt: '¿Dónde falla el error que reporta Leo?',
+          options: [
+            'En la línea 42 de auth.ts.',
+            'En la línea 24 de login.ts.',
+            'En la base de datos.',
+          ],
+          answer: 0,
+          explanation:
+            "Leo dice 'It fails at line 42 in auth.ts': dar archivo y línea hace el reporte preciso.",
+        },
+        {
+          id: 'm3-l5-e9',
+          type: 'choice',
+          prompt: '¿A qué apunta el stack trace según Leo?',
+          options: [
+            'A la función de login.',
+            'A la función de logout.',
+            'Al archivo de configuración.',
+          ],
+          answer: 0,
+          explanation:
+            "Leo dice 'The stack trace points to the login function': eso indica dónde parece originarse el problema.",
         },
       ],
     },
@@ -1018,7 +1131,255 @@ export const m3: Module = {
           answer: 'I already checked the logs.',
           accept: ["I've already checked the logs.", 'I have already checked the logs.'],
           hint: "Pasado simple: 'I already checked...'",
-          explanation: 'Compartir lo que ya intentaste da contexto y ahorra tiempo.',
+          explanation:
+            'Compartir lo que ya intentaste da contexto y ahorra tiempo. La variante con presente perfecto ("I\'ve already checked...") se explica en el Paso 4.0.',
+        },
+      ],
+    },
+    {
+      id: 'm3-l8',
+      slug: 'phrasal-verbs-dev-diario',
+      title: 'Phrasal verbs que usa un developer cada día',
+      step: 'A2 · Paso 3.8 · Práctica guiada',
+      cefr: 'A2',
+      summary:
+        '32 phrasal verbs reales de git, deploys, bugs, reuniones y code review, organizados por contexto y con práctica guiada.',
+      objectives: [
+        'Usar phrasal verbs de git y despliegue: set up, check out, roll back, roll out, spin up.',
+        'Describir bugs con run into, track down, figure out y narrow down.',
+        'Participar en reuniones y revisiones con bring up, follow up, sign off y wrap up.',
+      ],
+      pronunciation: 'I ran into a bug in staging, tracked it down, and we rolled back the deploy.',
+      blocks: [
+        {
+          type: 'callout',
+          tone: 'info',
+          title: 'Antes de esta lección',
+          body: 'Repasa m3-l2 (los 14 phrasal verbs básicos) y los tiempos de M1–M2. Esta sesión amplía ese vocabulario a 32 chunks organizados por situación: git/deploy, debugging, reuniones y código. Todos los ejemplos salen de trabajo real de developers; no hace falta traducir palabra por palabra.',
+        },
+        {
+          type: 'technique',
+          name: 'Aprende el chunk completo, no la traducción',
+          desc: "Un phrasal verb es verbo + partícula con significado propio: 'roll back' = revertir, 'figure out' = entender/resolver, 'bring up' = mencionar. Memorízalo con su contexto ('roll back the deploy', 'bring up an issue') y con su forma en pasado ('rolled back', 'ran into', 'tracked down'). Con pronombre, la partícula va después: 'bring it up', no 'bring up it'.",
+        },
+        {
+          type: 'table',
+          title: 'Git y despliegue',
+          columns: ['Phrasal verb', 'Significado', 'Ejemplo'],
+          rows: [
+            ['set up', 'configurar / preparar', 'Set up the project locally.'],
+            ['check out', 'cambiar de rama / revisar', 'Check out the fix branch.'],
+            ['check in', 'subir cambios al repositorio', 'Check in your changes before lunch.'],
+            ['roll back', 'revertir una versión', 'We rolled back the release.'],
+            ['roll out', 'desplegar poco a poco', 'We rolled out the feature to 10% of users.'],
+            ['spin up', 'levantar un entorno o servicio', 'Spin up a test database.'],
+            ['shut down', 'apagar un servicio', 'Shut down the old server.'],
+            ['bring down', 'tumbar / caer un servicio', 'The deploy brought down the API.'],
+          ],
+        },
+        {
+          type: 'table',
+          title: 'Bugs y debugging',
+          columns: ['Phrasal verb', 'Significado', 'Ejemplo'],
+          rows: [
+            ['run into', 'encontrarse con un problema', 'I ran into a weird bug.'],
+            ['figure out', 'entender / resolver', "I can't figure out this error."],
+            ['track down', 'localizar la causa', 'We tracked down the memory leak.'],
+            ['dig into', 'investigar a fondo', "Let's dig into the logs."],
+            ['narrow down', 'reducir / aislar', 'I narrowed it down to the auth module.'],
+            ['rule out', 'descartar', 'We ruled out a network issue.'],
+            ['crop up', 'aparecer problemas', 'New bugs keep cropping up.'],
+            ['boil down to', 'reducirse a', 'It boils down to a missing env variable.'],
+          ],
+        },
+        {
+          type: 'table',
+          title: 'Reuniones y colaboración',
+          columns: ['Phrasal verb', 'Significado', 'Ejemplo'],
+          rows: [
+            ['bring up', 'mencionar / sacar un tema', 'Can I bring up the deploy issue?'],
+            ['follow up', 'dar seguimiento', "I'll follow up with the client tomorrow."],
+            ['catch up', 'ponerse al día', "Let's catch up after the standup."],
+            ['loop in', 'incluir a alguien', 'Loop in Maya on the RFC.'],
+            ['sign off', 'aprobar / dar el visto bueno', 'Who signs off on this change?'],
+            ['wrap up', 'cerrar / terminar', "Let's wrap up in five minutes."],
+            ['put off', 'posponer', 'We put off the refactor.'],
+            ['chip in', 'aportar una idea o ayuda', 'Feel free to chip in with ideas.'],
+          ],
+        },
+        {
+          type: 'table',
+          title: 'Código y revisiones',
+          columns: ['Phrasal verb', 'Significado', 'Ejemplo'],
+          rows: [
+            ['clean up', 'limpiar / ordenar código', 'Clean up the dead code.'],
+            ['comment out', 'comentar código', 'Comment out that console.log.'],
+            ['break down', 'desglosar', 'Break the ticket down into steps.'],
+            ['cut down on', 'reducir', 'Cut down on unnecessary requests.'],
+            ['build on', 'construir sobre algo existente', 'We built on the existing API.'],
+            ['fall back to', 'recurrir a / volver a', 'Fall back to the cached response.'],
+            ['phase out', 'retirar poco a poco', "We're phasing out the old endpoint."],
+            ['back up', 'respaldar', 'Back up the database before the migration.'],
+          ],
+        },
+        {
+          type: 'phrases',
+          title: 'Frases listas para usar',
+          items: [
+            {
+              en: 'I ran into a bug in staging, so I dug into the logs.',
+              es: 'Me encontré con un bug en staging, así que investigué los logs.',
+            },
+            {
+              en: 'We tracked it down and rolled back the deploy.',
+              es: 'Lo localizamos y revertimos el despliegue.',
+            },
+            {
+              en: 'Can you bring it up in the standup?',
+              es: '¿Puedes sacarlo en el daily?',
+            },
+            {
+              en: "I'll follow up with the details after the review.",
+              es: 'Daré seguimiento con los detalles después del review.',
+            },
+            {
+              en: "Let's wrap up and spin up a test environment.",
+              es: 'Terminemos y levantemos un entorno de prueba.',
+            },
+          ],
+        },
+        {
+          type: 'dialogue',
+          title: 'Un bug en staging, paso a paso',
+          context: 'Maya y Leo comentan un fallo en staging y deciden qué hacer.',
+          lines: [
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'Any updates on the staging bug?',
+              es: '¿Alguna novedad sobre el bug de staging?',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'I ran into it this morning and tracked it down to the auth service.',
+              es: 'Me encontré con él esta mañana y lo localicé en el servicio de auth.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'Can you narrow it down to one endpoint?',
+              es: '¿Puedes reducirlo a un solo endpoint?',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'Yes. We should roll back the deploy and spin up a test environment.',
+              es: 'Sí. Deberíamos revertir el despliegue y levantar un entorno de prueba.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: "Let's do that. I'll loop in the on-call engineer.",
+              es: 'Hagámoslo. Incluiré al ingeniero de guardia.',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: "Good. I'll follow up with the details after.",
+              es: 'Bien. Daré seguimiento con los detalles después.',
+            },
+          ],
+        },
+      ],
+      exercises: [
+        {
+          id: 'm3-l8-e1',
+          type: 'choice',
+          prompt: "¿Qué significa 'We rolled back the deploy'?",
+          options: [
+            'Revertimos el despliegue a una versión estable.',
+            'Publicamos el despliegue a más usuarios.',
+            'Apagamos el servidor de producción.',
+            'Comentamos una parte del código.',
+          ],
+          answer: 0,
+          explanation:
+            "'roll back' es revertir un cambio o despliegue. 'roll out' sería publicarlo poco a poco.",
+        },
+        {
+          id: 'm3-l8-e2',
+          type: 'fill-blank',
+          prompt: 'Completa con chunks de esta lección.',
+          template: 'I ___ in staging, so we ___ the deploy.',
+          blanks: ['ran into a bug', 'rolled back'],
+          hint: "Encontrarse con un bug → 'ran into a bug'. Revertir → 'rolled back'.",
+          explanation:
+            "Dos chunks clave en pasado: 'ran into' (encontrarse con) y 'rolled back' (revertir).",
+        },
+        {
+          id: 'm3-l8-e3',
+          type: 'builder',
+          prompt: "Construye: 'Saca el tema en el daily.'",
+          words: ['Bring', 'it up', 'in the standup.'],
+          answer: 'Bring it up in the standup.',
+          explanation: "'bring up' = mencionar un tema, y con pronombre se escribe 'bring it up'.",
+        },
+        {
+          id: 'm3-l8-e4',
+          type: 'fix-error',
+          prompt: 'Corrige el error en la oración.',
+          sentence: 'Can you bring up it in the standup?',
+          answer: 'Can you bring it up in the standup?',
+          hint: "Con un pronombre como 'it', la partícula va después del pronombre.",
+          explanation:
+            "En phrasal verbs separables con pronombre se dice 'bring it up', no 'bring up it'.",
+        },
+        {
+          id: 'm3-l8-e5',
+          type: 'dialogue-order',
+          prompt: 'Ordena el diálogo correctamente.',
+          lines: [
+            'A: I ran into a bug in staging this morning.',
+            'B: Let us dig into the logs and track it down.',
+            'A: Good. Then we can roll back the deploy.',
+            'B: I will loop in the on-call engineer.',
+          ],
+          explanation:
+            'Primero aparece el problema, después la investigación, luego la acción y por último avisar a otra persona.',
+        },
+        {
+          id: 'm3-l8-e6',
+          type: 'write',
+          prompt: "Escríbelo en inglés: 'Voy a dar seguimiento con los detalles después.'",
+          answer: "I'll follow up with the details after.",
+          accept: [
+            'I will follow up with the details after.',
+            "I'll follow up with the details later.",
+          ],
+          hint: "Usa 'I'll follow up with...'",
+          explanation:
+            "'follow up with' es la forma natural de decir que darás seguimiento a alguien o algo.",
+        },
+        {
+          id: 'm3-l8-e7',
+          type: 'choice',
+          prompt: 'En el diálogo, ¿qué deciden hacer Maya y Leo?',
+          options: [
+            'Roll back the deploy and spin up a test environment.',
+            'Sign up for a new API key.',
+            'Comment out every test in CI.',
+            'Shut down the whole platform.',
+          ],
+          answer: 0,
+          explanation:
+            'Tras localizar el bug, deciden revertir el despliegue y levantar un entorno de prueba.',
         },
       ],
     },

@@ -81,6 +81,56 @@ export const m1: Module = {
           title: 'Cómo reconocer el tiempo',
           body: "Si ves 'now' o 'today', piensa en presente (is/are/am). Si ves 'yesterday' o algo que ya terminó, piensa en pasado (was/were). Esta diferencia te ayudará en las siguientes lecciones.",
         },
+        {
+          type: 'dialogue',
+          title: '¿Caído ahora o ayer?',
+          context:
+            'Maya y Leo comparan el estado del servidor: ahora frente a ayer, solo con el verbo to be.',
+          lines: [
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'The server is down now.',
+              es: 'El servidor está caído ahora.',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'It was fine yesterday.',
+              es: 'Estaba bien ayer.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'Are you on the login page?',
+              es: '¿Estás en la página de login?',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'Yes, I am. The app is slow today.',
+              es: 'Sí, estoy. La app está lenta hoy.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'We were in a meeting at ten.',
+              es: 'Estábamos en una reunión a las diez.',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'OK. I am on it now.',
+              es: 'Vale. Estoy en eso ahora.',
+            },
+          ],
+        },
       ],
       exercises: [
         {
@@ -126,6 +176,28 @@ export const m1: Module = {
           hint: 'now → presente (is). yesterday → pasado (was).',
           explanation:
             "Contraste claro: presente con 'is' y pasado con 'was' para el mismo sujeto (it/the app).",
+        },
+        {
+          id: 'm1-l0-e6',
+          type: 'choice',
+          prompt: '¿De qué hablaron Maya y Leo?',
+          options: [
+            'De que el servidor está caído ahora pero estaba bien ayer.',
+            'De que el servidor está bien ahora.',
+            'De un PR que subió Leo.',
+          ],
+          answer: 0,
+          explanation:
+            "Maya dice 'The server is down now' y Leo responde 'It was fine yesterday': presente y pasado con to be.",
+        },
+        {
+          id: 'm1-l0-e7',
+          type: 'choice',
+          prompt: '¿Cómo estaba el servidor ayer?',
+          options: ['Estaba bien.', 'Estaba caído.', 'Estaba lento.'],
+          answer: 0,
+          explanation:
+            "Leo dice 'It was fine yesterday': pasado de to be ('was') para un estado que ya terminó.",
         },
       ],
     },
@@ -236,10 +308,54 @@ export const m1: Module = {
           ],
         },
         {
-          type: 'callout',
-          tone: 'tip',
-          title: 'Cómo usar esta lección',
-          body: "Primero mira la tabla de verbos y las frases modelo. Los ejercicios solo usan estos 10 verbos y palabras que aparecen en los ejemplos (server, function, script, error, code, API, client, library, issue, cache, parameters, requests). Si dudas, vuelve a la forma para 'it' (is/has/does/needs...).",
+          type: 'dialogue',
+          title: 'El error habla: verbos reyes en acción',
+          context:
+            'Maya y Leo describen un error y lo que hace cada sistema, con la -s de tercera persona.',
+          lines: [
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'What does the error say?',
+              es: '¿Qué dice el error?',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: "It says 'permission denied'.",
+              es: "Dice 'permiso denegado'.",
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'I think the API needs a token.',
+              es: 'Creo que la API necesita un token.',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'The client wants a login page.',
+              es: 'El cliente quiere una página de login.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'This function has two parameters.',
+              es: 'Esta función tiene dos parámetros.',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: "I don't know why it is broken.",
+              es: 'No sé por qué está roto.',
+            },
+          ],
         },
       ],
       exercises: [
@@ -299,7 +415,11 @@ export const m1: Module = {
           type: 'write',
           prompt: "Escríbelo en inglés de forma natural: 'No sé por qué esto está roto.'",
           answer: "I don't know why this is broken.",
-          accept: ['I do not know why this is broken.', "I don't know why it is broken."],
+          accept: [
+            'I do not know why this is broken.',
+            "I don't know why it is broken.",
+            "I don't know why it's broken.",
+          ],
           hint: "Usa 'I don't know why...' + 'is broken' (ya visto en el vocabulario).",
           explanation:
             "Frase honesta y muy útil en debugging. Usa solo estructuras ya vistas: 'I don't know' y 'is broken' (estado).",
@@ -324,6 +444,24 @@ export const m1: Module = {
           hint: "Con 'I' usa 'think'. Con 'the function' (it) usa 'has'.",
           explanation:
             "Repaso en contexto: 'I think...' (opinión/hipótesis) y 'the function has...' (tercera persona singular). Todas las palabras ya aparecieron en los ejemplos.",
+        },
+        {
+          id: 'm1-l1-e9',
+          type: 'choice',
+          prompt: '¿Qué dice el error en la conversación?',
+          options: ["'permission denied'", "'Module not found'", "'Port already in use'"],
+          answer: 0,
+          explanation:
+            "Leo responde 'It says permission denied': 'says' es la forma de tercera persona del verbo 'say'.",
+        },
+        {
+          id: 'm1-l1-e10',
+          type: 'choice',
+          prompt: 'Según Maya, ¿qué necesita la API?',
+          options: ['Un token.', 'Dos parámetros.', 'Una página de login.'],
+          answer: 0,
+          explanation:
+            "Maya dice 'I think the API needs a token': 'needs' lleva -s porque 'the API' es tercera persona.",
         },
       ],
     },
@@ -386,12 +524,6 @@ export const m1: Module = {
             { en: 'handle', es: 'manejar (evento/error)', example: 'Handle the error.' },
             { en: 'update', es: 'actualizar', example: 'Update the code.' },
           ],
-        },
-        {
-          type: 'callout',
-          tone: 'tip',
-          title: 'Aprende cómodo: verbo + objeto',
-          body: "No memorices palabras sueltas. Aprende bloques: 'run the tests', 'push the changes', 'fix the bug', 'fetch the data'. Los ejercicios de esta lección usan estos verbos y palabras básicas ya vistas (tests, changes, bug, app, function, API, error, data, code, PR).",
         },
       ],
       exercises: [
@@ -548,12 +680,6 @@ export const m1: Module = {
             },
           ],
         },
-        {
-          type: 'callout',
-          tone: 'warning',
-          title: "No digas 'two comma four'",
-          body: "En inglés, la coma separa miles y el punto separa decimales. Para versiones y números decimales usa 'point': 'two point four'. Si dices 'comma', tu interlocutor pensará en una lista.",
-        },
       ],
       exercises: [
         {
@@ -704,10 +830,54 @@ export const m1: Module = {
           ],
         },
         {
-          type: 'callout',
-          tone: 'tip',
-          title: 'Pedir aclaración no te hace ver mal',
-          body: 'Quedarte callado y asumir la tarea equivocada cuesta más que una pregunta de cinco segundos. En equipos remotos, confirmar por escrito evita malentendidos.',
+          type: 'dialogue',
+          title: 'Aclarar antes de equivocarse',
+          context:
+            'Leo no entiende una palabra y confirma la fecha de deploy con frases de rescate.',
+          lines: [
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: "Sorry, I didn't catch that.",
+              es: 'Perdón, no lo entendí.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'We deploy on Friday.',
+              es: 'Desplegamos el viernes.',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: "What does 'flaky' mean?",
+              es: "¿Qué significa 'flaky'?",
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'It means the test fails sometimes.',
+              es: 'Significa que el test falla a veces.',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'Could you spell that, please?',
+              es: '¿Podrías deletrearlo, por favor?',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'F-L-A-K-Y. Let me confirm: we deploy on Friday, right?',
+              es: 'F-L-A-K-Y. Déjame confirmar: desplegamos el viernes, ¿verdad?',
+            },
+          ],
         },
       ],
       exercises: [
@@ -795,12 +965,30 @@ export const m1: Module = {
           id: 'm1-l4-e8',
           type: 'fix-error',
           prompt: 'Corrige la pregunta (error común).',
-          sentence: "What means 'flaky'?",
-          answer: "What does 'flaky' mean?",
-          accept: ['What does flaky mean?'],
+          sentence: "What means 'cache'?",
+          answer: "What does 'cache' mean?",
+          accept: ['What does cache mean?'],
           hint: 'Estructura: What does + palabra + mean?',
           explanation:
             "Para preguntar por el significado: 'What does X mean?' (no 'What means X?').",
+        },
+        {
+          id: 'm1-l4-e9',
+          type: 'choice',
+          prompt: "¿Qué pregunta hace Leo sobre la palabra 'flaky'?",
+          options: ["What does 'flaky' mean?", "What means 'flaky'?", "How 'flaky' means?"],
+          answer: 0,
+          explanation:
+            "Leo pregunta 'What does flaky mean?': la estructura correcta es 'What does + palabra + mean?'.",
+        },
+        {
+          id: 'm1-l4-e10',
+          type: 'choice',
+          prompt: '¿Qué día desplegarán según la confirmación final?',
+          options: ['El viernes.', 'El lunes.', 'Hoy.'],
+          answer: 0,
+          explanation:
+            "Maya cierra con 'Let me confirm: we deploy on Friday, right?': confirmar evita malentendidos.",
         },
       ],
     },

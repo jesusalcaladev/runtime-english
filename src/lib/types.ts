@@ -8,7 +8,22 @@ export interface VocabItem {
   note?: string
 }
 
+export interface DialogueLine {
+  /** Two speakers are enough for a natural, Duolingo-style scene. */
+  speaker: 'a' | 'b'
+  name: string
+  role?: string
+  en: string
+  es?: string
+}
+
 export type ContentBlock =
+  | {
+      type: 'dialogue'
+      title?: string
+      context?: string
+      lines: DialogueLine[]
+    }
   | { type: 'technique'; name: string; desc: string }
   | { type: 'text'; title?: string; body: string }
   | { type: 'vocab'; title?: string; items: VocabItem[] }

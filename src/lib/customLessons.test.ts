@@ -123,6 +123,21 @@ describe('buildAiLessonPrompt', () => {
     expect(prompt).toContain('ex-1 = choice')
   })
 
+  it('limits advice blocks to at most 2', () => {
+    const prompt = buildAiLessonPrompt('phrasal verbs for debugging')
+    expect(prompt).toContain('LÍMITE DE CONSEJOS (REGLA ESTRICTA)')
+    expect(prompt).toContain('NUNCA 3 ni más')
+    expect(prompt).toContain('Máximo 2 consejos en total (technique + callout de cualquier tone)')
+  })
+
+  it('requires dev phrasal verbs with meaning and example', () => {
+    const prompt = buildAiLessonPrompt('phrasal verbs for debugging')
+    expect(prompt).toContain('REGLAS DE PHRASAL VERBS (IMPORTANTE)')
+    expect(prompt).toContain(
+      'Hay 2-4 phrasal verbs dev, cada uno con significado en español y ejemplo en inglés.',
+    )
+  })
+
   it('falls back to a default topic when input is empty', () => {
     const prompt = buildAiLessonPrompt('   ')
     expect(prompt).toContain('TEMA DE LA LECCIÓN: "have to / must / should"')

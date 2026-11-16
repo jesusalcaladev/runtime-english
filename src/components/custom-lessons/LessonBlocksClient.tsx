@@ -11,6 +11,7 @@ import {
 import { getSlang } from '../../data/slang'
 import { speak } from '../../lib/speech'
 import type { ContentBlock } from '../../lib/types'
+import DialogueScene from '../session/DialogueScene'
 import SavePhraseButton from '../session/SavePhraseButton'
 
 interface Props {
@@ -48,6 +49,10 @@ export default function LessonBlocksClient({ blocks }: Props) {
 
       {blocks.map((block, idx) => (
         <section key={`${block.type}-${idx}`}>
+          {block.type === 'dialogue' && (
+            <DialogueScene title={block.title} context={block.context} lines={block.lines} />
+          )}
+
           {block.type === 'technique' && (
             <div class="relative overflow-hidden rounded-3xl bg-accent/[0.06] p-5 sm:p-6">
               <div class="pointer-events-none absolute -right-10 -top-12 h-32 w-32 rounded-full bg-accent/[0.08] blur-2xl" />

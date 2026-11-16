@@ -16,7 +16,7 @@ export const m2: Module = {
       step: 'A2 · Paso 2.1',
       cefr: 'A2',
       summary:
-        'Presente, continuo, pasado y futuro cubren la mayor parte del trabajo diario. Empieza por estos cuatro y deja el present perfect para B1.',
+        'Presente, continuo, pasado y futuro cubren la mayor parte del trabajo diario. Empieza por estos cuatro; el present perfect se introduce en B1 (Paso 4.0).',
       objectives: [
         'Describir lo que hace el código en presente simple.',
         'Reportar lo que estás haciendo ahora con presente continuo.',
@@ -35,17 +35,6 @@ export const m2: Module = {
           type: 'technique',
           name: 'Matriz Temporal del Sprint (qué tiempo usar)',
           desc: "1) Lo que el código HACE o es verdad general → presente simple ('returns', 'is'). 2) Lo que está pasando AHORA MISMO → presente continuo ('I'm fixing', 'is failing'). 3) Lo que YA pasó en un momento cerrado → pasado simple ('fixed yesterday', 'crashed at 3am'). 4) Lo que HARÁS / plan o decisión → futuro simple con 'will' ('I will deploy').",
-        },
-        {
-          type: 'technique',
-          name: 'Cómo formar el pasado simple (básico)',
-          desc: 'Regulares: verbo + -ed → fix → fixed, deploy → deployed, crash → crashed, merge → merged. Irregulares (cambian de forma): find → found, forget → forgot, go → went, break → broke. Usa marcadores de tiempo cerrado: yesterday, at 3am, this morning, last week.',
-        },
-        {
-          type: 'callout',
-          tone: 'info',
-          title: '¿Y el present perfect?',
-          body: "'I've finished the API' es habitual en standups. Lo verás con más detalle más adelante. Por ahora, si necesitas hablar de algo terminado, usa pasado simple con un marcador claro: 'I finished it yesterday' o 'I finished it this morning'.",
         },
         {
           type: 'tenses',
@@ -93,6 +82,56 @@ export const m2: Module = {
                 'The new feature will be ready on Friday.',
                 'I will push a fix in 10 minutes.',
               ],
+            },
+          ],
+        },
+        {
+          type: 'dialogue',
+          title: 'Ayer, ahora y mañana en una conversación',
+          context:
+            'Maya y Leo repasan el bug con los cuatro tiempos: presente simple, continuo, pasado y futuro.',
+          lines: [
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'What are you working on now?',
+              es: '¿En qué estás trabajando ahora?',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: "I'm running the tests.",
+              es: 'Estoy ejecutando los tests.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'I fixed the login bug yesterday.',
+              es: 'Arreglé el bug de login ayer.',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'The function returns a string.',
+              es: 'La función devuelve un string.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'I will deploy the fix tomorrow.',
+              es: 'Desplegaré el arreglo mañana.',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'Great. I will add tests too.',
+              es: 'Genial. También añadiré tests.',
             },
           ],
         },
@@ -177,6 +216,28 @@ export const m2: Module = {
           explanation:
             "Una misma historia en tres tiempos: pasado simple, presente continuo y futuro con 'will'. Los marcadores de tiempo te dicen cuál usar.",
         },
+        {
+          id: 'm2-l1-e8',
+          type: 'choice',
+          prompt: '¿Qué hizo Maya ayer?',
+          options: ['Arregló el bug de login.', 'Está ejecutando los tests.', 'Añadirá tests.'],
+          answer: 0,
+          explanation:
+            "Maya dice 'I fixed the login bug yesterday': pasado simple con el marcador 'yesterday'.",
+        },
+        {
+          id: 'm2-l1-e9',
+          type: 'choice',
+          prompt: '¿Qué hará Maya mañana?',
+          options: [
+            'Desplegará el arreglo.',
+            'Arregló el bug de login.',
+            'Está escribiendo tests.',
+          ],
+          answer: 0,
+          explanation:
+            "Maya dice 'I will deploy the fix tomorrow': futuro con 'will' para un plan.",
+        },
       ],
     },
     {
@@ -228,10 +289,54 @@ export const m2: Module = {
           ],
         },
         {
-          type: 'callout',
-          tone: 'tip',
-          title: 'Un tiempo por idea',
-          body: 'No necesitas una frase larga. Tres frases cortas con pasado, presente y futuro comunican mejor que una frase con cuatro tiempos mezclados.',
+          type: 'dialogue',
+          title: 'El update del bug en tres tiempos',
+          context:
+            'Maya pregunta por el bug y Leo narra qué pasó, qué hace ahora y cuándo lo arregla.',
+          lines: [
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'Any update on the login bug?',
+              es: '¿Hay novedades sobre el bug de login?',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'I found the bug yesterday.',
+              es: 'Encontré el bug ayer.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'What are you doing now?',
+              es: '¿Qué estás haciendo ahora?',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: "I'm writing a test to reproduce it.",
+              es: 'Estoy escribiendo un test para reproducirlo.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'When will you deploy the fix?',
+              es: '¿Cuándo desplegarás el arreglo?',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: "I'll deploy it after the tests pass.",
+              es: 'Lo desplegaré cuando pasen los tests.',
+            },
+          ],
         },
       ],
       exercises: [
@@ -314,22 +419,27 @@ export const m2: Module = {
           id: 'm2-l2-e7',
           type: 'listen',
           prompt: 'Escucha el update y escríbelo.',
-          audioText: "I'm fixing the bug now and I'll deploy the fix tomorrow.",
-          answer: "I'm fixing the bug now and I'll deploy the fix tomorrow.",
-          accept: ['I am fixing the bug now and I will deploy the fix tomorrow.'],
-          hint: "Dos partes: ahora (I'm fixing...) y mañana (I'll deploy...).",
+          audioText:
+            "I found the token issue yesterday, I'm writing a test now, and I'll push the fix tomorrow.",
+          answer:
+            "I found the token issue yesterday, I'm writing a test now, and I'll push the fix tomorrow.",
+          accept: [
+            'I found the token issue yesterday, I am writing a test now, and I will push the fix tomorrow.',
+          ],
+          hint: 'Tres momentos: ayer (found), ahora (writing) y mañana (push).',
           explanation:
-            'Listening en contexto real: updates cortos combinando presente continuo y futuro.',
+            'Listening en contexto real: un update corto con pasado, presente continuo y futuro.',
         },
         {
           id: 'm2-l2-e8',
           type: 'fill-blank',
           prompt: 'Completa la historia del bug con los tiempos correctos.',
-          template: "I ___ the bug yesterday, I'm ___ it now, and I'll ___ the fix tomorrow.",
-          blanks: ['found', 'fixing', 'deploy'],
-          hint: 'Pasado de find, forma -ing, y verbo base tras will.',
+          template:
+            "I ___ the token issue yesterday, I'm ___ a test now, and I'll ___ the fix tomorrow.",
+          blanks: ['found', 'writing', 'push'],
+          hint: 'Pasado de find, forma -ing de write y verbo base tras will.',
           explanation:
-            'Una narrativa clara: pasado (found), presente continuo (fixing) y futuro con will (deploy).',
+            'Otra historia con el mismo patrón: pasado (found), presente continuo (writing) y futuro con will (push).',
         },
         {
           id: 'm2-l2-e9',
@@ -341,10 +451,33 @@ export const m2: Module = {
           accept: [
             "I found the bug yesterday, I'm fixing it now, and I'll deploy the fix tomorrow.",
             "Yesterday I found the bug. I'm fixing it now and I will deploy the fix tomorrow.",
+            'I am fixing it now, and I will deploy the fix tomorrow.',
           ],
           hint: 'Usa pasado + presente continuo + futuro.',
           explanation:
             'Role-play: practica una respuesta breve y clara con los tres tiempos clave del día a día.',
+        },
+        {
+          id: 'm2-l2-e10',
+          type: 'choice',
+          prompt: '¿Cuándo encontró Leo el bug?',
+          options: ['Ayer.', 'Ahora mismo.', 'Mañana.'],
+          answer: 0,
+          explanation:
+            "Leo dice 'I found the bug yesterday': pasado simple para una acción ya terminada.",
+        },
+        {
+          id: 'm2-l2-e11',
+          type: 'choice',
+          prompt: '¿Qué hará Leo después de los tests?',
+          options: [
+            'Desplegará el arreglo.',
+            'Encontrará otro bug.',
+            'Cerrará el issue sin arreglarlo.',
+          ],
+          answer: 0,
+          explanation:
+            "Leo responde 'I'll deploy it after the tests pass': futuro con 'will' para el siguiente paso.",
         },
       ],
     },
@@ -510,12 +643,6 @@ export const m2: Module = {
             },
             { en: 'I opened an issue for this bug.', es: 'Abrí un issue para este bug.' },
           ],
-        },
-        {
-          type: 'callout',
-          tone: 'tip',
-          title: 'Usa el botón de voz',
-          body: 'Toca el ícono de volumen en las frases y palabras para escuchar y repetir. Practicar en frases cortas es más efectivo que memorizar palabras sueltas.',
         },
       ],
       exercises: [

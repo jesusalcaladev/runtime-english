@@ -58,6 +58,7 @@ interface CompactSettingsState {
   tts?: boolean
   rate?: number
   eng?: 'system' | 'kokoro'
+  lng?: 'en-US' | 'en-GB'
   name?: string
   ob?: boolean
   goal?: 'daily' | 'interviews' | 'work' | 'all'
@@ -267,6 +268,7 @@ export function compactState(state: ProgressState): Record<string, unknown> {
     tts: settings.ttsEnabled,
     rate: settings.ttsRate,
     eng: settings.ttsEngine,
+    lng: settings.speechLanguage,
     name: settings.name || '',
     ob: settings.onboarded,
     goal: settings.goal,
@@ -445,6 +447,7 @@ export function expandState(raw: unknown, defaults: ProgressState): ProgressStat
     ttsEnabled: typeof settings.tts === 'boolean' ? settings.tts : defaults.settings.ttsEnabled,
     ttsRate: toFiniteNumber(settings.rate, defaults.settings.ttsRate),
     ttsEngine: settings.eng === 'kokoro' ? 'kokoro' : 'system',
+    speechLanguage: settings.lng === 'en-GB' ? 'en-GB' : 'en-US',
     name: toStringValue(settings.name, ''),
     onboarded: Boolean(settings.ob),
     goal:

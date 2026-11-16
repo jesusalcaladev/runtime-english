@@ -7,10 +7,12 @@ import {
   Lightbulb,
   Mic,
   RotateCcw,
+  Settings,
   Volume2,
   X,
 } from 'lucide-preact'
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks'
+import { openAppSettings } from '../../lib/appSettings'
 import { detectErrorSkills } from '../../lib/errorPatterns'
 import {
   canCheckExercise,
@@ -23,8 +25,13 @@ import { getUiStage, t, tAction } from '../../lib/i18n'
 import { phraseId, progressStore } from '../../lib/progress'
 import {
   ensureMicrophonePermission,
+  getSpeechLanguage,
   isSpeechRecognitionSupported,
   recognizeOnce,
+  releaseMicStream,
+  speechMatchScore,
+  startMicLevelMeter,
+  stopSpeechRecognition,
 } from '../../lib/speech'
 import type { Exercise } from '../../lib/types'
 import { useProgress } from '../../lib/useProgress'
@@ -43,6 +50,11 @@ interface Props {
   sessionTitle: string
   exercises: Exercise[]
   next: NextSession | null
+}
+
+function micTimeoutForText(text: string): number {
+  const words = text.trim().split(/\s+/).filter(Boolean).length
+  return Math.min(16_000, Math.max(8_000, 3_500 + words * 1_100))
 }
 
 export default function ExerciseRunner({ sessionId, sessionTitle, exercises, next }: Props) {
@@ -78,7 +90,11 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
   const [shuffledWords, setShuffledWords] = useState<number[]>([])
   const [micState, setMicState] = useState<'idle' | 'listening' | 'done'>('idle')
   const [heardText, setHeardText] = useState('')
+  const [liveText, setLiveText] = useState('')
+  const [micLevel, setMicLevel] = useState(0)
   const [micError, setMicError] = useState<string | null>(null)
+  const micRunRef = useRef(0)
+  const stopMeterRef = useRef<(() => void) | null>(null)
 
   const exercise = exercises[index]
   const total = exercises.length
@@ -109,6 +125,16 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
     [exercise, interaction],
   )
 
+  const speakScore = useMemo(() => {
+    if (exercise?.type !== 'speak' || !heardText) return null
+    return speechMatchScore(exercise.answer, heardText)
+  }, [exercise, heardText])
+
+  const listenScore = useMemo(() => {
+    if (exercise?.type !== 'listen' || !attempted || !text.trim()) return null
+    return speechMatchScore(exercise.answer, text)
+  }, [exercise, attempted, text])
+
   function resetInteraction() {
     setSelected(null)
     setPicked([])
@@ -117,8 +143,12 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
     setDialoguePicked([])
     setStatus('idle')
     setAttempted(false)
+    micRunRef.current += 1
+    stopSpeechRecognition()
+    stopMicMeter()
     setMicState('idle')
     setHeardText('')
+    setLiveText('')
     setMicError(null)
     if (exercise?.type === 'builder') setShuffledWords(shuffleIndices(exercise.words.length))
     if (exercise?.type === 'dialogue-order')
@@ -193,8 +223,12 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
     )
       setText('')
     if (exercise?.type === 'speak') {
+      micRunRef.current += 1
+      stopSpeechRecognition()
+      stopMicMeter()
       setText('')
       setHeardText('')
+      setLiveText('')
       setMicState('idle')
       setMicError(null)
     }
@@ -205,10 +239,24 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
     }
   }
 
+  function stopMicMeter() {
+    stopMeterRef.current?.()
+    stopMeterRef.current = null
+    setMicLevel(0)
+  }
+
+  function shouldRetryMic(error?: string): boolean {
+    return Boolean(error && /No se detectó voz|Tiempo de espera/.test(error))
+  }
+
   async function startSpeaking() {
     if (exercise?.type !== 'speak') return
+    const run = ++micRunRef.current
     setMicError(null)
+    setLiveText('')
+    setMicLevel(0)
     const permitted = await ensureMicrophonePermission()
+    if (run !== micRunRef.current) return
     if (!permitted) {
       setMicState('idle')
       setMicError(
@@ -216,9 +264,37 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
       )
       return
     }
+
+    const language = getSpeechLanguage()
+    const timeoutMs = micTimeoutForText(exercise.answer)
+    const listen = () =>
+      recognizeOnce(language, timeoutMs, (partial) => {
+        if (run === micRunRef.current) setLiveText(partial)
+      })
+
     setMicState('listening')
-    const res = await recognizeOnce('en-US', 9000)
+    const stopMeter = await startMicLevelMeter((level) => {
+      if (run === micRunRef.current) setMicLevel(level)
+    })
+    if (run !== micRunRef.current) {
+      stopMeter()
+      return
+    }
+    stopMeterRef.current = stopMeter
+
+    let res = await listen()
+    if (run !== micRunRef.current) return
+    if (!res.transcript && shouldRetryMic(res.error)) {
+      // A silence/timeout often means the user started late: give them one more try.
+      setLiveText('')
+      setMicError('No te escuché. Intento 2 de 2…')
+      res = await listen()
+      if (run !== micRunRef.current) return
+    }
+
+    stopMicMeter()
     setMicState('done')
+    setLiveText('')
     if (res.transcript) {
       setHeardText(res.transcript)
       setText(res.transcript)
@@ -228,6 +304,25 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
       setMicError(res.error || 'No se pudo reconocer la voz. Intenta de nuevo.')
     }
   }
+
+  function cancelSpeaking() {
+    micRunRef.current += 1
+    stopSpeechRecognition()
+    stopMicMeter()
+    setMicState('idle')
+    setLiveText('')
+    setMicError(null)
+  }
+
+  // Stop listening when leaving the exercise or the screen, so the mic never stays open.
+  useEffect(() => {
+    return () => {
+      micRunRef.current += 1
+      stopSpeechRecognition()
+      stopMicMeter()
+      releaseMicStream()
+    }
+  }, [exercise?.id])
 
   useEffect(() => {
     const onRestart = (event: Event) => {
@@ -295,6 +390,7 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
 
   if (!exercise) return null
 
+  const hint = 'hint' in exercise ? exercise.hint : undefined
   const correctAnswerText = getCorrectAnswerText(exercise)
 
   const phraseKey = phraseId(correctAnswerText)
@@ -368,11 +464,8 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
         </span>
       </div>
 
-      <div
-        role="group"
-        class="flex flex-wrap items-center gap-1.5"
-        aria-label={tAction(stage, 'exercise')}
-      >
+      <fieldset class="flex flex-wrap items-center gap-1.5">
+        <legend class="sr-only">{tAction(stage, 'exercise')}</legend>
         {exercises.map((item, itemIndex) => {
           const isSolved = solved.includes(item.id)
           const isCurrent = itemIndex === index
@@ -389,7 +482,7 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
             </button>
           )
         })}
-      </div>
+      </fieldset>
 
       <div class="rounded-[26px] bg-base-200 p-1.5">
         <div class="rounded-[20px] bg-base-100 p-5 sm:p-6">
@@ -407,10 +500,10 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
               {exercise.type === 'roleplay' && (
                 <div class="mt-2 rounded-xl bg-base-200/70 p-3 text-[13px] text-base-content/70 space-y-1">
                   <p>
-                    <span class="font-medium">Escenario:</span> {(exercise as any).scenario}
+                    <span class="font-medium">Escenario:</span> {exercise.scenario}
                   </p>
                   <p>
-                    <span class="font-medium">Objetivo:</span> {(exercise as any).goal}
+                    <span class="font-medium">Objetivo:</span> {exercise.goal}
                   </p>
                 </div>
               )}
@@ -526,7 +619,7 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
               {exercise.type === 'fix-error' && (
                 <div class="rounded-xl bg-warning/10 px-3 py-2 text-sm text-base-content/80">
                   <span class="font-medium">Frase:</span>{' '}
-                  <span class="font-mono">{(exercise as any).sentence}</span>
+                  <span class="font-mono">{exercise.sentence}</span>
                 </div>
               )}
               <textarea
@@ -538,10 +631,10 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
                 class="w-full resize-none rounded-2xl bg-base-200 px-4 py-3.5 font-mono text-sm text-base-content placeholder:text-base-content/25 disabled:opacity-70"
                 spellcheck={false}
               />
-              {(exercise as any).hint && (
+              {hint && (
                 <p class="hidden items-center gap-1.5 px-1 text-[12px] text-base-content/55 sm:flex">
                   <Lightbulb class="h-3 w-3 text-warning/70" />
-                  {(exercise as any).hint}
+                  {hint}
                 </p>
               )}
             </div>
@@ -552,7 +645,7 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
               <div class="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
-                  data-speak={(exercise as any).audioText}
+                  data-speak={exercise.audioText}
                   class="btn btn-sm h-10 cursor-pointer gap-2 rounded-xl bg-accent/10 pr-4 text-accent transition hover:bg-accent/20 hover:brightness-105 active:scale-[0.99]"
                   aria-label="Escuchar audio del ejercicio"
                 >
@@ -571,10 +664,20 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
                 class="w-full resize-none rounded-2xl bg-base-200 px-4 py-3.5 font-mono text-sm text-base-content placeholder:text-base-content/25 disabled:opacity-70"
                 spellcheck={false}
               />
-              {(exercise as any).hint && (
+              {hint && (
                 <p class="hidden items-center gap-1.5 px-1 text-[12px] text-base-content/55 sm:flex">
                   <Lightbulb class="h-3 w-3 text-warning/70" />
-                  {(exercise as any).hint}
+                  {hint}
+                </p>
+              )}
+              {listenScore !== null && (
+                <p class="text-[12px] text-base-content/55">
+                  Coincidencia con la frase:{' '}
+                  <span
+                    class={`font-mono ${listenScore >= 0.72 ? 'text-success' : 'text-warning'}`}
+                  >
+                    {Math.round(listenScore * 100)}%
+                  </span>
                 </p>
               )}
             </div>
@@ -597,19 +700,19 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
                   {micSupported ? (
                     <button
                       type="button"
-                      onClick={startSpeaking}
-                      disabled={micState === 'listening' || status === 'correct'}
+                      onClick={micState === 'listening' ? cancelSpeaking : startSpeaking}
+                      disabled={status === 'correct'}
                       aria-pressed={micState === 'listening'}
                       aria-busy={micState === 'listening'}
                       aria-label={
                         micState === 'listening'
-                          ? 'Escuchando respuesta por micrófono'
+                          ? 'Detener grabación del micrófono'
                           : 'Practicar pronunciación con micrófono'
                       }
                       class={`btn btn-sm h-10 gap-2 rounded-xl ${micState === 'listening' ? 'bg-error/15 text-error' : 'bg-accent/15 text-accent'}`}
                     >
                       <Mic class="h-4 w-4" aria-hidden="true" />{' '}
-                      {micState === 'listening' ? 'Escuchando…' : 'Practicar con micrófono'}
+                      {micState === 'listening' ? 'Detener' : 'Practicar con micrófono'}
                     </button>
                   ) : (
                     <span class="hidden self-center text-[11px] text-base-content/40 sm:inline">
@@ -620,17 +723,60 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
               </div>
               <div aria-live="polite" class="space-y-1">
                 {micState === 'listening' && (
-                  <p class="text-[12px] text-accent/90">Escuchando… habla ahora.</p>
+                  <p class="text-[12px] text-accent/90">
+                    <span class="mr-1 inline-flex gap-0.5" aria-hidden="true">
+                      <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
+                      <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-accent [animation-delay:150ms]" />
+                      <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-accent [animation-delay:300ms]" />
+                    </span>
+                    {liveText ? (
+                      <>
+                        Escuchando: <span class="font-mono text-base-content/80">{liveText}</span>
+                      </>
+                    ) : (
+                      'Escuchando… habla ahora.'
+                    )}
+                  </p>
+                )}
+                {micState === 'listening' && (
+                  <div class="flex items-center gap-2" aria-hidden="true">
+                    <span class="text-[10px] text-base-content/40">Nivel</span>
+                    <span class="h-1 flex-1 overflow-hidden rounded-full bg-base-300">
+                      <span
+                        class="block h-full rounded-full bg-accent transition-[width] duration-75"
+                        style={{ width: `${Math.round(micLevel * 100)}%` }}
+                      />
+                    </span>
+                  </div>
                 )}
                 {heardText && (
                   <p class="text-[12px] text-base-content/60">
                     Detectado: <span class="font-mono text-base-content/80">{heardText}</span>
                   </p>
                 )}
+                {speakScore !== null && (
+                  <p class="text-[12px] text-base-content/55">
+                    Coincidencia con la frase:{' '}
+                    <span
+                      class={`font-mono ${speakScore >= 0.72 ? 'text-success' : 'text-warning'}`}
+                    >
+                      {Math.round(speakScore * 100)}%
+                    </span>
+                  </p>
+                )}
                 {micError && (
                   <p class="text-[12px] text-error/80" role="status">
                     {micError}
                   </p>
+                )}
+                {micError && /denegad|permiso/i.test(micError) && (
+                  <button
+                    type="button"
+                    onClick={() => void openAppSettings()}
+                    class="btn btn-xs h-7 gap-1.5 rounded-lg bg-base-100 px-2.5 text-[11px] text-base-content/70 transition hover:text-base-content"
+                  >
+                    <Settings class="h-3 w-3" aria-hidden="true" /> Abrir ajustes
+                  </button>
                 )}
                 {!micSupported && (
                   <p class="hidden text-[12px] text-base-content/45 sm:block">
@@ -642,16 +788,19 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
               <textarea
                 value={text}
                 disabled={status === 'correct'}
-                onInput={(event) => setText((event.target as HTMLTextAreaElement).value)}
+                onInput={(event) => {
+                  setText((event.target as HTMLTextAreaElement).value)
+                  setHeardText('')
+                }}
                 rows={2}
-                placeholder="O escribe lo que dirías…"
+                placeholder="Escribe o corrige lo reconocido…"
                 class="w-full resize-none rounded-2xl bg-base-200 px-4 py-3.5 font-mono text-sm text-base-content placeholder:text-base-content/25 disabled:opacity-70"
                 spellcheck={false}
               />
-              {(exercise as any).hint && (
+              {hint && (
                 <p class="hidden items-center gap-1.5 px-1 text-[12px] text-base-content/55 sm:flex">
                   <Lightbulb class="h-3 w-3 text-warning/70" />
-                  {(exercise as any).hint}
+                  {hint}
                 </p>
               )}
             </div>
@@ -665,44 +814,42 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
                   {exercise.blanks.length === 1 ? 'espacio' : 'espacios'}
                 </p>
                 <div class="font-mono text-[15px] leading-8 text-base-content/80">
-                  {(exercise as any).template
-                    .split('___')
-                    .map((part: string, i: number, arr: string[]) => (
-                      <span key={i}>
-                        {part}
-                        {i < arr.length - 1 && (
-                          <span class="mx-1 inline-flex items-center gap-1 align-middle">
-                            <span class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-accent/15 px-1 text-[10px] font-semibold text-accent">
-                              {i + 1}
-                            </span>
-                            <input
-                              type="text"
-                              value={blankValues[i] || ''}
-                              disabled={status === 'correct'}
-                              placeholder={`Espacio ${i + 1}`}
-                              autoComplete="off"
-                              autoCapitalize="off"
-                              autoCorrect="off"
-                              spellcheck={false}
-                              size={Math.max(8, Math.min(22, (blankValues[i]?.length || 0) + 2))}
-                              onInput={(e) => {
-                                const v = (e.target as HTMLInputElement).value
-                                setBlankValues((prev) => {
-                                  const n = [...prev]
-                                  n[i] = v
-                                  return n
-                                })
-                              }}
-                              class={`inline-block rounded-xl border bg-base-100 px-3 py-1.5 text-center font-mono text-sm text-base-content outline-none transition placeholder:text-base-content/25 focus:border-accent/50 focus:ring-2 focus:ring-accent/20 ${
-                                status === 'incorrect' && attempted
-                                  ? 'border-error/30'
-                                  : 'border-base-content/10'
-                              } disabled:opacity-70`}
-                            />
+                  {exercise.template.split('___').map((part: string, i: number, arr: string[]) => (
+                    <span key={i}>
+                      {part}
+                      {i < arr.length - 1 && (
+                        <span class="mx-1 inline-flex items-center gap-1 align-middle">
+                          <span class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-accent/15 px-1 text-[10px] font-semibold text-accent">
+                            {i + 1}
                           </span>
-                        )}
-                      </span>
-                    ))}
+                          <input
+                            type="text"
+                            value={blankValues[i] || ''}
+                            disabled={status === 'correct'}
+                            placeholder={`Espacio ${i + 1}`}
+                            autoComplete="off"
+                            autoCapitalize="off"
+                            autoCorrect="off"
+                            spellcheck={false}
+                            size={Math.max(8, Math.min(22, (blankValues[i]?.length || 0) + 2))}
+                            onInput={(e) => {
+                              const v = (e.target as HTMLInputElement).value
+                              setBlankValues((prev) => {
+                                const n = [...prev]
+                                n[i] = v
+                                return n
+                              })
+                            }}
+                            class={`inline-block rounded-xl border bg-base-100 px-3 py-1.5 text-center font-mono text-sm text-base-content outline-none transition placeholder:text-base-content/25 focus:border-accent/50 focus:ring-2 focus:ring-accent/20 ${
+                              status === 'incorrect' && attempted
+                                ? 'border-error/30'
+                                : 'border-base-content/10'
+                            } disabled:opacity-70`}
+                          />
+                        </span>
+                      )}
+                    </span>
+                  ))}
                 </div>
                 {exercise.blanks.length > 1 && (
                   <div class="mt-3 flex flex-wrap gap-2">
@@ -721,10 +868,10 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
                   </div>
                 )}
               </div>
-              {(exercise as any).hint && (
+              {hint && (
                 <p class="flex items-center gap-1.5 px-1 text-[12px] text-base-content/55">
                   <Lightbulb class="h-3 w-3 text-warning/70" />
-                  {(exercise as any).hint}
+                  {hint}
                 </p>
               )}
             </div>

@@ -39,7 +39,17 @@ for (const { session, module } of ALL_SESSIONS) {
   }
 
   for (const block of session.blocks) {
-    if (block.type === 'vocab') {
+    if (block.type === 'dialogue') {
+      items.push({
+        kind: 'session',
+        title: block.title ?? 'Conversación',
+        body: [block.context, ...block.lines.map((line) => `${line.name}: ${line.en}`)]
+          .filter(Boolean)
+          .join(' '),
+        href: route(`/session/${session.slug}`),
+        meta: `${session.title} · Conversación`,
+      })
+    } else if (block.type === 'vocab') {
       for (const entry of block.items) {
         items.push({
           kind: 'vocab',

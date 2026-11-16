@@ -78,6 +78,10 @@ export function getSpeechEngine(): 'system' | 'kokoro' {
   return readStoredSpeechSettings()?.ttsEngine === 'kokoro' ? 'kokoro' : 'system'
 }
 
+export function getSpeechLanguage(): 'en-US' | 'en-GB' {
+  return readStoredSpeechSettings()?.speechLanguage === 'en-GB' ? 'en-GB' : 'en-US'
+}
+
 export function getSpeechRate(): number {
   const rate = readStoredSpeechSettings()?.ttsRate
   if (typeof rate !== 'number' || !Number.isFinite(rate)) {

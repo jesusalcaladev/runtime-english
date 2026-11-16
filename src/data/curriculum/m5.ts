@@ -126,10 +126,47 @@ export const m5: Module = {
           ],
         },
         {
-          type: 'callout',
-          tone: 'warning',
-          title: "Evita quedarte en 'it doesn't work'",
-          body: 'Es la frase que nadie puede responder. Di qué esperabas, qué pasó y qué error exacto aparece. Eso es la diferencia entre una respuesta en 5 minutos y silencio total.',
+          type: 'dialogue',
+          title: 'Del commit al PR: convenciones en equipo',
+          context:
+            'Maya revisa el PR de Leo y repasan juntos el mensaje de commit y la descripción.',
+          lines: [
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'Your PR fixes the login bug, but the commit message says "fixed stuff".',
+              es: 'Tu PR arregla el bug de login, pero el mensaje de commit dice "fixed stuff".',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'What should I write instead?',
+              es: '¿Qué debería escribir en su lugar?',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'Use a prefix and an imperative verb: "fix: resolve CORS error in production".',
+              es: 'Usa un prefijo y un verbo en imperativo: "fix: resolve CORS error in production".',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'Got it. I\'ll also add "Closes #123" to link the issue.',
+              es: 'Entendido. También añadiré "Closes #123" para vincular el issue.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: "Perfect. Mark it ready for review and I'll take a look.",
+              es: 'Perfecto. Márcalo listo para revisión y le echo un vistazo.',
+            },
+          ],
         },
       ],
       exercises: [
@@ -168,6 +205,7 @@ export const m5: Module = {
             'fix: resolve the CORS error in production',
             'fix: fix CORS error in production',
           ],
+          hint: "Empieza con 'fix:' y usa el verbo en forma base: 'resolve'.",
           explanation:
             "Commit en presente imperativo: 'fix:' + 'resolve...'. No 'fixed' ni 'fixing'.",
         },
@@ -208,6 +246,32 @@ export const m5: Module = {
           hint: "Usa el prefijo 'test:' y verbo imperativo 'add'.",
           explanation:
             "Conventional Commits: tipo + dos puntos + descripción breve en imperativo ('add tests...').",
+        },
+        {
+          id: 'm5-l1-e7',
+          type: 'choice',
+          prompt: '¿Qué estaba mal en el mensaje de commit de Leo?',
+          options: [
+            'Decía "fixed stuff", sin prefijo ni verbo imperativo.',
+            'Usaba el prefijo "fix:" correctamente.',
+            'Estaba escrito en inglés.',
+          ],
+          answer: 0,
+          explanation:
+            "Maya señala 'the commit message says \"fixed stuff\"' y propone 'fix: resolve CORS error in production': prefijo + imperativo.",
+        },
+        {
+          id: 'm5-l1-e8',
+          type: 'choice',
+          prompt: '¿Qué hará Leo para vincular el issue?',
+          options: [
+            'Añadir "Closes #123" al PR.',
+            'Borrar el issue del repositorio.',
+            'Escribir el commit en tiempo pasado.',
+          ],
+          answer: 0,
+          explanation:
+            "Leo dice 'I'll also add \"Closes #123\" to link the issue': esa sintaxis cierra el issue automáticamente.",
         },
       ],
     },
@@ -292,10 +356,46 @@ export const m5: Module = {
           ],
         },
         {
-          type: 'callout',
-          tone: 'tip',
-          title: "No mandes solo 'hey'",
-          body: 'Un mensaje sin contexto obliga a la otra persona a preguntar qué necesitas. Incluye el tema, la petición y el plazo en el primer mensaje. En async, la claridad es cortesía.',
+          type: 'dialogue',
+          title: 'Un mensaje de Slack que se entiende sin contexto',
+          context: 'Leo avisa por Slack de un bloqueo y Maya responde con una petición y un plazo.',
+          lines: [
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'Quick heads-up: the deploy is blocked by the API change.',
+              es: 'Aviso rápido: el despliegue está bloqueado por el cambio de la API.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'Do you have an ETA for the fix?',
+              es: '¿Tienes una estimación para el arreglo?',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: "About two hours. I'm looping in Ana for context.",
+              es: 'Unas dos horas. Añado a Ana para dar contexto.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'Thanks. Can you review the PR by 3 p.m.?',
+              es: 'Gracias. ¿Puedes revisar el PR antes de las 3 p.m.?',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: "Sure. I'll keep you posted.",
+              es: 'Claro. Te mantengo al tanto.',
+            },
+          ],
         },
       ],
       exercises: [
@@ -336,7 +436,11 @@ export const m5: Module = {
           type: 'write',
           prompt: "Escribe en inglés: 'Te aviso cuando esté listo.'",
           answer: "I'll let you know when it's ready.",
-          accept: ['I will let you know when it is ready.', "I'll let you know when it is ready."],
+          accept: [
+            'I will let you know when it is ready.',
+            "I'll let you know when it is ready.",
+            "I will let you know when it's ready.",
+          ],
           hint: "Usa 'I'll let you know when...'.",
           explanation:
             "'Let you know' es la forma estándar de prometer un aviso sin comprometerte a una hora exacta.",
@@ -366,6 +470,28 @@ export const m5: Module = {
           answer: 0,
           explanation:
             "'Just to confirm...' es una forma educada y clara de verificar entendimiento en trabajo asíncrono.",
+        },
+        {
+          id: 'm5-l2-e7',
+          type: 'choice',
+          prompt: '¿Cuál fue la causa del bloqueo en la conversación?',
+          options: ['El cambio de la API.', 'Un error de CORS.', 'La falta de permisos.'],
+          answer: 0,
+          explanation:
+            "Leo escribe 'the deploy is blocked by the API change': el cambio de la API es lo que bloquea el despliegue.",
+        },
+        {
+          id: 'm5-l2-e8',
+          type: 'choice',
+          prompt: '¿Qué hará Leo al final?',
+          options: [
+            'Mantener a Maya informada.',
+            'Cerrar el PR sin revisar.',
+            'Borrar el mensaje de Slack.',
+          ],
+          answer: 0,
+          explanation:
+            "Leo cierra con 'I'll keep you posted': promete mantener informada a Maya sin fijar una hora exacta.",
         },
       ],
     },
@@ -651,12 +777,6 @@ export const m5: Module = {
           ],
         },
         {
-          type: 'callout',
-          tone: 'tip',
-          title: "Cuidado con 'actually'",
-          body: "'Actually' corrige o introduce un contraste real; no significa 'actualmente'. Para 'actualmente' usa 'currently' o 'right now'. Ejemplo: 'Actually, it works' = en realidad funciona; 'Currently, it works' = ahora mismo funciona.",
-        },
-        {
           type: 'table',
           title: 'Qué intención transmite cada marcador',
           columns: ['Marcador', 'Intención', 'Ejemplo'],
@@ -707,7 +827,12 @@ export const m5: Module = {
           type: 'write',
           prompt: "Escribe en inglés: 'O sea, no es un bloqueador.' (empieza con 'I mean,')",
           answer: "I mean, it's not a blocker.",
-          accept: ['I mean, it is not a blocker.', "I mean it's not a blocker."],
+          accept: [
+            'I mean, it is not a blocker.',
+            "I mean it's not a blocker.",
+            "I mean, it isn't a blocker.",
+            "I mean it isn't a blocker.",
+          ],
           hint: "Usa 'I mean,' para reformular o aclarar.",
           explanation:
             "'I mean' sirve para aclarar o suavizar lo que quieres decir: 'o sea, no es un bloqueador'.",
@@ -817,12 +942,6 @@ export const m5: Module = {
             },
             { en: 'Let me know if anything is unclear.', es: 'Avísame si algo no queda claro.' },
           ],
-        },
-        {
-          type: 'callout',
-          tone: 'info',
-          title: 'Conecta con conectores',
-          body: "Usa marcadores para guiar: 'Basically, we added caching.' / 'Actually, the bug was in the API.' / 'In other words, users will see fewer errors.' Ayudan a que la demo sea fácil de seguir.",
         },
       ],
       exercises: [
@@ -1465,12 +1584,6 @@ export const m5: Module = {
             ['Estimación', 'It will take [rango], assuming [supuesto].'],
             ['PR', 'This might break when [caso]. Could you [acción]?'],
           ],
-        },
-        {
-          type: 'callout',
-          tone: 'tip',
-          title: 'Repasar cómodo',
-          body: 'No intentes sonar perfecto. Usa marcos simples y repítelos hasta que salgan solos. Equivocarse en práctica es parte de aprender inglés bien y con confianza.',
         },
       ],
       exercises: [

@@ -20,9 +20,16 @@ test('practice page renders practice controls', async ({ page }) => {
   await expect(page.getByRole('button', { name: /Ronda/i })).toBeVisible()
 })
 
+test('settings hides Android-only permissions section on desktop web', async ({ page }) => {
+  await page.goto('/settings.html')
+  await expect(page.getByRole('heading', { name: 'Perfil y plan', level: 2 })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Permisos', level: 2 })).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: 'Permisos (móvil)', level: 2 })).toHaveCount(0)
+})
+
 test('my lessons page renders import flow entry point', async ({ page }) => {
   await page.goto('/my-lessons.html')
-  await expect(page.getByRole('heading', { name: 'Mis lecciones' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Mis lecciones', level: 1 })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Agregar lección' })).toBeVisible()
   await page.getByRole('button', { name: 'Agregar lección' }).click()
   await expect(page.getByText('1) Copia el prompt optimizado')).toBeVisible()

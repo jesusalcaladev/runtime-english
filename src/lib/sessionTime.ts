@@ -10,6 +10,14 @@ function countWords(text: string): number {
 function collectBlockText(block: ContentBlock): string[] {
   const parts: string[] = []
   switch (block.type) {
+    case 'dialogue':
+      if (block.title) parts.push(block.title)
+      if (block.context) parts.push(block.context)
+      for (const line of block.lines) {
+        parts.push(line.name, line.en)
+        if (line.es) parts.push(line.es)
+      }
+      break
     case 'technique':
       parts.push(block.name, block.desc)
       break

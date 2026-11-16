@@ -81,9 +81,11 @@ npm run android:apk
 
 ### Exercises and content
 
-- Exercise types: `choice`, `builder`, `write` (see `src/lib/types.ts` and `ExerciseRunner.tsx`).
-- Content lives in `src/data/curriculum/*.ts`; `getStaticPaths` and navigation are derived from the curriculum. To add sessions/modules, follow the existing pattern and register modules in `MODULES`.
+- Exercise types: `choice`, `builder`, `write`, `listen`, `speak`, `fill-blank`, `dialogue-order`, `fix-error`, `roleplay` (see `src/lib/types.ts` and `ExerciseRunner.tsx`).
+- Content blocks include a `dialogue` type for Duolingo-style scenes: two avatars, sequential TTS playback via `speakLine`, per-line replay, and comprehension questions added as normal exercises after the block. There are 20 conversations integrated into the main sessions of M1–M9. Rendered by `src/components/session/DialogueScene.tsx` in both `LessonBlocks.astro` and `LessonBlocksClient.tsx`.
+- Content lives in `src/data/curriculum/*.ts`; `getStaticPaths` and navigation are derived from the curriculum. To add sessions/modules, follow the existing pattern and register modules in `MODULES`. `curriculum.test.ts` enforces roadmap integrity (ids, order, CEFR, prerequisites, dialogue lines, hints, exercise shapes).
 - Slang lives in `src/data/slang.ts`; lesson blocks support `slang` by IDs.
+- Dev phrasal verbs are covered in M3: `m3-l2` (14 basics) and `m3-l8` (`phrasal-verbs-dev-diario`, 32 chunks grouped by git/deploy, debugging, meetings and code/reviews). New AI-generated lessons must also include 2-4 dev phrasal verbs with Spanish meaning and an English dev example (`buildAiLessonPrompt`).
 
 ### Recently added features
 
@@ -100,7 +102,7 @@ npm run android:apk
 ### Voice (TTS)
 
 - `src/lib/speech.ts`: uses native TTS on Capacitor/Android (`@capacitor-community/text-to-speech`) with fallback to the Web Speech API; respects `settings.ttsEnabled`, `ttsRate`, and `ttsEngine` (`system`/`kokoro`). `data-tts` on `<html>` controls visibility of voice controls.
-- **Kokoro HQ (performance):** Automatic preloading of the cached model is deferred and conservative. It is not preloaded at startup on native Android just because it is cached; on-demand loading (Settings/explicit use) is prioritized to avoid CPU/memory spikes at app launch.
+- **Kokoro HQ (performance):** Automatic preloading of the cached model is deferred and conservative. It is not preloaded at startup on native Android just because it is cached; on-demand loading (Settings/explicit use) is prioritized to avoid CPU/memory spikes at app launch. `warmConversationPhrases()` primes system voices and pre-generates the exact dialogue lines when a conversation mounts; it only triggers Kokoro loading when the user selected the HQ engine (and never forces an uncached download on native).
 
 ## APK updates (no OTA, recommended for this project)
 

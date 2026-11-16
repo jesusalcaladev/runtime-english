@@ -1,5 +1,5 @@
 import { BookText, Check, Tag, Volume2, X } from 'lucide-preact'
-import { skillLabel } from '../../../lib/errorPatterns'
+import { type ErrorSkill, skillLabel } from '../../../lib/errorPatterns'
 import type { UiStage } from '../../../lib/i18n'
 import { tAction } from '../../../lib/i18n'
 import type { PhrasebookEntry } from '../../../lib/progress'
@@ -11,7 +11,7 @@ interface Props {
   status: RunnerStatus
   correctAnswerText: string
   explanation: string
-  detectedSkills: string[]
+  detectedSkills: ErrorSkill[]
   showPhraseHint: boolean
   phraseEntry?: PhrasebookEntry
 }
@@ -78,12 +78,12 @@ export function ExerciseFeedback({
           {detectedSkills.length > 0 && (
             <div class="flex flex-wrap items-center gap-1.5">
               <span class="text-[10px] font-medium text-base-content/45">Patrón a reforzar:</span>
-              {detectedSkills.map((s) => (
+              {detectedSkills.map((skill) => (
                 <span
-                  key={s}
+                  key={skill}
                   class="rounded-full bg-base-100/80 px-2 py-0.5 text-[10px] font-medium text-error/80 ring-1 ring-error/10"
                 >
-                  {skillLabel(s as any)}
+                  {skillLabel(skill)}
                 </span>
               ))}
             </div>

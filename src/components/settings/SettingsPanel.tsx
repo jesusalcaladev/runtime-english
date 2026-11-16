@@ -51,6 +51,7 @@ import { useAuthSession } from '../../hooks/useAuthSession'
 import { useKokoroStatus } from '../../hooks/useKokoroStatus'
 import { useProgress } from '../../hooks/useProgress'
 import { useSyncStatus } from '../../hooks/useSyncStatus'
+import { openAppSettings } from '../../lib/appSettings'
 import {
   APP_UPDATE_CHECK_EVENT,
   checkForAppUpdateDetailed,
@@ -66,6 +67,7 @@ import { type ProgressSettings, progressStore } from '../../lib/progress'
 import { clearSyncError } from '../../lib/progressSync'
 import {
   ensureMicrophonePermission,
+  getMicrophonePermissionStatus,
   kokoroIsCached,
   loadKokoro,
   maybeWarmKokoroInBackground,
@@ -217,6 +219,7 @@ export default function SettingsPanel() {
   const [showSyncHistory, setShowSyncHistory] = useState(false)
   const [checkingUpdate, setCheckingUpdate] = useState(false)
   const [notificationPermission, setNotificationPermission] = useState<string>('unknown')
+  const [micPermission, setMicPermission] = useState<string>('unknown')
   const [permissionBusy, setPermissionBusy] = useState<
     'notifications' | 'microphone' | 'settings' | null
   >(null)
@@ -231,6 +234,14 @@ export default function SettingsPanel() {
         if (!cancelled) setNotificationPermission(status)
       } catch {
         if (!cancelled) setNotificationPermission('unknown')
+      }
+    })()
+    void (async () => {
+      try {
+        const status = await getMicrophonePermissionStatus()
+        if (!cancelled) setMicPermission(status)
+      } catch {
+        if (!cancelled) setMicPermission('unknown')
       }
     })()
     return () => {
@@ -280,8 +291,9 @@ export default function SettingsPanel() {
     setPermissionBusy('microphone')
     try {
       const ok = await ensureMicrophonePermission()
-      if (ok) emitToast('Permiso de micrófono concedido.', 'success')
-      // Si falla, ensureMicrophonePermission ya muestra toast contextual.
+      setMicPermission(await getMicrophonePermissionStatus())
+      if (ok) emitToast('Micrófono listo para usar.', 'success')
+      // Si falla, ensureMicrophonePermission ya muestra el toast contextual.
     } finally {
       setPermissionBusy(null)
     }
@@ -290,39 +302,7 @@ export default function SettingsPanel() {
   async function handleOpenAppSettings() {
     setPermissionBusy('settings')
     try {
-      if (!nativeAndroid) {
-        emitToast('En web, ajusta los permisos desde la configuración del navegador/sitio.', 'info')
-        return
-      }
-      // Best-effort: try common app-settings/intents in Android WebView/Capacitor.
-      const urls = [
-        'app-settings:',
-        'intent:#Intent;action=android.settings.APPLICATION_DETAILS_SETTINGS;data=package:com.runtimeenglish.core;end',
-        'package:com.runtimeenglish.core',
-      ]
-      let opened = false
-      for (const url of urls) {
-        try {
-          window.location.href = url
-          opened = true
-          break
-        } catch {}
-      }
-      if (!opened) {
-        try {
-          const { Browser } = await import('@capacitor/browser')
-          await Browser.open({ url: 'https://support.google.com/android/answer/9431959' })
-          opened = true
-        } catch {}
-      }
-      if (!opened) {
-        emitToast(
-          'No se pudo abrir Ajustes automáticamente. Ve a Ajustes del sistema > Apps > RuntimeEnglish > Permisos.',
-          'error',
-        )
-      } else {
-        emitToast('Abre la sección de permisos de la app y activa los que falten.', 'info')
-      }
+      await openAppSettings()
     } finally {
       setPermissionBusy(null)
       setTimeout(() => void refreshNotificationPermission(), 800)
@@ -1100,6 +1080,33 @@ export default function SettingsPanel() {
               )}
             </div>
 
+            <div class="mt-3 flex flex-wrap items-center gap-2">
+              <span class="text-[11px] font-medium text-base-content/55">Acento</span>
+              {(
+                [
+                  { value: 'en-US', label: 'Americano (en-US)' },
+                  { value: 'en-GB', label: 'Británico (en-GB)' },
+                ] as const
+              ).map((option) => {
+                const active = (state.settings.speechLanguage ?? 'en-US') === option.value
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => {
+                      progressStore.setSettings({ speechLanguage: option.value })
+                      // Re-pick the system voice and refresh the warm path for the new accent.
+                      warmSpeechEngine()
+                    }}
+                    class={`rounded-full px-3 py-1.5 font-mono text-[10px] font-medium transition ${active ? 'bg-base-content text-base-100' : 'bg-base-100/50 text-base-content/45 hover:bg-base-100 hover:text-base-content/70'}`}
+                  >
+                    {option.label}
+                  </button>
+                )
+              })}
+            </div>
+
             <div class="mt-4 rounded-xl bg-base-100/50 p-3.5">
               <div class="flex flex-wrap items-start justify-between gap-3">
                 <div class="flex min-w-0 items-start gap-3">
@@ -1282,121 +1289,126 @@ export default function SettingsPanel() {
         </div>
       </SectionCard>
 
-      <SectionCard
-        id="permissions"
-        title="Permisos (móvil)"
-        description="Notificaciones, micrófono y acceso rápido a ajustes del sistema."
-        icon={Shield}
-        open={open.permissions}
-        onToggle={() => toggle('permissions')}
-      >
-        <div class="space-y-3">
-          <p class="text-[11px] leading-relaxed text-base-content/55">
-            Si omitiste un permiso, puedes volver a solicitarlo aquí o abrir los ajustes de la
-            app/sistema.
-          </p>
+      {nativeAndroid && (
+        <SectionCard
+          id="permissions"
+          title="Permisos"
+          description="Notificaciones, micrófono y acceso rápido a ajustes del sistema."
+          icon={Shield}
+          open={open.permissions}
+          onToggle={() => toggle('permissions')}
+        >
+          <div class="space-y-3">
+            <p class="text-[11px] leading-relaxed text-base-content/55">
+              Si omitiste un permiso, puedes volver a solicitarlo aquí o abrir los ajustes de la
+              app/sistema.
+            </p>
 
-          <div class="rounded-2xl bg-base-100/45 p-4">
-            <div class="flex flex-wrap items-start justify-between gap-3">
-              <div class="min-w-0">
-                <div class="flex items-center gap-2">
-                  <Bell class="h-4 w-4 text-base-content/50" />
-                  <h3 class="text-sm font-medium">Notificaciones</h3>
+            <div class="rounded-2xl bg-base-100/45 p-4">
+              <div class="flex flex-wrap items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <Bell class="h-4 w-4 text-base-content/50" />
+                    <h3 class="text-sm font-medium">Notificaciones</h3>
+                  </div>
+                  <p class="mt-1 text-[11px] leading-relaxed text-base-content/45">
+                    Necesarias para recordatorios de racha en Android.
+                  </p>
+                  <p class="mt-1 font-mono text-[10px] text-base-content/40">
+                    Estado:{' '}
+                    {nativeAndroid ? notificationPermission : 'web (no aplica permiso del sistema)'}
+                  </p>
                 </div>
-                <p class="mt-1 text-[11px] leading-relaxed text-base-content/45">
-                  Necesarias para recordatorios de racha en Android.
-                </p>
-                <p class="mt-1 font-mono text-[10px] text-base-content/40">
-                  Estado:{' '}
-                  {nativeAndroid ? notificationPermission : 'web (no aplica permiso del sistema)'}
-                </p>
+                <div class="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => void handleRequestNotificationPermission()}
+                    disabled={permissionBusy !== null}
+                    class="flex h-9 items-center gap-1.5 rounded-xl bg-base-100 px-3 text-[11px] font-medium text-base-content/70 transition hover:bg-base-200 hover:text-base-content disabled:opacity-50"
+                  >
+                    {permissionBusy === 'notifications' ? (
+                      <Loader2 class="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Bell class="h-3.5 w-3.5" />
+                    )}
+                    Solicitar permiso
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void refreshNotificationPermission()}
+                    disabled={permissionBusy !== null}
+                    class="flex h-9 items-center gap-1.5 rounded-xl bg-base-100/70 px-3 text-[11px] font-medium text-base-content/60 transition hover:bg-base-100 hover:text-base-content disabled:opacity-50"
+                  >
+                    <RefreshCw class="h-3.5 w-3.5" /> Actualizar
+                  </button>
+                </div>
               </div>
-              <div class="flex flex-wrap gap-2">
+            </div>
+
+            <div class="rounded-2xl bg-base-100/45 p-4">
+              <div class="flex flex-wrap items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <Mic class="h-4 w-4 text-base-content/50" />
+                    <h3 class="text-sm font-medium">Micrófono</h3>
+                  </div>
+                  <p class="mt-1 text-[11px] leading-relaxed text-base-content/45">
+                    Necesario para ejercicios de habla/reconocimiento de voz.
+                  </p>
+                  <p class="mt-1 font-mono text-[10px] text-base-content/40">
+                    Estado: {micPermission}
+                  </p>
+                </div>
                 <button
                   type="button"
-                  onClick={() => void handleRequestNotificationPermission()}
+                  onClick={() => void handleRequestMicrophonePermission()}
                   disabled={permissionBusy !== null}
                   class="flex h-9 items-center gap-1.5 rounded-xl bg-base-100 px-3 text-[11px] font-medium text-base-content/70 transition hover:bg-base-200 hover:text-base-content disabled:opacity-50"
                 >
-                  {permissionBusy === 'notifications' ? (
+                  {permissionBusy === 'microphone' ? (
                     <Loader2 class="h-3.5 w-3.5 animate-spin" />
                   ) : (
-                    <Bell class="h-3.5 w-3.5" />
+                    <Mic class="h-3.5 w-3.5" />
                   )}
-                  Solicitar permiso
+                  Probar / solicitar
                 </button>
+              </div>
+            </div>
+
+            <div class="rounded-2xl bg-base-100/45 p-4">
+              <div class="flex flex-wrap items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <SlidersHorizontal class="h-4 w-4 text-base-content/50" />
+                    <h3 class="text-sm font-medium">Ajustes de la app / sistema</h3>
+                  </div>
+                  <p class="mt-1 text-[11px] leading-relaxed text-base-content/45">
+                    Abre la configuración para activar permisos manualmente si fueron rechazados.
+                  </p>
+                  {!nativeAndroid && (
+                    <p class="mt-1 text-[10px] text-base-content/35">
+                      En web, revisa los permisos del sitio en tu navegador.
+                    </p>
+                  )}
+                </div>
                 <button
                   type="button"
-                  onClick={() => void refreshNotificationPermission()}
+                  onClick={() => void handleOpenAppSettings()}
                   disabled={permissionBusy !== null}
-                  class="flex h-9 items-center gap-1.5 rounded-xl bg-base-100/70 px-3 text-[11px] font-medium text-base-content/60 transition hover:bg-base-100 hover:text-base-content disabled:opacity-50"
+                  class="flex h-9 items-center gap-1.5 rounded-xl bg-base-content px-3 text-[11px] font-medium text-base-100 transition hover:opacity-90 disabled:opacity-50"
                 >
-                  <RefreshCw class="h-3.5 w-3.5" /> Actualizar
+                  {permissionBusy === 'settings' ? (
+                    <Loader2 class="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <SlidersHorizontal class="h-3.5 w-3.5" />
+                  )}
+                  Abrir ajustes
                 </button>
               </div>
             </div>
           </div>
-
-          <div class="rounded-2xl bg-base-100/45 p-4">
-            <div class="flex flex-wrap items-start justify-between gap-3">
-              <div class="min-w-0">
-                <div class="flex items-center gap-2">
-                  <Mic class="h-4 w-4 text-base-content/50" />
-                  <h3 class="text-sm font-medium">Micrófono</h3>
-                </div>
-                <p class="mt-1 text-[11px] leading-relaxed text-base-content/45">
-                  Necesario para ejercicios de habla/reconocimiento de voz.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => void handleRequestMicrophonePermission()}
-                disabled={permissionBusy !== null}
-                class="flex h-9 items-center gap-1.5 rounded-xl bg-base-100 px-3 text-[11px] font-medium text-base-content/70 transition hover:bg-base-200 hover:text-base-content disabled:opacity-50"
-              >
-                {permissionBusy === 'microphone' ? (
-                  <Loader2 class="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <Mic class="h-3.5 w-3.5" />
-                )}
-                Probar / solicitar
-              </button>
-            </div>
-          </div>
-
-          <div class="rounded-2xl bg-base-100/45 p-4">
-            <div class="flex flex-wrap items-start justify-between gap-3">
-              <div class="min-w-0">
-                <div class="flex items-center gap-2">
-                  <SlidersHorizontal class="h-4 w-4 text-base-content/50" />
-                  <h3 class="text-sm font-medium">Ajustes de la app / sistema</h3>
-                </div>
-                <p class="mt-1 text-[11px] leading-relaxed text-base-content/45">
-                  Abre la configuración para activar permisos manualmente si fueron rechazados.
-                </p>
-                {!nativeAndroid && (
-                  <p class="mt-1 text-[10px] text-base-content/35">
-                    En web, revisa los permisos del sitio en tu navegador.
-                  </p>
-                )}
-              </div>
-              <button
-                type="button"
-                onClick={() => void handleOpenAppSettings()}
-                disabled={permissionBusy !== null}
-                class="flex h-9 items-center gap-1.5 rounded-xl bg-base-content px-3 text-[11px] font-medium text-base-100 transition hover:opacity-90 disabled:opacity-50"
-              >
-                {permissionBusy === 'settings' ? (
-                  <Loader2 class="h-3.5 w-3.5 animate-spin" />
-                ) : (
-                  <SlidersHorizontal class="h-3.5 w-3.5" />
-                )}
-                Abrir ajustes
-              </button>
-            </div>
-          </div>
-        </div>
-      </SectionCard>
+        </SectionCard>
+      )}
 
       <SectionCard
         id="data"

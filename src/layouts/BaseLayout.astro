@@ -194,7 +194,7 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === 'B1-B
       import { Browser } from "@capacitor/browser";
       import { syncStreakReminder } from "../lib/notifications";
       import { progressStore } from "../lib/progress";
-      import { initVoices, speak, warmSpeechEngine } from "../lib/speech";
+      import { initVoices, speak, warmSpeechEngine, warmSpeechPhrases } from "../lib/speech";
       import { supabase } from "../lib/supabase";
 
       initVoices();
@@ -209,6 +209,7 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === 'B1-B
         __runtimeenglishBackBound?: boolean;
         __runtimeenglishSpeechBound?: boolean;
         __runtimeenglishAuthBound?: boolean;
+        __runtimeenglishPhraseObserverBound?: boolean;
       };
 
       // Manejo del botón atrás en Android/Capacitor
@@ -275,7 +276,10 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === 'B1-B
           if (!(target instanceof Element)) return;
           const button = target.closest("[data-speak]");
           if (!(button instanceof HTMLElement)) return;
-          try { warmSpeechEngine(); } catch {}
+          try {
+            warmSpeechEngine();
+            if (button.dataset.speak) warmSpeechPhrases([button.dataset.speak]);
+          } catch {}
         };
         document.addEventListener("pointerdown", warmOnIntent, { passive: true, capture: true });
         document.addEventListener("pointerenter", warmOnIntent, { passive: true, capture: true });
@@ -287,9 +291,41 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === 'B1-B
           const button = target.closest("[data-speak]");
           if (!(button instanceof HTMLElement)) return;
           event.preventDefault();
-          try { warmSpeechEngine(); } catch {}
+          try {
+            warmSpeechEngine();
+            if (button.dataset.speak) warmSpeechPhrases([button.dataset.speak]);
+          } catch {}
           speak(button.dataset.speak ?? "", button);
         });
+      }
+
+      // Pre-generate audio for phrases that enter the viewport so the first tap is instant.
+      if ("IntersectionObserver" in window && !nativeWindow.__runtimeenglishPhraseObserverBound) {
+        nativeWindow.__runtimeenglishPhraseObserverBound = true;
+        const phraseObserver = new IntersectionObserver(
+          (entries) => {
+            const texts: string[] = [];
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              const element = entry.target as HTMLElement;
+              if (element.dataset.speak) texts.push(element.dataset.speak);
+              phraseObserver.unobserve(element);
+            }
+            if (texts.length) warmSpeechPhrases(texts);
+          },
+          { rootMargin: "250px" },
+        );
+
+        const observePhrases = () => {
+          document.querySelectorAll<HTMLElement>("[data-speak]").forEach((element) => {
+            if (element.dataset.speakPrewarmed) return;
+            element.dataset.speakPrewarmed = "1";
+            phraseObserver.observe(element);
+          });
+        };
+
+        observePhrases();
+        document.addEventListener("astro:page-load", observePhrases);
       }
     </script>
   </body>

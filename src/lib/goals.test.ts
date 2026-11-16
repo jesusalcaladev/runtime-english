@@ -6,6 +6,8 @@ describe('goals', () => {
     expect(isSessionRelevantToGoal('daily-standup', 'daily')).toBe(true)
     expect(isSessionRelevantToGoal('daily-standup', 'work')).toBe(false)
     expect(isSessionRelevantToGoal('git-y-errores', 'work')).toBe(true)
+    expect(isSessionRelevantToGoal('phrasal-verbs-dev-diario', 'work')).toBe(true)
+    expect(isSessionRelevantToGoal('phrasal-verbs-dev-diario', 'daily')).toBe(true)
     expect(isSessionRelevantToGoal('entrevistas-tecnicas', 'interviews')).toBe(true)
     expect(isSessionRelevantToGoal('anything', 'all')).toBe(false)
   })

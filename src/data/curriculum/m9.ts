@@ -99,6 +99,56 @@ export const m9: Module = {
             },
           ],
         },
+        {
+          type: 'dialogue',
+          title: 'Contestar con impacto (STAR)',
+          context:
+            'Una entrevistadora pregunta por un reto y el candidato responde con estructura STAR.',
+          lines: [
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Interviewer',
+              en: 'Tell me about a challenge you faced in your previous role.',
+              es: 'Cuéntame un reto que enfrentaste en tu rol anterior.',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Candidate',
+              en: 'In my previous role, I was responsible for the backend service. Latency was high.',
+              es: 'En mi rol anterior era responsable del servicio backend. La latencia era alta.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Interviewer',
+              en: 'What did you do, and what was the result?',
+              es: '¿Qué hiciste y cuál fue el resultado?',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Candidate',
+              en: 'I took ownership of the migration and added caching. As a result, we reduced latency by 30%.',
+              es: 'Me hice responsable de la migración y añadí caché. Como resultado, redujimos la latencia un 30%.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Interviewer',
+              en: 'Was there a trade-off?',
+              es: '¿Hubo algún trade-off?',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Candidate',
+              en: 'Yes, between speed and reliability. I coordinated with stakeholders before deciding.',
+              es: 'Sí, entre velocidad y fiabilidad. Coordiné con las partes interesadas antes de decidir.',
+            },
+          ],
+        },
       ],
       exercises: [
         {
@@ -111,6 +161,7 @@ export const m9: Module = {
             'As a result we reduced latency by 20 percent',
             'As a result, we reduced latency by 20 percent.',
           ],
+          hint: "Empieza con 'As a result,' y escribe el porcentaje con número: '20%'.",
           explanation:
             'Practica comprensión auditiva y números/porcentajes en contexto profesional.',
         },
@@ -129,7 +180,10 @@ export const m9: Module = {
           prompt: 'Corrige el error común en inglés de entrevista.',
           sentence: 'I am responsible of the backend service.',
           answer: 'I am responsible for the backend service.',
-          accept: ['I was responsible for the backend service.'],
+          accept: [
+            'I was responsible for the backend service.',
+            "I'm responsible for the backend service.",
+          ],
           explanation: "En inglés se dice 'responsible for', no 'responsible of'.",
         },
         {
@@ -164,6 +218,34 @@ export const m9: Module = {
           answer: 'I took ownership of the migration.',
           explanation:
             "'Take ownership' es una frase clave en entrevistas para mostrar responsabilidad y autonomía (vocabulario de esta lección).",
+        },
+        {
+          id: 'm9-l1-e7',
+          type: 'choice',
+          prompt: 'Según la entrevista, ¿cuál fue el reto principal y qué hizo Leo?',
+          options: [
+            'Latencia alta; se hizo responsable de la migración y añadió caché.',
+            'Pocos tests; reescribió el frontend.',
+            'Un incidente; hizo un rollback.',
+            'Falta de documentación; escribió las docs.',
+          ],
+          answer: 0,
+          explanation:
+            "Leo dice 'Latency was high' y 'I took ownership of the migration and added caching'.",
+        },
+        {
+          id: 'm9-l1-e8',
+          type: 'choice',
+          prompt: '¿Cuál fue el resultado medible y el trade-off que mencionó Leo?',
+          options: [
+            'Redujeron la latencia un 30%; hubo un trade-off entre velocidad y fiabilidad.',
+            'Redujeron costes un 10%; no hubo trade-off.',
+            'Aumentaron la latencia; el trade-off fue con el equipo.',
+            'No hubo ningún resultado medible.',
+          ],
+          answer: 0,
+          explanation:
+            "Dice 'As a result, we reduced latency by 30%' y 'between speed and reliability' (además de 'I coordinated with stakeholders').",
         },
       ],
     },
@@ -236,10 +318,54 @@ export const m9: Module = {
           ],
         },
         {
-          type: 'callout',
-          tone: 'tip',
-          title: 'Objetivos de práctica',
-          body: 'Usa las rutas por objetivo (trabajo diario, entrevistas, inglés técnico) desde Ajustes para priorizar sesiones relevantes; el repaso rápido y el diccionario se adaptan suavemente a tu objetivo.',
+          type: 'dialogue',
+          title: 'Del incidente al RFC y la demo',
+          context:
+            'Maya y Leo pasan de un update de incidente al feedback sobre un RFC y una demo.',
+          lines: [
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: "Quick update: we're investigating the 500s. The impact is limited to EU users.",
+              es: 'Actualización rápida: estamos investigando los 500. El impacto se limita a usuarios de la UE.',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'Did we find the root cause?',
+              es: '¿Encontramos la causa raíz?',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'Yes, cache invalidation. We decided to roll back the release and will update you in 15 minutes.',
+              es: 'Sí, invalidación de caché. Decidimos revertir el despliegue y os actualizamos en 15 minutos.',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'Got it. Could you give me actionable feedback on my RFC for the fix?',
+              es: 'Entendido. ¿Podrías darme feedback accionable sobre mi RFC para la solución?',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'Sure. The goal of this RFC is clear, but let me walk you through the demo first.',
+              es: 'Claro. El objetivo del RFC es claro, pero déjame mostrarte primero la demo paso a paso.',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'Thanks. Could you clarify what you mean by the fallback plan?',
+              es: 'Gracias. ¿Podrías aclarar a qué te refieres con el plan de respaldo?',
+            },
+          ],
         },
       ],
       exercises: [
@@ -263,6 +389,7 @@ export const m9: Module = {
           audioText: 'Let me walk you through the demo. First, I will create a new project.',
           answer: 'Let me walk you through the demo. First, I will create a new project.',
           accept: ["Let me walk you through the demo. First I'll create a new project."],
+          hint: "Dos frases: 'Let me walk you through...' y 'First, I will/I'll...'.",
           explanation: 'Frases claras y secuenciales son clave al presentar demos.',
         },
         {
@@ -317,6 +444,33 @@ export const m9: Module = {
           ],
           answer: 0,
           explanation: "Abre la propuesta con un objetivo claro: 'The goal of this RFC is to...'",
+        },
+        {
+          id: 'm9-l2-e7',
+          type: 'choice',
+          prompt: 'En el diálogo, ¿cuál fue la causa raíz del incidente y qué acción tomaron?',
+          options: [
+            'La invalidación de caché; revertieron el despliegue.',
+            'Un error de sintaxis; reiniciaron el servidor.',
+            'Falta de tests; desplegaron de nuevo.',
+            'Un problema de base de datos; escalaron al equipo.',
+          ],
+          answer: 0,
+          explanation: "Maya dice 'Yes, cache invalidation. We decided to roll back the release'.",
+        },
+        {
+          id: 'm9-l2-e8',
+          type: 'choice',
+          prompt: '¿Qué le pidió Leo a Maya sobre su RFC y la demo?',
+          options: [
+            'Feedback accionable sobre el RFC y que le mostrara la demo paso a paso.',
+            'Que aprobara el RFC sin cambios.',
+            'Que cancelara la demo.',
+            'Que escribiera el RFC por él.',
+          ],
+          answer: 0,
+          explanation:
+            "Leo pregunta 'Could you give me actionable feedback on my RFC for the fix?' y Maya responde 'let me walk you through the demo first'.",
         },
       ],
     },

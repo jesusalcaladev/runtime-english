@@ -11,6 +11,7 @@ import {
 import { getSlang } from '../../data/slang'
 import type { ContentBlock } from '../../lib/types'
 import SpeakButton from '../ui/SpeakButton.astro'
+import DialogueScene from './DialogueScene'
 import SavePhraseButton from './SavePhraseButton'
 
 interface Props {
@@ -29,6 +30,15 @@ const { blocks } = Astro.props
   {
     blocks.map((block) => (
       <section>
+        {block.type === "dialogue" && (
+          <DialogueScene
+            client:only="preact"
+            title={block.title}
+            context={block.context}
+            lines={block.lines}
+          />
+        )}
+
         {block.type === "technique" && (
           <div class="relative overflow-hidden rounded-3xl bg-accent/[0.06] p-5 sm:p-6">
             <div class="pointer-events-none absolute -right-10 -top-12 h-32 w-32 rounded-full bg-accent/[0.08] blur-2xl" />

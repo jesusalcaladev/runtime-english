@@ -45,6 +45,7 @@ export interface ProgressSettings {
   ttsEnabled: boolean
   ttsRate: number
   ttsEngine: 'system' | 'kokoro'
+  speechLanguage: 'en-US' | 'en-GB'
   reminders: ReminderSettings
   name: string
   onboarded: boolean
@@ -172,6 +173,7 @@ export function createDefaultState(): ProgressState {
       ttsEnabled: true,
       ttsRate: 1,
       ttsEngine: 'system',
+      speechLanguage: 'en-US',
       reminders: { enabled: false, time: '20:00', lastNudgeDate: null },
       name: '',
       onboarded: false,

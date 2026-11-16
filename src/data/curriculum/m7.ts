@@ -104,6 +104,7 @@ export const m7: Module = {
             'That PR is pure AI slop. Nobody reviewed the tests.',
             'That PR is pure AI slop, nobody reviewed the tests.',
           ],
+          hint: "Usa 'That PR is pure AI slop' y después 'nobody reviewed the tests'.",
           explanation:
             "'Pure' funciona como intensificador. 'Review' se usa tanto para code review como para revisar tests.",
         },
@@ -228,11 +229,11 @@ export const m7: Module = {
         {
           id: 'm7-l2-e5',
           type: 'builder',
-          prompt: "Construye: 'Concéntrate. El sprint termina el viernes.'",
-          words: ['Lock in.', 'The sprint', 'ends', 'Friday.'],
-          answer: 'Lock in. The sprint ends Friday.',
+          prompt: "Construye: 'Déjalo trabajar — ya se está encargando.'",
+          words: ['Let him cook —', "he's on", 'it.'],
+          answer: "Let him cook — he's on it.",
           explanation:
-            "'Lock in' es una forma informal de decir 'concéntrate/enfócate' (término visto en esta lección).",
+            "'Let him cook' = déjalo trabajar; 'he's on it' = ya se está encargando. Ambos son chunks informales vistos en esta lección.",
         },
         {
           id: 'm7-l2-e6',
@@ -328,10 +329,47 @@ export const m7: Module = {
           ],
         },
         {
-          type: 'callout',
-          tone: 'tip',
-          title: 'Registro y claridad',
-          body: "Estas frases son jerga profesional y suenan naturales en reuniones. Úsalas con un propósito claro (aparcar, retomar, pedir capacidad). Si hablas con alguien externo o no técnico, prefiere formas neutras como 'Can we discuss this later?' o 'I don't have time this week.'",
+          type: 'dialogue',
+          title: 'Alinear prioridades sin perder tiempo',
+          context:
+            'Maya y Leo usan jerga de reunión para aparcar un bloqueo y acordar quién lo retoma.',
+          lines: [
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: "Quick heads-up: we're short on time. Let's align on priorities.",
+              es: 'Aviso rápido: nos falta tiempo. Pongámonos de acuerdo en las prioridades.',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'The API access issue is my only blocker. Can we take it offline?',
+              es: 'El problema de acceso a la API es mi único bloqueo. ¿Lo hablamos fuera de la reunión?',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: "Yes, let's put it in the parking lot and circle back after the standup.",
+              es: 'Sí, aparquémoslo y retomémoslo después del standup.',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: "I don't have the bandwidth to fix it today, but I'll own that action item.",
+              es: 'No tengo capacidad para arreglarlo hoy, pero me encargo de esa tarea.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: "Great, thanks for the heads-up. Let's move on.",
+              es: 'Genial, gracias por el aviso. Sigamos.',
+            },
+          ],
         },
       ],
       exercises: [
@@ -397,6 +435,34 @@ export const m7: Module = {
           answer: "I'll own that action item.",
           explanation:
             "'Own that action item' expresa responsabilidad clara sobre una tarea acordada en la reunión.",
+        },
+        {
+          id: 'm7-l3-e7',
+          type: 'choice',
+          prompt: 'En la conversación, ¿de qué hablaron Maya y Leo?',
+          options: [
+            'De las prioridades y un bloqueo con el acceso a la API.',
+            'De los resultados de un code review.',
+            'De la estimación de un sprint.',
+            'De un error de CORS en staging.',
+          ],
+          answer: 0,
+          explanation:
+            "Maya dice 'Let's align on priorities' y Leo responde 'The API access issue is my only blocker'.",
+        },
+        {
+          id: 'm7-l3-e8',
+          type: 'choice',
+          prompt: '¿Qué acordaron sobre el problema de la API?',
+          options: [
+            'Aparcarlo y retomarlo después del standup; Leo se encargará de la tarea.',
+            'Resolverlo antes de que termine la reunión.',
+            'Ignorarlo por falta de tiempo.',
+            'Pasárselo a otro equipo.',
+          ],
+          answer: 0,
+          explanation:
+            "Maya propone 'let's put it in the parking lot and circle back after the standup' y Leo dice 'I'll own that action item'.",
         },
       ],
     },
@@ -473,12 +539,6 @@ export const m7: Module = {
             { en: 'Tests pass. Ship it.', es: 'Los tests pasan. Adelante.' },
             { en: 'Good catch, thanks.', es: 'Buen hallazgo, gracias.' },
           ],
-        },
-        {
-          type: 'callout',
-          tone: 'tip',
-          title: 'Tono en reviews',
-          body: "Marca la intención: 'nit' para algo menor, 'blocking' solo si impide mergear. Reconoce lo bueno ('Good catch, thanks') y evita etiquetas vagas. Así el feedback es claro, nativo y fácil de actuar.",
         },
       ],
       exercises: [

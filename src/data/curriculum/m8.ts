@@ -90,6 +90,48 @@ export const m8: Module = {
             },
           ],
         },
+        {
+          type: 'dialogue',
+          title: 'Leer la spec en voz alta',
+          context: 'Maya y Leo repasan los requisitos de una spec y resumen qué deben hacer.',
+          lines: [
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'According to the docs, the client must send a valid token.',
+              es: 'Según la documentación, el cliente debe enviar un token válido.',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'And the timeout field? Is it required?',
+              es: '¿Y el campo timeout? ¿Es obligatorio?',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: "No, it's optional. But you should retry on failure — that's recommended.",
+              es: 'No, es opcional. Pero debes reintentar si falla: eso es recomendado.',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'One caveat: the old endpoint is deprecated.',
+              es: 'Una advertencia: el endpoint antiguo está obsoleto.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'Right. Version 2 has a breaking change. In short, we must update the client.',
+              es: 'Correcto. La versión 2 tiene un cambio incompatible. En resumen, debemos actualizar el cliente.',
+            },
+          ],
+        },
       ],
       exercises: [
         {
@@ -151,6 +193,33 @@ export const m8: Module = {
           hint: "Usa 'According to the docs...' y 'deprecated'.",
           explanation:
             'Frase modelo de la lección para resumir un estado importante encontrado en documentación.',
+        },
+        {
+          id: 'm8-l1-e7',
+          type: 'choice',
+          prompt: 'Según la conversación, ¿qué es obligatorio que haga el cliente?',
+          options: [
+            'Enviar un token válido.',
+            'Usar el campo timeout.',
+            'Llamar al endpoint obsoleto.',
+            'Omitir los reintentos.',
+          ],
+          answer: 0,
+          explanation: "Maya dice 'According to the docs, the client must send a valid token'.",
+        },
+        {
+          id: 'm8-l1-e8',
+          type: 'choice',
+          prompt: '¿Cuál fue el resumen final sobre la versión 2 de la spec?',
+          options: [
+            'Hay un breaking change y deben actualizar el cliente.',
+            'La versión 2 es completamente opcional.',
+            'El endpoint obsoleto seguirá igual.',
+            'No hay ningún cambio.',
+          ],
+          answer: 0,
+          explanation:
+            "Maya cierra con 'Version 2 has a breaking change. In short, we must update the client'.",
         },
       ],
     },
@@ -342,16 +411,47 @@ export const m8: Module = {
           ],
         },
         {
-          type: 'callout',
-          tone: 'tip',
-          title: 'Sonar nativo = sonar claro',
-          body: "No necesitas slang para sonar natural. Frases simples como 'walk me through', 'call out', 'keep it simple' o 'from scratch' son inglés nativo cotidiano en equipos tech. Usa un tono directo y amable: pide, acota y revisa.",
-        },
-        {
-          type: 'callout',
-          tone: 'warning',
-          title: 'Verifica antes de confiar',
-          body: 'Aunque el agente explique con seguridad, haz un sanity check: ejecuta tests, revisa edge cases y confirma que no inventó APIs o detalles (hallucinations).',
+          type: 'dialogue',
+          title: 'Escribir el prompt antes de pasarlo',
+          context:
+            'Dos devs acuerdan el contexto, la restricción y el formato del prompt para un agente.',
+          lines: [
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: "Let's write the prompt first. Here's the context: the endpoint times out under load.",
+              es: 'Escribamos primero el prompt. Aquí está el contexto: el endpoint expira bajo carga.',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: "What I'm trying to do is add a retry. One constraint: keep the public API the same.",
+              es: 'Lo que intento hacer es añadir un reintento. Una restricción: mantener la API pública igual.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'Good. Ask it to walk me through the fix and call out any edge cases.',
+              es: 'Bien. Pídele que explique la solución paso a paso y señale los casos borde.',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'Should we include the output format? I want cause, fix, and test.',
+              es: '¿Incluimos el formato de salida? Quiero causa, solución y test.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'Yes, and add a sanity check. Refactoring the database layer is out of scope.',
+              es: 'Sí, y añade una revisión rápida. Refactorizar la capa de datos queda fuera del alcance.',
+            },
+          ],
         },
       ],
       exercises: [
@@ -474,6 +574,33 @@ export const m8: Module = {
           explanation:
             "'From scratch' (desde cero) y 'keep it simple' son expresiones nativas muy comunes.",
         },
+        {
+          id: 'm8-l7-e11',
+          type: 'choice',
+          prompt: 'En la conversación, ¿cuál es la restricción (constraint) del prompt?',
+          options: [
+            'Mantener la API pública igual.',
+            'Cambiar la base de datos.',
+            'Borrar el endpoint.',
+            'Añadir un endpoint nuevo.',
+          ],
+          answer: 0,
+          explanation: "Leo dice 'One constraint: keep the public API the same'.",
+        },
+        {
+          id: 'm8-l7-e12',
+          type: 'choice',
+          prompt: '¿Qué le pidieron al agente en el prompt?',
+          options: [
+            'Que explique paso a paso, señale casos borde y dé causa, solución y test.',
+            'Que ignore los errores.',
+            'Que refactorice la base de datos.',
+            'Que escriba documentación.',
+          ],
+          answer: 0,
+          explanation:
+            "Maya pide 'walk me through the fix and call out any edge cases', y Leo quiere 'cause, fix, and test' como formato de salida.",
+        },
       ],
     },
 
@@ -534,12 +661,6 @@ export const m8: Module = {
             },
           ],
         },
-        {
-          type: 'callout',
-          tone: 'info',
-          title: 'Glosario en contexto',
-          body: "Aprende términos dentro de frases reales: 'root cause' (causa raíz), 'retry' (reintentar), 'walk you through' (explicar paso a paso), 'staging' (entorno de pruebas). Así se fijan más rápido que en listas sueltas.",
-        },
       ],
       exercises: [
         {
@@ -548,13 +669,10 @@ export const m8: Module = {
           prompt:
             "Situación: encontraste la causa de un bug. Escríbelo: 'Encontré la causa raíz: el token expiró.'",
           answer: 'I found the root cause: the token expired.',
-          accept: [
-            'I found the root cause: the token had expired.',
-            'I found the root cause: the token was expired.',
-          ],
+          accept: ['I found the root cause: the token had expired.'],
           hint: "Usa 'I found the root cause...' + pasado simple.",
           explanation:
-            "Nombrar la causa raíz es claro y profesional en incidentes y debugging. Aquí basta con pasado simple ('expired'); también puedes escuchar 'had expired' en otros contextos.",
+            "Nombrar la causa raíz es claro y profesional en incidentes y debugging. Aquí basta con pasado simple ('expired'); 'had expired' se explica en el Paso 4.0 (B1).",
         },
         {
           id: 'm8-l5-e2',
@@ -774,12 +892,6 @@ export const m8: Module = {
           desc: 'Piensa la idea, elige la forma más simple y clara, y verifica sujeto+tiempo+complemento. Prioriza claridad sobre complejidad. Repetir en voz alta ayuda a fijar ritmo y chunks.',
         },
         {
-          type: 'callout',
-          tone: 'tip',
-          title: 'Fórmula rápida para responder bien',
-          body: "1) Di el contexto: 'I mean...' / 'Actually...' / 'Basically...'. 2) Di el hecho: qué pasa o qué hiciste. 3) Di el siguiente paso: 'I will fix it', 'Can you review it?', 'We should test it'.",
-        },
-        {
           type: 'phrases',
           title: 'Frases útiles para repasar',
           items: [
@@ -917,7 +1029,11 @@ export const m8: Module = {
           prompt:
             "Escríbelo en inglés: 'O sea, no es un bloqueador, pero deberíamos arreglarlo pronto.'",
           answer: "I mean, it's not a blocker, but we should fix it soon.",
-          accept: ['I mean, it is not a blocker, but we should fix it soon.'],
+          accept: [
+            'I mean, it is not a blocker, but we should fix it soon.',
+            "I mean, it isn't a blocker, but we should fix it soon.",
+            "I mean it isn't a blocker, but we should fix it soon.",
+          ],
           hint: "Empieza con 'I mean,'.",
           explanation:
             "'I mean' reformula o suaviza la idea; 'we should fix it soon' propone el siguiente paso.",
@@ -1537,7 +1653,7 @@ export const m8: Module = {
           prompt: "Escríbelo en inglés: '¿Podrías explicarlo otra vez?'",
           answer: 'Could you explain that again?',
           accept: ['Could you explain that again, please?'],
-          hint: "Usa 'Could you explain that again?'",
+          hint: "Usa 'Could you explain...' + 'again'.",
           explanation: 'Pedir explicación de nuevo es normal y profesional (m1-l4).',
         },
         {

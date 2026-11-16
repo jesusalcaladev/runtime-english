@@ -99,10 +99,47 @@ export const m6: Module = {
           ],
         },
         {
-          type: 'callout',
-          tone: 'warning',
-          title: 'Nunca pegues un token en el chat',
-          body: 'Si necesitas ayuda con una credencial, comparte el error y el nombre de la variable, no el valor. Un token pegado en Slack o en un ticket se considera expuesto y debe rotarse.',
+          type: 'dialogue',
+          title: 'Un token filtrado en los logs',
+          context:
+            'Leo detecta un token expuesto en los logs y Maya coordina la respuesta de seguridad.',
+          lines: [
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'The auth token leaked in the logs again.',
+              es: 'El token de autenticación se filtró en los logs otra vez.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'Is it in a public channel? We need to rotate the key now.',
+              es: '¿Está en un canal público? Necesitamos rotar la clave ahora.',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: "Only in our private logs, but I'll rotate it and revoke the old one.",
+              es: 'Solo en nuestros logs privados, pero la rotaré y revocaré la anterior.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: "Good. The service also has too many permissions — let's apply least privilege.",
+              es: 'Bien. El servicio también tiene demasiados permisos: apliquemos mínimo privilegio.',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'Agreed. I already removed the value from the logs.',
+              es: 'De acuerdo. Ya quité el valor de los logs.',
+            },
+          ],
         },
       ],
       exercises: [
@@ -184,6 +221,32 @@ export const m6: Module = {
           answer: 'This service has too many permissions. We should apply least privilege.',
           explanation:
             "Identificas el problema (demasiados permisos) y propones la práctica correcta: 'least privilege' (mínimo privilegio).",
+        },
+        {
+          id: 'm6-l1-e7',
+          type: 'choice',
+          prompt: '¿Qué pasó en la conversación?',
+          options: [
+            'Un token de autenticación se filtró en los logs.',
+            'Un servidor se cayó en producción.',
+            'Un commit fue borrado por error.',
+          ],
+          answer: 0,
+          explanation:
+            "Leo dice 'The auth token leaked in the logs again': el token se filtró en los logs.",
+        },
+        {
+          id: 'm6-l1-e8',
+          type: 'choice',
+          prompt: '¿Qué hará Leo con la clave expuesta?',
+          options: [
+            'Rotarla y revocar la anterior.',
+            'Publicarla en Slack para que el equipo la vea.',
+            'Ignorarla porque los logs son privados.',
+          ],
+          answer: 0,
+          explanation:
+            "Leo responde 'I'll rotate it and revoke the old one': rotar implica reemplazar la clave y revocar la anterior.",
         },
       ],
     },
@@ -435,6 +498,48 @@ export const m6: Module = {
             },
           ],
         },
+        {
+          type: 'dialogue',
+          title: 'Latencia p95: medir antes de optimizar',
+          context: 'Maya y Leo revisan una regresión de rendimiento después de un despliegue.',
+          lines: [
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'The p95 latency doubled after the deploy.',
+              es: 'La latencia p95 se duplicó después del despliegue.',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: "Let's profile the endpoint before we optimize anything.",
+              es: 'Perfilemos el endpoint antes de optimizar nada.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'Good. Profiling showed a full table scan.',
+              es: 'Bien. El perfilado mostró un escaneo completo de tabla.',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'Then the database is the bottleneck, not the CPU.',
+              es: 'Entonces la base de datos es el cuello de botella, no la CPU.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: "Adding an index trades memory for speed. Let's measure again after.",
+              es: 'Añadir un índice cambia memoria por velocidad. Midamos de nuevo después.',
+            },
+          ],
+        },
       ],
       exercises: [
         {
@@ -490,16 +595,17 @@ export const m6: Module = {
         {
           id: 'm6-l3-e5',
           type: 'choice',
-          prompt: 'El servicio usa mucho CPU al procesar peticiones. ¿Cómo lo describes?',
+          prompt:
+            'El servicio pasa casi todo el tiempo esperando E/S (base de datos, disco, red). ¿Cómo lo describes?',
           options: [
             'The service is I/O-bound.',
             'The service is CPU-bound.',
             'The service is memory-bound only.',
             'The service is down.',
           ],
-          answer: 1,
+          answer: 0,
           explanation:
-            "'CPU-bound' indica que el rendimiento está limitado por procesamiento (CPU), no por red o disco.",
+            "'I/O-bound' indica que el cuello de botella está en entrada/salida (red, disco, base de datos), no en la CPU.",
         },
         {
           id: 'm6-l3-e6',
@@ -509,6 +615,32 @@ export const m6: Module = {
           answer: 'Profile the endpoint before you optimize.',
           explanation:
             'Imperativo con paso concreto: primero perfilar/midir, luego optimizar. Usa estructuras ya vistas.',
+        },
+        {
+          id: 'm6-l3-e7',
+          type: 'choice',
+          prompt: '¿Cuál fue la causa de la regresión en la conversación?',
+          options: [
+            'Una consulta hacía un escaneo completo de tabla.',
+            'La CPU estaba al 100%.',
+            'Faltaban servidores.',
+          ],
+          answer: 0,
+          explanation:
+            "Maya dice 'Profiling showed a full table scan': la causa fue una consulta con escaneo completo de tabla.",
+        },
+        {
+          id: 'm6-l3-e8',
+          type: 'choice',
+          prompt: '¿Qué hará el equipo después del cambio?',
+          options: [
+            'Volver a medir la latencia.',
+            'Desplegar sin medir.',
+            'Borrar los logs de rendimiento.',
+          ],
+          answer: 0,
+          explanation:
+            "Maya cierra con 'Let's measure again after': se mide de nuevo para comprobar la mejora con datos.",
         },
       ],
     },
