@@ -66,7 +66,36 @@ function validateExercise(exercise: Exercise, session: Session) {
       expect(exercise.answer.trim().length).toBeGreaterThan(0)
       break
     case 'write':
+    case 'shadow':
       expect(exercise.answer.trim().length).toBeGreaterThan(0)
+      break
+    case 'match':
+      expect(exercise.pairs.length).toBeGreaterThanOrEqual(2)
+      for (const pair of exercise.pairs) {
+        expect(pair.en.trim().length).toBeGreaterThan(0)
+        expect(pair.es.trim().length).toBeGreaterThan(0)
+      }
+      break
+    case 'dialogue-branch':
+      expect(exercise.steps.length).toBeGreaterThanOrEqual(2)
+      for (const step of exercise.steps) {
+        expect(step.line.trim().length).toBeGreaterThan(0)
+        expect(step.choices.filter((choice) => choice.correct).length).toBe(1)
+        for (const choice of step.choices) {
+          expect(choice.en.trim().length).toBeGreaterThan(0)
+          expect(choice.feedback.trim().length).toBeGreaterThan(0)
+        }
+      }
+      break
+    case 'multi-choice':
+      expect(exercise.options.length).toBeGreaterThanOrEqual(2)
+      expect(exercise.answers.length).toBeGreaterThan(0)
+      expect(new Set(exercise.answers).size).toBe(exercise.answers.length)
+      for (const answer of exercise.answers) {
+        expect(Number.isInteger(answer)).toBe(true)
+        expect(answer).toBeGreaterThanOrEqual(0)
+        expect(answer).toBeLessThan(exercise.options.length)
+      }
       break
   }
 
@@ -152,6 +181,16 @@ describe('curriculum / roadmap integrity', () => {
         advice.length,
         `${session.id} should have at most 2 advice blocks (technique / callout), got ${advice.length}`,
       ).toBeLessThanOrEqual(2)
+    }
+  })
+
+  it('gives every session at least one speaking exercise', () => {
+    const speaking = new Set(['speak', 'listen', 'shadow'])
+    for (const { session } of ALL_SESSIONS) {
+      expect(
+        session.exercises.some((exercise) => speaking.has(exercise.type)),
+        `${session.id} should include speak/listen/shadow practice`,
+      ).toBe(true)
     }
   })
 

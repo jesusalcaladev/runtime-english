@@ -1,7 +1,7 @@
 {
-  "versionName": "1.2.4",
-  "versionCode": 7,
-  "apkUrl": "https://github.com/jesusalcaladev/runtime-english/releases/download/v1.2.4/RuntimeEnglish.apk",
+  "versionName": "1.2.5",
+  "versionCode": 8,
+  "apkUrl": "https://github.com/jesusalcaladev/runtime-english/releases/download/v1.2.5/RuntimeEnglish.apk",
   "title": "Nueva versión disponible",
-  "notes": "Conversaciones tipo Duolingo con dos avatares en las sesiones principales: reproduce el diálogo completo o repite cada línea, practica pronunciación con el micrófono y responde preguntas de comprensión. Las voces se calientan desde el inicio y ahora suenan diferente cada personaje. Ajuste 'Permisos' visible solo en Android."
+  "notes": "VideoLab profesional: biblioteca de videos con miniaturas, progreso guardado, subtítulos completos sincronizados, búsqueda, shadowing por línea y comprensión. Nuevos ejercicios de match, respuesta múltiple y diálogos con decisiones, micro-drills adaptativos y test de nivel inicial."
 }

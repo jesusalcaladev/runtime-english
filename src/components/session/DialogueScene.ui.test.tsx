@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/preact'
+import { cleanup, fireEvent, render, screen } from '@testing-library/preact'
 import { describe, expect, it, vi } from 'vitest'
 import type { DialogueLine } from '../../lib/types'
 import DialogueScene from './DialogueScene'
@@ -30,5 +30,20 @@ describe('DialogueScene', () => {
     expect(screen.getByRole('button', { name: 'Reproducir conversación' })).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Escuchar a Maya' })).toBeTruthy()
     expect(screen.getByRole('button', { name: 'Escuchar a Leo' })).toBeTruthy()
+  })
+
+  it('toggles Spanish translations and audio-only mode', () => {
+    cleanup()
+    render(<DialogueScene title="Daily" lines={lines} />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'ES' }))
+    expect(screen.queryByText('Buenos días, Leo.')).toBeNull()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Solo audio' }))
+    expect(screen.queryByText('Morning, Leo.')).toBeNull()
+    expect(screen.getByRole('button', { name: 'Escuchar a Maya' })).toBeTruthy()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Solo audio' }))
+    expect(screen.getByText('Morning, Leo.')).toBeTruthy()
   })
 })

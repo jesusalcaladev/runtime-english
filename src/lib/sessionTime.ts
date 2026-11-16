@@ -98,6 +98,24 @@ function collectExerciseText(ex: Exercise): string[] {
       if (ex.hint) parts.push(ex.hint)
       if (ex.accept) parts.push(...ex.accept)
       break
+    case 'shadow':
+      parts.push(ex.answer)
+      if (ex.hint) parts.push(ex.hint)
+      if (ex.accept) parts.push(...ex.accept)
+      break
+    case 'multi-choice':
+      parts.push(...ex.options)
+      if (ex.hint) parts.push(ex.hint)
+      break
+    case 'match':
+      parts.push(...ex.pairs.flatMap((pair) => [pair.en, pair.es]))
+      if (ex.hint) parts.push(ex.hint)
+      break
+    case 'dialogue-branch':
+      for (const step of ex.steps) {
+        parts.push(step.line, ...step.choices.map((choice) => choice.en))
+      }
+      break
   }
   return parts
 }
@@ -119,7 +137,14 @@ function exerciseEffortMinutes(type: Exercise['type']): number {
     case 'listen':
       return 0.9
     case 'speak':
+    case 'shadow':
       return 1.0
+    case 'multi-choice':
+      return 0.8
+    case 'match':
+      return 0.9
+    case 'dialogue-branch':
+      return 1.2
     default:
       return 0.7
   }

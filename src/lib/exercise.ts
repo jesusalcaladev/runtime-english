@@ -18,6 +18,37 @@ export function splitBlankAlts(value: string): string[] {
     .filter(Boolean)
 }
 
+/** Fases didácticas: comprensión → práctica controlada → producción. */
+const EXERCISE_STAGE: Record<Exercise['type'], 1 | 2 | 3> = {
+  choice: 1,
+  match: 1,
+  'multi-choice': 1,
+  listen: 1,
+  'dialogue-order': 1,
+  'fill-blank': 1,
+  'fix-error': 2,
+  'dialogue-branch': 2,
+  builder: 2,
+  write: 3,
+  speak: 3,
+  roleplay: 3,
+  shadow: 3,
+}
+
+/**
+ * Ordena los ejercicios por fase didáctica manteniendo el orden original dentro
+ * de cada fase. Se aplica al mostrar la sesión; no cambia los IDs guardados.
+ */
+export function orderExercises(exercises: Exercise[]): Exercise[] {
+  return exercises
+    .map((exercise, index) => ({ exercise, index }))
+    .sort(
+      (a, b) =>
+        EXERCISE_STAGE[a.exercise.type] - EXERCISE_STAGE[b.exercise.type] || a.index - b.index,
+    )
+    .map(({ exercise }) => exercise)
+}
+
 export function shuffleIndices(length: number, random: () => number = Math.random): number[] {
   const indices = Array.from({ length }, (_, i) => i)
   for (let i = indices.length - 1; i > 0; i -= 1) {
@@ -38,6 +69,12 @@ export interface ExerciseInteraction {
   blankValues: string[]
   dialoguePicked: number[]
   heardText: string
+  /** Options ticked in a `multi-choice` exercise. */
+  multiPicked?: number[]
+  /** Pair indexes already matched in a `match` exercise. */
+  matchedPairs?: number[]
+  /** One chosen option per step in a `dialogue-branch` exercise. */
+  dialogueBranchPicked?: number[]
 }
 
 export function getCorrectAnswerText(exercise: Exercise): string {
@@ -54,7 +91,17 @@ export function getCorrectAnswerText(exercise: Exercise): string {
     case 'speak':
     case 'fix-error':
     case 'roleplay':
+    case 'shadow':
       return exercise.answer
+    case 'multi-choice':
+      return exercise.answers.map((index) => exercise.options[index] ?? '').join(' · ')
+    case 'match':
+      return exercise.pairs.map((pair) => `${pair.en} = ${pair.es}`).join(' · ')
+    case 'dialogue-branch':
+      return exercise.steps
+        .map((step) => step.choices.find((choice) => choice.correct)?.en ?? '')
+        .filter(Boolean)
+        .join(' / ')
   }
 }
 
@@ -69,10 +116,23 @@ export function getUserAnswerText(exercise: Exercise, input: ExerciseInteraction
     exercise.type === 'roleplay'
   )
     return input.text
-  if (exercise.type === 'speak') return input.heardText || input.text
+  if (exercise.type === 'speak' || exercise.type === 'shadow') return input.heardText || input.text
   if (exercise.type === 'fill-blank') return input.blankValues.join(' | ')
   if (exercise.type === 'dialogue-order')
     return input.dialoguePicked.map((i) => exercise.lines[i]).join(' / ')
+  if (exercise.type === 'multi-choice')
+    return (input.multiPicked ?? [])
+      .slice()
+      .sort((a, b) => a - b)
+      .map((i) => exercise.options[i] ?? '')
+      .join(' · ')
+  if (exercise.type === 'match')
+    return (input.matchedPairs ?? []).map((i) => exercise.pairs[i]?.en ?? '').join(' · ')
+  if (exercise.type === 'dialogue-branch')
+    return (input.dialogueBranchPicked ?? [])
+      .map((choiceIndex, stepIndex) => exercise.steps[stepIndex]?.choices[choiceIndex]?.en ?? '')
+      .filter(Boolean)
+      .join(' / ')
   return ''
 }
 
@@ -86,7 +146,12 @@ export function canCheckExercise(exercise: Exercise, input: ExerciseInteraction)
     exercise.type === 'roleplay'
   )
     return input.text.trim().length > 0
-  if (exercise.type === 'speak') return (input.heardText || input.text).trim().length > 0
+  if (exercise.type === 'speak' || exercise.type === 'shadow')
+    return (input.heardText || input.text).trim().length > 0
+  if (exercise.type === 'multi-choice') return (input.multiPicked ?? []).length > 0
+  if (exercise.type === 'match') return (input.matchedPairs ?? []).length > 0
+  if (exercise.type === 'dialogue-branch')
+    return (input.dialogueBranchPicked ?? []).some((value) => value >= 0)
   if (exercise.type === 'fill-blank')
     return (
       input.blankValues.length === exercise.blanks.length &&
@@ -115,11 +180,32 @@ export function isExerciseAnswerCorrect(exercise: Exercise, input: ExerciseInter
       (candidate) => normalizeAnswer(candidate) === normalizeAnswer(input.text),
     )
   }
-  if (exercise.type === 'speak') {
+  if (exercise.type === 'speak' || exercise.type === 'shadow') {
     const candidates = [exercise.answer, ...(exercise.accept ?? [])]
     const heard = input.heardText || input.text
     if (candidates.some((c) => normalizeAnswer(c) === normalizeAnswer(heard))) return true
     return speechMatchScore(exercise.answer, heard) >= 0.72
+  }
+  if (exercise.type === 'multi-choice') {
+    const picked = [...(input.multiPicked ?? [])].sort((a, b) => a - b)
+    const answers = [...exercise.answers].sort((a, b) => a - b)
+    return picked.length === answers.length && picked.every((value, i) => value === answers[i])
+  }
+  if (exercise.type === 'match') {
+    const matched = [...(input.matchedPairs ?? [])].sort((a, b) => a - b)
+    return matched.length === exercise.pairs.length && matched.every((value, i) => value === i)
+  }
+  if (exercise.type === 'dialogue-branch') {
+    const answered = (input.dialogueBranchPicked ?? [])
+      .map((choiceIndex, stepIndex) => ({ stepIndex, choiceIndex }))
+      .filter(({ choiceIndex }) => choiceIndex >= 0)
+    return (
+      answered.length > 0 &&
+      answered.every(
+        ({ stepIndex, choiceIndex }) =>
+          exercise.steps[stepIndex]?.choices[choiceIndex]?.correct === true,
+      )
+    )
   }
   if (exercise.type === 'fill-blank') {
     if (input.blankValues.length !== exercise.blanks.length) return false

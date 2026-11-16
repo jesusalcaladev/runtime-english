@@ -248,6 +248,27 @@ export const m6: Module = {
           explanation:
             "Leo responde 'I'll rotate it and revoke the old one': rotar implica reemplazar la clave y revocar la anterior.",
         },
+        {
+          id: 'm6-l1-e9',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'We rotated the API keys after the token appeared in a commit.',
+          hint: 'Acción de seguridad en pasado.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
+        {
+          id: 'm6-l1-e10',
+          type: 'match',
+          prompt: 'Empareja cada término con su significado.',
+          pairs: [
+            { en: 'secret', es: 'secreto o credencial sensible' },
+            { en: 'credential', es: 'credencial de acceso' },
+            { en: 'leak / leaked', es: 'filtrar / filtrado o expuesto' },
+            { en: 'rotate', es: 'rotar/cambiar una clave y revocar la anterior' },
+          ],
+          explanation:
+            'Emparejar el término con su significado refuerza el vocabulario de esta lección.',
+        },
       ],
     },
     {
@@ -338,7 +359,57 @@ export const m6: Module = {
             ['Nombrar un trade-off', 'Que tienes criterio, no solo herramientas.'],
           ],
         },
+        {
+          type: 'dialogue',
+          title: 'Abrir una sesión de system design',
+          context: 'Maya y Leo aclaran requisitos antes de dibujar la arquitectura.',
+          lines: [
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: "Let's start with the requirements. What is the main goal?",
+              es: 'Empecemos por los requisitos. ¿Cuál es el objetivo principal?',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'We need low latency and one source of truth for the data.',
+              es: 'Necesitamos baja latencia y una única fuente de verdad para los datos.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'What do you think is the main bottleneck?',
+              es: '¿Qué crees que es el cuello de botella principal?',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'The database. We can cache the most frequent reads.',
+              es: 'La base de datos. Podemos cachear las lecturas más frecuentes.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'Good. And the main risk?',
+              es: 'Bien. ¿Y el riesgo principal?',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'A single point of failure. Let us add a fallback.',
+              es: 'Un único punto de fallo. Añadiríamos una alternativa.',
+            },
+          ],
+        },
       ],
+
       exercises: [
         {
           id: 'm6-l2-e1',
@@ -412,6 +483,27 @@ export const m6: Module = {
           hint: "Usa 'Let's start with...'",
           explanation:
             "En system design, empezar por requisitos evita diseñar a ciegas. 'Let's...' propone el siguiente paso.",
+        },
+        {
+          id: 'm6-l2-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: "Let's start with the requirements and then discuss the main bottleneck.",
+          hint: 'Abrir una sesión de system design.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
+        {
+          id: 'm6-l2-e8',
+          type: 'match',
+          prompt: 'Empareja cada término con su significado.',
+          pairs: [
+            { en: 'throughput', es: 'rendimiento o peticiones por segundo' },
+            { en: 'latency', es: 'latencia' },
+            { en: 'bottleneck', es: 'cuello de botella' },
+            { en: 'cache', es: 'caché' },
+          ],
+          explanation:
+            'Emparejar el término con su significado refuerza el vocabulario de esta lección.',
         },
       ],
     },
@@ -642,6 +734,14 @@ export const m6: Module = {
           explanation:
             "Maya cierra con 'Let's measure again after': se mide de nuevo para comprobar la mejora con datos.",
         },
+        {
+          id: 'm6-l3-e9',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'The service is CPU-bound, so we cache the most frequent reads.',
+          hint: 'Causa y solución.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
       ],
     },
     {
@@ -771,6 +871,14 @@ export const m6: Module = {
           explanation:
             "Checkpoint: recuerda acciones y términos clave de seguridad ('rotate') y performance/arquitectura ('bottleneck').",
         },
+        {
+          id: 'm6-l4-e8',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'The main risk is a single point of failure in the database.',
+          hint: 'Comunicar un riesgo.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
       ],
     },
     {
@@ -877,6 +985,14 @@ export const m6: Module = {
           hint: "Usa 'review the permissions'.",
           explanation:
             'Revisar permisos es parte de aplicar mínimo privilegio y mejorar seguridad.',
+        },
+        {
+          id: 'm6-l5-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'We profiled the endpoint and reduced the latency by half.',
+          hint: 'Dos acciones de optimización.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
         },
       ],
     },

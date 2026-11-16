@@ -23,6 +23,18 @@ Before publishing, keep these values aligned for the same release:
 
 > The Android app compares `versionCode` from the manifest against the installed APK build to decide if an update is available.
 
+## In-app release notes ("Novedades")
+
+Every release should also have an entry in `src/data/changelog.ts`. On the first launch after a version bump, all users see a modal with what changed; it is shown **once per version** (tracked in `localStorage` under `runtimeenglish_changelog_seen_v1`). Users can reopen the full history at any time from **Ajustes → Novedades**.
+
+To publish release notes:
+
+1. Add a new entry at the top of `CHANGELOG` with `version` equal to `package.json` version (and Android `versionName`), a short `title` and a few `entries` (`feature` / `improvement` / `fix`).
+2. Keep `public/app-update.json` `notes` in sync for the APK update modal.
+3. `npm run test` includes a check that the newest changelog version matches `package.json`.
+
+Both the release-notes modal and the APK update notice are rendered by `src/components/layout/AppModals.tsx` (mounted in `BaseLayout.astro`); the update notice takes priority so only one dialog appears at a time. `src/components/ui/ResponsiveDialog.tsx` renders a swipeable bottom sheet (`BottomSheet.tsx`, with drag handle and safe-area padding) on phones and a centered dialog (`Modal.tsx`) on desktop, with different action layouts for each.
+
 ## Prerequisites
 
 ### General
@@ -79,7 +91,7 @@ Recommended approach (local, uncommitted):
   - [ ] `pnpm test`
   - [ ] `pnpm build`
   - [ ] (Optional but recommended) `pnpm check:biome` and `pnpm format:check`
-- [ ] Update release notes/changelog content you plan to publish (GitHub Release notes and/or `public/app-update.json` `title`/`notes`)
+- [ ] Add the new release to `src/data/changelog.ts` (version/title/entries) and update `public/app-update.json` `title`/`notes` and GitHub Release notes
 
 ### 2. Build Android artifacts
 
@@ -167,5 +179,8 @@ Checklist:
 - `package.json` (web/package version and scripts)
 - `public/app-update.json` (native update manifest)
 - `src/lib/appUpdate.ts` (update check logic)
+- `src/data/changelog.ts` (in-app release notes)
+- `src/lib/changelog.ts` (once-per-version "seen" logic)
+- `src/components/layout/AppModals.tsx` (release notes + APK update modals)
 - `AGENT.md` (project operations and conventions)
 - `README.md` (project overview and development commands)

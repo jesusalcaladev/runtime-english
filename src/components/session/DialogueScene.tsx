@@ -1,5 +1,7 @@
-import { Mic, Pause, Play, Volume2 } from 'lucide-preact'
+import { AudioLines, Languages, Mic, Pause, Play, Volume2 } from 'lucide-preact'
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks'
+import { useUiStage } from '../../hooks/useUiStage'
+import { tAction } from '../../lib/i18n'
 import {
   isSpeechRecognitionSupported,
   recognizeOnce,
@@ -171,6 +173,8 @@ function DialogueBubble({
   active,
   shadow,
   canRecognize,
+  showEs,
+  audioOnly,
   onPlay,
   onRepeat,
 }: {
@@ -178,6 +182,8 @@ function DialogueBubble({
   active: boolean
   shadow: ShadowFeedback | null
   canRecognize: boolean
+  showEs: boolean
+  audioOnly: boolean
   onPlay: () => void
   onRepeat: () => void
 }) {
@@ -195,10 +201,21 @@ function DialogueBubble({
         data-active={active ? 'true' : 'false'}
         class={`min-w-0 max-w-[85%] rounded-2xl px-4 py-3 ring-1 transition-all duration-300 ${bubbleTone} ${activeTone}`}
       >
-        <p class="font-mono text-[14px] leading-relaxed text-base-content/90">{line.en}</p>
-        {line.es ? (
-          <p class="mt-1.5 text-[11px] leading-relaxed text-base-content/45">{line.es}</p>
-        ) : null}
+        {audioOnly ? (
+          <p class="flex h-6 items-center gap-1.5">
+            <span class="sr-only">Texto oculto, escucha la línea</span>
+            <span class="h-1.5 w-1.5 rounded-full bg-accent/40" />
+            <span class="h-1.5 w-1.5 rounded-full bg-accent/25" />
+            <span class="h-1.5 w-1.5 rounded-full bg-accent/15" />
+          </p>
+        ) : (
+          <>
+            <p class="font-mono text-[14px] leading-relaxed text-base-content/90">{line.en}</p>
+            {line.es && showEs ? (
+              <p class="mt-1.5 text-[11px] leading-relaxed text-base-content/45">{line.es}</p>
+            ) : null}
+          </>
+        )}
         {hasShadow && shadow ? <ShadowHint score={shadow.score} /> : null}
       </div>
       <div class="flex shrink-0 items-center gap-1">
@@ -230,6 +247,9 @@ function DialogueBubble({
 export default function DialogueScene({ title, context, lines }: Props) {
   const { activeIndex, isPlaying, shadow, canRecognize, playLine, repeatLine, togglePlayback } =
     useDialoguePlayback(lines)
+  const stage = useUiStage()
+  const [showEs, setShowEs] = useState(true)
+  const [audioOnly, setAudioOnly] = useState(false)
 
   return (
     <div class="space-y-4">
@@ -243,15 +263,35 @@ export default function DialogueScene({ title, context, lines }: Props) {
             <p class="max-w-2xl text-[12px] leading-relaxed text-base-content/50">{context}</p>
           ) : null}
         </div>
-        <button
-          type="button"
-          onClick={() => void togglePlayback()}
-          class="inline-flex items-center gap-2 rounded-full bg-accent px-4 py-2 text-[12px] font-medium text-accent-content transition hover:opacity-90 active:scale-[0.98] focus-visible:outline-none"
-          aria-label={isPlaying ? 'Detener conversación' : 'Reproducir conversación'}
-        >
-          {isPlaying ? <Pause class="h-4 w-4" /> : <Play class="h-4 w-4" />}
-          {isPlaying ? 'Detener' : 'Reproducir conversación'}
-        </button>
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowEs((value) => !value)}
+            aria-pressed={showEs}
+            class={`inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[11px] transition ${showEs ? 'bg-accent/15 text-accent' : 'bg-base-200 text-base-content/50 hover:text-base-content'}`}
+            title="Mostrar u ocultar la traducción al español"
+          >
+            <Languages class="h-3.5 w-3.5" /> ES
+          </button>
+          <button
+            type="button"
+            onClick={() => setAudioOnly((value) => !value)}
+            aria-pressed={audioOnly}
+            class={`inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[11px] transition ${audioOnly ? 'bg-accent/15 text-accent' : 'bg-base-200 text-base-content/50 hover:text-base-content'}`}
+            title={tAction(stage, 'soloAudio')}
+          >
+            <AudioLines class="h-3.5 w-3.5" /> {tAction(stage, 'soloAudio')}
+          </button>
+          <button
+            type="button"
+            onClick={() => void togglePlayback()}
+            class="inline-flex items-center gap-2 rounded-full bg-accent px-4 py-2 text-[12px] font-medium text-accent-content transition hover:opacity-90 active:scale-[0.98] focus-visible:outline-none"
+            aria-label={isPlaying ? 'Detener conversación' : 'Reproducir conversación'}
+          >
+            {isPlaying ? <Pause class="h-4 w-4" /> : <Play class="h-4 w-4" />}
+            {isPlaying ? 'Detener' : 'Reproducir conversación'}
+          </button>
+        </div>
       </div>
 
       <div class="space-y-3 rounded-3xl bg-base-200/70 p-4 sm:p-5">
@@ -262,6 +302,8 @@ export default function DialogueScene({ title, context, lines }: Props) {
             active={activeIndex === index}
             shadow={shadow?.index === index ? shadow : null}
             canRecognize={canRecognize}
+            showEs={showEs}
+            audioOnly={audioOnly}
             onPlay={() => void playLine(index)}
             onRepeat={() => void repeatLine(index)}
           />
@@ -269,9 +311,7 @@ export default function DialogueScene({ title, context, lines }: Props) {
       </div>
 
       <p class="text-[11px] leading-relaxed text-base-content/35">
-        Escucha la conversación completa o toca una línea para repetirla
-        {canRecognize ? ' y practicar tu pronunciación con el micrófono' : ''}. Después, responde
-        las preguntas de comprensión de la práctica.
+        {tAction(stage, 'dialogueTip')}
       </p>
     </div>
   )

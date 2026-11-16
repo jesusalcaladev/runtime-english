@@ -283,6 +283,120 @@ function validateExercise(
         },
       }
     }
+    case 'match': {
+      if (!Array.isArray(value.pairs))
+        return {
+          ok: false,
+          error: `Ejercicio #${index + 1} (match): "pairs" debe ser una lista.`,
+        }
+      const pairs = value.pairs
+        .filter(isRecord)
+        .map((pair) => ({
+          en: asString(pair.en)?.trim() ?? '',
+          es: asString(pair.es)?.trim() ?? '',
+        }))
+        .filter((pair) => pair.en && pair.es)
+      if (pairs.length < 2)
+        return {
+          ok: false,
+          error: `Ejercicio #${index + 1} (match): agrega al menos 2 pares con "en" y "es".`,
+        }
+      const hint = asString(value.hint) ?? undefined
+      return {
+        ok: true,
+        exercise: { id, type: 'match', prompt, pairs, ...(hint ? { hint } : {}), explanation },
+      }
+    }
+    case 'multi-choice': {
+      const options = asStringArray(value.options)
+      const answers = Array.isArray(value.answers)
+        ? value.answers.filter((item): item is number => typeof item === 'number')
+        : []
+      if (!options || options.length < 2)
+        return {
+          ok: false,
+          error: `Ejercicio #${index + 1} (multi-choice): "options" debe tener al menos 2 textos.`,
+        }
+      if (answers.length === 0 || new Set(answers).size !== answers.length)
+        return {
+          ok: false,
+          error: `Ejercicio #${index + 1} (multi-choice): "answers" debe tener índices únicos y al menos uno.`,
+        }
+      if (
+        answers.some(
+          (answer) => !Number.isInteger(answer) || answer < 0 || answer >= options.length,
+        )
+      )
+        return {
+          ok: false,
+          error: `Ejercicio #${index + 1} (multi-choice): "answers" debe contener índices válidos (0-${options.length - 1}).`,
+        }
+      const hint = asString(value.hint) ?? undefined
+      return {
+        ok: true,
+        exercise: {
+          id,
+          type: 'multi-choice',
+          prompt,
+          options,
+          answers,
+          ...(hint ? { hint } : {}),
+          explanation,
+        },
+      }
+    }
+    case 'shadow': {
+      const answer = asString(value.answer)?.trim() ?? ''
+      if (!answer) return { ok: false, error: `Ejercicio #${index + 1} (shadow): falta "answer".` }
+      const accept = asStringArray(value.accept) ?? undefined
+      const hint = asString(value.hint) ?? undefined
+      return {
+        ok: true,
+        exercise: {
+          id,
+          type: 'shadow',
+          prompt,
+          answer,
+          ...(accept ? { accept } : {}),
+          ...(hint ? { hint } : {}),
+          explanation,
+        },
+      }
+    }
+    case 'dialogue-branch': {
+      if (!Array.isArray(value.steps))
+        return {
+          ok: false,
+          error: `Ejercicio #${index + 1} (dialogue-branch): "steps" debe ser una lista.`,
+        }
+      const steps = value.steps
+        .filter(isRecord)
+        .map((step) => ({
+          speaker: asString(step.speaker)?.trim() ?? '',
+          line: asString(step.line)?.trim() ?? '',
+          choices: Array.isArray(step.choices)
+            ? step.choices
+                .filter(isRecord)
+                .map((choice) => ({
+                  en: asString(choice.en)?.trim() ?? '',
+                  correct: choice.correct === true,
+                  feedback: asString(choice.feedback)?.trim() ?? '',
+                  ...(typeof choice.next === 'number' ? { next: Math.trunc(choice.next) } : {}),
+                }))
+                .filter((choice) => choice.en && choice.feedback)
+            : [],
+        }))
+        .filter((step) => step.speaker && step.line && step.choices.length >= 2)
+      if (steps.length < 2 || steps.some((step) => !step.choices.some((choice) => choice.correct)))
+        return {
+          ok: false,
+          error: `Ejercicio #${index + 1} (dialogue-branch): necesita al menos 2 pasos con 2 opciones y una respuesta correcta por paso.`,
+        }
+      return {
+        ok: true,
+        exercise: { id, type: 'dialogue-branch', prompt, steps, explanation },
+      }
+    }
     default:
       return { ok: false, error: `Ejercicio #${index + 1}: tipo "${type}" no soportado.` }
   }
@@ -526,7 +640,7 @@ export function buildAiLessonPrompt(topic: string): string {
     '  "cefr": "A1" | "A2" | "B1" | "B2",',
     '  "objectives": ["string", "string", "string"],',
     '  "blocks": [ ...4 a 6 bloques válidos, con 1 o 2 consejos como máximo... ],',
-    '  "exercises": [ ...6 ejercicios válidos... ]',
+    '  "exercises": [ ...8 ejercicios válidos... ]',
     '}',
     'No incluyas "minutes": la app lo calcula automáticamente.',
     'No añadas campos fuera de este esquema.',
@@ -550,18 +664,21 @@ export function buildAiLessonPrompt(topic: string): string {
     '- Si lo incluyes, usa entre 4 y 6 líneas, alterna "speaker" entre "a" y "b", y usa los mismos nombres en todas las líneas.',
     '- Cada "en" debe ser una frase corta y natural; "es" es la traducción al español.',
     '- La app reproducirá el diálogo con voz y mostrará dos avatares; por eso las líneas deben sonar a conversación real, no a lista de ejemplos.',
-    '- Si incluyes dialogue, añade también 1 o 2 ejercicios de comprensión como choice dentro de los 6 ejercicios obligatorios.',
+    '- Si incluyes dialogue, añade también 1 o 2 ejercicios de comprensión como choice dentro de los 6 ejercicios básicos.',
     '',
     'REGLAS DE EJERCICIOS (MUY IMPORTANTE):',
-    '- Usa SOLO estos tipos: choice, fill-blank, fix-error, builder, dialogue-order, write.',
+    '- Usa SOLO estos tipos: choice, fill-blank, fix-error, builder, dialogue-order, write, match, multi-choice, shadow, dialogue-branch (opcional).',
     '- El importador también acepta listen, speak y roleplay, pero ESTA PROMPT no los usa: no los generes.',
-    '- Incluye exactamente 6 ejercicios, en este orden, con estos IDs:',
+    '- Incluye exactamente 8 ejercicios, en este orden, con estos IDs:',
     '  ex-1 = choice',
     '  ex-2 = fill-blank',
     '  ex-3 = fix-error',
     '  ex-4 = builder',
     '  ex-5 = dialogue-order',
     '  ex-6 = write',
+    '  ex-7 = match (emparejar 3-5 chunks en inglés con su significado en español)',
+    '  ex-8 = shadow (repetir en voz alta un chunk de 4-10 palabras) o multi-choice (varias respuestas correctas)',
+    '- Los 2 ejercicios extra (ex-7 y ex-8) son obligatorios: refuerzan vocabulario y pronunciación.',
     '- Todos los ejercicios necesitan "id", "type", "prompt" y "explanation".',
     '- La "explanation" siempre en español y debe explicar POR QUÉ la respuesta es correcta.',
     '',
@@ -597,17 +714,28 @@ export function buildAiLessonPrompt(topic: string): string {
     '   - hint: obligatoria; guía con la estructura, NO copies la respuesta.',
     '   - accept: opcional; incluye al menos una variante natural si existe (contracción vs forma extendida, "percent" vs "%", con/sin "the").',
     '',
+    'G) match (ex-7):',
+    '   { "id": "ex-7", "type": "match", "prompt": "Empareja cada chunk con su significado.", "pairs": [ { "en": "roll back", "es": "revertir un despliegue" }, { "en": "figure out", "es": "entender / resolver" }, { "en": "follow up", "es": "dar seguimiento" } ], "explanation": "..." }',
+    '   - pairs: entre 3 y 5 objetos con "en" (inglés) y "es" (español), sin repetidos.',
+    '',
+    'H) shadow o multi-choice (ex-8):',
+    '   { "id": "ex-8", "type": "shadow", "prompt": "Escucha y repite en voz alta.", "answer": "We have to roll back the release.", "explanation": "..." }',
+    '   { "id": "ex-8", "type": "multi-choice", "prompt": "Elige TODAS las opciones correctas.", "options": ["A", "B", "C", "D"], "answers": [0, 2], "explanation": "..." }',
+    '   - shadow: answer de 4-10 palabras en inglés; el usuario lo repite con el micrófono.',
+    '   - multi-choice: answers es un array de índices 0-based únicos, con al menos 1 y más de 1 cuando tenga sentido.',
+    '',
     'CHECKLIST ANTES DE RESPONDER (verifica mentalmente):',
     '- El JSON empieza con { y termina con }.',
     '- 4-6 bloques, todos de tipos permitidos.',
     '- Máximo 2 consejos en total (technique + callout de cualquier tone); el resto es contenido, no consejos.',
     '- Hay 2-4 phrasal verbs dev, cada uno con significado en español y ejemplo en inglés.',
     '- Si hay dialogue: 4-6 líneas, speakers alternados y nombres coherentes.',
-    '- Exactamente 6 ejercicios: ex-1 choice, ex-2 fill-blank, ex-3 fix-error, ex-4 builder, ex-5 dialogue-order, ex-6 write.',
+    '- Exactamente 8 ejercicios: ex-1 choice, ex-2 fill-blank, ex-3 fix-error, ex-4 builder, ex-5 dialogue-order, ex-6 write, ex-7 match, ex-8 shadow o multi-choice.',
     '- En choice, answer es un índice válido.',
     '- En fill-blank, número de "___" = número de blanks.',
     '- En builder, words.join(" ") === answer.',
     '- En write, hint presente y no delata la respuesta.',
+    '- En match, 3-5 pares en y es; en multi-choice, answers son índices válidos y únicos; en shadow, answer de 4-10 palabras.',
     '- Sin campos extra, sin emojis, sin markdown.',
     '',
     'EJEMPLO DE BLOQUE dialogue VÁLIDO (solo si el tema es conversacional):',
@@ -650,6 +778,8 @@ export function buildAiLessonPrompt(topic: string): string {
     '    { "id": "ex-4", "type": "builder", "prompt": "Ordena las palabras para formar una oración correcta.", "words": ["have", "to", "update", "the", "documentation"], "answer": "have to update the documentation", "explanation": "La estructura es: have to + verbo base + complemento." },',
     '    { "id": "ex-5", "type": "dialogue-order", "prompt": "Ordena el diálogo correctamente.", "lines": ["A: We have to fix this bug before release.", "B: Okay, I have to test it after your fix.", "A: Great, then we have to deploy it."], "explanation": "El diálogo sigue una secuencia lógica: problema, acción siguiente y despliegue." },',
     '    { "id": "ex-6", "type": "write", "prompt": "Escribe una oración en inglés usando \'have to\' sobre una tarea de desarrollo.", "answer": "I have to finish the API tests today.", "hint": "Empieza con I have to + verbo base.", "accept": ["I need to finish the API tests today."], "explanation": "Respuesta modelo con have to + verbo base en contexto dev." }',
+    '    { "id": "ex-7", "type": "match", "prompt": "Empareja cada chunk con su significado.", "pairs": [ { "en": "set up", "es": "configurar / preparar" }, { "en": "roll back", "es": "revertir un despliegue" }, { "en": "follow up", "es": "dar seguimiento" } ], "explanation": "Chunks habituales en equipos de desarrollo." }',
+    '    { "id": "ex-8", "type": "shadow", "prompt": "Escucha y repite en voz alta.", "answer": "I have to review the pull request today.", "explanation": "Repetir el chunk completo mejora ritmo y pronunciación." }',
     '  ]',
     '}',
     '',

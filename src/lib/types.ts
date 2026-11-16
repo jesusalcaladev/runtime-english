@@ -138,6 +138,51 @@ export interface RoleplayExercise {
   explanation: string
 }
 
+/** Match English chunks with their Spanish meaning. */
+export interface MatchExercise {
+  id: string
+  type: 'match'
+  prompt: string
+  pairs: { en: string; es: string }[]
+  hint?: string
+  explanation: string
+}
+
+/** Select every correct option (order does not matter). */
+export interface MultiChoiceExercise {
+  id: string
+  type: 'multi-choice'
+  prompt: string
+  options: string[]
+  answers: number[]
+  hint?: string
+  explanation: string
+}
+
+/** Choose the best reply at each step of a short conversation. */
+export interface DialogueBranchExercise {
+  id: string
+  type: 'dialogue-branch'
+  prompt: string
+  steps: {
+    speaker: string
+    line: string
+    choices: { en: string; correct: boolean; feedback: string; next?: number }[]
+  }[]
+  explanation: string
+}
+
+/** Listen and repeat a full chunk out loud (guided shadowing). */
+export interface ShadowExercise {
+  id: string
+  type: 'shadow'
+  prompt: string
+  answer: string
+  accept?: string[]
+  hint?: string
+  explanation: string
+}
+
 export type Exercise =
   | ChoiceExercise
   | BuilderExercise
@@ -148,6 +193,10 @@ export type Exercise =
   | DialogueOrderExercise
   | FixErrorExercise
   | RoleplayExercise
+  | MatchExercise
+  | MultiChoiceExercise
+  | ShadowExercise
+  | DialogueBranchExercise
 
 export interface Session {
   id: string

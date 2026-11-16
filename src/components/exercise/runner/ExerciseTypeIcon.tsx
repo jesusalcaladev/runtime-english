@@ -1,5 +1,7 @@
 import {
   Headphones,
+  Link2,
+  ListChecks,
   ListOrdered,
   MessageSquare,
   Mic,
@@ -19,5 +21,9 @@ export function ExerciseTypeIcon({ type }: { type: Exercise['type'] }) {
   if (type === 'dialogue-order') return <MessageSquare class="h-4 w-4" />
   if (type === 'fix-error') return <PenLine class="h-4 w-4" />
   if (type === 'roleplay') return <MessageSquare class="h-4 w-4" />
+  if (type === 'dialogue-branch') return <MessageSquare class="h-4 w-4" />
+  if (type === 'match') return <Link2 class="h-4 w-4" />
+  if (type === 'multi-choice') return <ListChecks class="h-4 w-4" />
+  if (type === 'shadow') return <Mic class="h-4 w-4" />
   return <PenLine class="h-4 w-4" />
 }

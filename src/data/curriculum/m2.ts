@@ -238,6 +238,14 @@ export const m2: Module = {
           explanation:
             "Maya dice 'I will deploy the fix tomorrow': futuro con 'will' para un plan.",
         },
+        {
+          id: 'm2-l1-e10',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'I fix bugs, I am testing now, I deployed yesterday and I will release tomorrow.',
+          hint: 'Cuatro tiempos en una frase.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
       ],
     },
     {
@@ -580,6 +588,14 @@ export const m2: Module = {
           hint: "Usa 'I'll fix it after...'",
           explanation:
             "'Will' + verbo base expresa el siguiente paso; 'after the tests' da el momento/condición.",
+        },
+        {
+          id: 'm2-l3-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'I fixed the bug yesterday, I am running tests now and I will deploy tomorrow.',
+          hint: 'Ayer / ahora / mañana.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
         },
       ],
     },

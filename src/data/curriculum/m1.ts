@@ -199,6 +199,14 @@ export const m1: Module = {
           explanation:
             "Leo dice 'It was fine yesterday': pasado de to be ('was') para un estado que ya terminó.",
         },
+        {
+          id: 'm1-l0-e8',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'I was a junior developer, and now I am a senior engineer.',
+          hint: 'To be en pasado y presente: was / am.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
       ],
     },
     {
@@ -1093,6 +1101,14 @@ export const m1: Module = {
           explanation:
             'Repaso de patrón clave de m1-l1: sujeto técnico + verbo en presente simple.',
         },
+        {
+          id: 'm1-l5-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'I fix bugs, I run tests and I push the code.',
+          hint: 'Tres verbos técnicos en presente.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
       ],
     },
     {
@@ -1189,6 +1205,14 @@ export const m1: Module = {
           accept: ['Fix the bug before deploying.'],
           hint: "Imperativo: 'Fix...' y luego 'before you deploy'.",
           explanation: 'Instrucción clara con orden de acciones usando verbos ya conocidos.',
+        },
+        {
+          id: 'm1-l6-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'I build, test and deploy the feature every Friday.',
+          hint: 'Encadena tres verbos con comas.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
         },
       ],
     },
@@ -1294,6 +1318,14 @@ export const m1: Module = {
           accept: ['Open the config file.'],
           hint: "Usa imperativo: 'Open...'",
           explanation: 'Instrucción directa con verbo técnico ya trabajado en el módulo.',
+        },
+        {
+          id: 'm1-l7-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'Yesterday I fixed a bug and today I am reviewing the PR.',
+          hint: 'Pasado + presente continuo.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
         },
       ],
     },

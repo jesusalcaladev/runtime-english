@@ -273,6 +273,14 @@ export const m5: Module = {
           explanation:
             "Leo dice 'I'll also add \"Closes #123\" to link the issue': esa sintaxis cierra el issue automáticamente.",
         },
+        {
+          id: 'm5-l1-e9',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'I have to update the documentation before the pull request.',
+          hint: 'have to + verbo base.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
       ],
     },
     {
@@ -492,6 +500,68 @@ export const m5: Module = {
           answer: 0,
           explanation:
             "Leo cierra con 'I'll keep you posted': promete mantener informada a Maya sin fijar una hora exacta.",
+        },
+        {
+          id: 'm5-l2-e9',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'Could you review the ticket when you have time? No rush.',
+          hint: 'Petición asíncrona amable.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
+        {
+          id: 'm5-l2-e10',
+          type: 'match',
+          prompt: 'Empareja cada término con su significado.',
+          pairs: [
+            { en: 'heads-up', es: 'aviso rápido/previo' },
+            { en: 'ETA (estimated time of arrival)', es: 'tiempo estimado' },
+            { en: 'loop in', es: 'incluir a alguien en la conversación' },
+            { en: 'follow up', es: 'hacer seguimiento' },
+          ],
+          explanation:
+            'Emparejar el término con su significado refuerza el vocabulario de esta lección.',
+        },
+        {
+          id: 'm5-l2-e11',
+          type: 'dialogue-branch',
+          prompt: 'Elige la mejor respuesta asíncrona.',
+          steps: [
+            {
+              speaker: 'Maya',
+              line: 'Can you send the update in Slack?',
+              choices: [
+                {
+                  en: 'Sure, I will post it after the standup.',
+                  correct: true,
+                  feedback: 'Confirmas y dás momento concreto.',
+                },
+                {
+                  en: 'I will call you right now.',
+                  correct: false,
+                  feedback: 'Una llamada no es una respuesta asíncrona.',
+                },
+              ],
+            },
+            {
+              speaker: 'Maya',
+              line: 'Thanks. Please include the blockers too.',
+              choices: [
+                {
+                  en: 'Will do. I will mention them in the update.',
+                  correct: true,
+                  feedback: 'Confirmas y recoges el feedback.',
+                },
+                {
+                  en: 'I will send a voice note at midnight.',
+                  correct: false,
+                  feedback: 'No es asíncrono ni respeta el plazo.',
+                },
+              ],
+            },
+          ],
+          explanation:
+            'En una conversación real importa sonar claro, concreto y respetuoso con el turno del otro.',
         },
       ],
     },
@@ -857,6 +927,27 @@ export const m5: Module = {
           explanation:
             "'Anyway' se usa para retomar o cerrar el tema: 'Anyway, back to the main issue.'",
         },
+        {
+          id: 'm5-l4-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'The build failed; however, we fixed it and deployed again.',
+          hint: 'Conector de contraste.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
+        {
+          id: 'm5-l4-e8',
+          type: 'match',
+          prompt: 'Empareja cada término con su significado.',
+          pairs: [
+            { en: 'I mean', es: 'quiero decir / o sea' },
+            { en: 'actually', es: 'en realidad / de hecho' },
+            { en: 'basically', es: 'básicamente / en resumen' },
+            { en: 'to be honest', es: 'para ser honesto' },
+          ],
+          explanation:
+            'Emparejar el término con su significado refuerza el vocabulario de esta lección.',
+        },
       ],
     },
     {
@@ -1007,6 +1098,55 @@ export const m5: Module = {
           accept: ['Let me walk you through this change.', 'Let me walk you through the changes.'],
           hint: "Usa 'Let me walk you through...'",
           explanation: 'Frase clara para iniciar una demo o explicación guiada de un cambio.',
+        },
+        {
+          id: 'm5-l5-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'Let me walk you through the demo: problem, change and result.',
+          hint: 'Introducir una demo.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
+        {
+          id: 'm5-l5-e8',
+          type: 'dialogue-branch',
+          prompt: 'Elige cómo abrir una demo.',
+          steps: [
+            {
+              speaker: 'Leo',
+              line: 'Ready for the demo?',
+              choices: [
+                {
+                  en: 'Yes. Let me walk you through the demo first.',
+                  correct: true,
+                  feedback: 'Chunk natural para guiar una demo.',
+                },
+                {
+                  en: 'No, let us skip it.',
+                  correct: false,
+                  feedback: 'No ayuda a quien presenta.',
+                },
+              ],
+            },
+            {
+              speaker: 'Leo',
+              line: 'Great. Who closes the demo?',
+              choices: [
+                {
+                  en: 'Maya will close with the next steps.',
+                  correct: true,
+                  feedback: 'Cierre claro con siguientes pasos.',
+                },
+                {
+                  en: 'Nobody. We can skip the ending.',
+                  correct: false,
+                  feedback: 'Una demo necesita cierre y próximos pasos.',
+                },
+              ],
+            },
+          ],
+          explanation:
+            'En una conversación real importa sonar claro, concreto y respetuoso con el turno del otro.',
         },
       ],
     },
@@ -1184,6 +1324,14 @@ export const m5: Module = {
           hint: "Usa 'Can/Could you explain why...?'",
           explanation:
             'Pedir contexto con respeto ayuda a entender la intención del PR antes de sugerir cambios.',
+        },
+        {
+          id: 'm5-l6-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'This looks good. Could you add a test for the edge case?',
+          hint: 'Feedback positivo + petición.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
         },
       ],
     },
@@ -1523,6 +1671,14 @@ export const m5: Module = {
           explanation:
             'Mensaje async útil: comparte contexto y estado del trabajo para que el equipo pueda continuar.',
         },
+        {
+          id: 'm5-l8-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'I will follow up with the client after the standup.',
+          hint: 'follow up with + momento.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
       ],
     },
     {
@@ -1649,6 +1805,14 @@ export const m5: Module = {
           answer: 'This might break when the input is null. Could you add a validation?',
           explanation: 'Feedback de PR útil: riesgo concreto + sugerencia accionable.',
         },
+        {
+          id: 'm8-l4-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'We rolled out the feature and followed up with the team.',
+          hint: 'Dos phrasal verbs de entrega.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
       ],
     },
     {
@@ -1751,6 +1915,14 @@ export const m5: Module = {
           words: ['This might break', 'when the input is null.', 'Could you add', 'a validation?'],
           answer: 'This might break when the input is null. Could you add a validation?',
           explanation: 'Feedback de PR útil: riesgo concreto + sugerencia accionable.',
+        },
+        {
+          id: 'm5-l10-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'I left actionable feedback on the pull request this morning.',
+          hint: 'feedback accionable.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
         },
       ],
     },
@@ -1867,6 +2039,14 @@ export const m5: Module = {
           explanation:
             'Describir el estado anterior ayuda a explicar el valor del cambio en una demo.',
         },
+        {
+          id: 'm5-l11-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'I built a small service and explained the trade-offs in the demo.',
+          hint: 'Explicar decisiones técnicas.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
       ],
     },
     {
@@ -1982,6 +2162,14 @@ export const m5: Module = {
           answer: 'Anyway, back to the main issue.',
           explanation:
             "'Anyway' ayuda a retomar el tema principal después de una digresión (m5-l4).",
+        },
+        {
+          id: 'm5-l12-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'First, we discussed the bug; then we agreed on the next step.',
+          hint: 'Secuencia con First / then.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
         },
       ],
     },

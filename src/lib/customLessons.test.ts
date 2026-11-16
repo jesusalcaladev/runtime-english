@@ -112,6 +112,61 @@ describe('importCustomLessonJson', () => {
     expect(badFill.ok).toBe(false)
     expect(badFill.errors.join('\n')).toContain('debe incluir ___')
   })
+
+  it('imports match, multi-choice and shadow exercises', () => {
+    const result = importCustomLessonJson({
+      title: 'Práctica extra',
+      blocks: [{ type: 'text', body: 'b' }],
+      exercises: [
+        {
+          type: 'match',
+          prompt: 'Empareja',
+          pairs: [
+            { en: 'set up', es: 'configurar' },
+            { en: 'roll back', es: 'revertir' },
+          ],
+          explanation: 'Chunks dev.',
+        },
+        {
+          type: 'multi-choice',
+          prompt: 'Elige todas',
+          options: ['set up', 'roll back', 'run into', 'shut down'],
+          answers: [0, 1],
+          explanation: 'Dos acciones de despliegue.',
+        },
+        {
+          type: 'shadow',
+          prompt: 'Repite',
+          answer: 'We have to roll back the release.',
+          explanation: 'Practica el chunk completo.',
+        },
+      ],
+    })
+    expect(result.ok).toBe(true)
+    expect(result.lesson?.exercises.map((exercise) => exercise.type)).toEqual([
+      'match',
+      'multi-choice',
+      'shadow',
+    ])
+  })
+
+  it('rejects invalid multi-choice answers', () => {
+    const result = importCustomLessonJson({
+      title: 'T',
+      blocks: [{ type: 'text', body: 'b' }],
+      exercises: [
+        {
+          type: 'multi-choice',
+          prompt: 'p',
+          options: ['a', 'b'],
+          answers: [0, 0],
+          explanation: '',
+        },
+      ],
+    })
+    expect(result.ok).toBe(false)
+    expect(result.errors.join('\n')).toContain('índices únicos')
+  })
 })
 
 describe('buildAiLessonPrompt', () => {
@@ -119,7 +174,7 @@ describe('buildAiLessonPrompt', () => {
     const prompt = buildAiLessonPrompt('phrasal verbs for debugging')
     expect(prompt).toContain('TEMA DE LA LECCIÓN: "phrasal verbs for debugging"')
     expect(prompt).toContain('TU RESPUESTA DEBE SER ÚNICAMENTE UN JSON VÁLIDO')
-    expect(prompt).toContain('"exercises": [ ...6 ejercicios válidos... ]')
+    expect(prompt).toContain('"exercises": [ ...8 ejercicios válidos... ]')
     expect(prompt).toContain('ex-1 = choice')
   })
 

@@ -4,7 +4,7 @@ import '@fontsource-variable/geist-mono'
 import '@fontsource-variable/geist-pixel'
 import '../styles/global.css'
 import { ClientRouter } from 'astro:transitions'
-import AppUpdateBanner from '../components/layout/AppUpdateBanner'
+import AppModals from '../components/layout/AppModals'
 import SidebarNav from '../components/layout/SidebarNav'
 import ToastHost from '../components/layout/ToastHost'
 import Topbar from '../components/layout/Topbar.astro'
@@ -149,7 +149,7 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === 'B1-B
     </div>
 
     <ToastHost client:only="preact" transition:persist />
-    <AppUpdateBanner client:only="preact" transition:persist />
+    <AppModals client:only="preact" transition:persist />
 
     <script is:inline define:vars={{ isDev: import.meta.env.DEV }}>
       if ("serviceWorker" in navigator) {
@@ -192,6 +192,7 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === 'B1-B
       import { Capacitor } from "@capacitor/core";
       import { App } from "@capacitor/app";
       import { Browser } from "@capacitor/browser";
+      import { closeTopDialog } from "../lib/dialogStack";
       import { syncStreakReminder } from "../lib/notifications";
       import { progressStore } from "../lib/progress";
       import { initVoices, speak, warmSpeechEngine, warmSpeechPhrases } from "../lib/speech";
@@ -216,6 +217,8 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === 'B1-B
       if (Capacitor.isNativePlatform() && !nativeWindow.__runtimeenglishBackBound) {
         nativeWindow.__runtimeenglishBackBound = true;
         App.addListener("backButton", ({ canGoBack }) => {
+          // A visible sheet/dialog consumes the back press first.
+          if (closeTopDialog()) return;
           if (canGoBack) {
             window.history.back();
           } else {

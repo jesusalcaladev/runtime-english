@@ -221,6 +221,14 @@ export const m8: Module = {
           explanation:
             "Maya cierra con 'Version 2 has a breaking change. In short, we must update the client'.",
         },
+        {
+          id: 'm8-l1-e9',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'The spec says the endpoint expects a POST request with a JSON body.',
+          hint: 'Leer una spec en voz alta.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
       ],
     },
     {
@@ -601,6 +609,27 @@ export const m8: Module = {
           explanation:
             "Maya pide 'walk me through the fix and call out any edge cases', y Leo quiere 'cause, fix, and test' como formato de salida.",
         },
+        {
+          id: 'm8-l7-e13',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'Here is the context, the goal and the constraints for the agent.',
+          hint: 'Estructura de un prompt.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
+        {
+          id: 'm8-l7-e14',
+          type: 'match',
+          prompt: 'Empareja cada término con su significado.',
+          pairs: [
+            { en: 'prompt / instruction', es: 'instrucción que das al modelo' },
+            { en: 'context', es: 'información de fondo relevante' },
+            { en: 'constraint', es: 'restricción o límite' },
+            { en: 'output format', es: 'formato de salida esperado' },
+          ],
+          explanation:
+            'Emparejar el término con su significado refuerza el vocabulario de esta lección.',
+        },
       ],
     },
 
@@ -732,6 +761,14 @@ export const m8: Module = {
           answer: 1,
           explanation: 'Petición educada y realista para trabajo asíncrono.',
         },
+        {
+          id: 'm8-l5-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'Do a quick sanity check and call out any edge cases.',
+          hint: 'Dos chunks de revisión.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
       ],
     },
     {
@@ -861,6 +898,39 @@ export const m8: Module = {
           words: ['Hi team,', "here's", 'a quick', 'update.'],
           answer: "Hi team, here's a quick update.",
           explanation: 'Apertura profesional para emails, tickets o mensajes de chat.',
+        },
+        {
+          id: 'm8-l6-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'Could you clarify the acceptance criteria in the ticket?',
+          hint: 'Pregunta profesional.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
+        {
+          id: 'm8-l6-e8',
+          type: 'match',
+          prompt: 'Empareja cada término con su significado.',
+          pairs: [
+            {
+              en: "Hi team, here's a quick update.",
+              es: 'Hola equipo, aquí va una actualización rápida.',
+            },
+            {
+              en: 'The issue is fixed and deployed to staging.',
+              es: 'El problema está arreglado y desplegado a staging.',
+            },
+            {
+              en: 'Please review the ticket when you can.',
+              es: 'Por favor revisa el ticket cuando puedas.',
+            },
+            {
+              en: 'Let me know if you need any more details.',
+              es: 'Avísame si necesitas más detalles.',
+            },
+          ],
+          explanation:
+            'Emparejar el término con su significado refuerza el vocabulario de esta lección.',
         },
       ],
     },
@@ -1145,6 +1215,14 @@ export const m8: Module = {
           explanation:
             "'To be honest' introduce una opinión directa de forma natural; 'we should add more tests' da una recomendación clara.",
         },
+        {
+          id: 'm7-l5-e17',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'I will follow up with the details after the review.',
+          hint: 'Cierre de una reunión.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
       ],
     },
     {
@@ -1249,6 +1327,14 @@ export const m8: Module = {
           accept: ['Can you take another pass and keep it simple?'],
           hint: "Usa 'take another pass' y 'keep it simple'.",
           explanation: 'Dos frases nativas de m8-l7 para pedir una mejora clara y sencilla.',
+        },
+        {
+          id: 'm8-l8-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'Keep the existing behavior the same and list any edge cases.',
+          hint: 'Restricción para un agente.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
         },
       ],
     },
@@ -1365,6 +1451,14 @@ export const m8: Module = {
           explanation:
             "'LGTM' (visto en el curso) indica aprobación; combinarlo con el siguiente paso es claro.",
         },
+        {
+          id: 'm8-l9-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'Could you give me actionable feedback on the RFC?',
+          hint: 'Pedir feedback concreto.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
       ],
     },
     {
@@ -1478,6 +1572,14 @@ export const m8: Module = {
           answer: 'Pull the latest changes and run the tests.',
           explanation: 'Secuencia de imperativos clara, muy común en trabajo técnico.',
         },
+        {
+          id: 'm8-l10-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'I have finished the fix and I will deploy it tomorrow.',
+          hint: 'Presente perfecto + futuro.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
       ],
     },
     {
@@ -1585,6 +1687,14 @@ export const m8: Module = {
           hint: "Usa 'take another pass' y 'keep it simple'.",
           explanation: 'Combinación nativa y clara para pedir una iteración mejor enfocada.',
         },
+        {
+          id: 'm8-l11-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'The agent hallucinated an API, so I verified the docs.',
+          hint: 'Verificar trabajo de un agente.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
       ],
     },
     {
@@ -1689,6 +1799,14 @@ export const m8: Module = {
           words: ['The main requirement', 'is to validate', 'the input.'],
           answer: 'The main requirement is to validate the input.',
           explanation: 'Identificar el requisito principal ayuda a enfocarte al leer una spec.',
+        },
+        {
+          id: 'm8-l12-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'Could you clarify what you mean by that requirement?',
+          hint: 'Pedir aclaración precisa.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
         },
       ],
     },

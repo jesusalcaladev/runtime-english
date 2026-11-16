@@ -247,6 +247,72 @@ export const m9: Module = {
           explanation:
             "Dice 'As a result, we reduced latency by 30%' y 'between speed and reliability' (además de 'I coordinated with stakeholders').",
         },
+        {
+          id: 'm9-l1-e9',
+          type: 'match',
+          prompt: 'Empareja cada término con su significado.',
+          pairs: [
+            {
+              en: 'In my previous role, I was responsible for...',
+              es: 'En mi rol anterior, era responsable de...',
+            },
+            {
+              en: 'The main challenge was..., so I decided to...',
+              es: 'El principal reto era..., así que decidí...',
+            },
+            {
+              en: 'As a result, we reduced latency by 20%.',
+              es: 'Como resultado, redujimos la latencia un 20%.',
+            },
+            {
+              en: 'If I could do it again, I would...',
+              es: 'Si pudiera hacerlo de nuevo, lo haría...',
+            },
+          ],
+          explanation:
+            'Emparejar el término con su significado refuerza el vocabulario de esta lección.',
+        },
+        {
+          id: 'm9-l1-e10',
+          type: 'dialogue-branch',
+          prompt: 'Elige la mejor respuesta en una entrevista técnica.',
+          steps: [
+            {
+              speaker: 'Interviewer',
+              line: 'Tell me about a hard bug you fixed.',
+              choices: [
+                {
+                  en: 'I tracked down a race condition and rolled back the deploy.',
+                  correct: true,
+                  feedback: 'Acción concreta + resultado.',
+                },
+                {
+                  en: 'I do not remember any bugs.',
+                  correct: false,
+                  feedback: 'No aporta experiencia relevante.',
+                },
+              ],
+            },
+            {
+              speaker: 'Interviewer',
+              line: 'And what did you learn from it?',
+              choices: [
+                {
+                  en: 'I added a regression test and documented the trade-off.',
+                  correct: true,
+                  feedback: 'Aprendizaje concreto y acción posterior.',
+                },
+                {
+                  en: 'Nothing. It was not my bug.',
+                  correct: false,
+                  feedback: 'No muestra reflexión ni responsabilidad.',
+                },
+              ],
+            },
+          ],
+          explanation:
+            'En una conversación real importa sonar claro, concreto y respetuoso con el turno del otro.',
+        },
       ],
     },
     {
@@ -472,6 +538,44 @@ export const m9: Module = {
           explanation:
             "Leo pregunta 'Could you give me actionable feedback on my RFC for the fix?' y Maya responde 'let me walk you through the demo first'.",
         },
+        {
+          id: 'm9-l2-e9',
+          type: 'match',
+          prompt: 'Empareja cada frase con su significado.',
+          pairs: [
+            { en: 'roll back', es: 'revertir un despliegue' },
+            { en: 'bring up', es: 'mencionar un tema' },
+            { en: 'follow up', es: 'dar seguimiento' },
+            { en: 'wrap up', es: 'cerrar la reunión' },
+          ],
+          hint: 'Piensa en incidentes, RFCs y reuniones.',
+          explanation:
+            'Estos chunks aparecen constantemente cuando se comunica un incidente o se cierra una reunión.',
+        },
+        {
+          id: 'm9-l2-e10',
+          type: 'multi-choice',
+          prompt: 'Marca TODAS las frases útiles para comunicar un incidente.',
+          options: [
+            'State the impact and the next update.',
+            'Roll back the release.',
+            'Comment out the failing test.',
+            'Give an ETA for the next update.',
+          ],
+          answers: [0, 1, 3],
+          hint: 'Dos son comunicación clara; una es una acción técnica; una oculta el problema.',
+          explanation:
+            'Comunicar impacto, acción correctiva y próxima actualización es la base de un buen reporte de incidente.',
+        },
+        {
+          id: 'm9-l2-e11',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'State the impact, the action we took, and the next update.',
+          hint: 'Tres partes: impacto, acción y siguiente actualización.',
+          explanation:
+            'Repetir esta estructura en voz alta la deja lista para usarla en el próximo incidente.',
+        },
       ],
     },
     {
@@ -586,6 +690,14 @@ export const m9: Module = {
           hint: "Usa 'Could you clarify what you mean by...?'",
           explanation:
             'Pedir aclaración de forma precisa y educada es útil en discusiones técnicas y feedback.',
+        },
+        {
+          id: 'm9-l3-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'The goal of this RFC is to simplify deployment.',
+          hint: "Abre con 'The goal of this RFC is to...'",
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
         },
       ],
     },

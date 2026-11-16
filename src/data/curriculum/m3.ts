@@ -254,6 +254,27 @@ export const m3: Module = {
           explanation:
             "Maya dice 'Create a new branch first': así se prepara el trabajo antes del pull request.",
         },
+        {
+          id: 'm3-l1-e9',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'I checked out the branch and pushed the fix to the remote.',
+          hint: 'Dos acciones de Git en pasado.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
+        {
+          id: 'm3-l1-e10',
+          type: 'match',
+          prompt: 'Empareja cada término con su significado.',
+          pairs: [
+            { en: 'repo (repository)', es: 'repositorio de código' },
+            { en: 'branch', es: 'rama de desarrollo' },
+            { en: 'PR / pull request', es: 'solicitud para revisar y unir cambios' },
+            { en: 'merge', es: 'unir cambios/ramas' },
+          ],
+          explanation:
+            'Emparejar el término con su significado refuerza el vocabulario de esta lección.',
+        },
       ],
     },
     {
@@ -401,6 +422,14 @@ export const m3: Module = {
           explanation:
             "Repaso en contexto: 'ran into a bug' (pasado de 'run into') y 'roll back' son chunks muy comunes en trabajo técnico.",
         },
+        {
+          id: 'm3-l2-e8',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'I set up the environment and rolled back the deploy.',
+          hint: 'Dos phrasal verbs de dev.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
       ],
     },
     {
@@ -541,6 +570,27 @@ export const m3: Module = {
           hint: 'Pieza pequeña aislada → unit. Varias piezas conectadas → integration.',
           explanation:
             "Repaso directo de los niveles: 'unit test' (aislado) e 'integration test' (piezas conectadas).",
+        },
+        {
+          id: 'm3-l3-e8',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'The unit tests pass, but the end-to-end test is flaky in CI.',
+          hint: "Contraste con 'but'.",
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
+        {
+          id: 'm3-l3-e9',
+          type: 'match',
+          prompt: 'Empareja cada término con su significado.',
+          pairs: [
+            { en: 'unit test', es: 'test unitario' },
+            { en: 'integration test', es: 'test de integración' },
+            { en: 'end-to-end test', es: 'test de extremo a extremo' },
+            { en: 'mock / stub', es: 'simulación de una dependencia' },
+          ],
+          explanation:
+            'Emparejar el término con su significado refuerza el vocabulario de esta lección.',
         },
       ],
     },
@@ -932,6 +982,14 @@ export const m3: Module = {
           explanation:
             "Leo dice 'The stack trace points to the login function': eso indica dónde parece originarse el problema.",
         },
+        {
+          id: 'm3-l5-e10',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'I found the stack trace in the logs and reported the error.',
+          hint: 'Dos acciones pasadas.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
       ],
     },
     {
@@ -1027,6 +1085,14 @@ export const m3: Module = {
           options: ['No.', 'Could you say that again, please?', 'Listen better.', 'Again now.'],
           answer: 1,
           explanation: "Pedir repetición con cortesía: 'Could you say that again, please?'",
+        },
+        {
+          id: 'm8-l3-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'I work with Git every day and I fix bugs in the morning.',
+          hint: 'Repaso de presente simple.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
         },
       ],
     },
@@ -1133,6 +1199,14 @@ export const m3: Module = {
           hint: "Pasado simple: 'I already checked...'",
           explanation:
             'Compartir lo que ya intentaste da contexto y ahorra tiempo. La variante con presente perfecto ("I\'ve already checked...") se explica en el Paso 4.0.',
+        },
+        {
+          id: 'm3-l7-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'The API returns a 500 error and the port is already in use.',
+          hint: 'Dos errores técnicos comunes.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
         },
       ],
     },
@@ -1380,6 +1454,43 @@ export const m3: Module = {
           answer: 0,
           explanation:
             'Tras localizar el bug, deciden revertir el despliegue y levantar un entorno de prueba.',
+        },
+        {
+          id: 'm3-l8-e8',
+          type: 'match',
+          prompt: 'Empareja cada phrasal verb con su significado.',
+          pairs: [
+            { en: 'set up', es: 'configurar / preparar' },
+            { en: 'track down', es: 'localizar la causa' },
+            { en: 'wrap up', es: 'cerrar / terminar' },
+            { en: 'back up', es: 'respaldar' },
+          ],
+          hint: 'Piensa en el contexto: entorno, bug, reunión y base de datos.',
+          explanation:
+            'Emparejar el chunk completo con su significado es la forma más rápida de memorizar phrasal verbs.',
+        },
+        {
+          id: 'm3-l8-e9',
+          type: 'multi-choice',
+          prompt: 'Marca TODAS las frases que son acciones de despliegue o entorno.',
+          options: [
+            'Spin up a test database.',
+            'Roll back the release.',
+            'Comment out a console.log.',
+            'Wrap up the meeting.',
+          ],
+          answers: [0, 1],
+          hint: 'Dos son acciones sobre entornos/versiones; las otras son código y reunión.',
+          explanation:
+            "'spin up' (levantar) y 'roll back' (revertir) son acciones de entorno/despliegue.",
+        },
+        {
+          id: 'm3-l8-e10',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'We tracked it down and rolled back the deploy.',
+          hint: "Encadena los chunks: 'tracked it down' + 'rolled back'.",
+          explanation: 'Repetir el chunk completo mejora el ritmo y fija la estructura en memoria.',
         },
       ],
     },

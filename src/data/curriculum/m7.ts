@@ -132,6 +132,14 @@ export const m7: Module = {
           explanation:
             'Repaso del chunk visto en la lección: instrucción directa para revisar antes de compartir output de IA.',
         },
+        {
+          id: 'm7-l1-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'That output is pure AI slop, so we need a sanity check.',
+          hint: 'Slang de IA + revisión.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
       ],
     },
     {
@@ -244,6 +252,14 @@ export const m7: Module = {
           answer: 0,
           explanation:
             "'Delulu' (de 'delusional') se usa de forma informal para alguien poco realista. Úsalo con cuidado y solo en contexto casual.",
+        },
+        {
+          id: 'm7-l2-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'That meme is cooked, but the team found it funny.',
+          hint: 'Registro informal.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
         },
       ],
     },
@@ -464,6 +480,68 @@ export const m7: Module = {
           explanation:
             "Maya propone 'let's put it in the parking lot and circle back after the standup' y Leo dice 'I'll own that action item'.",
         },
+        {
+          id: 'm7-l3-e9',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: "Let's park this topic and circle back after the standup.",
+          hint: 'Dos phrasal verbs de reunión.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
+        {
+          id: 'm7-l3-e10',
+          type: 'match',
+          prompt: 'Empareja cada término con su significado.',
+          pairs: [
+            { en: 'circle back', es: 'retomar un tema más tarde' },
+            { en: 'take it offline', es: 'hablarlo fuera de la reunión' },
+            { en: 'bandwidth', es: 'tiempo o capacidad disponible' },
+            { en: 'heads-up', es: 'aviso previo' },
+          ],
+          explanation:
+            'Emparejar el término con su significado refuerza el vocabulario de esta lección.',
+        },
+        {
+          id: 'm7-l3-e11',
+          type: 'dialogue-branch',
+          prompt: 'Elige el slang adecuado en una reunión.',
+          steps: [
+            {
+              speaker: 'Maya',
+              line: 'Can we park this topic?',
+              choices: [
+                {
+                  en: "Sure, let's circle back after the standup.",
+                  correct: true,
+                  feedback: 'Dos phrasal verbs naturales de reunión.',
+                },
+                {
+                  en: "No, let's keep talking for an hour.",
+                  correct: false,
+                  feedback: 'Ignora la petición de aparcar el tema.',
+                },
+              ],
+            },
+            {
+              speaker: 'Maya',
+              line: 'OK, and the deadline?',
+              choices: [
+                {
+                  en: 'It is next Friday. Let us put it in the ticket.',
+                  correct: true,
+                  feedback: 'Fecha + registro: muy profesional.',
+                },
+                {
+                  en: 'No idea. We do not need to write it down.',
+                  correct: false,
+                  feedback: 'Una fecha incierta debe quedar registrada.',
+                },
+              ],
+            },
+          ],
+          explanation:
+            'En una conversación real importa sonar claro, concreto y respetuoso con el turno del otro.',
+        },
       ],
     },
     {
@@ -540,7 +618,50 @@ export const m7: Module = {
             { en: 'Good catch, thanks.', es: 'Buen hallazgo, gracias.' },
           ],
         },
+        {
+          type: 'dialogue',
+          title: 'Un review en lenguaje real',
+          context: 'Maya deja comentarios claros y Leo responde con naturalidad.',
+          lines: [
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'LGTM with one nit: can you rename this variable?',
+              es: 'LGTM con un detalle: ¿puedes renombrar esta variable?',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'Sure. I will fix it and push the commit.',
+              es: 'Claro. Lo corrijo y subo el commit.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'Also, the error message is a bit vague.',
+              es: 'Además, el mensaje de error es algo vago.',
+            },
+            {
+              speaker: 'b',
+              name: 'Leo',
+              role: 'Dev',
+              en: 'Good catch. I will make it actionable.',
+              es: 'Buen hallazgo. Lo haré accionable.',
+            },
+            {
+              speaker: 'a',
+              name: 'Maya',
+              role: 'Lead',
+              en: 'Nice. Ship it when the tests pass.',
+              es: 'Bien. Despliégalo cuando pasen los tests.',
+            },
+          ],
+        },
       ],
+
       exercises: [
         {
           id: 'm7-l4-e1',
@@ -616,6 +737,14 @@ export const m7: Module = {
           hint: 'Frase corta y común en reviews.',
           explanation:
             'Respuesta educada y natural para reconocer un comentario útil en un review.',
+        },
+        {
+          id: 'm7-l4-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'LGTM with one nit; the rest looks solid.',
+          hint: 'Lenguaje de review.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
         },
       ],
     },
@@ -721,6 +850,14 @@ export const m7: Module = {
           answer: 0,
           explanation:
             "'Meat proxy' describe el patrón de reenviar output sin leer/validar (m7-l1). Úsalo con cuidado y en contexto apropiado.",
+        },
+        {
+          id: 'm7-l6-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'I use informal slang with my team, but not with clients.',
+          hint: 'Registro: equipo vs cliente.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
         },
       ],
     },

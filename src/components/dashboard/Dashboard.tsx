@@ -22,11 +22,12 @@ import {
   Zap,
 } from 'lucide-preact'
 import type { ComponentType } from 'preact'
-import { useEffect, useState } from 'preact/hooks'
+import { useEffect, useLayoutEffect, useState } from 'preact/hooks'
 import type { NavModule } from '../../data/curriculum'
 import { aggregateErrorPatterns } from '../../lib/errorPatterns'
 import { GOAL_LABELS, isSessionRelevantToGoal } from '../../lib/goals'
 import { getUiStage, t, tAction } from '../../lib/i18n'
+import { loadPlacementResult, PLACEMENT_START_SLUG } from '../../lib/placement'
 import { getDuePhraseEntries, getReviewStats, progressStore, todayKey } from '../../lib/progress'
 import { route } from '../../lib/routes'
 import { warmSpeechEngine } from '../../lib/speech'
@@ -61,10 +62,18 @@ export default function Dashboard({
   const [showHabits, setShowHabits] = useState(false)
   const [showPatterns, setShowPatterns] = useState(false)
 
+  useLayoutEffect(() => {
+    // El skeleton es un overlay con animate-pulse: se quita antes del primer
+    // paint, justo cuando el dashboard real ya está montado. Así no parpadea
+    // encima del contenido aunque el listener del evento se registrara tarde.
+    document.getElementById('dashboard-skeleton')?.remove()
+  }, [])
+
   useEffect(() => {
     try {
       warmSpeechEngine()
     } catch {}
+    window.dispatchEvent(new CustomEvent('runtimeenglish:dashboard-ready'))
   }, [])
 
   const allSessions = modules.flatMap((module) =>
@@ -151,6 +160,14 @@ export default function Dashboard({
   const recentErrorEvents = (state.errorEvents ?? []).slice(-120)
   const errorPatterns = aggregateErrorPatterns(recentErrorEvents).slice(0, 5)
 
+  const placement = loadPlacementResult()
+  const placementSession = placement
+    ? allSessions.find((session) => session.slug === PLACEMENT_START_SLUG[placement.level])
+    : null
+  const masteredExercises = Object.values(state.exerciseSrs ?? {}).filter(
+    (card) => card.correctStreak >= 2,
+  ).length
+
   const reviewHref =
     duePhrases > 0 && review.due === 0 ? '/dictionary?review=1' : '/practice?mode=review'
   const reviewLabel =
@@ -171,6 +188,40 @@ export default function Dashboard({
   return (
     <div class="mx-auto max-w-[1120px] animate-fade-up">
       {!state.settings.onboarded && <OnboardingCard />}
+
+      <section class="mb-4 grid gap-3 sm:grid-cols-3">
+        <div class="rounded-2xl bg-base-200 p-4">
+          <p class="mono-label text-accent/70">{tAction(stage, 'yourLevel')}</p>
+          <p class="mt-2 font-mono text-xl font-semibold text-base-content/90">
+            {placement?.level ?? state.settings.diagnostic?.level ?? '—'}
+          </p>
+          <a
+            href={route('/placement')}
+            class="mt-2 inline-block text-[11px] text-accent/80 hover:text-accent"
+          >
+            {placement ? tAction(stage, 'repeatTest') : tAction(stage, 'levelTest')} →
+          </a>
+        </div>
+        <div class="rounded-2xl bg-base-200 p-4">
+          <p class="mono-label text-accent/70">{tAction(stage, 'todayRoutine')}</p>
+          <p class="mt-2 font-mono text-xl font-semibold text-base-content/90">{totalDue}</p>
+          <p class="mt-1 text-[11px] text-base-content/45">
+            {tAction(stage, 'review')} · {masteredExercises} {tAction(stage, 'mastered')}
+          </p>
+        </div>
+        <div class="rounded-2xl bg-base-200 p-4">
+          <p class="mono-label text-accent/70">{tAction(stage, 'nextStep')}</p>
+          <p class="mt-2 truncate text-[13px] font-medium text-base-content/85">
+            {placementSession?.title ?? nextSession.title}
+          </p>
+          <a
+            href={route(`/session/${placementSession?.slug ?? nextSession.slug}`)}
+            class="mt-2 inline-block text-[11px] text-accent/80 hover:text-accent"
+          >
+            {tAction(stage, 'continueHere')} →
+          </a>
+        </div>
+      </section>
 
       {showPlanIntro && state.settings.plan && (
         <section class="mb-4 overflow-hidden rounded-3xl border border-accent/20 bg-accent/[0.07] p-4 sm:p-6">
@@ -340,7 +391,7 @@ export default function Dashboard({
             <span class="flex items-center gap-2 rounded-full bg-base-100/70 px-2.5 py-1.5 sm:px-3">
               <span class="h-2 w-2 rounded-full bg-accent" />
               <span class="font-mono text-[11px] font-semibold text-base-content/80">{cefr}</span>
-              <span class="hidden text-[10px] text-base-content/30 sm:inline">·</span>
+              <span class="hidden text-[10px] text-base-content/45 sm:inline">·</span>
               <span class="hidden text-[11px] font-medium text-base-content/55 sm:inline">
                 Nivel {xpLevel} · {levelLabel}
               </span>
@@ -510,7 +561,7 @@ export default function Dashboard({
         />
       </section>
 
-      {/* Accesos secundarios compactos (sin duplicar métricas) */}
+      {/* Accesos secundarios compactos (sin duplicar métricas ni navegación) */}
       <section class="mt-3 flex flex-wrap gap-2">
         <a
           href={route('/practice')}
@@ -527,12 +578,6 @@ export default function Dashboard({
           {duePhrases > 0
             ? `· ${duePhrases} flashcards`
             : `· ${Object.keys(state.phrasebook ?? {}).length}`}
-        </a>
-        <a
-          href={route('/search')}
-          class="inline-flex items-center gap-2 rounded-xl bg-base-200 px-3 py-2 text-[12px] text-base-content/70 hover:bg-base-300/70"
-        >
-          Buscar contenido
         </a>
       </section>
 
@@ -736,7 +781,7 @@ export default function Dashboard({
                       </p>
                     </div>
                     <ArrowUpRight
-                      class={`mt-0.5 h-4 w-4 shrink-0 ${rec.tone === 'accent' ? 'text-accent' : rec.tone === 'warn' ? 'text-warning' : 'text-base-content/30'}`}
+                      class={`mt-0.5 h-4 w-4 shrink-0 ${rec.tone === 'accent' ? 'text-accent' : rec.tone === 'warn' ? 'text-warning' : 'text-base-content/45'}`}
                     />
                   </a>
                 ))}

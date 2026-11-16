@@ -47,6 +47,7 @@ function GitHubIcon(props: { class?: string }) {
   )
 }
 
+import ResponsiveDialog from '../ui/ResponsiveDialog'
 import { useAuthSession } from '../../hooks/useAuthSession'
 import { useKokoroStatus } from '../../hooks/useKokoroStatus'
 import { useProgress } from '../../hooks/useProgress'
@@ -59,6 +60,8 @@ import {
   isNativeAndroid,
 } from '../../lib/appUpdate'
 import { signInWithProvider, signOut } from '../../lib/auth'
+import { CURRENT_APP_VERSION } from '../../data/changelog'
+import { SHOW_CHANGELOG_EVENT } from '../../lib/changelog'
 import type { LearningGoal } from '../../lib/goals'
 import { getLanguageStatus } from '../../lib/i18n'
 import { getReminderPermissionStatus, requestReminderPermission } from '../../lib/notifications'
@@ -98,7 +101,7 @@ const IMMERSION_OPTIONS: {
 
 const STAGE_LABEL = { es: 'Español', mixed: 'Mixto', en: 'English' } as const
 
-type SectionId = 'profile' | 'account' | 'appearance' | 'audio' | 'permissions' | 'data'
+type SectionId = 'profile' | 'account' | 'appearance' | 'audio' | 'permissions' | 'about' | 'data'
 
 function SectionCard({
   id,
@@ -133,7 +136,7 @@ function SectionCard({
           </span>
           <div class="min-w-0">
             <h2 class="text-sm font-medium">{title}</h2>
-            <p class="mt-0.5 hidden text-[11px] text-base-content/40 sm:block sm:truncate">
+            <p class="mt-0.5 hidden text-[11px] text-base-content/50 sm:block sm:truncate">
               {description}
             </p>
           </div>
@@ -213,6 +216,7 @@ export default function SettingsPanel() {
     appearance: false,
     audio: false,
     permissions: false,
+    about: false,
     data: false,
   })
   const [authBusy, setAuthBusy] = useState<'google' | 'github' | 'out' | 'sync' | null>(null)
@@ -438,12 +442,12 @@ export default function SettingsPanel() {
                     })
                   }
                   placeholder="Developer"
-                  class="h-10 w-full rounded-xl bg-base-100 px-3.5 text-sm text-base-content placeholder:text-base-content/25"
+                  class="h-10 w-full rounded-xl bg-base-100 px-3.5 text-sm text-base-content placeholder:text-base-content/45"
                 />
               </label>
               <div>
                 <span class="text-[11px] font-medium text-base-content/45">Objetivo principal</span>
-                <p class="mt-0.5 text-[10px] text-base-content/35">
+                <p class="mt-0.5 text-[10px] text-base-content/45">
                   Ajusta recomendaciones según tu enfoque.
                 </p>
                 <div class="mt-2 grid gap-2 sm:grid-cols-2">
@@ -500,7 +504,7 @@ export default function SettingsPanel() {
               ].map((stat) => (
                 <div key={stat.label} class="rounded-xl bg-base-100/60 px-3 py-2 text-center">
                   <p class="font-mono text-sm font-medium">{stat.value}</p>
-                  <p class="mt-0.5 text-[8px] tracking-wide text-base-content/30">{stat.label}</p>
+                  <p class="mt-0.5 text-[9px] tracking-wide text-base-content/45">{stat.label}</p>
                 </div>
               ))}
             </div>
@@ -806,7 +810,7 @@ export default function SettingsPanel() {
                             >
                               {h.message}
                             </span>
-                            <span class="shrink-0 text-base-content/35">
+                            <span class="shrink-0 text-base-content/45">
                               {new Date(h.at).toLocaleString()}
                             </span>
                           </div>
@@ -820,7 +824,7 @@ export default function SettingsPanel() {
                 </div>
               </div>
             </div>
-            <p class="flex items-start gap-1.5 text-[10px] leading-relaxed text-base-content/35">
+            <p class="flex items-start gap-1.5 text-[10px] leading-relaxed text-base-content/45">
               <Info class="mt-0.5 h-3 w-3 shrink-0" /> Fusión automática. Si estás offline, se
               reintenta al reconectar.
             </p>
@@ -873,7 +877,7 @@ export default function SettingsPanel() {
                 Continuar con GitHub
               </button>
             </div>
-            <p class="flex items-start gap-1.5 text-[10px] leading-relaxed text-base-content/35">
+            <p class="flex items-start gap-1.5 text-[10px] leading-relaxed text-base-content/45">
               <Info class="mt-0.5 h-3 w-3 shrink-0" /> Tu progreso local se fusionará con tu cuenta
               al iniciar sesión.
             </p>
@@ -934,13 +938,13 @@ export default function SettingsPanel() {
           <div class="rounded-2xl bg-base-100/40 p-4">
             <div class="flex flex-wrap items-start justify-between gap-2">
               <div>
-                <p class="text-[10px] text-base-content/35">Preparación para inglés</p>
+                <p class="text-[10px] text-base-content/45">Preparación para inglés</p>
                 <p class="mt-1 font-mono text-[1.6rem] font-medium leading-none tracking-tight">
                   {language.score}
-                  <span class="text-sm font-normal text-base-content/30"> / 100</span>
+                  <span class="text-sm font-normal text-base-content/45"> / 100</span>
                 </p>
               </div>
-              <span class="rounded-full bg-base-100/70 px-2.5 py-1 font-mono text-[9px] text-base-content/40">
+              <span class="rounded-full bg-base-100/70 px-2.5 py-1 font-mono text-[9px] text-base-content/50">
                 {language.nextTarget === null
                   ? 'Inglés desbloqueado'
                   : `${nextStageLabel} · ${language.nextTarget}`}
@@ -961,7 +965,7 @@ export default function SettingsPanel() {
               ].map((metric) => (
                 <div key={metric.label} class="rounded-xl bg-base-100/55 px-2.5 py-2">
                   <p class="font-mono text-[11px] font-medium">{metric.value}</p>
-                  <p class="mt-0.5 text-[8px] text-base-content/30">{metric.label}</p>
+                  <p class="mt-0.5 text-[9px] text-base-content/45">{metric.label}</p>
                 </div>
               ))}
             </div>
@@ -994,7 +998,7 @@ export default function SettingsPanel() {
                         {active && <Check class="h-2.5 w-2.5" />}
                       </span>
                     </div>
-                    <p class="mt-1.5 text-[10px] leading-relaxed text-base-content/35">
+                    <p class="mt-1.5 text-[10px] leading-relaxed text-base-content/45">
                       {option.description}
                     </p>
                   </button>
@@ -1386,7 +1390,7 @@ export default function SettingsPanel() {
                     Abre la configuración para activar permisos manualmente si fueron rechazados.
                   </p>
                   {!nativeAndroid && (
-                    <p class="mt-1 text-[10px] text-base-content/35">
+                    <p class="mt-1 text-[10px] text-base-content/45">
                       En web, revisa los permisos del sitio en tu navegador.
                     </p>
                   )}
@@ -1411,6 +1415,72 @@ export default function SettingsPanel() {
       )}
 
       <SectionCard
+        id="about"
+        title="Acerca de la app"
+        description="Versión, novedades y actualizaciones."
+        icon={Info}
+        open={open.about}
+        onToggle={() => toggle('about')}
+      >
+        <div class="space-y-3">
+          <div class="rounded-2xl bg-base-100/45 p-4 sm:p-5">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <Sparkles class="h-4 w-4 text-accent" />
+                  <h3 class="text-sm font-medium">Novedades</h3>
+                </div>
+                <p class="mt-1 text-[11px] leading-relaxed text-base-content/55">
+                  Versión actual: <span class="font-mono font-semibold">{CURRENT_APP_VERSION}</span>
+                </p>
+                <p class="mt-1 hidden break-all font-mono text-[10px] text-base-content/45 sm:block">
+                  {updateManifestUrl
+                    ? `Manifiesto: ${updateManifestUrl}`
+                    : 'Manifiesto no configurado en esta build.'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new CustomEvent(SHOW_CHANGELOG_EVENT))}
+                class="flex h-9 items-center gap-1.5 rounded-xl bg-base-100 px-3 text-[11px] font-medium text-base-content/70 transition hover:bg-base-200 hover:text-base-content"
+              >
+                <Sparkles class="h-3.5 w-3.5" />
+                Ver historial
+              </button>
+            </div>
+          </div>
+
+          <div class="rounded-2xl bg-base-100/45 p-4 sm:p-5">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <RefreshCw class="h-4 w-4 text-base-content/60" />
+                  <h3 class="text-sm font-medium">Actualización de la APK</h3>
+                </div>
+                <p class="mt-1 hidden text-[11px] leading-relaxed text-base-content/55 sm:block">
+                  Busca una nueva versión publicada en el manifiesto de actualización.
+                </p>
+                {!nativeAndroid && (
+                  <p class="mt-1 text-[11px] text-base-content/55">
+                    Disponible solo en la app Android instalada.
+                  </p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => void handleCheckAppUpdate()}
+                disabled={checkingUpdate}
+                class="flex h-9 items-center gap-1.5 rounded-xl bg-base-100 px-3 text-[11px] font-medium text-base-content/70 transition hover:bg-base-200 hover:text-base-content disabled:opacity-50"
+              >
+                <RefreshCw class={`h-3.5 w-3.5 ${checkingUpdate ? 'animate-spin' : ''}`} />
+                {checkingUpdate ? 'Buscando…' : 'Buscar actualización'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </SectionCard>
+
+      <SectionCard
         id="data"
         title="Datos"
         description="Exportar/importar progreso y zona de riesgo."
@@ -1430,7 +1500,7 @@ export default function SettingsPanel() {
               </span>
               <span>
                 <span class="block text-xs font-medium">Exportar progreso</span>
-                <span class="mt-0.5 hidden text-[10px] text-base-content/35 sm:block">
+                <span class="mt-0.5 hidden text-[10px] text-base-content/45 sm:block">
                   Descarga un JSON de respaldo
                 </span>
               </span>
@@ -1441,7 +1511,7 @@ export default function SettingsPanel() {
               </span>
               <span>
                 <span class="block text-xs font-medium">Importar progreso</span>
-                <span class="mt-0.5 hidden text-[10px] text-base-content/35 sm:block">
+                <span class="mt-0.5 hidden text-[10px] text-base-content/45 sm:block">
                   Restaura un respaldo exportado
                 </span>
               </span>
@@ -1454,82 +1524,81 @@ export default function SettingsPanel() {
             </label>
           </div>
 
-          <div class="rounded-2xl bg-base-100/45 p-4 sm:p-5">
-            <div class="flex flex-wrap items-start justify-between gap-3">
-              <div class="min-w-0">
-                <div class="flex items-center gap-2">
-                  <RefreshCw class="h-4 w-4 text-base-content/50" />
-                  <h3 class="text-sm font-medium">Actualizaciones de la app (Android)</h3>
-                </div>
-                <p class="mt-1 hidden text-[11px] leading-relaxed text-base-content/45 sm:block">
-                  Busca una nueva versión de la APK publicada en el manifiesto de actualización.
-                </p>
-                <p class="mt-1 hidden break-all font-mono text-[10px] text-base-content/30 sm:block">
-                  {updateManifestUrl
-                    ? `Manifiesto: ${updateManifestUrl}`
-                    : 'Manifiesto no configurado en esta build.'}
-                </p>
-                {!nativeAndroid && (
-                  <p class="mt-1 hidden text-[10px] text-base-content/35 sm:block">
-                    Disponible solo en la app Android instalada (APK).
-                  </p>
-                )}
-              </div>
-              <button
-                type="button"
-                onClick={() => void handleCheckAppUpdate()}
-                disabled={checkingUpdate}
-                class="flex h-9 items-center gap-1.5 rounded-xl bg-base-100 px-3 text-[11px] font-medium text-base-content/70 transition hover:bg-base-200 hover:text-base-content disabled:opacity-50"
-              >
-                <RefreshCw class={`h-3.5 w-3.5 ${checkingUpdate ? 'animate-spin' : ''}`} />
-                {checkingUpdate ? 'Buscando…' : 'Buscar actualización'}
-              </button>
-            </div>
-          </div>
-
           <div class="rounded-2xl bg-error/[0.055] p-4 sm:p-5">
             <div class="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h3 class="text-sm font-medium text-error/90">Zona de riesgo</h3>
-                <p class="mt-1 hidden text-[11px] leading-relaxed text-base-content/35 sm:block">
+                <p class="mt-1 hidden text-[11px] leading-relaxed text-base-content/45 sm:block">
                   Borra progreso, logros, racha y slang guardado de este navegador.
                 </p>
               </div>
-              {confirmReset ? (
-                <div class="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => setConfirmReset(false)}
-                    class="btn btn-ghost btn-sm h-9 rounded-xl px-3 text-base-content/50"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      progressStore.reset()
-                      setConfirmReset(false)
-                    }}
-                    class="btn btn-error btn-sm h-9 gap-1.5 rounded-xl px-3"
-                  >
-                    <Trash2 class="h-3.5 w-3.5" />
-                    Sí, borrar todo
-                  </button>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setConfirmReset(true)}
-                  class="btn btn-ghost btn-sm h-9 gap-1.5 rounded-xl bg-error/10 px-3 text-error hover:bg-error/15"
-                >
-                  <RotateCcw class="h-3.5 w-3.5" />
-                  Reiniciar progreso
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => setConfirmReset(true)}
+                class="btn btn-ghost btn-sm h-9 gap-1.5 rounded-xl bg-error/10 px-3 text-error hover:bg-error/15"
+              >
+                <RotateCcw class="h-3.5 w-3.5" />
+                Reiniciar progreso
+              </button>
             </div>
           </div>
         </div>
       </SectionCard>
+
+      <ResponsiveDialog
+        open={confirmReset}
+        onClose={() => setConfirmReset(false)}
+        title="¿Borrar todo el progreso?"
+        subtitle="Esta acción no se puede deshacer."
+        icon={<Trash2 class="h-5 w-5" />}
+        footer={
+          <div class="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setConfirmReset(false)}
+              class="h-11 flex-1 rounded-2xl bg-base-200 text-sm font-medium text-base-content/70 transition hover:bg-base-300"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                progressStore.reset()
+                setConfirmReset(false)
+              }}
+              class="h-11 flex-1 rounded-2xl bg-error text-sm font-semibold text-error-content transition hover:opacity-90"
+            >
+              Sí, borrar todo
+            </button>
+          </div>
+        }
+        sheetFooter={
+          <div class="flex flex-col gap-1">
+            <button
+              type="button"
+              onClick={() => {
+                progressStore.reset()
+                setConfirmReset(false)
+              }}
+              class="h-12 w-full rounded-2xl bg-error text-sm font-semibold text-error-content"
+            >
+              Sí, borrar todo
+            </button>
+            <button
+              type="button"
+              onClick={() => setConfirmReset(false)}
+              class="h-11 w-full text-sm font-medium text-base-content/50"
+            >
+              Cancelar
+            </button>
+          </div>
+        }
+      >
+        <p class="text-[12px] leading-relaxed text-base-content/70">
+          Se borrarán tu progreso, logros, racha, frasebook y slang guardado de este navegador. No
+          afecta a otras dispositivos ni a la nube.
+        </p>
+      </ResponsiveDialog>
     </div>
   )
 }

@@ -20,6 +20,10 @@ export function exerciseTypeLabel(exercise: Exercise, stage: UiStage): string {
   if (exercise.type === 'dialogue-order') return 'Ordena el diálogo'
   if (exercise.type === 'fix-error') return 'Corrige el error'
   if (exercise.type === 'roleplay') return 'Role-play'
+  if (exercise.type === 'match') return tAction(stage, 'matchPairs')
+  if (exercise.type === 'multi-choice') return 'Elige todas las correctas'
+  if (exercise.type === 'shadow') return tAction(stage, 'shadowPrompt')
+  if (exercise.type === 'dialogue-branch') return tAction(stage, 'branchPrompt')
   return tAction(stage, 'writeAnswer')
 }
 

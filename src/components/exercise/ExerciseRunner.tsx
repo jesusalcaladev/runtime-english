@@ -19,6 +19,7 @@ import {
   getCorrectAnswerText,
   getUserAnswerText,
   isExerciseAnswerCorrect,
+  orderExercises,
   shuffleIndices,
 } from '../../lib/exercise'
 import { getUiStage, t, tAction } from '../../lib/i18n'
@@ -35,9 +36,14 @@ import {
 } from '../../lib/speech'
 import type { Exercise } from '../../lib/types'
 import { useProgress } from '../../lib/useProgress'
+import DialogueBranchInput from './runner/DialogueBranchInput'
 import { ExerciseFeedback } from './runner/ExerciseFeedback'
 import { ExerciseFinishedScreen } from './runner/ExerciseFinishedScreen'
 import { ExerciseTypeIcon } from './runner/ExerciseTypeIcon'
+import MatchInput from './runner/MatchInput'
+import MiniDrill from './runner/MiniDrill'
+import MultiChoiceInput from './runner/MultiChoiceInput'
+import ShadowInput from './runner/ShadowInput'
 import {
   burstConfetti,
   exerciseTypeLabel,
@@ -57,7 +63,13 @@ function micTimeoutForText(text: string): number {
   return Math.min(16_000, Math.max(8_000, 3_500 + words * 1_100))
 }
 
-export default function ExerciseRunner({ sessionId, sessionTitle, exercises, next }: Props) {
+export default function ExerciseRunner({
+  sessionId,
+  sessionTitle,
+  exercises: rawExercises,
+  next,
+}: Props) {
+  const exercises = useMemo(() => orderExercises(rawExercises), [rawExercises])
   const state = useProgress()
   const stage = getUiStage(state)
   const initialRun = useRef(
@@ -83,6 +95,9 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
   const [blankValues, setBlankValues] = useState<string[]>([])
   const [dialoguePicked, setDialoguePicked] = useState<number[]>([])
   const [shuffledDialogue, setShuffledDialogue] = useState<number[]>([])
+  const [multiPicked, setMultiPicked] = useState<number[]>([])
+  const [matchedPairs, setMatchedPairs] = useState<number[]>([])
+  const [dialogueBranchPicked, setDialogueBranchPicked] = useState<number[]>([])
   const [status, setStatus] = useState<RunnerStatus>('idle')
   const [solved, setSolved] = useState<string[]>(initialRun.solved)
   const [finished, setFinished] = useState(false)
@@ -93,6 +108,7 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
   const [liveText, setLiveText] = useState('')
   const [micLevel, setMicLevel] = useState(0)
   const [micError, setMicError] = useState<string | null>(null)
+  const [speechWpm, setSpeechWpm] = useState<number | null>(null)
   const micRunRef = useRef(0)
   const stopMeterRef = useRef<(() => void) | null>(null)
 
@@ -111,8 +127,28 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
   }, [exercise?.id, exercise?.type])
 
   const interaction = useMemo(
-    () => ({ selected, picked, text, blankValues, dialoguePicked, heardText }),
-    [selected, picked, text, blankValues, dialoguePicked, heardText],
+    () => ({
+      selected,
+      picked,
+      text,
+      blankValues,
+      dialoguePicked,
+      heardText,
+      multiPicked,
+      matchedPairs,
+      dialogueBranchPicked,
+    }),
+    [
+      selected,
+      picked,
+      text,
+      blankValues,
+      dialoguePicked,
+      heardText,
+      multiPicked,
+      matchedPairs,
+      dialogueBranchPicked,
+    ],
   )
 
   const isCorrectAnswer = useMemo(
@@ -126,7 +162,7 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
   )
 
   const speakScore = useMemo(() => {
-    if (exercise?.type !== 'speak' || !heardText) return null
+    if ((exercise?.type !== 'speak' && exercise?.type !== 'shadow') || !heardText) return null
     return speechMatchScore(exercise.answer, heardText)
   }, [exercise, heardText])
 
@@ -141,6 +177,9 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
     setText('')
     setBlankValues(exercise?.type === 'fill-blank' ? Array(exercise.blanks.length).fill('') : [])
     setDialoguePicked([])
+    setMultiPicked([])
+    setMatchedPairs([])
+    setDialogueBranchPicked([])
     setStatus('idle')
     setAttempted(false)
     micRunRef.current += 1
@@ -150,9 +189,17 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
     setHeardText('')
     setLiveText('')
     setMicError(null)
+    setSpeechWpm(null)
     if (exercise?.type === 'builder') setShuffledWords(shuffleIndices(exercise.words.length))
     if (exercise?.type === 'dialogue-order')
       setShuffledDialogue(shuffleIndices(exercise.lines.length))
+  }
+
+  function clearIncorrectStatus() {
+    if (status === 'incorrect') {
+      setStatus('idle')
+      setAttempted(false)
+    }
   }
 
   function goTo(nextIndex: number) {
@@ -222,7 +269,7 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
       exercise?.type === 'roleplay'
     )
       setText('')
-    if (exercise?.type === 'speak') {
+    if (exercise?.type === 'speak' || exercise?.type === 'shadow') {
       micRunRef.current += 1
       stopSpeechRecognition()
       stopMicMeter()
@@ -231,12 +278,16 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
       setLiveText('')
       setMicState('idle')
       setMicError(null)
+      setSpeechWpm(null)
     }
     if (exercise?.type === 'fill-blank') setBlankValues(Array(exercise.blanks.length).fill(''))
     if (exercise?.type === 'dialogue-order') {
       setDialoguePicked([])
       setShuffledDialogue(shuffleIndices(exercise.lines.length))
     }
+    if (exercise?.type === 'multi-choice') setMultiPicked([])
+    if (exercise?.type === 'match') setMatchedPairs([])
+    if (exercise?.type === 'dialogue-branch') setDialogueBranchPicked([])
   }
 
   function stopMicMeter() {
@@ -250,7 +301,7 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
   }
 
   async function startSpeaking() {
-    if (exercise?.type !== 'speak') return
+    if (exercise?.type !== 'speak' && exercise?.type !== 'shadow') return
     const run = ++micRunRef.current
     setMicError(null)
     setLiveText('')
@@ -273,6 +324,7 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
       })
 
     setMicState('listening')
+    const startedAt = Date.now()
     const stopMeter = await startMicLevelMeter((level) => {
       if (run === micRunRef.current) setMicLevel(level)
     })
@@ -296,6 +348,9 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
     setMicState('done')
     setLiveText('')
     if (res.transcript) {
+      const seconds = Math.max(1, (Date.now() - startedAt) / 1000)
+      const words = exercise.answer.trim().split(/\s+/).filter(Boolean).length
+      setSpeechWpm(Math.round(words / (seconds / 60)))
       setHeardText(res.transcript)
       setText(res.transcript)
       setMicError(null)
@@ -359,16 +414,21 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
         else if (canCheck) check()
         return
       }
-      if (exercise?.type === 'choice' && status !== 'correct' && /^[1-9]$/.test(event.key)) {
-        const optionIndex = Number(event.key) - 1
-        if (optionIndex < exercise.options.length) {
-          event.preventDefault()
-          setSelected(optionIndex)
-          if (status === 'incorrect') {
-            setStatus('idle')
-            setAttempted(false)
-          }
-        }
+      if (status === 'correct' || !/^[1-9]$/.test(event.key)) return
+      const optionIndex = Number(event.key) - 1
+      if (exercise?.type === 'choice' && optionIndex < exercise.options.length) {
+        event.preventDefault()
+        setSelected(optionIndex)
+        clearIncorrectStatus()
+      }
+      if (exercise?.type === 'multi-choice' && optionIndex < exercise.options.length) {
+        event.preventDefault()
+        setMultiPicked((current) =>
+          current.includes(optionIndex)
+            ? current.filter((value) => value !== optionIndex)
+            : [...current, optionIndex],
+        )
+        clearIncorrectStatus()
       }
     }
     window.addEventListener('keydown', onKeyDown)
@@ -386,6 +446,8 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
     text,
     blankValues,
     dialoguePicked,
+    multiPicked,
+    clearIncorrectStatus,
   ])
 
   if (!exercise) return null
@@ -565,6 +627,17 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
             </div>
           )}
 
+          {exercise.type === 'multi-choice' && (
+            <MultiChoiceInput
+              exercise={exercise}
+              picked={multiPicked}
+              disabled={status === 'correct'}
+              showErrors={status === 'incorrect'}
+              onPickedChange={setMultiPicked}
+              onInteraction={clearIncorrectStatus}
+            />
+          )}
+
           {exercise.type === 'builder' && (
             <div class="mt-5 space-y-4">
               <div class="min-h-[64px] rounded-2xl bg-base-200/70 p-3">
@@ -610,6 +683,28 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
                 )}
               </div>
             </div>
+          )}
+
+          {exercise.type === 'match' && (
+            <MatchInput
+              key={exercise.id}
+              exercise={exercise}
+              matchedPairs={matchedPairs}
+              disabled={status === 'correct'}
+              onMatchedPairsChange={setMatchedPairs}
+              onInteraction={clearIncorrectStatus}
+            />
+          )}
+
+          {exercise.type === 'dialogue-branch' && (
+            <DialogueBranchInput
+              exercise={exercise}
+              picked={dialogueBranchPicked}
+              disabled={status === 'correct'}
+              showErrors={status === 'incorrect'}
+              onPickedChange={setDialogueBranchPicked}
+              onInteraction={clearIncorrectStatus}
+            />
           )}
 
           {(exercise.type === 'write' ||
@@ -764,6 +859,11 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
                     </span>
                   </p>
                 )}
+                {speechWpm !== null && (
+                  <p class="text-[12px] text-base-content/55">
+                    Ritmo: <span class="font-mono text-accent">{speechWpm} palabras/min</span>
+                  </p>
+                )}
                 {micError && (
                   <p class="text-[12px] text-error/80" role="status">
                     {micError}
@@ -804,6 +904,26 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
                 </p>
               )}
             </div>
+          )}
+
+          {exercise.type === 'shadow' && (
+            <ShadowInput
+              exercise={exercise}
+              disabled={status === 'correct'}
+              micSupported={micSupported}
+              micState={micState}
+              liveText={liveText}
+              heardText={heardText}
+              score={speakScore}
+              wpm={speechWpm}
+              micError={micError}
+              text={text}
+              onMicClick={micState === 'listening' ? cancelSpeaking : startSpeaking}
+              onText={(value) => {
+                setText(value)
+                setHeardText('')
+              }}
+            />
           )}
 
           {exercise.type === 'fill-blank' && (
@@ -932,15 +1052,23 @@ export default function ExerciseRunner({ sessionId, sessionTitle, exercises, nex
               phraseEntry={phraseEntry}
             />
           )}
+
+          {status === 'incorrect' && detectedSkills.length > 0 && (
+            <MiniDrill key={exercise.id} skill={detectedSkills[0]} />
+          )}
         </div>
 
         <div class="mt-1 flex flex-wrap items-center justify-between gap-2 px-3 py-2.5 sm:px-4">
           <p class="text-[10px] text-base-content/30">
-            {exercise.type === 'builder'
-              ? stage === 'es'
-                ? `${picked.length} palabra${picked.length === 1 ? '' : 's'} seleccionada${picked.length === 1 ? '' : 's'}`
-                : `${picked.length} ${tAction(stage, 'wordsSelected')}`
-              : tAction(stage, 'noPenalty')}
+            {exercise.type === 'match'
+              ? `${matchedPairs.length} / ${exercise.pairs.length} parejas`
+              : exercise.type === 'multi-choice'
+                ? `${multiPicked.length} seleccionada${multiPicked.length === 1 ? '' : 's'}`
+                : exercise.type === 'builder'
+                  ? stage === 'es'
+                    ? `${picked.length} palabra${picked.length === 1 ? '' : 's'} seleccionada${picked.length === 1 ? '' : 's'}`
+                    : `${picked.length} ${tAction(stage, 'wordsSelected')}`
+                  : tAction(stage, 'noPenalty')}
           </p>
           <div class="flex items-center gap-1.5">
             <button

@@ -9,14 +9,33 @@ const exerciseIds = getAllExerciseIds()
 ---
 
 <BaseLayout>
-  <Dashboard
-    client:only="preact"
-    modules={modules}
-    totalSessions={TOTAL_SESSIONS}
-    totalExercises={TOTAL_EXERCISES}
-    totalAchievements={ACHIEVEMENTS.length}
-    exerciseIds={exerciseIds}
-  />
+  <div class="relative">
+    <div
+      id="dashboard-skeleton"
+      aria-hidden="true"
+      class="absolute inset-x-0 top-0 z-10 animate-pulse bg-base-100"
+    >
+      <div class="mx-auto max-w-[1120px] space-y-3">
+        <div class="h-40 rounded-[28px] bg-base-200 sm:h-56"></div>
+        <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <div class="h-20 rounded-2xl bg-base-200"></div>
+          <div class="h-20 rounded-2xl bg-base-200"></div>
+          <div class="h-20 rounded-2xl bg-base-200"></div>
+          <div class="h-20 rounded-2xl bg-base-200"></div>
+        </div>
+        <div class="h-32 rounded-3xl bg-base-200"></div>
+      </div>
+    </div>
+
+    <Dashboard
+      client:only="preact"
+      modules={modules}
+      totalSessions={TOTAL_SESSIONS}
+      totalExercises={TOTAL_EXERCISES}
+      totalAchievements={ACHIEVEMENTS.length}
+      exerciseIds={exerciseIds}
+    />
+  </div>
 
   <footer class="mx-auto mt-16 max-w-[1120px]">
     <div class="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-base-200/60 px-4 py-3">
@@ -29,3 +48,15 @@ const exerciseIds = getAllExerciseIds()
     </div>
   </footer>
 </BaseLayout>
+
+<script>
+  const skeletonWindow = window as Window & { __runtimeenglishDashboardSkeletonBound?: boolean }
+  if (!skeletonWindow.__runtimeenglishDashboardSkeletonBound) {
+    skeletonWindow.__runtimeenglishDashboardSkeletonBound = true
+    const removeSkeleton = () => document.getElementById('dashboard-skeleton')?.remove()
+    document.addEventListener('runtimeenglish:dashboard-ready', removeSkeleton)
+    // Red de seguridad: si la isla no llega a montarse (JS lento o navegación
+    // con ClientRouter), el overlay no debe quedarse parpadeando para siempre.
+    window.setTimeout(removeSkeleton, 3000)
+  }
+</script>

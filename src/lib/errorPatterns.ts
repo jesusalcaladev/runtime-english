@@ -21,7 +21,7 @@ export interface ErrorPatternInsight {
   examples: string[]
 }
 
-const SKILL_LABELS: Record<ErrorSkill, string> = {
+export const SKILL_LABELS: Record<ErrorSkill, string> = {
   prepositions: 'Preposiciones',
   tenses: 'Tiempos verbales',
   articles: 'Artículos (a/an/the)',
@@ -84,7 +84,19 @@ export function getExerciseText(exercise: Exercise): string {
     case 'write':
     case 'listen':
     case 'speak':
+    case 'shadow':
       parts.push(exercise.answer)
+      break
+    case 'multi-choice':
+      parts.push(...exercise.options)
+      break
+    case 'match':
+      parts.push(...exercise.pairs.flatMap((pair) => [pair.en, pair.es]))
+      break
+    case 'dialogue-branch':
+      for (const step of exercise.steps) {
+        parts.push(step.line, ...step.choices.map((choice) => choice.en))
+      }
       break
     case 'roleplay':
       parts.push(exercise.scenario, exercise.goal)
@@ -114,7 +126,9 @@ export function inferExerciseSkills(exercise: Exercise): ErrorSkill[] {
   if (exercise.type === 'builder' || exercise.type === 'dialogue-order') skills.add('word-order')
   if (/\bagree|concord|third person|3rd person|singular\b/i.test(text)) skills.add('agreement')
   if (PLURAL_RE.test(text) || /\bplural/i.test(exercise.prompt)) skills.add('plurals')
-  if (exercise.type === 'write' || exercise.type === 'listen') skills.add('spelling')
+  if (exercise.type === 'write' || exercise.type === 'listen' || exercise.type === 'shadow')
+    skills.add('spelling')
+  if (exercise.type === 'match' || exercise.type === 'multi-choice') skills.add('vocabulary')
   if (skills.size === 0) skills.add('vocabulary')
   return Array.from(skills)
 }

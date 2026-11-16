@@ -145,6 +145,14 @@ export const m4: Module = {
           explanation:
             "Repaso de los dos tiempos nuevos: 'I've already checked...' (resultado ahora) y 'the token had expired...' (antes de otra acción pasada).",
         },
+        {
+          id: 'm4-l0-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'I have fixed the bug that broke the build yesterday.',
+          hint: 'Presente perfecto + pasado simple.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
       ],
     },
     {
@@ -377,6 +385,85 @@ export const m4: Module = {
           explanation:
             "Dice 'I'm blocked by the API token'. Maya se encargará de pedir que lo renueven.",
         },
+        {
+          id: 'm4-l1-e9',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'Yesterday I fixed the bug, today I am writing tests and I have no blockers.',
+          hint: 'Estructura clásica del daily.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
+        {
+          id: 'm4-l1-e10',
+          type: 'match',
+          prompt: 'Empareja cada término con su significado.',
+          pairs: [
+            {
+              en: "Yesterday I worked on X. Today I'm working on Y. I'm blocked by Z.",
+              es: 'Tu estructura base para el daily.',
+            },
+            {
+              en: "I finished the API integration and I'm working on the unit tests.",
+              es: 'Reportar progreso concreto.',
+            },
+            {
+              en: "I'm stuck on the CORS error. I need help with the backend headers.",
+              es: 'Pedir ayuda con un bloqueo específico.',
+            },
+            {
+              en: 'I just pushed the fix. Can someone review my PR?',
+              es: 'Pedir revisión de código.',
+            },
+          ],
+          explanation:
+            'Emparejar el término con su significado refuerza el vocabulario de esta lección.',
+        },
+        {
+          id: 'm4-l1-e11',
+          type: 'dialogue-branch',
+          prompt: 'Elige la mejor respuesta en el daily.',
+          steps: [
+            {
+              speaker: 'Maya',
+              line: 'What did you do yesterday?',
+              choices: [
+                {
+                  en: 'I fixed the login bug and wrote tests.',
+                  correct: true,
+                  feedback: 'Correcto: acción concreta en pasado.',
+                },
+                {
+                  en: 'I am fixing bugs tomorrow.',
+                  correct: false,
+                  feedback: 'El daily pregunta por ayer, no por mañana.',
+                },
+                {
+                  en: 'Everything is fine.',
+                  correct: false,
+                  feedback: 'Da poca información útil al equipo.',
+                },
+              ],
+            },
+            {
+              speaker: 'Maya',
+              line: 'Any blockers today?',
+              choices: [
+                {
+                  en: 'Yes, I am blocked by the API token. Can you help?',
+                  correct: true,
+                  feedback: 'Excelente: bloqueo + petición concreta.',
+                },
+                {
+                  en: 'No, I do not like tests.',
+                  correct: false,
+                  feedback: 'No responde a la pregunta y suena poco profesional.',
+                },
+              ],
+            },
+          ],
+          explanation:
+            'En una conversación real importa sonar claro, concreto y respetuoso con el turno del otro.',
+        },
       ],
     },
     {
@@ -605,6 +692,55 @@ export const m4: Module = {
           explanation:
             "Leo responde 'I'll fix it and ping you', y Maya confirma 'LGTM once that's in'.",
         },
+        {
+          id: 'm4-l2-e9',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'Could you clarify this comment? I do not understand the suggestion.',
+          hint: 'Pregunta educada en un review.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
+        {
+          id: 'm4-l2-e10',
+          type: 'dialogue-branch',
+          prompt: 'Elige cómo responder en un code review.',
+          steps: [
+            {
+              speaker: 'Leo',
+              line: 'Could you review my PR today?',
+              choices: [
+                {
+                  en: 'Sure. I will leave comments before lunch.',
+                  correct: true,
+                  feedback: 'Aceptas y das un plazo claro.',
+                },
+                {
+                  en: 'No, I am busy forever.',
+                  correct: false,
+                  feedback: 'Suena poco colaborativo y poco profesional.',
+                },
+              ],
+            },
+            {
+              speaker: 'Leo',
+              line: 'Is the naming clear?',
+              choices: [
+                {
+                  en: 'Mostly. Could you rename this variable?',
+                  correct: true,
+                  feedback: 'Feedback amable y accionable.',
+                },
+                {
+                  en: 'It is perfect. Do not change anything.',
+                  correct: false,
+                  feedback: 'No aporta ni señala nada concreto.',
+                },
+              ],
+            },
+          ],
+          explanation:
+            'En una conversación real importa sonar claro, concreto y respetuoso con el turno del otro.',
+        },
       ],
     },
     {
@@ -831,6 +967,90 @@ export const m4: Module = {
           explanation:
             "Maya dice 'I'll send an update in 15 minutes': se encarga de mantener informado al equipo.",
         },
+        {
+          id: 'm4-l3-e9',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'The service went down at 3am and we rolled back the release.',
+          hint: 'Impacto + acción correctiva.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
+        {
+          id: 'm4-l3-e10',
+          type: 'match',
+          prompt: 'Empareja cada término con su significado.',
+          pairs: [
+            { en: 'We have a production outage.', es: 'Tenemos una caída en producción.' },
+            { en: "What's the blast radius?", es: '¿A cuántos usuarios/afecta?' },
+            {
+              en: "I'm rolling back the last deploy.",
+              es: 'Estoy revirtiendo el último despliegue.',
+            },
+            { en: 'The mitigation is working.', es: 'La mitigación está funcionando.' },
+          ],
+          explanation:
+            'Emparejar el término con su significado refuerza el vocabulario de esta lección.',
+        },
+        {
+          id: 'm4-l3-e11',
+          type: 'dialogue-branch',
+          prompt: 'Elige la mejor comunicación durante un incidente.',
+          steps: [
+            {
+              speaker: 'Maya',
+              line: 'The API is down. What is the impact?',
+              choices: [
+                {
+                  en: 'Users cannot log in; we are investigating.',
+                  correct: true,
+                  feedback: 'Impacto + acción en curso.',
+                  next: 1,
+                },
+                {
+                  en: 'I do not know. Maybe nothing.',
+                  correct: false,
+                  feedback: 'Un incidente necesita información clara, no dudas.',
+                  next: 2,
+                },
+              ],
+            },
+            {
+              speaker: 'Maya',
+              line: 'Be precise: what can you confirm right now?',
+              choices: [
+                {
+                  en: 'Users cannot log in, and we are on it.',
+                  correct: true,
+                  feedback: 'Ahora sí: impacto concreto y acción.',
+                  next: 1,
+                },
+                {
+                  en: 'Maybe something is wrong.',
+                  correct: false,
+                  feedback: 'Evita “maybe”: da un dato verificable.',
+                },
+              ],
+            },
+            {
+              speaker: 'Maya',
+              line: 'What do we do now?',
+              choices: [
+                {
+                  en: "Let's roll back the last deploy and update the channel.",
+                  correct: true,
+                  feedback: 'Acción correctiva + comunicación.',
+                },
+                {
+                  en: "Let's wait until tomorrow.",
+                  correct: false,
+                  feedback: 'En un incidente hay que actuar y comunicar ya.',
+                },
+              ],
+            },
+          ],
+          explanation:
+            'En una conversación real importa sonar claro, concreto y respetuoso con el turno del otro.',
+        },
       ],
     },
     {
@@ -968,6 +1188,14 @@ export const m4: Module = {
           answer: 1,
           explanation:
             'Explicas el impacto (trade-off) y pides priorizar. Es claro, colaborativo y realista.',
+        },
+        {
+          id: 'm4-l4-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'I do not have the bandwidth this week, but I can do it on Monday.',
+          hint: 'Decir que no con alternativa.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
         },
       ],
     },
@@ -1184,6 +1412,55 @@ export const m4: Module = {
           answer: 0,
           explanation:
             'Maya cierra con "Let\'s pair on it after the standup": ayuda en vivo y concreta.',
+        },
+        {
+          id: 'm4-l5-e9',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'I am blocked by the API token. Could you help me for five minutes?',
+          hint: 'Contexto + petición concreta.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
+        {
+          id: 'm4-l5-e10',
+          type: 'dialogue-branch',
+          prompt: 'Elige cómo pedir ayuda con contexto.',
+          steps: [
+            {
+              speaker: 'Leo',
+              line: 'Do you have a minute? I am stuck.',
+              choices: [
+                {
+                  en: 'Yes, what is blocking you?',
+                  correct: true,
+                  feedback: 'Muestras disponibilidad y pides el contexto.',
+                },
+                {
+                  en: 'No, I am always busy.',
+                  correct: false,
+                  feedback: 'Cierra la conversación sin ayudar.',
+                },
+              ],
+            },
+            {
+              speaker: 'Leo',
+              line: 'Thanks, that helps a lot.',
+              choices: [
+                {
+                  en: 'No problem. Let me know if you need more context.',
+                  correct: true,
+                  feedback: 'Cierras con disponibilidad y contexto.',
+                },
+                {
+                  en: 'Yes, I am always busy.',
+                  correct: false,
+                  feedback: 'Contradice tu ayuda anterior.',
+                },
+              ],
+            },
+          ],
+          explanation:
+            'En una conversación real importa sonar claro, concreto y respetuoso con el turno del otro.',
         },
       ],
     },
@@ -1416,6 +1693,14 @@ export const m4: Module = {
           answer: 0,
           explanation: 'Es una forma clara y natural de cerrar tu update cuando no hay bloqueos.',
         },
+        {
+          id: 'm4-l7-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'I will take the frontend task and Maya will review the PR.',
+          hint: 'Dos compromisos con will.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
+        },
       ],
     },
     {
@@ -1526,6 +1811,14 @@ export const m4: Module = {
           answer: 'This is a blocking issue because it affects production.',
           explanation:
             'En un review, explicar por qué algo es bloqueante ayuda a priorizarlo (m4-l2).',
+        },
+        {
+          id: 'm4-l8-e7',
+          type: 'shadow',
+          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
+          answer: 'We missed the deadline because the deploy broke production.',
+          hint: 'Causa y efecto.',
+          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
         },
       ],
     },

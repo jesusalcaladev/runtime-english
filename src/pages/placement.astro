@@ -1,0 +1,49 @@
+---
+import { BookOpen, Lightbulb, Sparkles } from '@lucide/astro'
+import PlacementTest from '../components/placement/PlacementTest'
+import PageHeader from '../components/ui/PageHeader.astro'
+import BaseLayout from '../layouts/BaseLayout.astro'
+---
+
+<BaseLayout
+  title="Test de nivel · RuntimeEnglish"
+  description="Descubre tu nivel de inglés técnico en 2 minutos y empieza la ruta por la sesión que mejor encaja contigo."
+>
+  <div class="mx-auto max-w-[760px] animate-fade-up space-y-7">
+    <PageHeader
+      eyebrow="Test de nivel · 2 minutos"
+      title="Empieza por donde te toca"
+      description="Ocho preguntas rápidas para recomendarte un nivel y una primera sesión. No es un examen: es una forma de no perder tiempo con lo que ya sabes."
+    >
+      <div class="mt-5 flex flex-wrap gap-2">
+        <span class="flex items-center gap-1.5 rounded-full bg-accent/10 px-3 py-1.5 text-[10px] font-medium text-accent">
+          <Sparkles class="h-3 w-3" /> 8 preguntas
+        </span>
+        <span class="rounded-full bg-base-200 px-3 py-1.5 text-[10px] text-base-content/50">
+          Sin registro · se guarda en tu dispositivo
+        </span>
+      </div>
+    </PageHeader>
+
+    <PlacementTest client:load />
+
+    <div class="grid gap-3 sm:grid-cols-2">
+      <div class="rounded-2xl bg-base-200 p-4">
+        <BookOpen class="h-4 w-4 text-accent" />
+        <p class="mt-3 text-[13px] font-medium text-base-content/85">¿Para qué sirve?</p>
+        <p class="mt-1 text-[12px] leading-relaxed text-base-content/50">
+          Para saltarte las bases si ya las dominas y llegar antes a vocabulario de Git, incidentes
+          y comunicación técnica.
+        </p>
+      </div>
+      <div class="rounded-2xl bg-base-200 p-4">
+        <Lightbulb class="h-4 w-4 text-accent" />
+        <p class="mt-3 text-[13px] font-medium text-base-content/85">¿Y si acierto todo?</p>
+        <p class="mt-1 text-[12px] leading-relaxed text-base-content/50">
+          La ruta completa sigue disponible. Puedes repasar cualquier sesión cuando quieras desde
+          el roadmap.
+        </p>
+      </div>
+    </div>
+  </div>
+</BaseLayout>

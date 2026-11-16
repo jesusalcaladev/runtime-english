@@ -155,7 +155,6 @@ export default function LessonBlocksClient({ blocks }: Props) {
                     <div class="min-w-0 flex-1 space-y-2">
                       <div class="inline-flex max-w-full items-start rounded-xl bg-base-100/80 px-3.5 py-2.5 ring-1 ring-accent/10">
                         <p class="font-mono text-[15px] font-medium leading-relaxed text-base-content">
-                          <span class="mr-1.5 text-accent/60">EN</span>
                           {item.en}
                         </p>
                       </div>

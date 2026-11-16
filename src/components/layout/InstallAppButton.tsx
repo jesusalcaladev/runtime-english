@@ -1,5 +1,6 @@
 import { Download, Share } from 'lucide-preact'
 import { useEffect, useState } from 'preact/hooks'
+import ResponsiveDialog from '../ui/ResponsiveDialog'
 
 const APK_DOWNLOAD_URL =
   'https://github.com/jesusalcaladev/runtime-english/releases/latest/download/RuntimeEnglish.apk'
@@ -76,61 +77,65 @@ export default function InstallAppButton() {
 
   if (platform === 'ios') {
     return (
-      <div class="relative">
+      <>
         <button
           type="button"
-          onClick={() => setOpen((v) => !v)}
+          onClick={() => setOpen(true)}
           class="surface-soft inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-base-content/70 transition hover:bg-base-300 hover:text-base-content sm:w-auto sm:gap-1.5 sm:px-3"
           aria-label="Instalar app"
-          aria-expanded={open}
           aria-haspopup="dialog"
           title="Instalar app (PWA)"
         >
           <Download class="h-3.5 w-3.5" />
           <span class="hidden text-[11px] font-medium sm:inline">Instalar app</span>
         </button>
-        {open && (
-          <div
-            class="absolute right-0 top-11 z-50 w-72 max-w-[calc(100vw-1rem)] rounded-2xl border border-base-content/10 bg-base-100 p-3 text-left shadow-xl"
-            role="dialog"
-            aria-label="Instrucciones para instalar la app"
-          >
-            <p class="text-xs font-semibold text-base-content">Instalar en iPhone/iPad</p>
-            <ol class="mt-2 space-y-1.5 text-[11px] leading-relaxed text-base-content/70">
-              <li class="flex items-start gap-2">
-                <span class="mt-0.5 inline-flex h-4 w-4 items-center justify-center rounded bg-base-200 text-[10px]">
-                  1
-                </span>
-                <span>
-                  Toca <Share class="inline h-3 w-3" aria-hidden="true" />{' '}
-                  <strong>Compartir</strong> en Safari.
-                </span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="mt-0.5 inline-flex h-4 w-4 items-center justify-center rounded bg-base-200 text-[10px]">
-                  2
-                </span>
-                <span>
-                  Elige <strong>“Añadir a pantalla de inicio”</strong>.
-                </span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="mt-0.5 inline-flex h-4 w-4 items-center justify-center rounded bg-base-200 text-[10px]">
-                  3
-                </span>
-                <span>Confirma para instalar la app (PWA).</span>
-              </li>
-            </ol>
+
+        <ResponsiveDialog
+          open={open}
+          onClose={() => setOpen(false)}
+          title="Instalar en iPhone/iPad"
+          subtitle="Añade RuntimeEnglish a tu pantalla de inicio"
+          icon={<Download class="h-5 w-5" />}
+          footer={
             <button
               type="button"
               onClick={() => setOpen(false)}
-              class="mt-3 w-full rounded-xl bg-base-200 px-3 py-1.5 text-[11px] font-medium hover:bg-base-300"
+              class="h-11 w-full rounded-2xl bg-base-200 text-sm font-medium text-base-content/70 transition hover:bg-base-300"
             >
               Entendido
             </button>
-          </div>
-        )}
-      </div>
+          }
+          sheetFooter={
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              class="h-12 w-full rounded-2xl bg-accent text-sm font-semibold text-accent-content"
+            >
+              Entendido
+            </button>
+          }
+        >
+          <ol class="space-y-2.5">
+            {[
+              <>
+                Toca <Share class="inline h-3.5 w-3.5" aria-hidden="true" />{' '}
+                <strong>Compartir</strong> en Safari.
+              </>,
+              <>
+                Elige <strong>“Añadir a pantalla de inicio”</strong>.
+              </>,
+              <>Confirma para instalar la app (PWA).</>,
+            ].map((step, index) => (
+              <li key={index} class="flex items-start gap-3 rounded-2xl bg-base-200/60 p-3 sm:bg-transparent sm:p-0">
+                <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-accent/15 text-[11px] font-semibold text-accent">
+                  {index + 1}
+                </span>
+                <span class="text-[12px] leading-relaxed text-base-content/75">{step}</span>
+              </li>
+            ))}
+          </ol>
+        </ResponsiveDialog>
+      </>
     )
   }
 

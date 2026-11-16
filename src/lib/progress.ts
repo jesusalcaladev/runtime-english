@@ -265,8 +265,15 @@ function getExerciseAnswerText(exercise: Exercise): string {
     case 'write':
     case 'listen':
     case 'speak':
+    case 'shadow':
     case 'fix-error':
       return exercise.answer
+    case 'multi-choice':
+      return exercise.answers.map((index) => exercise.options[index] ?? '').join(' · ')
+    case 'match':
+      return exercise.pairs.map((pair) => pair.en).join(' · ')
+    case 'dialogue-branch':
+      return exercise.steps.map((step) => step.line).join(' / ')
     case 'fill-blank':
       return exercise.template
     case 'dialogue-order':

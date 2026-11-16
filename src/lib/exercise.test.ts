@@ -5,6 +5,7 @@ import {
   getUserAnswerText,
   isExerciseAnswerCorrect,
   normalizeAnswer,
+  orderExercises,
   shuffleIndices,
   splitBlankAlts,
 } from './exercise'
@@ -87,6 +88,98 @@ describe('exercise utils', () => {
     }
     expect(isExerciseAnswerCorrect(dialog, { ...base, dialoguePicked: [0, 1] })).toBe(true)
     expect(isExerciseAnswerCorrect(dialog, { ...base, dialoguePicked: [1, 0] })).toBe(false)
+  })
+
+  it('orders exercises by comprehension, controlled practice and production', () => {
+    const exercises: Exercise[] = [
+      { id: 'w', type: 'write', prompt: '', answer: 'Hi', explanation: '' },
+      { id: 'c', type: 'choice', prompt: '', options: ['a', 'b'], answer: 0, explanation: '' },
+      {
+        id: 'b',
+        type: 'builder',
+        prompt: '',
+        words: ['Hi', 'there'],
+        answer: 'Hi there',
+        explanation: '',
+      },
+      { id: 's', type: 'shadow', prompt: '', answer: 'Hi there', explanation: '' },
+      { id: 'm', type: 'match', prompt: '', pairs: [{ en: 'hi', es: 'hola' }], explanation: '' },
+    ]
+    expect(orderExercises(exercises).map((exercise) => exercise.id)).toEqual([
+      'c',
+      'm',
+      'b',
+      'w',
+      's',
+    ])
+  })
+
+  it('evaluates match, multi-choice and shadow exercises', () => {
+    const match: Exercise = {
+      id: 'm',
+      type: 'match',
+      prompt: '',
+      pairs: [
+        { en: 'set up', es: 'configurar' },
+        { en: 'roll back', es: 'revertir' },
+      ],
+      explanation: '',
+    }
+    expect(canCheckExercise(match, base)).toBe(false)
+    expect(isExerciseAnswerCorrect(match, { ...base, matchedPairs: [0, 1] })).toBe(true)
+    expect(isExerciseAnswerCorrect(match, { ...base, matchedPairs: [0] })).toBe(false)
+
+    const multi: Exercise = {
+      id: 'mc',
+      type: 'multi-choice',
+      prompt: '',
+      options: ['a', 'b', 'c', 'd'],
+      answers: [0, 2],
+      explanation: '',
+    }
+    expect(canCheckExercise(multi, base)).toBe(false)
+    expect(isExerciseAnswerCorrect(multi, { ...base, multiPicked: [2, 0] })).toBe(true)
+    expect(isExerciseAnswerCorrect(multi, { ...base, multiPicked: [0, 1] })).toBe(false)
+    expect(getCorrectAnswerText(multi)).toBe('a · c')
+
+    const shadow: Exercise = {
+      id: 'sh',
+      type: 'shadow',
+      prompt: '',
+      answer: 'We roll back the deploy',
+      explanation: '',
+    }
+    expect(isExerciseAnswerCorrect(shadow, { ...base, heardText: 'we roll back the deploy' })).toBe(
+      true,
+    )
+    expect(getUserAnswerText(shadow, { ...base, text: 'we roll back the deploy' })).toBe(
+      'we roll back the deploy',
+    )
+  })
+
+  it('evaluates dialogue-branch choices step by step', () => {
+    const dialogue: Exercise = {
+      id: 'db',
+      type: 'dialogue-branch',
+      prompt: '',
+      steps: [
+        {
+          speaker: 'Maya',
+          line: 'Any blockers?',
+          choices: [
+            { en: 'Yes, I am blocked.', correct: true, feedback: 'Bien.' },
+            { en: 'No, I hate tests.', correct: false, feedback: 'Mejor explica.' },
+          ],
+        },
+      ],
+      explanation: '',
+    }
+    expect(canCheckExercise(dialogue, base)).toBe(false)
+    expect(isExerciseAnswerCorrect(dialogue, { ...base, dialogueBranchPicked: [1] })).toBe(false)
+    expect(isExerciseAnswerCorrect(dialogue, { ...base, dialogueBranchPicked: [0] })).toBe(true)
+    expect(getUserAnswerText(dialogue, { ...base, dialogueBranchPicked: [0] })).toBe(
+      'Yes, I am blocked.',
+    )
   })
 
   it('evaluates speak with exact/accepted text fallback', () => {
