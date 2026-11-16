@@ -1,4 +1,4 @@
-export type SpeechEngine = 'system' | 'kokoro'
+export type SpeechEngine = 'system' | 'kokoro' | 'piper'
 
 /** Small per-speaker tweaks so two-avatar conversations sound less flat. */
 export type SpeechStyle = {
@@ -11,6 +11,8 @@ export type SpeechLanguage = 'en-US' | 'en-GB'
 export type SpeechSettings = {
   ttsEnabled?: boolean
   ttsRate?: number
+  ttsPitch?: number
+  ttsVoiceName?: string
   ttsEngine?: SpeechEngine
   speechLanguage?: SpeechLanguage
 }

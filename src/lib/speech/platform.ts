@@ -74,8 +74,20 @@ export function isSpeechEnabled(): boolean {
   return readStoredSpeechSettings()?.ttsEnabled !== false
 }
 
-export function getSpeechEngine(): 'system' | 'kokoro' {
-  return readStoredSpeechSettings()?.ttsEngine === 'kokoro' ? 'kokoro' : 'system'
+export function getSpeechPitch(): number {
+  const pitch = readStoredSpeechSettings()?.ttsPitch
+  if (typeof pitch !== 'number' || !Number.isFinite(pitch)) return 1
+  return Math.min(TTS_RATE_MAX, Math.max(TTS_RATE_MIN, pitch))
+}
+
+export function getPreferredVoiceName(): string | null {
+  const name = readStoredSpeechSettings()?.ttsVoiceName?.trim()
+  return name || null
+}
+
+export function getSpeechEngine(): 'system' | 'kokoro' | 'piper' {
+  const engine = readStoredSpeechSettings()?.ttsEngine
+  return engine === 'kokoro' || engine === 'piper' ? engine : 'system'
 }
 
 export function getSpeechLanguage(): 'en-US' | 'en-GB' {

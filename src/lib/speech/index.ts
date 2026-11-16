@@ -18,12 +18,22 @@ import {
   subscribeKokoroPhraseStatus,
   subscribeKokoroStatus,
 } from './kokoro'
+import { speakWithPiper, stopPiperPlayback } from './piper'
 import { getSpeechEngine, isNativePlatform, isSpeechEnabled, normalizeSpeechText } from './platform'
 import type { SpeechStyle } from './types'
 import { clearAllSpeakStates, setSpeaking, setSpeakLoading } from './ui'
 
+export { getWebVoices } from './browser'
 export { speechMatchScore } from './match'
+export {
+  getPiperStatus,
+  loadPiper,
+  PIPER_VOICE,
+  stopPiperPlayback,
+  subscribePiperStatus,
+} from './piper'
 export { getSpeechLanguage, getSpeechRate, isSpeechEnabled } from './platform'
+export { previewVoice, stopTts } from './preview'
 export {
   ensureMicrophonePermission,
   getMicrophonePermissionStatus,
@@ -109,6 +119,8 @@ export function warmConversationPhrases(texts: string[]): void {
   try {
     if (canUseWebSpeech()) primeWebVoices()
     warmSpeechPhrases(texts)
+    // Prime the first lines immediately so the dialogue starts without waiting.
+    for (const text of texts.slice(0, 2)) primeSpeechPhrase(text)
     // On native, avoid a heavy uncached model download just by opening a lesson.
     if (getSpeechEngine() === 'kokoro' && !(isNativePlatform() && !kokoroIsCached())) {
       void loadKokoro().catch(() => {})
@@ -186,6 +198,7 @@ export function stopSpeech(): void {
   if (typeof window === 'undefined') return
 
   stopKokoroPlayback()
+  stopPiperPlayback()
 
   try {
     window.speechSynthesis?.cancel()
@@ -233,6 +246,20 @@ export function initVoices(): void {
       // Ignore background preload failures during init.
     }
   }, VOICES_INIT_AUTOLOAD_DELAY_MS)
+
+  // First run with HQ selected: fetch the model in the background only on an
+  // unmetered connection, so the very first tap is not a ~92 MB download.
+  if (getSpeechEngine() === 'kokoro' && !kokoroIsCached()) {
+    window.setTimeout(() => {
+      try {
+        if (!canPrefetchModelOnCurrentConnection()) return
+        if (getSpeechEngine() !== 'kokoro' || kokoroIsCached()) return
+        void loadKokoro().catch(() => {})
+      } catch {
+        // Ignore background prefetch failures during init.
+      }
+    }, KOKORO_WIFI_PREFETCH_DELAY_MS)
+  }
 }
 
 async function tryKokoroPlayback(text: string, button?: HTMLElement | null): Promise<boolean> {
@@ -271,6 +298,19 @@ async function playSpeech(
   style?: SpeechStyle,
 ): Promise<void> {
   const engine = getSpeechEngine()
+
+  if (engine === 'piper') {
+    const handledByPiper = await speakWithPiper(text, button, style).catch(() => false)
+    if (handledByPiper) return
+    // Si Piper falla (sin red para la voz), usamos la voz del dispositivo.
+    const handledBySystem = await playWithSystemVoice(text, button, style).catch(() => false)
+    if (!handledBySystem) {
+      setSpeaking(button, false)
+      setSpeakLoading(button, false)
+      emitToast('No se pudo reproducir la voz Piper ni la del dispositivo.', 'error')
+    }
+    return
+  }
 
   if (engine === 'kokoro') {
     if (!isKokoroReady()) {

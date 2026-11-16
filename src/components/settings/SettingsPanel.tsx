@@ -24,6 +24,7 @@ import {
 } from 'lucide-preact'
 import { useEffect, useState } from 'preact/hooks'
 import type { SyncStatus } from '../../lib/progressSync'
+import TtsStudio from './TtsStudio'
 
 const GoogleIcon = (props: { class?: string }) => (
   <svg
@@ -49,7 +50,6 @@ function GitHubIcon(props: { class?: string }) {
 
 import { CURRENT_APP_VERSION } from '../../data/changelog'
 import { useAuthSession } from '../../hooks/useAuthSession'
-import { useKokoroStatus } from '../../hooks/useKokoroStatus'
 import { useProgress } from '../../hooks/useProgress'
 import { useSyncStatus } from '../../hooks/useSyncStatus'
 import { openAppSettings } from '../../lib/appSettings'
@@ -67,15 +67,7 @@ import { getReminderPermissionStatus, requestReminderPermission } from '../../li
 import type { StudyPlan } from '../../lib/progress'
 import { type ProgressSettings, progressStore } from '../../lib/progress'
 import { clearSyncError } from '../../lib/progressSync'
-import {
-  ensureMicrophonePermission,
-  getMicrophonePermissionStatus,
-  kokoroIsCached,
-  loadKokoro,
-  maybeWarmKokoroInBackground,
-  stopSpeech,
-  warmSpeechEngine,
-} from '../../lib/speech'
+import { ensureMicrophonePermission, getMicrophonePermissionStatus } from '../../lib/speech'
 import { isSupabaseConfigured } from '../../lib/supabase'
 import { emitToast } from '../../lib/toast'
 import ResponsiveDialog from '../ui/ResponsiveDialog'
@@ -206,7 +198,6 @@ function SyncStatusBar({ syncStatus }: { syncStatus: SyncStatus }) {
 
 export default function SettingsPanel() {
   const state = useProgress()
-  const kokoro = useKokoroStatus()
   const syncStatus = useSyncStatus()
   const authUser = useAuthSession()
   const [confirmReset, setConfirmReset] = useState(false)
@@ -1018,220 +1009,7 @@ export default function SettingsPanel() {
         onToggle={() => toggle('audio')}
       >
         <div class="space-y-5">
-          <div class="rounded-2xl bg-base-100/45 p-4">
-            <div class="flex items-center gap-2">
-              <Volume2 class="h-4 w-4 text-base-content/50" />
-              <h3 class="text-sm font-medium">Pronunciación (TTS)</h3>
-            </div>
-            <div class="mt-3 flex items-center justify-between gap-3 rounded-xl bg-base-100/50 p-3.5">
-              <div>
-                <p class="text-xs font-medium">Voz en toda la app</p>
-                <p class="mt-1 text-[11px] leading-relaxed text-base-content/60">
-                  Muestra u oculta los botones de pronunciación.
-                </p>
-              </div>
-              <button
-                type="button"
-                role="switch"
-                aria-checked={state.settings.ttsEnabled}
-                aria-label="Activar o desactivar la voz"
-                onClick={() => {
-                  const enabled = !state.settings.ttsEnabled
-                  if (!enabled) stopSpeech()
-                  progressStore.setSettings({ ttsEnabled: enabled })
-                }}
-                class={`relative h-6 w-11 shrink-0 rounded-full transition ${state.settings.ttsEnabled ? 'bg-accent' : 'bg-base-300'}`}
-              >
-                <span
-                  class={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-all ${state.settings.ttsEnabled ? 'left-[22px]' : 'left-0.5'}`}
-                />
-              </button>
-            </div>
-            <div class="mt-3 flex flex-wrap gap-1.5">
-              {[0.6, 0.75, 0.85, 1, 1.1, 1.25, 1.5, 1.75].map((rate) => {
-                const active = Math.abs((state.settings.ttsRate ?? 1) - rate) < 0.01
-                return (
-                  <button
-                    key={rate}
-                    type="button"
-                    onClick={() => {
-                      progressStore.setSettings({ ttsRate: rate })
-                      // Warm Kokoro with the new speed context so next playback feels instant.
-                      warmSpeechEngine()
-                    }}
-                    class={`rounded-full px-3 py-2 font-mono text-[11px] font-medium transition ${active ? 'bg-base-content text-base-100' : 'bg-base-100/50 text-base-content/45 hover:bg-base-100 hover:text-base-content/70'}`}
-                  >
-                    {rate}x
-                  </button>
-                )
-              })}
-              {state.settings.ttsEnabled ? (
-                <button
-                  type="button"
-                  data-speak="The server is running. Pull the latest changes before you push."
-                  class="speak-btn ml-auto flex cursor-pointer items-center gap-1.5 rounded-full bg-base-100/60 px-3.5 py-2 text-xs font-medium text-base-content/50 transition hover:bg-base-100 hover:text-base-content/80 hover:shadow-sm active:scale-[0.98]"
-                  aria-label="Probar voz de pronunciación"
-                  title="Probar voz"
-                >
-                  <Volume2 class="h-3.5 w-3.5" aria-hidden="true" />
-                  Probar voz
-                </button>
-              ) : (
-                <span class="ml-auto flex items-center gap-1.5 rounded-full bg-base-100/40 px-3.5 py-2 text-xs text-base-content/55">
-                  <Volume2 class="h-3.5 w-3.5" />
-                  Voz desactivada
-                </span>
-              )}
-            </div>
-
-            <div class="mt-3 flex flex-wrap items-center gap-2">
-              <span class="text-[11px] font-medium text-base-content/55">Acento</span>
-              {(
-                [
-                  { value: 'en-US', label: 'Americano (en-US)' },
-                  { value: 'en-GB', label: 'Británico (en-GB)' },
-                ] as const
-              ).map((option) => {
-                const active = (state.settings.speechLanguage ?? 'en-US') === option.value
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    aria-pressed={active}
-                    onClick={() => {
-                      progressStore.setSettings({ speechLanguage: option.value })
-                      // Re-pick the system voice and refresh the warm path for the new accent.
-                      warmSpeechEngine()
-                    }}
-                    class={`rounded-full px-3 py-1.5 font-mono text-[10px] font-medium transition ${active ? 'bg-base-content text-base-100' : 'bg-base-100/50 text-base-content/45 hover:bg-base-100 hover:text-base-content/70'}`}
-                  >
-                    {option.label}
-                  </button>
-                )
-              })}
-            </div>
-
-            <div class="mt-4 rounded-xl bg-base-100/50 p-3.5">
-              <div class="flex flex-wrap items-start justify-between gap-3">
-                <div class="flex min-w-0 items-start gap-3">
-                  <span class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent/12 text-accent">
-                    <Sparkles class="h-4 w-4" />
-                  </span>
-                  <div class="min-w-0">
-                    <p class="text-xs font-medium">Voz HQ (Kokoro)</p>
-                    <p class="mt-1 text-[11px] leading-relaxed text-base-content/55">
-                      Voz neural local (descarga única, disponible offline tras caché).
-                    </p>
-                  </div>
-                </div>
-                <span
-                  class={`rounded-full px-2.5 py-1 font-mono text-[9px] ${kokoro.state === 'ready' ? 'bg-success/15 text-success' : kokoro.state === 'loading' ? 'bg-accent/15 text-accent' : kokoro.state === 'error' ? 'bg-error/15 text-error' : kokoroIsCached() ? 'bg-accent/10 text-accent' : 'bg-base-100/70 text-base-content/45'}`}
-                >
-                  {kokoro.state === 'ready'
-                    ? 'Lista'
-                    : kokoro.state === 'loading'
-                      ? kokoroIsCached()
-                        ? 'Cargando caché'
-                        : 'Descargando'
-                      : kokoro.state === 'error'
-                        ? 'Error'
-                        : kokoroIsCached()
-                          ? 'En caché'
-                          : 'No descargada'}
-                </span>
-              </div>
-              <div class="mt-3 grid grid-cols-2 gap-2 sm:max-w-md">
-                {[
-                  {
-                    value: 'system' as const,
-                    label: 'Sistema',
-                    desc: 'Voz del navegador/dispositivo',
-                  },
-                  {
-                    value: 'kokoro' as const,
-                    label: 'HQ Kokoro',
-                    desc: 'Más natural para aprender',
-                  },
-                ].map((opt) => {
-                  const active = (state.settings.ttsEngine ?? 'system') === opt.value
-                  return (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => {
-                        progressStore.setSettings({ ttsEngine: opt.value })
-                        if (opt.value === 'kokoro') {
-                          if (kokoro.state === 'idle' || kokoro.state === 'error') void loadKokoro()
-                          else maybeWarmKokoroInBackground()
-                        }
-                      }}
-                      class={`rounded-xl p-3 text-left transition ${active ? 'bg-base-100' : 'bg-base-100/40 hover:bg-base-100/70'}`}
-                    >
-                      <div class="flex items-center justify-between gap-2">
-                        <span class="text-[11px] font-medium">{opt.label}</span>
-                        <span
-                          class={`flex h-4 w-4 items-center justify-center rounded-full ${active ? 'bg-accent text-accent-content' : 'bg-base-300'}`}
-                        >
-                          {active && <Check class="h-2.5 w-2.5" />}
-                        </span>
-                      </div>
-                      <p class="mt-1 text-[10px] leading-relaxed text-base-content/40">
-                        {opt.desc}
-                      </p>
-                    </button>
-                  )
-                })}
-              </div>
-              {(state.settings.ttsEngine === 'kokoro' || kokoro.state !== 'idle') && (
-                <div class="mt-3 rounded-xl bg-base-100/60 p-3">
-                  <div class="flex flex-wrap items-center justify-between gap-2">
-                    <p class="text-[11px] text-base-content/60">{kokoro.message}</p>
-                    {kokoro.state === 'loading' && (
-                      <span class="flex items-center gap-1.5 font-mono text-[10px] text-accent">
-                        <Loader2 class="h-3 w-3 animate-spin" /> {kokoro.progress}%
-                      </span>
-                    )}
-                  </div>
-                  {kokoro.state === 'loading' && (
-                    <div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-base-content/[0.08]">
-                      <div
-                        class="h-full rounded-full bg-accent transition-all duration-300"
-                        style={{ width: `${Math.max(2, kokoro.progress)}%` }}
-                      />
-                    </div>
-                  )}
-                  {kokoro.state === 'error' && kokoro.error && (
-                    <p class="mt-1.5 text-[10px] leading-relaxed text-error/80">{kokoro.error}</p>
-                  )}
-                  <div class="mt-2 flex flex-wrap gap-2">
-                    {(kokoro.state === 'idle' || kokoro.state === 'error') && (
-                      <button
-                        type="button"
-                        onClick={() => void loadKokoro()}
-                        class="flex items-center gap-1.5 rounded-full bg-base-content px-3 py-1.5 text-[10px] font-medium text-base-100"
-                      >
-                        <Download class="h-3 w-3" />
-                        {kokoro.state === 'error'
-                          ? 'Reintentar'
-                          : kokoroIsCached()
-                            ? 'Cargar voz HQ (caché)'
-                            : 'Descargar voz HQ'}
-                      </button>
-                    )}
-                    {kokoro.state === 'ready' && state.settings.ttsEngine !== 'kokoro' && (
-                      <button
-                        type="button"
-                        onClick={() => progressStore.setSettings({ ttsEngine: 'kokoro' })}
-                        class="flex items-center gap-1.5 rounded-full bg-accent/15 px-3 py-1.5 text-[10px] font-medium text-accent"
-                      >
-                        <Check class="h-3 w-3" /> Usar voz HQ
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+          <TtsStudio />
 
           <div class="rounded-2xl bg-base-100/45 p-4">
             <div class="flex items-center gap-2">

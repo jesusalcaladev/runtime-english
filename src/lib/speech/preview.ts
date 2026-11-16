@@ -1,0 +1,55 @@
+import { getWebVoices, stopNativeSpeech } from './browser'
+import { stopPiperPlayback } from './piper'
+import { getPreferredVoiceName, getSpeechPitch, getSpeechRate } from './platform'
+
+/** Detiene cualquier reproducción en curso (web y nativa). */
+export async function stopTts(): Promise<void> {
+  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+    try {
+      window.speechSynthesis.cancel()
+    } catch {
+      // Best effort.
+    }
+  }
+  await stopNativeSpeech()
+  stopPiperPlayback()
+}
+
+/**
+ * Reproduce una frase corta con la voz elegida, sin depender del motor HQ.
+ * Útil para probar voices del dispositivo antes de guardar la preferencia.
+ */
+export async function previewVoice(text: string, voiceName?: string): Promise<boolean> {
+  await stopTts()
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) return false
+
+  const voices = await getWebVoices(2000)
+  const wanted = (voiceName ?? getPreferredVoiceName() ?? '').toLowerCase()
+  const voice =
+    (wanted ? voices.find((item) => item.name.toLowerCase() === wanted) : undefined) ??
+    voices.find((item) => item.lang.toLowerCase().startsWith('en')) ??
+    null
+
+  const utterance = new SpeechSynthesisUtterance(text)
+  if (voice) utterance.voice = voice
+  utterance.lang = voice?.lang ?? 'en-US'
+  utterance.rate = getSpeechRate()
+  utterance.pitch = getSpeechPitch()
+  utterance.volume = 1
+
+  return new Promise<boolean>((resolve) => {
+    let settled = false
+    const finish = (ok: boolean) => {
+      if (settled) return
+      settled = true
+      resolve(ok)
+    }
+    utterance.onend = () => finish(true)
+    utterance.onerror = () => finish(false)
+    try {
+      window.speechSynthesis.speak(utterance)
+    } catch {
+      finish(false)
+    }
+  })
+}

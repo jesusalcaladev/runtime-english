@@ -1,4 +1,11 @@
-import { getSpeechLanguage, getSpeechRate, isNativePlatform, wait } from './platform'
+import {
+  getPreferredVoiceName,
+  getSpeechLanguage,
+  getSpeechPitch,
+  getSpeechRate,
+  isNativePlatform,
+  wait,
+} from './platform'
 import type { SpeechStyle } from './types'
 import { setSpeaking } from './ui'
 
@@ -45,6 +52,11 @@ function pickEnglishVoice(voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice 
   const preferred = getSpeechLanguage().toLowerCase()
   const matching = english.filter((voice) => voice.lang.toLowerCase() === preferred)
   const pool = matching.length > 0 ? matching : english
+  const preferredName = getPreferredVoiceName()
+  if (preferredName) {
+    const exact = pool.find((voice) => voice.name.toLowerCase() === preferredName.toLowerCase())
+    if (exact) return exact
+  }
   return [...pool].sort((a, b) => scoreVoice(b) - scoreVoice(a))[0] ?? null
 }
 
@@ -134,7 +146,7 @@ export async function speakNative(
       text,
       lang,
       rate: getSpeechRate() * (style?.rateScale ?? 1),
-      pitch: style?.pitch ?? 1,
+      pitch: (style?.pitch ?? 1) * getSpeechPitch(),
       volume: 1,
       ...(typeof voice === 'number' ? { voice } : {}),
       queueStrategy: 0,
@@ -207,7 +219,7 @@ export async function speakWeb(
 
       utterance.lang = voice?.lang || 'en-US'
       utterance.rate = getSpeechRate() * (style?.rateScale ?? 1)
-      utterance.pitch = style?.pitch ?? 1
+      utterance.pitch = (style?.pitch ?? 1) * getSpeechPitch()
       utterance.volume = 1
       if (voice) utterance.voice = voice
 
