@@ -1,9 +1,13 @@
 import {
+  AudioLines,
   BookmarkCheck,
+  Captions,
   Check,
   ExternalLink,
   Gauge,
   LocateFixed,
+  Maximize2,
+  Minimize2,
   Pause,
   Play,
   Repeat2,
@@ -14,7 +18,8 @@ import type { VideoLesson } from '../../data/learningResources'
 import { useUiStage } from '../../hooks/useUiStage'
 import { tAction } from '../../lib/i18n'
 import { getVideoProgress, markVideoCompleted, saveVideoProgress } from '../../lib/videoProgress'
-import SubtitleList from './SubtitleList'
+import LinePractice from './LinePractice'
+import SubtitleList, { KaraokeText } from './SubtitleList'
 import { useYouTubePlayer } from './useYouTubePlayer'
 import VideoComprehension from './VideoComprehension'
 import VideoPhraseReview from './VideoPhraseReview'
@@ -33,6 +38,9 @@ export default function VideoLab({ lesson, onProgressChange }: Props) {
   const [shadowLine, setShadowLine] = useState<number | null>(null)
   const [shadowScore, setShadowScore] = useState<number | null>(null)
   const [follow, setFollow] = useState(true)
+  const [showOnVideo, setShowOnVideo] = useState(true)
+  const [isFullscreen, setIsFullscreen] = useState(false)
+  const playerShellRef = useRef<HTMLDivElement>(null)
 
   const {
     mountRef,
@@ -42,9 +50,11 @@ export default function VideoLab({ lesson, onProgressChange }: Props) {
     offset,
     rate,
     loopLine,
+    autoPause,
     togglePlay,
     cycleRate,
     toggleLoop,
+    toggleAutoPause,
     changeOffset,
     seekTo,
     time,
@@ -73,6 +83,12 @@ export default function VideoLab({ lesson, onProgressChange }: Props) {
   }, [lesson.id])
 
   useEffect(() => {
+    const onChange = () => setIsFullscreen(document.fullscreenElement === playerShellRef.current)
+    document.addEventListener('fullscreenchange', onChange)
+    return () => document.removeEventListener('fullscreenchange', onChange)
+  }, [])
+
+  useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.metaKey || event.ctrlKey || event.altKey || error) return
       const target = event.target
@@ -92,6 +108,8 @@ export default function VideoLab({ lesson, onProgressChange }: Props) {
         changeOffset(5)
       } else if (event.key.toLowerCase() === 'f') {
         setFollow((current) => !current)
+      } else if (event.key.toLowerCase() === 'c') {
+        setShowOnVideo((current) => !current)
       }
     }
     window.addEventListener('keydown', onKeyDown)
@@ -124,6 +142,16 @@ export default function VideoLab({ lesson, onProgressChange }: Props) {
     onProgressChange?.()
   }
 
+  async function toggleFullscreen() {
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen()
+      else await playerShellRef.current?.requestFullscreen()
+    } catch {
+      // WebView o navegador sin soporte: seguimos con el reproductor normal.
+    }
+  }
+
+  const activeCue = lesson.cues[activeIndex] ?? null
   const youtubeUrl = `https://www.youtube.com/watch?v=${lesson.youtubeId}`
   const progressPct = Math.min(
     100,
@@ -143,7 +171,7 @@ export default function VideoLab({ lesson, onProgressChange }: Props) {
             <span>·</span>
             <span>{lesson.level}</span>
             <span>·</span>
-            <span>{tAction(stage, 'fullVideo')}</span>
+            <span>{lesson.segment}</span>
             {watched && (
               <span class="inline-flex items-center gap-1 rounded-full bg-accent/12 px-2 py-0.5 text-[9px] text-accent">
                 <BookmarkCheck class="h-3 w-3" /> {tAction(stage, 'watched')}
@@ -173,7 +201,7 @@ export default function VideoLab({ lesson, onProgressChange }: Props) {
 
       <p class="mt-3 text-[13px] leading-relaxed text-base-content/65">{lesson.description}</p>
 
-      <div class="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
+      <div class="mt-4 grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(340px,0.8fr)] xl:grid-cols-[minmax(0,1.25fr)_minmax(380px,0.75fr)]">
         <div class="space-y-3">
           {error ? (
             <div class="rounded-2xl bg-base-100 p-5 text-center">
@@ -188,8 +216,32 @@ export default function VideoLab({ lesson, onProgressChange }: Props) {
               </a>
             </div>
           ) : (
-            <div class="overflow-hidden rounded-2xl bg-black">
-              <div ref={mountRef} class="aspect-video w-full" />
+            <div
+              ref={playerShellRef}
+              class={`video-player-shell group/player relative overflow-hidden rounded-2xl bg-black ${isFullscreen ? 'flex items-center justify-center' : ''}`}
+            >
+              <div ref={mountRef} class={isFullscreen ? 'h-full w-full' : 'aspect-video w-full'} />
+              {showOnVideo && activeCue && (
+                <div class="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/90 via-black/70 to-transparent px-4 pb-5 pt-12 text-center sm:px-8 sm:pb-7">
+                  <p class="text-[15px] font-medium leading-snug text-white drop-shadow sm:text-[19px]">
+                    <KaraokeText cue={activeCue} currentTime={time + offset} onDark />
+                  </p>
+                  {activeCue.es && (
+                    <p class="mt-1 text-[11px] leading-snug text-white/70 sm:text-[13px]">
+                      {activeCue.es}
+                    </p>
+                  )}
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={() => void toggleFullscreen()}
+                class="absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-black/55 text-white/80 opacity-0 backdrop-blur transition hover:bg-black/75 hover:text-white focus:opacity-100 group-hover/player:opacity-100 sm:opacity-70"
+                aria-label={tAction(stage, isFullscreen ? 'exitFullscreen' : 'fullscreen')}
+                title={tAction(stage, isFullscreen ? 'exitFullscreen' : 'fullscreen')}
+              >
+                {isFullscreen ? <Minimize2 class="h-4 w-4" /> : <Maximize2 class="h-4 w-4" />}
+              </button>
             </div>
           )}
 
@@ -234,12 +286,31 @@ export default function VideoLab({ lesson, onProgressChange }: Props) {
             </button>
             <button
               type="button"
+              onClick={toggleAutoPause}
+              aria-pressed={autoPause}
+              disabled={error}
+              title={tAction(stage, 'listenDrill')}
+              class={`inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[11px] transition disabled:opacity-40 ${autoPause ? 'bg-accent/15 text-accent' : 'bg-base-100 text-base-content/60 hover:text-base-content'}`}
+            >
+              <AudioLines class="h-3.5 w-3.5" /> {tAction(stage, 'listenDrill')}
+            </button>
+            <button
+              type="button"
               onClick={() => setFollow((current) => !current)}
               aria-pressed={follow}
               class={`inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[11px] transition ${follow ? 'bg-accent/15 text-accent' : 'bg-base-100 text-base-content/60 hover:text-base-content'}`}
               title={tAction(stage, 'follow')}
             >
               <LocateFixed class="h-3.5 w-3.5" /> {tAction(stage, 'follow')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowOnVideo((current) => !current)}
+              aria-pressed={showOnVideo}
+              class={`inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[11px] transition ${showOnVideo ? 'bg-accent/15 text-accent' : 'bg-base-100 text-base-content/60 hover:text-base-content'}`}
+              title={tAction(stage, 'subtitlesOnVideo')}
+            >
+              <Captions class="h-3.5 w-3.5" /> {tAction(stage, 'subtitlesOnVideo')}
             </button>
             <div class="ml-auto flex items-center gap-1">
               <button
@@ -268,7 +339,7 @@ export default function VideoLab({ lesson, onProgressChange }: Props) {
           </p>
         </div>
 
-        <div class="space-y-2">
+        <div class="space-y-2 lg:sticky lg:top-4 lg:self-start">
           <div class="flex items-center justify-between gap-2 px-1">
             <p class="mono-label text-base-content/40" aria-live="polite">
               {tAction(stage, 'subtitlesTitle')}
@@ -277,7 +348,7 @@ export default function VideoLab({ lesson, onProgressChange }: Props) {
               {activeIndex >= 0 ? `${activeIndex + 1}/${lesson.cues.length}` : lesson.cues.length}
             </p>
           </div>
-          <label class="flex h-9 items-center gap-2 rounded-xl bg-base-100 px-3">
+          <label class="flex h-10 items-center gap-2 rounded-xl bg-base-100 px-3">
             <Search class="h-3.5 w-3.5 text-base-content/35" />
             <input
               type="search"
@@ -305,19 +376,25 @@ export default function VideoLab({ lesson, onProgressChange }: Props) {
               listening={tAction(stage, 'listening')}
               shadowLabel={tAction(stage, 'shadowLine')}
               matchLabel={tAction(stage, 'matchPercent')}
+              currentTime={time + offset}
             />
           )}
           <p class="px-1 text-[11px] leading-relaxed text-base-content/40">
             {tAction(stage, 'subtitlesNote')}
           </p>
+          <LinePractice cue={activeCue} stage={stage} />
           <VideoPhraseReview cues={lesson.cues} />
-          <VideoComprehension
-            questions={lesson.questions}
-            stage={stage}
-            title={tAction(stage, 'comprehension')}
-            tip={tAction(stage, 'comprehensionTip')}
-          />
         </div>
+      </div>
+
+      <div class="mt-5">
+        <VideoComprehension
+          lessonId={lesson.id}
+          questions={lesson.questions}
+          stage={stage}
+          title={tAction(stage, 'comprehension')}
+          tip={tAction(stage, 'comprehensionTip')}
+        />
       </div>
     </section>
   )

@@ -1,8 +1,35 @@
 import {
+  cues as algorithmCues,
+  durationSeconds as algorithmDuration,
+} from './videoTranscripts/algorithm'
+import {
+  cues as confidenceCues,
+  durationSeconds as confidenceDuration,
+} from './videoTranscripts/confidence'
+import {
+  cues as internetCues,
+  durationSeconds as internetDuration,
+} from './videoTranscripts/internet'
+import {
+  cues as introduceCues,
+  durationSeconds as introduceDuration,
+} from './videoTranscripts/introduce'
+import {
+  cues as languageCues,
+  durationSeconds as languageDuration,
+} from './videoTranscripts/language'
+import {
+  cues as laughterCues,
+  durationSeconds as laughterDuration,
+} from './videoTranscripts/laughter'
+import { cues as sleepCues, durationSeconds as sleepDuration } from './videoTranscripts/sleep'
+import { cues as socialCues, durationSeconds as socialDuration } from './videoTranscripts/social'
+import {
   cues as treasureCues,
   durationSeconds as treasureDuration,
 } from './videoTranscripts/treasure'
 import { cues as urbanCues, durationSeconds as urbanDuration } from './videoTranscripts/urban'
+import { cues as webCues, durationSeconds as webDuration } from './videoTranscripts/www'
 
 /** Recursos externos curados para practicar por cuenta propia. */
 export interface LearningResource {
@@ -26,6 +53,8 @@ export interface VideoCue {
   es?: string
   /** Palabras o chunks que se resaltan dentro de `en`. */
   highlight?: string[]
+  /** Tiempo exacto de cada palabra, relativo a `start` (ms → s). */
+  words?: { t: number; d: number }[]
 }
 
 export interface VideoLesson {
@@ -277,6 +306,448 @@ export const VIDEO_LESSONS: VideoLesson[] = [
         ],
         answer: 0,
         explanation: "Al final admite: 'It was a very, very bad thesis.'",
+      },
+    ],
+  },
+  {
+    id: 'splash-social-media',
+    title: 'How to Make a Splash in Social Media',
+    channel: 'TED · Alexis Ohanian',
+    youtubeId: 'tPgQsv2KPwc',
+    level: 'B1-B2',
+    topic: 'Speaking · Internet y comunidad',
+    description:
+      'El cofundador de Reddit cuenta cómo una broma se convirtió en una campaña real de Greenpeace. Ideal para vocabulario de internet y comunicación online.',
+    segment: 'Subtítulos hasta 4:21 · video 5:37',
+    durationSeconds: socialDuration,
+    cues: socialCues,
+    questions: [
+      {
+        id: 'social-q1',
+        prompt: '¿Qué sitio web cofundó el ponente con unos amigos?',
+        options: ['Reddit', 'Facebook', 'Fark', 'Boing Boing'],
+        answer: 0,
+        explanation: "'Started a website in 2005 with a few friends, called Reddit.com.'",
+      },
+      {
+        id: 'social-q2',
+        prompt: '¿Cómo se llamaba la ballena jorobada?',
+        options: ['Mister Splashy Pants', 'Mister Whale', 'Greenpeace', 'The Great Secret'],
+        answer: 0,
+        explanation: 'La comunidad votó el nombre “Mister Splashy Pants” con un 78 % de los votos.',
+      },
+      {
+        id: 'social-q3',
+        prompt: 'Según el final, ¿qué hay que aceptar para triunfar online?',
+        options: [
+          'Perder el control y no tomarse uno tan en serio.',
+          'Publicar solo desde la dirección de la empresa.',
+          'Evitar que la gente comente.',
+          'Pagar por llegar a más gente.',
+        ],
+        answer: 0,
+        explanation: "Dice: 'If you want to succeed you've got to be OK to lose control.'",
+      },
+    ],
+  },
+  {
+    id: 'secrets-language-learning',
+    title: 'The Secrets of Learning a New Language',
+    channel: 'TED · Lýdia Machová',
+    youtubeId: 'o_XVt5rdpFY',
+    level: 'B1-B2',
+    topic: 'Learning · Cómo aprender inglés',
+    description:
+      'Una políglota revela cómo aprende un idioma nuevo cada dos años. Muy útil para tomar ideas y aplicarlas a tu inglés.',
+    segment: 'Video completo · 0:00 – 10:46',
+    durationSeconds: languageDuration,
+    cues: languageCues,
+    questions: [
+      {
+        id: 'language-q1',
+        prompt: '¿Qué tienen en común todos los políglotas según la ponente?',
+        options: [
+          'Disfrutan del proceso de aprendizaje.',
+          'Estudian listas de palabras todos los días.',
+          'Son genios con una memoria especial.',
+          'Solo aprenden con libros de texto.',
+        ],
+        answer: 0,
+        explanation:
+          "'The one thing we all have in common is that we simply found ways to enjoy the language-learning process.'",
+      },
+      {
+        id: 'language-q2',
+        prompt: '¿Qué hizo para aprender alemán?',
+        options: [
+          'Ver su serie favorita, Friends, en alemán cada día.',
+          'Leer Harry Potter en alemán una sola vez.',
+          'Memorizar 200 palabras diarias.',
+          'Viajar a Alemania durante un mes.',
+        ],
+        answer: 0,
+        explanation:
+          "Decidió ver 'Friends' en alemán y siguió cada día hasta que el diálogo empezó a tener sentido.",
+      },
+      {
+        id: 'language-q3',
+        prompt: '¿Qué recomienda si te da pudor hablar con nativos al principio?',
+        options: [
+          'Usar el método de hablar en solitario (self-talk).',
+          'Dejar de estudiar hasta sentirte listo.',
+          'Aprender solo grammar charts.',
+          'Evitar escuchar podcasts.',
+        ],
+        answer: 0,
+        explanation:
+          "'If you're a more introverted person... you can apply the method of self-talk.'",
+      },
+    ],
+  },
+  {
+    id: 'science-of-laughter',
+    title: 'The Science of Laughter',
+    channel: 'TED-Ed · Sasha Winkler',
+    youtubeId: 'Xu-QfE_1ksk',
+    level: 'A1-A2',
+    topic: 'Listening · Ciencia y curiosidad',
+    description:
+      'Un video corto y claro sobre por qué reímos: los músculos, el cerebro y la risa como señal social. Narración lenta, ideal para practicar listening.',
+    segment: 'Video completo · 0:00 – 5:31',
+    durationSeconds: laughterDuration,
+    cues: laughterCues,
+    questions: [
+      {
+        id: 'laughter-q1',
+        prompt: '¿Qué músculos se contraen cuando te ríes?',
+        options: ['Los abdominales', 'Los de los ojos', 'Los de las manos', 'Los de la espalda'],
+        answer: 0,
+        explanation: "'When you laugh, your abdominal muscles contract rapidly.'",
+      },
+      {
+        id: 'laughter-q2',
+        prompt: 'Según el video, ¿por qué es contagiosa la risa?',
+        options: [
+          'Porque invita a compartir el estado emocional de alguien.',
+          'Porque todos tenemos el mismo sentido del humor.',
+          'Porque es un reflejo de la respiración solamente.',
+          'Porque los bebés la inventaron.',
+        ],
+        answer: 0,
+        explanation: "'It’s like an invitation to share in someone’s emotional state.'",
+      },
+      {
+        id: 'laughter-q3',
+        prompt: '¿Qué ocurre en el cerebro cuando reímos?',
+        options: [
+          'Libera endorfinas y baja el cortisol.',
+          'Deja de producir endorfinas.',
+          'Aumenta el cortisol.',
+          'Se apaga la memoria.',
+        ],
+        answer: 0,
+        explanation:
+          "'Our brains release feel-good neurotransmitters, like endorphins, and decrease levels of stress hormones like cortisol.'",
+      },
+    ],
+  },
+  {
+    id: 'boost-your-confidence',
+    title: '3 Tips to Boost Your Confidence',
+    channel: 'TED-Ed',
+    youtubeId: 'l_NYrWqUR40',
+    level: 'A1-A2',
+    topic: 'Speaking · Confianza al hablar',
+    description:
+      'Tres ideas sencillas para ganar confianza: cambiar la mentalidad, practicar el fracaso y hablarte a ti mismo. Narración clara y vocabulario útil.',
+    segment: 'Video completo · 0:00 – 4:17',
+    durationSeconds: confidenceDuration,
+    cues: confidenceCues,
+    questions: [
+      {
+        id: 'confidence-q1',
+        prompt: '¿Cómo se define la confianza en el video?',
+        options: [
+          'Autoestima más optimismo sobre tus propias habilidades.',
+          'No sentir nunca miedo.',
+          'Ganar siempre a la primera.',
+          'Hablar más alto que los demás.',
+        ],
+        answer: 0,
+        explanation: 'Combina “self-esteem” con el optimismo de sentirte capaz.',
+      },
+      {
+        id: 'confidence-q2',
+        prompt: '¿Qué es un “growth mindset”?',
+        options: [
+          'Creer que las habilidades se pueden desarrollar como un músculo.',
+          'Creer que las habilidades se fijan al nacer.',
+          'Evitar los desafíos difíciles.',
+          'Estudiar solo la noche antes.',
+        ],
+        answer: 0,
+        explanation:
+          "'If you have a growth mindset and think your abilities can improve, a challenge is an opportunity to learn and grow.'",
+      },
+      {
+        id: 'confidence-q3',
+        prompt: '¿Qué consejo da sobre los errores?',
+        options: [
+          'Aceptarlos, tratarte bien y seguir intentándolo.',
+          'Evitarlos a toda costa.',
+          'Olvidarlos sin aprender nada.',
+          'Culpar a los demás.',
+        ],
+        answer: 0,
+        explanation: "'Accept that you'll make mistakes, and be kind to yourself when you do.'",
+      },
+    ],
+  },
+  {
+    id: 'hidden-network-internet',
+    title: 'The Hidden Network That Makes the Internet Possible',
+    channel: 'TED-Ed · Sajan Saini',
+    youtubeId: 'er3v4PVNQqE',
+    level: 'B1-B2',
+    topic: 'Tech · Redes e internet',
+    description:
+      'Cómo la fibra óptica mueve tus datos a la velocidad de la luz. Vocabulario técnico muy útil si trabajas con software.',
+    segment: 'Video completo · 0:00 – 5:19',
+    durationSeconds: internetDuration,
+    cues: internetCues,
+    questions: [
+      {
+        id: 'internet-q1',
+        prompt: '¿Qué récord lograron los investigadores en 2012?',
+        options: [
+          'Transmitir 1 petabit de datos por un cable en un segundo.',
+          'Crear el primer cable de cobre.',
+          'Inventar la fibra óptica.',
+          'Conectar dos ciudades con radio.',
+        ],
+        answer: 0,
+        explanation: "'Transmitting 1 petabit of data over a fifty-kilometer cable, in a second.'",
+      },
+      {
+        id: 'internet-q2',
+        prompt: '¿Qué transportan los cables de fibra óptica?',
+        options: ['Pulsos de luz', 'Electrones', 'Ondas de radio', 'Aire a presión'],
+        answer: 0,
+        explanation: "'These strands carry pulses of light, representing digital data.'",
+      },
+      {
+        id: 'internet-q3',
+        prompt: '¿Qué fenómeno mantiene la luz dentro del cristal?',
+        options: [
+          'Reflexión interna total.',
+          'Gravedad.',
+          'Evaporación.',
+          'Resistencia eléctrica.',
+        ],
+        answer: 0,
+        explanation: "'The trick lies in a phenomenon known as total internal reflection.'",
+      },
+    ],
+  },
+  {
+    id: 'world-wide-web',
+    title: 'What Is the World Wide Web?',
+    channel: 'TED-Ed · Twila Camp',
+    youtubeId: 'J8hzJxb0rpc',
+    level: 'A1-A2',
+    topic: 'Tech · Cómo funciona la web',
+    description:
+      'Una explicación corta y clara de la diferencia entre Internet y la Web, con analogías muy visuales. Ideal para listening A1-A2.',
+    segment: 'Video completo · 0:00 – 3:55',
+    durationSeconds: webDuration,
+    cues: webCues,
+    questions: [
+      {
+        id: 'www-q1',
+        prompt: 'Según el video, ¿son Internet y la World Wide Web lo mismo?',
+        options: [
+          'No: la Web es un servicio que usa Internet.',
+          'Sí: son dos nombres para lo mismo.',
+          'Internet es un tipo de website.',
+          'La Web sustituyó a Internet.',
+        ],
+        answer: 0,
+        explanation: "'The World Wide Web is not the Internet.'",
+      },
+      {
+        id: 'www-q2',
+        prompt: '¿Qué es un web server?',
+        options: [
+          'Una computadora conectada que guarda y comparte información.',
+          'Un cable de fibra óptica.',
+          'El nombre de un dominio.',
+          'Una persona que escribe websites.',
+        ],
+        answer: 0,
+        explanation:
+          "'A computer always connected to the Internet, specifically designed to store information and share it.'",
+      },
+      {
+        id: 'www-q3',
+        prompt: '¿Para qué sirve la dirección de un website?',
+        options: [
+          'Para encontrar el sitio, como una dirección real.',
+          'Para hacer más rápido el cable.',
+          'Para ocultar la información.',
+          'Para crear un servidor.',
+        ],
+        answer: 0,
+        explanation: "'A website address lets you get where you want to go.'",
+      },
+    ],
+  },
+  {
+    id: 'what-is-an-algorithm',
+    title: "What's an Algorithm?",
+    channel: 'TED-Ed · David J. Malan',
+    youtubeId: '6hfOvs8pY1k',
+    level: 'B1-B2',
+    topic: 'Tech · Pensamiento computacional',
+    description:
+      'El profesor David Malan explica los algoritmos con ejemplos sencillos. Excelente para vocabulario de programación en contexto.',
+    segment: 'Video completo · 0:00 – 4:57',
+    durationSeconds: algorithmDuration,
+    cues: algorithmCues,
+    questions: [
+      {
+        id: 'algorithm-q1',
+        prompt: '¿Qué es un algoritmo?',
+        options: [
+          'Un conjunto de instrucciones paso a paso para resolver un problema.',
+          'Un lenguaje de programación.',
+          'Una computadora muy rápida.',
+          'Un tipo de dato.',
+        ],
+        answer: 0,
+        explanation:
+          "'An algorithm is a set of instructions for solving some problem, step-by-step.'",
+      },
+      {
+        id: 'algorithm-q2',
+        prompt: '¿Qué es el pseudocódigo?',
+        options: [
+          'Sintaxis parecida al inglés que se asemeja a un lenguaje de programación.',
+          'Código que solo entienden las máquinas.',
+          'Un error de programación.',
+          'Un nombre para una variable.',
+        ],
+        answer: 0,
+        explanation: "'English-like syntax that resembles a programming language.'",
+      },
+      {
+        id: 'algorithm-q3',
+        prompt: '¿Qué es un loop (bucle)?',
+        options: [
+          'Una secuencia de pasos que se repite.',
+          'Una instrucción que se ejecuta una sola vez.',
+          'Una forma de guardar datos.',
+          'Un tipo de pantalla.',
+        ],
+        answer: 0,
+        explanation: "'A sequence of steps that will repeat some number of times.'",
+      },
+    ],
+  },
+  {
+    id: 'introduce-yourself',
+    title: 'How to Introduce Yourself',
+    channel: 'TEDx · Kevin Bahler',
+    youtubeId: 'V1xt7zgnuK0',
+    level: 'B1-B2',
+    topic: 'Speaking · Presentarte con autenticidad',
+    description:
+      'Una charla muy humana sobre por qué dejamos de decir quiénes somos al presentarnos. Útil para reuniones, entrevistas y networking.',
+    segment: 'Video completo · 0:00 – 10:32',
+    durationSeconds: introduceDuration,
+    cues: introduceCues,
+    questions: [
+      {
+        id: 'introduce-q1',
+        prompt: '¿Cómo se presentaba Kevin cuando era pequeño?',
+        options: [
+          'Diciendo lo que le gustaba: su color, su gato, sus hobbies.',
+          'Solo con su puesto de trabajo.',
+          'Con datos de su universidad.',
+          'Evitando hablar de sí mismo.',
+        ],
+        answer: 0,
+        explanation: "'Hi! My name is Kevin, and my favorite color is green.'",
+      },
+      {
+        id: 'introduce-q2',
+        prompt: '¿Qué cambió al hacerse mayor?',
+        options: [
+          'Empezó a elegir presentaciones “seguras” y a ocultar partes de sí.',
+          'Dejó de hablar en público para siempre.',
+          'Se inventó un nuevo nombre.',
+          'Se mudó a otro país.',
+        ],
+        answer: 0,
+        explanation: "'I just told people the parts of me they expected to hear.'",
+      },
+      {
+        id: 'introduce-q3',
+        prompt: '¿Cómo termina su presentación final?',
+        options: [
+          '“My name is Kevin Bahler, and I love it when people are truly happy.”',
+          '“My name is Kevin and I am a grant writer.”',
+          '“Hi, I like watching The Simpsons.”',
+          '“I do the martial art Aikido.”',
+        ],
+        answer: 0,
+        explanation: 'Cierra con una frase sobre lo que le importa, no con su cargo.',
+      },
+    ],
+  },
+  {
+    id: 'all-nighter-brain',
+    title: 'What Staying Up All Night Does to Your Brain',
+    channel: 'TED-Ed · Anna Rothschild',
+    youtubeId: 'idrbwnWLJ7w',
+    level: 'A1-A2',
+    topic: 'Listening · Ciencia y hábitos',
+    description:
+      'Qué pasa en el cerebro cuando no duermes antes de un examen. Narración clara y vocabulario cotidiano para practicar escucha.',
+    segment: 'Video completo · 0:00 – 5:37',
+    durationSeconds: sleepDuration,
+    cues: sleepCues,
+    questions: [
+      {
+        id: 'sleep-q1',
+        prompt: '¿Qué significa “pull an all-nighter”?',
+        options: [
+          'Pasar toda la noche despierto estudiando.',
+          'Dormir ocho horas.',
+          'Tomar café por la mañana.',
+          'Hacer un examen corto.',
+        ],
+        answer: 0,
+        explanation: "'You decide to pull an all-nighter.' = no dormir en toda la noche.",
+      },
+      {
+        id: 'sleep-q2',
+        prompt: '¿Qué hormona prepara el cuerpo para dormir?',
+        options: ['Melatonina', 'Cafeína', 'Adenosina', 'GABA'],
+        answer: 0,
+        explanation: "'It alerts your pineal gland to start producing melatonin.'",
+      },
+      {
+        id: 'sleep-q3',
+        prompt: '¿Qué dice sobre los estudiantes con horarios regulares de sueño?',
+        options: [
+          'Suelen tener un promedio (GPA) más alto.',
+          'Duermen menos que los demás.',
+          'Nunca necesitan café.',
+          'Obtienen peores notas.',
+        ],
+        answer: 0,
+        explanation:
+          "'College students who keep regular sleep hours have, on average, a higher GPA.'",
       },
     ],
   },

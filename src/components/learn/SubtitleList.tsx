@@ -15,6 +15,8 @@ interface Props {
   shadowLabel: string
   matchLabel: string
   onSeek(seconds: number): void
+  /** Tiempo efectivo del reproductor, para resaltar la palabra que suena. */
+  currentTime: number
 }
 
 function escapeRegExp(value: string): string {
@@ -28,7 +30,7 @@ function splitHighlight(cue: VideoCue): string[] {
   return cue.en.split(pattern)
 }
 
-function HighlightedText({ cue }: { cue: VideoCue }) {
+export function HighlightedText({ cue }: { cue: VideoCue }) {
   const parts = useMemo(() => splitHighlight(cue), [cue])
   const words = useMemo(() => (cue.highlight ?? []).map((word) => word.toLowerCase()), [cue])
   return (
@@ -46,6 +48,64 @@ function HighlightedText({ cue }: { cue: VideoCue }) {
   )
 }
 
+/** Resaltado palabra por palabra: la palabra en curso se ilumina y las demás se atenúan. */
+export function KaraokeText({
+  cue,
+  currentTime,
+  onDark = false,
+}: {
+  cue: VideoCue
+  currentTime: number
+  onDark?: boolean
+}) {
+  const words = useMemo(() => cue.en.split(/\s+/).filter(Boolean), [cue.en])
+  if (!words.length) return <span>{cue.en}</span>
+
+  const duration = Math.max(cue.end - cue.start, 0.1)
+  const progress = Math.min(1, Math.max(0, (currentTime - cue.start) / duration))
+  const timings = cue.words
+
+  let activeIndex: number
+  if (timings?.length) {
+    // Tiempos reales por palabra (YouTube ASR): encontramos la palabra en curso.
+    const local = currentTime - cue.start
+    const found = timings.findIndex((word) => local >= word.t && local < word.t + word.d)
+    activeIndex =
+      found >= 0
+        ? Math.min(found, words.length - 1)
+        : local < timings[0].t
+          ? 0
+          : Math.min(timings.length - 1, words.length - 1)
+  } else {
+    // Sin datos por palabra: reparto proporcional dentro de la línea.
+    activeIndex = Math.min(words.length - 1, Math.floor(progress * words.length))
+  }
+
+  return (
+    <span>
+      {words.map((word, index) => (
+        <span
+          key={`${index}-${word}`}
+          class={
+            index === activeIndex
+              ? 'rounded bg-accent/25 px-0.5 text-accent'
+              : index < activeIndex
+                ? onDark
+                  ? 'text-white/45'
+                  : 'text-base-content/40'
+                : onDark
+                  ? 'text-white'
+                  : 'text-base-content/85'
+          }
+        >
+          {word}
+          {index < words.length - 1 ? ' ' : ''}
+        </span>
+      ))}
+    </span>
+  )
+}
+
 export default function SubtitleList({
   cues,
   activeIndex,
@@ -58,22 +118,33 @@ export default function SubtitleList({
   shadowLabel,
   matchLabel,
   onSeek,
+  currentTime,
 }: Props) {
   const activeRef = useRef<HTMLButtonElement>(null)
+  const listRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!playing || !follow) return
-    activeRef.current?.scrollIntoView({ block: 'center', behavior: 'auto' })
+    const list = listRef.current
+    const active = activeRef.current
+    if (!list || !active) return
+    // Desplazamos solo la lista para que la página no salte al seguir la línea activa.
+    const listBox = list.getBoundingClientRect()
+    const activeBox = active.getBoundingClientRect()
+    list.scrollTop += activeBox.top - listBox.top - (listBox.height - activeBox.height) / 2
   }, [activeIndex, playing, follow])
 
   return (
-    <div class="mt-2 max-h-[360px] space-y-1.5 overflow-y-auto rounded-2xl bg-base-100/70 p-2">
+    <div
+      ref={listRef}
+      class="mt-2 max-h-[440px] space-y-1 overflow-y-auto rounded-2xl bg-base-100/70 p-2 lg:max-h-[560px]"
+    >
       {cues.map((cue, index) => {
         const active = index === activeIndex
         return (
           <div
             key={`${cue.start}-${index}`}
-            class={`group relative flex w-full items-start gap-2 rounded-xl px-3 py-2.5 text-left transition ${
+            class={`group relative flex w-full items-start gap-2 rounded-xl px-3.5 py-3 text-left transition ${
               active ? 'bg-accent/10 ring-1 ring-accent/25' : 'hover:bg-base-200/70'
             }`}
           >
@@ -86,12 +157,16 @@ export default function SubtitleList({
             >
               <span class="min-w-0 flex-1">
                 <span
-                  class={`block font-mono text-[13px] leading-relaxed sm:text-[14px] ${active ? 'text-base-content/95' : 'text-base-content/55'}`}
+                  class={`block font-mono text-[14px] leading-relaxed sm:text-[15px] ${active ? 'text-base-content' : 'text-base-content/70'}`}
                 >
-                  <HighlightedText cue={cue} />
+                  {active ? (
+                    <KaraokeText cue={cue} currentTime={currentTime} />
+                  ) : (
+                    <HighlightedText cue={cue} />
+                  )}
                 </span>
                 {active && cue.es && (
-                  <span class="mt-1 block text-[12px] text-base-content/50">{cue.es}</span>
+                  <span class="mt-1 block text-[12.5px] text-base-content/60">{cue.es}</span>
                 )}
               </span>
             </button>

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'preact/hooks'
 import { getActiveCueIndex, type VideoCue } from '../../data/learningResources'
 import { loadYouTubeApi } from './youtube'
 
-const PLAYBACK_RATES = [1, 0.75, 1.25] as const
+const PLAYBACK_RATES = [0.5, 0.75, 1, 1.25, 1.5] as const
 
 export interface YouTubePlayerController {
   mountRef: { current: HTMLDivElement | null }
@@ -13,9 +13,11 @@ export interface YouTubePlayerController {
   offset: number
   rate: number
   loopLine: boolean
+  autoPause: boolean
   togglePlay(): void
   cycleRate(): void
   toggleLoop(): void
+  toggleAutoPause(): void
   changeOffset(delta: number): void
   seekTo(seconds: number): void
 }
@@ -41,8 +43,11 @@ export function useYouTubePlayer(
   const [playing, setPlaying] = useState(false)
   const [error, setError] = useState(false)
   const [offset, setOffset] = useState(0)
-  const [rateIndex, setRateIndex] = useState(0)
+  const [rateIndex, setRateIndex] = useState(PLAYBACK_RATES.indexOf(1))
   const [loopLine, setLoopLine] = useState(false)
+  const [autoPause, setAutoPause] = useState(false)
+  const autoPauseRef = useRef(false)
+  const lastCueRef = useRef<number>(-2)
   const optionsRef = useRef(options)
   optionsRef.current = options
 
@@ -58,7 +63,16 @@ export function useYouTubePlayer(
         if (cancelled || !mountRef.current || !window.YT) return
         const player = new window.YT.Player(mountRef.current, {
           videoId,
-          playerVars: { enablejsapi: 1, playsinline: 1, rel: 0 },
+          playerVars: {
+            enablejsapi: 1,
+            playsinline: 1,
+            rel: 0,
+            controls: 0,
+            disablekb: 1,
+            fs: 0,
+            modestbranding: 1,
+            iv_load_policy: 3,
+          },
           events: {
             onReady: () => {
               readyRef.current = true
@@ -77,10 +91,19 @@ export function useYouTubePlayer(
             const seconds = current.getCurrentTime()
             setTime(seconds)
             optionsRef.current.onProgress?.(seconds, optionsRef.current.duration ?? 0)
-            if (!loopRef.current) return
             const effective = seconds + offsetRef.current
             const index = getActiveCueIndex(cues, Math.max(0, effective))
-            if (index < 0) return
+
+            if (autoPauseRef.current && index >= 0) {
+              const cue = cues[index]
+              if (effective >= cue.end - 0.15 && lastCueRef.current !== index) {
+                lastCueRef.current = index
+                current.pauseVideo()
+                current.seekTo(Math.max(0, cue.start - offsetRef.current), true)
+              }
+              return
+            }
+            if (!loopRef.current || index < 0) return
             const cue = cues[index]
             if (effective >= cue.end - 0.2) {
               current.seekTo(Math.max(0, cue.start - offsetRef.current), true)
@@ -132,6 +155,14 @@ export function useYouTubePlayer(
     })
   }, [])
 
+  const toggleAutoPause = useCallback(() => {
+    setAutoPause((current) => {
+      autoPauseRef.current = !current
+      lastCueRef.current = -2
+      return !current
+    })
+  }, [])
+
   const changeOffset = useCallback((delta: number) => {
     setOffset((current) => {
       const next = current + delta
@@ -157,9 +188,11 @@ export function useYouTubePlayer(
     offset,
     rate: PLAYBACK_RATES[rateIndex],
     loopLine,
+    autoPause,
     togglePlay,
     cycleRate,
     toggleLoop,
+    toggleAutoPause,
     changeOffset,
     seekTo,
   }

@@ -55,7 +55,7 @@ test.describe('player sync and accessibility', () => {
     })
     await expect(page.getByText('Well, this is the national art of the U.K.')).toBeVisible()
 
-    await page.getByRole('button', { name: /Ir a 1:38/ }).click()
+    await page.getByRole('button', { name: /Ir a: We complain about the weather/ }).click()
     const seek = await page.evaluate(() => (window as unknown as Record<string, unknown>).__ytSeek)
     expect(Number(seek)).toBeCloseTo(98.98, 1)
   })
@@ -79,13 +79,17 @@ test.describe('self-study and placement', () => {
     await page.goto('/learn.html')
     await expect(page.getByRole('heading', { name: /Aprende inglés rápido/ })).toBeVisible()
 
-    await page.getByRole('button', { name: 'YouTube', exact: true }).click()
-    await expect(page.getByText('BBC Learning English (YouTube)')).toBeVisible()
-    await expect(page.getByText('YouGlish')).toBeHidden()
+    const resources = page
+      .locator('section')
+      .filter({ has: page.getByRole('heading', { name: /Los mejores sitios/ }) })
 
-    await page.getByRole('button', { name: 'Todos', exact: true }).first().click()
-    await page.getByRole('searchbox').fill('youglish')
-    await expect(page.getByText('YouGlish')).toBeVisible()
+    await resources.getByRole('button', { name: 'YouTube', exact: true }).click()
+    await expect(resources.getByText('BBC Learning English (YouTube)')).toBeVisible()
+    await expect(resources.getByText('YouGlish')).toBeHidden()
+
+    await resources.getByRole('button', { name: 'Todos', exact: true }).click()
+    await resources.getByRole('searchbox').fill('youglish')
+    await expect(resources.getByText('YouGlish')).toBeVisible()
   })
 
   test('the placement test recommends a level and a first session', async ({ page }) => {

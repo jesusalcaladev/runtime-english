@@ -346,6 +346,38 @@
   html[data-tts="off"] [data-speak] {
     display: none;
   }
+
+  /* El reproductor propio ocupa toda la pantalla en pantalla completa,
+     recortando el video como object-fit: cover (sin barras negras). */
+  .video-player-shell:fullscreen {
+    border-radius: 0;
+  }
+
+  /* YouTube aplica tamaño inline al iframe: hace falta !important para cubrir. */
+  .video-player-shell:fullscreen > div:first-child {
+    position: absolute;
+    inset: 0;
+    /* biome-ignore lint/complexity/noImportantStyles: estilo inline de YouTube */
+    width: 100% !important;
+    /* biome-ignore lint/complexity/noImportantStyles: estilo inline de YouTube */
+    height: 100% !important;
+  }
+
+  .video-player-shell:fullscreen iframe {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    /* biome-ignore lint/complexity/noImportantStyles: estilo inline de YouTube */
+    width: max(100vw, 177.78vh) !important;
+    /* biome-ignore lint/complexity/noImportantStyles: estilo inline de YouTube */
+    height: max(56.25vw, 100vh) !important;
+    /* biome-ignore lint/complexity/noImportantStyles: estilo inline de YouTube */
+    max-width: none !important;
+    /* biome-ignore lint/complexity/noImportantStyles: estilo inline de YouTube */
+    max-height: none !important;
+    transform: translate(-50%, -50%);
+    border: 0;
+  }
 }
 
 @layer utilities {
