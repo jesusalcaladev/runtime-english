@@ -195,7 +195,7 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === 'B1-B
       import { closeTopDialog } from "../lib/dialogStack";
       import { syncStreakReminder } from "../lib/notifications";
       import { progressStore } from "../lib/progress";
-      import { initVoices, speak, warmSpeechEngine, warmSpeechPhrases } from "../lib/speech";
+      import { initVoices, primeSpeechPhrase, speak, warmSpeechEngine, warmSpeechPhrases } from "../lib/speech";
       import { supabase } from "../lib/supabase";
 
       initVoices();
@@ -284,9 +284,21 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === 'B1-B
             if (button.dataset.speak) warmSpeechPhrases([button.dataset.speak]);
           } catch {}
         };
+        const primeOnIntent = (event: Event) => {
+          const target = event.target;
+          if (!(target instanceof Element)) return;
+          const button = target.closest("[data-speak]");
+          if (!(button instanceof HTMLElement) || !button.dataset.speak) return;
+          try {
+            primeSpeechPhrase(button.dataset.speak);
+          } catch {}
+        };
+        document.addEventListener("pointerdown", primeOnIntent, { passive: true, capture: true });
         document.addEventListener("pointerdown", warmOnIntent, { passive: true, capture: true });
         document.addEventListener("pointerenter", warmOnIntent, { passive: true, capture: true });
+        document.addEventListener("touchstart", primeOnIntent, { passive: true, capture: true });
         document.addEventListener("touchstart", warmOnIntent, { passive: true, capture: true });
+        document.addEventListener("focusin", primeOnIntent, true);
         document.addEventListener("focusin", warmOnIntent, true);
         document.addEventListener("click", (event) => {
           const target = event.target;

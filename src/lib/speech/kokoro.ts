@@ -6,16 +6,19 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
+type StreamChunk = { index: number; total: number; text: string; buffer: ArrayBuffer }
+type StreamHandlers = {
+  onChunk: (chunk: StreamChunk) => void
+  onDone: () => void
+  onError: (error: Error) => void
+}
+
 type KokoroTTSLike = {
-  generate: (
+  generateStream: (
     text: string,
-    options?: { voice?: string; speed?: number },
-  ) => Promise<{
-    toBlob?: () => Blob
-    toWav?: () => ArrayBuffer | Uint8Array
-    audio?: Float32Array
-    sampling_rate?: number
-  }>
+    options: { voice: string; priority?: boolean },
+    handlers: StreamHandlers,
+  ) => () => void
 }
 
 const VOICE_EN_US = 'af_heart'
@@ -25,10 +28,12 @@ function getKokoroVoice(): string {
   return getSpeechLanguage() === 'en-GB' ? VOICE_EN_GB : VOICE_EN_US
 }
 const VOICE_CACHE_KEY = 'runtimeenglish_kokoro_voice_cache_v1'
-const AUDIO_CACHE_LIMIT_MOBILE = 6
-const AUDIO_CACHE_LIMIT_DESKTOP = 12
-const AUDIO_PERSISTENT_CACHE_NAME = 'runtimeenglish-kokoro-audio-v1'
-const AUDIO_PERSISTENT_LIMIT = 40
+const AUDIO_CACHE_LIMIT_MOBILE = 12
+const AUDIO_CACHE_LIMIT_DESKTOP = 24
+const AUDIO_PERSISTENT_CACHE_NAME = 'runtimeenglish-kokoro-audio-v2'
+const AUDIO_PERSISTENT_LIMIT = 80
+const STREAM_MANIFEST_KEY = 'runtimeenglish_kokoro_manifest_v2'
+const MANIFEST_LIMIT = 60
 const PRELOAD_QUEUE_LIMIT = 12
 const PRELOAD_IDLE_TIMEOUT_MS = 1500
 const MODEL_CACHE_HINTS = [
@@ -50,12 +55,101 @@ let _autoInitStarted = false
 let currentAudio: HTMLAudioElement | null = null
 let currentAudioUrl: string | null = null
 let playToken = 0
+const activePlaybacks = new Set<() => void>()
 let warmupPromise: Promise<void> | null = null
 let lastWarmUtteranceAt = 0
 
 // In-memory LRU of generated audio: instant replay for repeated phrases.
 const audioCache = new Map<string, string>()
 let currentAudioKey: string | null = null
+
+// Manifest for phrases rendered as several audio chunks: base key -> ordered chunk keys.
+const manifestCache = new Map<string, string[]>()
+
+// One generation per phrase: prewarming and playback share the same work.
+type StoredChunk = { url: string; key: string; index: number; total: number }
+type ChunkListener = (chunk: StoredChunk) => void
+type GenerationRecord = {
+  key: string
+  promise: Promise<string[]>
+  chunks: StoredChunk[]
+  listeners: Set<ChunkListener>
+  error: string | null
+}
+const generations = new Map<string, GenerationRecord>()
+
+type CachedSequence = { urls: string[]; keys: string[] }
+
+type KokoroDiagnostics = {
+  loadMs: number
+  lastFirstChunkMs: number
+  lastGenerateMs: number
+  lastChunks: number
+}
+const diagnostics: KokoroDiagnostics = {
+  loadMs: 0,
+  lastFirstChunkMs: 0,
+  lastGenerateMs: 0,
+  lastChunks: 0,
+}
+
+export function getKokoroDiagnostics(): KokoroDiagnostics {
+  return { ...diagnostics }
+}
+
+type PhraseReadiness = { ready: number; total: number }
+const readyPhraseKeys = new Set<string>()
+const phraseStatusListeners = new Set<() => void>()
+
+try {
+  if (typeof window !== 'undefined') {
+    const raw = window.localStorage.getItem(STREAM_MANIFEST_KEY)
+    if (raw) {
+      for (const key of Object.keys(JSON.parse(raw) as Record<string, unknown>)) {
+        readyPhraseKeys.add(key)
+      }
+    }
+  }
+} catch {}
+
+function notifyPhraseStatus(): void {
+  for (const listener of phraseStatusListeners) {
+    try {
+      listener()
+    } catch {}
+  }
+}
+
+function markPhraseReady(key: string): void {
+  if (readyPhraseKeys.has(key)) return
+  readyPhraseKeys.add(key)
+  notifyPhraseStatus()
+}
+
+/** Synchronous cache check (no Cache Storage round-trip) for UI indicators. */
+export function getKokoroPhraseStatus(texts: string[]): PhraseReadiness {
+  let ready = 0
+  for (const rawText of texts) {
+    const key = getAudioCacheKey(rawText.replace(/\s+/g, ' ').trim())
+    if (readyPhraseKeys.has(key)) ready += 1
+  }
+  return { ready, total: texts.length }
+}
+
+export function subscribeKokoroPhraseStatus(listener: () => void): () => void {
+  phraseStatusListeners.add(listener)
+  return () => phraseStatusListeners.delete(listener)
+}
+
+// Keys whose persisted audio was already restored into memory this session.
+const restoredAudioKeys = new Set<string>()
+
+function restoreCachedAudio(key: string): void {
+  if (restoredAudioKeys.has(key)) return
+  restoredAudioKeys.add(key)
+  // No model needed: this just moves cached blobs into in-memory object URLs.
+  void getCachedAudioSequence(key)
+}
 
 // Phrases queued for low-priority pre-generation once the model is ready.
 const preloadQueue: string[] = []
@@ -70,6 +164,10 @@ const workerGenerations = new Map<
   number,
   { resolve: (buffer: ArrayBuffer) => void; reject: (error: Error) => void }
 >()
+const workerStreams = new Map<
+  number,
+  { onChunk: (chunk: StreamChunk) => void; onDone: () => void; onError: (error: Error) => void }
+>()
 let workerGenerationId = 0
 
 type WorkerOutMessage =
@@ -78,11 +176,22 @@ type WorkerOutMessage =
   | { type: 'ready' }
   | { type: 'error'; error: string }
   | { type: 'audio'; id: number; buffer: ArrayBuffer }
+  | { type: 'audio-chunk'; id: number; index: number; total: number; text: string; buffer: ArrayBuffer }
+  | { type: 'stream-done'; id: number }
   | { type: 'gen-error'; id: number; error: string }
 
 function isWorkerMessage(value: unknown): value is WorkerOutMessage {
   if (!isRecord(value) || typeof value.type !== 'string') return false
-  return ['progress', 'status', 'ready', 'error', 'audio', 'gen-error'].includes(value.type)
+  return [
+    'progress',
+    'status',
+    'ready',
+    'error',
+    'audio',
+    'audio-chunk',
+    'stream-done',
+    'gen-error',
+  ].includes(value.type)
 }
 
 function terminateWorker(): void {
@@ -94,33 +203,39 @@ function terminateWorker(): void {
   for (const pending of workerGenerations.values()) {
     pending.reject(new Error('El motor HQ se detuvo.'))
   }
+  for (const stream of workerStreams.values()) {
+    stream.onError(new Error('El motor HQ se detuvo.'))
+  }
   workerGenerations.clear()
+  workerStreams.clear()
 }
 
 function createWorkerTts(): KokoroTTSLike {
   return {
-    generate: (text, options) =>
-      new Promise((resolve, reject) => {
-        const worker = kokoroWorker
-        if (!worker) {
-          reject(new Error('El motor HQ no está disponible.'))
-          return
-        }
-        const id = ++workerGenerationId
-        workerGenerations.set(id, {
-          resolve: (buffer) => {
-            resolve({ toWav: () => buffer })
-          },
-          reject,
-        })
-        worker.postMessage({
-          type: 'generate',
-          id,
-          text,
-          voice: options?.voice ?? getKokoroVoice(),
-          speed: options?.speed ?? 1,
-        })
-      }),
+    generateStream: (text, options, handlers) => {
+      const worker = kokoroWorker
+      if (!worker) {
+        handlers.onError(new Error('El motor HQ no está disponible.'))
+        return () => {}
+      }
+      const id = ++workerGenerationId
+      workerStreams.set(id, handlers)
+      worker.postMessage({
+        type: 'generate-stream',
+        id,
+        text,
+        voice: options.voice,
+        speed: 1,
+        maxChars: getPreferredKokoroChunkSize(),
+        priority: options.priority === true,
+      })
+      return () => {
+        if (!workerStreams.delete(id)) return
+        try {
+          worker.postMessage({ type: 'cancel', id })
+        } catch {}
+      }
+    },
   }
 }
 
@@ -166,7 +281,29 @@ function startWorker(
           }
           break
         }
+        case 'audio-chunk': {
+          workerStreams.get(message.id)?.onChunk({
+            index: message.index,
+            total: message.total,
+            text: message.text,
+            buffer: message.buffer,
+          })
+          break
+        }
+        case 'stream-done': {
+          const stream = workerStreams.get(message.id)
+          if (stream) {
+            workerStreams.delete(message.id)
+            stream.onDone()
+          }
+          break
+        }
         case 'gen-error': {
+          const stream = workerStreams.get(message.id)
+          if (stream) {
+            workerStreams.delete(message.id)
+            stream.onError(new Error(message.error))
+          }
           const pending = workerGenerations.get(message.id)
           if (pending) {
             workerGenerations.delete(message.id)
@@ -207,16 +344,39 @@ async function hasWebGpu(): Promise<boolean> {
   const gpu = (navigator as Navigator & { gpu?: { requestAdapter?: () => Promise<unknown> } }).gpu
   if (!gpu || typeof gpu.requestAdapter !== 'function') return false
   try {
-    // Some WebViews expose navigator.gpu but cannot provide an adapter.
-    return (await gpu.requestAdapter()) != null
+    return (await withTimeout(gpu.requestAdapter(), 900)) != null
   } catch {
     return false
   }
 }
 
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T | null> {
+  return new Promise((resolve, reject) => {
+    let done = false
+    const timer = window.setTimeout(() => {
+      if (done) return
+      done = true
+      resolve(null)
+    }, ms)
+    promise.then(
+      (value) => {
+        if (done) return
+        done = true
+        window.clearTimeout(timer)
+        resolve(value)
+      },
+      (error) => {
+        if (done) return
+        done = true
+        window.clearTimeout(timer)
+        reject(error)
+      },
+    )
+  })
+}
+
 async function chooseDevice(): Promise<'webgpu' | 'wasm'> {
-  // Prefer WebGPU on capable non-constrained devices for faster inference; fallback to WASM.
-  if (isConstrainedDevice()) return 'wasm'
+  // Try WebGPU briefly even on mobile WebViews; fall back instantly to WASM/q8.
   try {
     if (await hasWebGpu()) return 'webgpu'
   } catch {}
@@ -224,7 +384,7 @@ async function chooseDevice(): Promise<'webgpu' | 'wasm'> {
 }
 
 function chooseDtype(device: 'webgpu' | 'wasm'): 'fp32' | 'q8' {
-  // q8 is significantly smaller/faster to load and run on WASM in most cases.
+  // q8 is the smallest available artifact (~92 MB) and the fastest on CPU/WASM.
   if (device === 'wasm') return 'q8'
   return 'fp32'
 }
@@ -253,7 +413,7 @@ function markCached() {
 }
 
 export function getPreferredKokoroChunkSize(): number {
-  return 120
+  return 100
 }
 
 export function getKokoroStatus(): KokoroStatus {
@@ -265,7 +425,6 @@ export function subscribeKokoroStatus(listener: (next: KokoroStatus) => void): (
   try {
     listener(status)
   } catch {}
-  // Best-effort cache detection for initial UI state.
   if (status.state === 'idle' && typeof window !== 'undefined') {
     void detectCached().then((cached) => {
       if (cached && status.state === 'idle') {
@@ -294,7 +453,6 @@ export function isKokoroLoading(): boolean {
 
 export function canAutoLoadKokoroInBackground(): boolean {
   if (typeof window === 'undefined') return false
-  // Avoid surprising heavy downloads; allow background load if user likely has it cached or explicitly chose it.
   return kokoroIsCached() || isConstrainedDevice() === false
 }
 
@@ -302,8 +460,19 @@ export function markKokoroAutoInitStarted(): void {
   _autoInitStarted = true
 }
 
-function getAudioCacheKey(text: string, speed: number): string {
-  return `${speed}|${getKokoroVoice()}|${text}`
+function normalizeCacheText(text: string): string {
+  return text
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase()
+    .replace(/[.,;:!?¡¿…"«»“”(){}[\]]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function getAudioCacheKey(text: string): string {
+  // Speed is intentionally absent: playback rate is applied to <audio> instead.
+  return `${getKokoroVoice()}|${normalizeCacheText(text)}`
 }
 
 function getAudioCacheLimit(): number {
@@ -383,6 +552,57 @@ function cacheKokoroAudio(key: string, url: string, blob?: Blob): void {
   }
 }
 
+function getManifest(key: string): string[] | null {
+  const memory = manifestCache.get(key)
+  if (memory?.length) return memory
+  try {
+    const raw = window.localStorage.getItem(STREAM_MANIFEST_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as Record<string, unknown>
+    const keys = parsed[key]
+    if (Array.isArray(keys) && keys.length && keys.every((item) => typeof item === 'string')) {
+      const result = keys as string[]
+      manifestCache.set(key, result)
+      return result
+    }
+  } catch {}
+  return null
+}
+
+function setManifest(key: string, keys: string[]): void {
+  manifestCache.set(key, keys)
+  try {
+    const raw = window.localStorage.getItem(STREAM_MANIFEST_KEY)
+    const parsed: Record<string, string[]> = raw ? JSON.parse(raw) : {}
+    parsed[key] = keys
+    const entries = Object.entries(parsed)
+    if (entries.length > MANIFEST_LIMIT) {
+      for (const [stale] of entries.slice(0, entries.length - MANIFEST_LIMIT)) delete parsed[stale]
+    }
+    window.localStorage.setItem(STREAM_MANIFEST_KEY, JSON.stringify(parsed))
+  } catch {}
+}
+
+async function getCachedAudioSequence(key: string): Promise<CachedSequence | null> {
+  const manifest = getManifest(key)
+  if (manifest?.length) {
+    const urls: string[] = []
+    for (const chunkKey of manifest) {
+      const url = await getCachedAudioUrl(chunkKey)
+      if (!url) return null
+      urls.push(url)
+    }
+    if (urls.length) {
+      markPhraseReady(key)
+      return { urls, keys: manifest }
+    }
+  }
+  const single = await getCachedAudioUrl(key)
+  if (!single) return null
+  markPhraseReady(key)
+  return { urls: [single], keys: [key] }
+}
+
 function cleanupAudio() {
   if (currentAudio) {
     try {
@@ -400,9 +620,118 @@ function cleanupAudio() {
 export function stopKokoroPlayback(): void {
   playToken += 1
   cleanupAudio()
+  for (const cancel of [...activePlaybacks]) cancel()
+}
+
+function subscribeChunks(record: GenerationRecord, listener: ChunkListener): () => void {
+  for (const chunk of record.chunks) {
+    try {
+      listener(chunk)
+    } catch {}
+  }
+  record.listeners.add(listener)
+  return () => record.listeners.delete(listener)
+}
+
+function startGeneration(
+  text: string,
+  key: string,
+  existingTts?: KokoroTTSLike | null,
+  priority = false,
+): GenerationRecord {
+  const previous = generations.get(key)
+  if (previous) return previous
+
+  let resolvePromise: (urls: string[]) => void = () => {}
+  let rejectPromise: (error: Error) => void = () => {}
+  const promise = new Promise<string[]>((resolve, reject) => {
+    resolvePromise = resolve
+    rejectPromise = reject
+  })
+  const record: GenerationRecord = {
+    key,
+    promise,
+    chunks: [],
+    listeners: new Set(),
+    error: null,
+  }
+  generations.set(key, record)
+
+  const generationStartedAt = performance.now()
+  let firstChunkAt = 0
+
+  void (async () => {
+    const tts = existingTts ?? (await ensureLoaded())
+    if (!tts) throw new Error('No se pudo cargar la voz HQ.')
+
+    await new Promise<void>((resolve, reject) => {
+      let finished = false
+      const finish = (callback: () => void) => {
+        if (finished) return
+        finished = true
+        callback()
+      }
+      tts.generateStream(text, { voice: getKokoroVoice(), priority }, {
+        onChunk: ({ index, total, buffer }) => {
+          if (record.error) return
+          if (!firstChunkAt) {
+            firstChunkAt = performance.now()
+            diagnostics.lastFirstChunkMs = firstChunkAt - generationStartedAt
+          }
+          diagnostics.lastChunks = total
+          try {
+            const blob = new Blob([buffer], { type: 'audio/wav' })
+            const url = URL.createObjectURL(blob)
+            const chunkKey = total > 1 ? `${key}#${index}` : key
+            const chunk: StoredChunk = { url, key: chunkKey, index, total }
+            record.chunks.push(chunk)
+            cacheKokoroAudio(chunkKey, url, blob)
+            if (total > 1) setManifest(key, record.chunks.map((item) => item.key))
+            for (const listener of record.listeners) {
+              try {
+                listener(chunk)
+              } catch {}
+            }
+          } catch {
+            // A failed chunk must never break the rest of the stream.
+          }
+        },
+        onDone: () => finish(resolve),
+        onError: (error) => finish(() => reject(error)),
+      })
+    })
+  })()
+    .then(() => {
+      diagnostics.lastGenerateMs = performance.now() - generationStartedAt
+      markPhraseReady(key)
+      resolvePromise(record.chunks.map((chunk) => chunk.url))
+    })
+    .catch((error: unknown) => {
+      record.error = error instanceof Error ? error.message : 'Error generando audio HQ.'
+      rejectPromise(error instanceof Error ? error : new Error(record.error))
+    })
+    .finally(() => {
+      generations.delete(key)
+    })
+
+  return record
+}
+
+/** Start generating a phrase immediately (no idle wait), de-duplicated. */
+export function prepareKokoroPhrase(text: string): void {
+  if (typeof window === 'undefined') return
+  const clean = text.replace(/\s+/g, ' ').trim()
+  if (!clean) return
+  const key = getAudioCacheKey(clean)
+  if (generations.has(key)) return
+  void getCachedAudioSequence(key).then((cached) => {
+    if (cached || generations.has(key)) return
+    startGeneration(clean, key, undefined, true)
+  })
 }
 
 async function createTts(): Promise<KokoroTTSLike | null> {
+  const loadStartedAt = performance.now()
   let device = await chooseDevice()
   let dtype = chooseDtype(device)
   emit({
@@ -462,7 +791,6 @@ async function createTts(): Promise<KokoroTTSLike | null> {
     try {
       await startWorker(device, dtype, updateProgress)
     } catch {
-      // Transient download/init failures are common on mobile: retry once with WASM/q8.
       terminateWorker()
       emit({
         state: 'loading',
@@ -476,13 +804,13 @@ async function createTts(): Promise<KokoroTTSLike | null> {
       await startWorker(device, dtype, updateProgress)
     }
 
-    const tts = createWorkerTts()
-    ttsInstance = tts
+    diagnostics.loadMs = performance.now() - loadStartedAt
+    ttsInstance = createWorkerTts()
     markCached()
     emit({ state: 'ready', progress: 100, message: 'Voz HQ lista.', device, error: undefined })
     void warmKokoroRuntime()
     schedulePreload()
-    return tts
+    return ttsInstance
   } catch (error) {
     const message = error instanceof Error ? error.message : 'No se pudo cargar Kokoro.'
     terminateWorker()
@@ -550,16 +878,12 @@ async function drainPreloadQueue(): Promise<void> {
       const text = preloadQueue.shift()
       if (!text) continue
       preloadEnqueued.delete(text)
-      const speed = getSpeechRate()
-      const key = getAudioCacheKey(text, speed)
-      if (await getCachedAudioUrl(key)) continue
+      const key = getAudioCacheKey(text)
+      if (await getCachedAudioSequence(key)) continue
+      if (generations.has(key)) continue
+      const record = startGeneration(text, key, ttsInstance)
       try {
-        const result = await ttsInstance?.generate(text, { voice: getKokoroVoice(), speed })
-        const blob = toAudioBlob(result)
-        if (blob) {
-          const url = URL.createObjectURL(blob)
-          cacheKokoroAudio(key, url, blob)
-        }
+        await record.promise
       } catch {
         // Best effort: a failed preload must never affect playback.
       }
@@ -576,7 +900,9 @@ export function prewarmKokoroPhrases(texts: string[]): void {
   for (const rawText of texts) {
     const text = rawText.replace(/\s+/g, ' ').trim()
     if (!text || preloadEnqueued.has(text)) continue
-    if (audioCache.has(getAudioCacheKey(text, getSpeechRate()))) continue
+    const key = getAudioCacheKey(text)
+    restoreCachedAudio(key)
+    if (audioCache.has(key) || manifestCache.has(key)) continue
     if (preloadQueue.length >= Math.min(PRELOAD_QUEUE_LIMIT, getAudioCacheLimit())) break
     preloadEnqueued.add(text)
     preloadQueue.push(text)
@@ -595,24 +921,15 @@ async function warmKokoroRuntime(): Promise<void> {
   lastWarmUtteranceAt = now
 
   warmupPromise = (async () => {
-    // Warm with a real queued phrase when possible so the cached audio is useful.
     const queued = preloadQueue.shift()
     if (queued) preloadEnqueued.delete(queued)
     const phrase = queued ?? 'Ready.'
-    const key = getAudioCacheKey(phrase, getSpeechRate())
-    if (!(await getCachedAudioUrl(key))) {
+    const key = getAudioCacheKey(phrase)
+    if (!(await getCachedAudioSequence(key))) {
+      startGeneration(phrase, key, ttsInstance)
       try {
-        const result = await ttsInstance?.generate(phrase, {
-          voice: getKokoroVoice(),
-          speed: getSpeechRate(),
-        })
-        const blob = toAudioBlob(result)
-        if (blob) {
-          const url = URL.createObjectURL(blob)
-          cacheKokoroAudio(key, url, blob)
-        }
+        await generations.get(key)?.promise
       } catch {
-        // Put the phrase back so the preload queue can retry it later.
         if (queued && !preloadEnqueued.has(queued)) {
           preloadEnqueued.add(queued)
           preloadQueue.unshift(queued)
@@ -639,21 +956,158 @@ export function maybeWarmKokoroInBackground(): void {
   }
 }
 
-function toAudioBlob(result: unknown): Blob | null {
+function applyPlaybackRate(audio: HTMLAudioElement): void {
+  const rate = getSpeechRate()
   try {
-    if (isRecord(result) && typeof result.toBlob === 'function') {
-      const blob = (result.toBlob as () => unknown)()
-      if (blob instanceof Blob) return blob
-    }
-    if (isRecord(result) && typeof result.toWav === 'function') {
-      const wav = (result.toWav as () => unknown)()
-      if (wav instanceof Blob) return wav
-      if (wav instanceof ArrayBuffer) return new Blob([wav], { type: 'audio/wav' })
-      if (wav instanceof Uint8Array)
-        return new Blob([wav.buffer as ArrayBuffer], { type: 'audio/wav' })
-    }
+    audio.playbackRate = rate
   } catch {}
-  return null
+  try {
+    audio.preservesPitch = true
+  } catch {
+    try {
+      ;(audio as HTMLAudioElement & { webkitPreservesPitch?: boolean }).webkitPreservesPitch = true
+    } catch {}
+  }
+}
+
+type ChunkPlayer = {
+  enqueue: (chunk: StoredChunk) => void
+  finish: (generationOk: boolean) => void
+  promise: Promise<boolean>
+}
+
+function createChunkPlayer(button?: HTMLElement | null): ChunkPlayer {
+  const token = ++playToken
+  const queue: StoredChunk[] = []
+  let playing = false
+  let playedCount = 0
+  let streamDone = false
+  let settled = false
+  let resolveResult: (ok: boolean) => void = () => {}
+  const promise = new Promise<boolean>((resolve) => {
+    resolveResult = resolve
+  })
+
+  const cancel = () => settle(true)
+  activePlaybacks.add(cancel)
+
+  const settle = (ok: boolean) => {
+    if (settled) return
+    settled = true
+    activePlaybacks.delete(cancel)
+    setSpeaking(button, false)
+    resolveResult(ok)
+  }
+
+  const playNext = () => {
+    if (token !== playToken) {
+      settle(true)
+      return
+    }
+    const next = queue.shift()
+    if (!next) {
+      playing = false
+      if (streamDone) settle(true)
+      return
+    }
+    playing = true
+    playedCount += 1
+    cleanupAudio()
+    currentAudioUrl = next.url
+    currentAudioKey = next.key
+    const audio = new Audio(next.url)
+    currentAudio = audio
+    audio.preload = 'auto'
+    applyPlaybackRate(audio)
+
+    audio.onplay = () => {
+      if (token === playToken) setSpeaking(button, true)
+    }
+    audio.onended = () => {
+      if (token !== playToken) return
+      playNext()
+    }
+    audio.onerror = () => {
+      if (token === playToken) settle(false)
+    }
+    void audio
+      .play()
+      .then(() => {
+        if (token === playToken) setSpeaking(button, true)
+      })
+      .catch(() => settle(false))
+  }
+
+  return {
+    promise,
+    enqueue: (chunk) => {
+      if (settled || token !== playToken) return
+      queue.push(chunk)
+      if (!playing) playNext()
+    },
+    finish: (generationOk) => {
+      streamDone = true
+      if (!playing && queue.length === 0) settle(playedCount > 0 || generationOk)
+    },
+  }
+}
+
+function playSequence(sequence: CachedSequence, button?: HTMLElement | null): Promise<boolean> {
+  const token = ++playToken
+  let index = 0
+  let settled = false
+  let resolveResult: (ok: boolean) => void = () => {}
+  const promise = new Promise<boolean>((resolve) => {
+    resolveResult = resolve
+  })
+  const cancel = () => settle(true)
+  activePlaybacks.add(cancel)
+
+  const settle = (ok: boolean) => {
+    if (settled) return
+    settled = true
+    activePlaybacks.delete(cancel)
+    setSpeaking(button, false)
+    resolveResult(ok)
+  }
+
+  const playNext = () => {
+    if (token !== playToken) {
+      settle(true)
+      return
+    }
+    if (index >= sequence.urls.length) {
+      settle(true)
+      return
+    }
+    const current = index++
+    cleanupAudio()
+    currentAudioUrl = sequence.urls[current]
+    currentAudioKey = sequence.keys[current] ?? null
+    const audio = new Audio(sequence.urls[current])
+    currentAudio = audio
+    audio.preload = 'auto'
+    applyPlaybackRate(audio)
+
+    audio.onplay = () => {
+      if (token === playToken) setSpeaking(button, true)
+    }
+    audio.onended = () => {
+      if (token === playToken) playNext()
+    }
+    audio.onerror = () => {
+      if (token === playToken) settle(false)
+    }
+    void audio
+      .play()
+      .then(() => {
+        if (token === playToken) setSpeaking(button, true)
+      })
+      .catch(() => settle(false))
+  }
+
+  playNext()
+  return promise
 }
 
 function playUrl(
@@ -669,12 +1123,23 @@ function playUrl(
     const audio = new Audio(url)
     currentAudio = audio
     audio.preload = 'auto'
+    applyPlaybackRate(audio)
+
+    let settled = false
+    const settle = (ok: boolean) => {
+      if (settled) return
+      settled = true
+      activePlaybacks.delete(cancel)
+      setSpeaking(button, false)
+      resolve(ok)
+    }
+    const cancel = () => settle(true)
+    activePlaybacks.add(cancel)
 
     const finish = (ok: boolean) => {
-      if (token !== playToken) return resolve(ok)
-      setSpeaking(button, false)
+      if (token !== playToken) return settle(ok)
       if (currentAudio === audio) cleanupAudio()
-      resolve(ok)
+      settle(ok)
     }
 
     audio.onplay = () => {
@@ -701,24 +1166,31 @@ function playUrl(
 export async function speakWithKokoro(text: string, button?: HTMLElement | null): Promise<boolean> {
   if (typeof window === 'undefined') return false
 
-  const speed = getSpeechRate()
-  const key = getAudioCacheKey(text, speed)
-  // A persisted hit also avoids loading the model at all, so playback is instant after a reload.
-  const cachedUrl = await getCachedAudioUrl(key)
-  if (cachedUrl) return await playUrl(cachedUrl, button, key)
+  const key = getAudioCacheKey(text)
+  const cached = await getCachedAudioSequence(key)
+  if (cached) {
+    return cached.urls.length === 1
+      ? playUrl(cached.urls[0], button, cached.keys[0])
+      : playSequence(cached, button)
+  }
 
   const tts = await ensureLoaded()
   if (!tts) return false
 
   try {
-    const result = await tts.generate(text, { voice: getKokoroVoice(), speed })
-    const blob = toAudioBlob(result)
-    if (!blob) return false
-    const url = URL.createObjectURL(blob)
-    cacheKokoroAudio(key, url, blob)
-    return await playUrl(url, button, key)
+    const player = createChunkPlayer(button)
+    const record = startGeneration(text, key, tts, true)
+    const unsubscribe = subscribeChunks(record, (chunk) => player.enqueue(chunk))
+    void record.promise.then(
+      () => player.finish(true),
+      () => player.finish(false),
+    )
+    try {
+      return await player.promise
+    } finally {
+      unsubscribe()
+    }
   } catch (error) {
-    // If generation fails after ready state (e.g. context/device issue), surface error once but allow fallback.
     const message = error instanceof Error ? error.message : 'Error generando audio con Kokoro.'
     emit({
       state: status.state === 'ready' ? 'ready' : 'error',

@@ -397,6 +397,119 @@
   }
 }
 
+/* Mascot — one circle, two pill eyes, a single color per mood. */
+@keyframes mascot-bob {
+  0%,
+  100% {
+    transform: translateY(0) scaleX(1) scaleY(1);
+  }
+  50% {
+    transform: translateY(-2px) scaleX(0.97) scaleY(1.03);
+  }
+}
+
+@keyframes mascot-blink {
+  0%,
+  91%,
+  100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.12);
+  }
+}
+
+.mascot {
+  --mascot-color: var(--color-accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mascot--thinking {
+  --mascot-color: var(--color-warning);
+}
+
+.mascot--listening {
+  --mascot-color: var(--color-info);
+}
+
+.mascot--correct,
+.mascot--finished {
+  --mascot-color: var(--color-success);
+}
+
+.mascot--incorrect {
+  --mascot-color: var(--color-error);
+}
+
+@keyframes mascot-line-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mascot__body {
+  transform-origin: 24px 24px;
+  filter: drop-shadow(0 2px 3px color-mix(in oklab, var(--mascot-color) 28%, transparent));
+  animation: mascot-bob 3s ease-in-out infinite;
+}
+
+.mascot__eyes {
+  transform-origin: 24px 25px;
+  animation: mascot-blink 4s ease-in-out infinite;
+}
+
+.mascot--listening .mascot__eyes {
+  transform-origin: 24px 24.5px;
+  animation:
+    mascot-blink 4s ease-in-out infinite,
+    mascot-eye-open 1.2s ease-in-out infinite;
+}
+
+@keyframes mascot-eye-open {
+  0%,
+  100% {
+    scale: 1 1;
+  }
+  50% {
+    scale: 1 1.14;
+  }
+}
+
+.mascot__line {
+  position: relative;
+  display: inline-block;
+  animation: mascot-line-in 0.25s ease-out both;
+  max-width: 11rem;
+  border-radius: 0.75rem;
+  background: color-mix(in oklab, var(--color-base-100) 92%, transparent);
+  padding: 0.35rem 0.6rem;
+  font-size: 11px;
+  line-height: 1.35;
+  color: color-mix(in oklab, var(--color-base-content) 72%, transparent);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.06);
+  outline: 1px solid color-mix(in oklab, var(--color-accent) 18%, transparent);
+}
+
+.mascot__line::before {
+  content: "";
+  position: absolute;
+  left: -4px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  background: inherit;
+  transform: translateY(-50%) rotate(45deg);
+  border-left: 1px solid color-mix(in oklab, var(--color-accent) 18%, transparent);
+  border-bottom: 1px solid color-mix(in oklab, var(--color-accent) 18%, transparent);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

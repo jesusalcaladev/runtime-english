@@ -2,6 +2,8 @@ import { emitToast } from '../toast'
 import { primeWebVoices, speakNative, speakWeb, stopNativeSpeech } from './browser'
 import {
   canAutoLoadKokoroInBackground,
+  getKokoroDiagnostics,
+  getKokoroPhraseStatus,
   getKokoroStatus,
   isKokoroLoading,
   isKokoroReady,
@@ -9,9 +11,11 @@ import {
   loadKokoro,
   markKokoroAutoInitStarted,
   maybeWarmKokoroInBackground,
+  prepareKokoroPhrase,
   prewarmKokoroPhrases,
   speakWithKokoro,
   stopKokoroPlayback,
+  subscribeKokoroPhraseStatus,
   subscribeKokoroStatus,
 } from './kokoro'
 import { getSpeechEngine, isNativePlatform, isSpeechEnabled, normalizeSpeechText } from './platform'
@@ -31,16 +35,26 @@ export {
 } from './recognition'
 export type { KokoroStatus, SpeechRecognitionResult, SpeechStyle } from './types'
 export {
+  getKokoroDiagnostics,
+  getKokoroPhraseStatus,
   getKokoroStatus,
   kokoroIsCached,
   loadKokoro,
   maybeWarmKokoroInBackground,
+  subscribeKokoroPhraseStatus,
   subscribeKokoroStatus,
 }
 
 const KOKORO_AUTOLOAD_IDLE_TIMEOUT_MS = 6_000
 const KOKORO_AUTOLOAD_FALLBACK_DELAY_MS = 2_500
 const VOICES_INIT_AUTOLOAD_DELAY_MS = 1_200
+const KOKORO_WIFI_PREFETCH_DELAY_MS = 4_000
+
+if (import.meta.env.DEV && typeof window !== 'undefined') {
+  ;(
+    window as Window & { getKokoroDiagnostics?: typeof getKokoroDiagnostics }
+  ).getKokoroDiagnostics = getKokoroDiagnostics
+}
 
 let kokoroReadyNoticeShown = false
 
@@ -59,6 +73,33 @@ export function warmSpeechPhrases(texts: string[]): void {
   } catch {
     // Warmup is best effort.
   }
+}
+
+/** Start generating one exact phrase right away (user intent or next dialogue line). */
+export function primeSpeechPhrase(text: string): void {
+  if (typeof window === 'undefined') return
+  if (!isSpeechEnabled() || getSpeechEngine() !== 'kokoro') return
+  // Never trigger a heavy uncached model download just by opening a lesson on native.
+  if (isNativePlatform() && !kokoroIsCached()) return
+  try {
+    prepareKokoroPhrase(text)
+  } catch {
+    // Priming is best effort.
+  }
+}
+
+function canPrefetchModelOnCurrentConnection(): boolean {
+  if (typeof navigator === 'undefined') return false
+  const connection = (
+    navigator as Navigator & {
+      connection?: { type?: string; saveData?: boolean; effectiveType?: string }
+    }
+  ).connection
+  if (!connection) return !isNativePlatform()
+  if (connection.saveData) return false
+  if (connection.type && connection.type !== 'wifi' && connection.type !== 'ethernet') return false
+  if (connection.effectiveType && /^(slow-)?2g$/.test(connection.effectiveType)) return false
+  return true
 }
 
 /** Warm everything a conversation needs: system voices, HQ engine and the exact lines. */

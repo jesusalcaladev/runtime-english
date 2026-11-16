@@ -38,7 +38,7 @@ export default function MiniDrill({ skill }: Props) {
   if (!drill && !finished) return null
 
   return (
-    <div class="mt-3 rounded-2xl bg-warning/[0.06] p-3 ring-1 ring-warning/15">
+    <div class="space-y-1.5">
       <div class="flex items-center gap-2">
         <Zap class="h-3.5 w-3.5 text-warning/80" />
         <p class="mono-label text-warning/80">

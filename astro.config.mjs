@@ -34,7 +34,7 @@ export default defineConfig({
       generateSW: {
         navigateFallback: null,
         globPatterns: ['**/*.{js,css,html,svg,png,ico,txt,woff,woff2}'],
-        globIgnores: ['**/kokoro*', '**/ort*', '**/*.onnx*', '**/voices/*'],
+        globIgnores: ['**/kokoro*', '**/ort*', '**/piper*', '**/*.onnx*', '**/voices/*'],
         runtimeCaching: [
           {
             urlPattern: ({ request, url }) =>

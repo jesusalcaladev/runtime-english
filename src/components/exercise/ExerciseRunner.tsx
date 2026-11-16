@@ -36,12 +36,12 @@ import {
 } from '../../lib/speech'
 import type { Exercise } from '../../lib/types'
 import { useProgress } from '../../lib/useProgress'
+import Mascot, { type MascotMood } from '../ui/Mascot'
 import DialogueBranchInput from './runner/DialogueBranchInput'
 import { ExerciseFeedback } from './runner/ExerciseFeedback'
 import { ExerciseFinishedScreen } from './runner/ExerciseFinishedScreen'
 import { ExerciseTypeIcon } from './runner/ExerciseTypeIcon'
 import MatchInput from './runner/MatchInput'
-import MiniDrill from './runner/MiniDrill'
 import MultiChoiceInput from './runner/MultiChoiceInput'
 import ShadowInput from './runner/ShadowInput'
 import {
@@ -483,6 +483,23 @@ export default function ExerciseRunner({
 
   const micSupported = isSpeechRecognitionSupported()
 
+  const mascotMood: MascotMood =
+    status === 'correct'
+      ? 'correct'
+      : status === 'incorrect'
+        ? 'incorrect'
+        : micState === 'listening'
+          ? 'listening'
+          : 'idle'
+  const mascotLines =
+    mascotMood === 'correct'
+      ? [tAction(stage, 'mascotNice')]
+      : mascotMood === 'incorrect'
+        ? [tAction(stage, 'mascotOops')]
+        : mascotMood === 'listening'
+          ? [tAction(stage, 'mascotListen')]
+          : [tAction(stage, 'mascotCoach'), tAction(stage, 'mascotCheer')]
+
   return (
     <div class="space-y-3">
       <div class="flex flex-wrap items-center justify-between gap-3">
@@ -570,6 +587,10 @@ export default function ExerciseRunner({
                 </div>
               )}
             </div>
+          </div>
+
+          <div class="mt-4 flex items-center rounded-xl bg-base-200/60 px-2.5 py-1.5">
+            <Mascot mood={mascotMood} size="sm" lines={mascotLines} />
           </div>
 
           {exercise.type === 'choice' && (
@@ -1050,11 +1071,8 @@ export default function ExerciseRunner({
               detectedSkills={detectedSkills}
               showPhraseHint={showPhraseHint}
               phraseEntry={phraseEntry}
+              drillSkill={status === 'incorrect' ? detectedSkills[0] : undefined}
             />
-          )}
-
-          {status === 'incorrect' && detectedSkills.length > 0 && (
-            <MiniDrill key={exercise.id} skill={detectedSkills[0]} />
           )}
         </div>
 

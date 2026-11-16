@@ -38,6 +38,7 @@ import {
   getLearningRecommendations,
 } from '../../lib/studyPlan'
 import { useProgress } from '../../lib/useProgress'
+import Mascot from '../ui/Mascot'
 import OnboardingCard from './OnboardingCard'
 import Roadmap from './Roadmap'
 
@@ -387,14 +388,23 @@ export default function Dashboard({
                 {greeting}
               </h1>
             </div>
-            <span class="flex items-center gap-2 rounded-full bg-base-100/70 px-2.5 py-1.5 sm:px-3">
-              <span class="h-2 w-2 rounded-full bg-accent" />
-              <span class="font-mono text-[11px] font-semibold text-base-content/80">{cefr}</span>
-              <span class="hidden text-[10px] text-base-content/45 sm:inline">·</span>
-              <span class="hidden text-[11px] font-medium text-base-content/55 sm:inline">
-                Nivel {xpLevel} · {levelLabel}
+            <div class="flex flex-wrap items-center gap-2 self-center">
+              {state.settings.onboarded ? (
+                <Mascot
+                  mood="idle"
+                  size="md"
+                  lines={[tAction(stage, 'mascotHello'), tAction(stage, 'mascotHello2')]}
+                />
+              ) : null}
+              <span class="flex items-center gap-2 rounded-full bg-base-100/70 px-2.5 py-1.5 sm:px-3">
+                <span class="h-2 w-2 rounded-full bg-accent" />
+                <span class="font-mono text-[11px] font-semibold text-base-content/80">{cefr}</span>
+                <span class="hidden text-[10px] text-base-content/45 sm:inline">·</span>
+                <span class="hidden text-[11px] font-medium text-base-content/55 sm:inline">
+                  Nivel {xpLevel} · {levelLabel}
+                </span>
               </span>
-            </span>
+            </div>
           </div>
 
           <div class="mt-5 grid gap-4 sm:mt-6 sm:gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">

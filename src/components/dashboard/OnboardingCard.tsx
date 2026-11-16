@@ -1,8 +1,11 @@
 import { ArrowRight, Check, ClipboardCheck, Sparkles, Target } from 'lucide-preact'
 import { useMemo, useState } from 'preact/hooks'
+import { useUiStage } from '../../hooks/useUiStage'
 import type { LearningGoal } from '../../lib/goals'
+import { tAction } from '../../lib/i18n'
 import { type DiagnosticResult, progressStore } from '../../lib/progress'
 import { recommendPlan, toStudyPlan } from '../../lib/studyPlan'
+import Mascot from '../ui/Mascot'
 
 type Step = 1 | 2 | 3 | 4
 
@@ -64,6 +67,7 @@ const GOALS: { id: LearningGoal; label: string; desc: string }[] = [
 ]
 
 export default function OnboardingCard() {
+  const stage = useUiStage()
   const [step, setStep] = useState<Step>(1)
   const [name, setName] = useState('')
   const [answers, setAnswers] = useState<number[]>(Array(DIAG_QUESTIONS.length).fill(-1))
@@ -109,8 +113,11 @@ export default function OnboardingCard() {
             Diagnóstico rápido, objetivo y plan personalizado para empezar con foco.
           </p>
         </div>
-        <div class="flex items-center gap-1.5 rounded-full bg-base-100/70 px-3 py-1.5 text-[11px] font-medium text-base-content/60">
-          Paso {step} de 4
+        <div class="flex flex-wrap items-center gap-2">
+          <Mascot mood="idle" size="sm" lines={[tAction(stage, 'mascotWelcome')]} />
+          <div class="flex items-center gap-1.5 rounded-full bg-base-100/70 px-3 py-1.5 text-[11px] font-medium text-base-content/60">
+            Paso {step} de 4
+          </div>
         </div>
       </div>
 

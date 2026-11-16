@@ -2,6 +2,7 @@ import { ArrowLeft, ArrowRight, RotateCcw, Trophy } from 'lucide-preact'
 import type { UiStage } from '../../../lib/i18n'
 import { tAction } from '../../../lib/i18n'
 import { route } from '../../../lib/routes'
+import Mascot from '../../ui/Mascot'
 import type { NextSession } from './utils'
 
 interface Props {
@@ -28,10 +29,12 @@ export function ExerciseFinishedScreen({
     <div class="animate-pop overflow-hidden rounded-[26px] bg-base-200 p-1.5">
       <div class="relative overflow-hidden rounded-[20px] bg-base-100 px-6 py-12 text-center sm:px-10">
         <div class="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-accent/[0.07] to-transparent" />
-        <div class="relative mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-accent/10 text-accent">
-          <Trophy class="h-7 w-7" />
+        <div class="relative mx-auto flex justify-center">
+          <Mascot mood="finished" size="lg" lines={[tAction(stage, 'mascotFinish')]} />
         </div>
-        <p class="mono-label relative mt-5 text-accent/80">{tAction(stage, 'sessionCompleted')}</p>
+        <p class="mono-label relative mt-5 inline-flex items-center gap-1.5 text-accent/80">
+          <Trophy class="h-3.5 w-3.5" /> {tAction(stage, 'sessionCompleted')}
+        </p>
         <h3 class="font-pixel relative mx-auto mt-3 max-w-xl text-balance text-[1.9rem] leading-tight tracking-tight sm:text-[2.35rem]">
           {sessionTitle}
         </h3>
