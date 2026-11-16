@@ -1,5 +1,5 @@
 import { Bug, Sparkles, Zap } from 'lucide-preact'
-import { CURRENT_APP_VERSION, type ChangeKind, type ChangelogRelease } from '../../data/changelog'
+import { type ChangeKind, type ChangelogRelease, CURRENT_APP_VERSION } from '../../data/changelog'
 import { SHOW_CHANGELOG_EVENT } from '../../lib/changelog'
 import ResponsiveDialog from '../ui/ResponsiveDialog'
 

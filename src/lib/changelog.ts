@@ -1,4 +1,4 @@
-import { CHANGELOG, CURRENT_APP_VERSION, type ChangelogRelease } from '../data/changelog'
+import { CHANGELOG, type ChangelogRelease, CURRENT_APP_VERSION } from '../data/changelog'
 
 const SEEN_VERSION_KEY = 'runtimeenglish_changelog_seen_v1'
 

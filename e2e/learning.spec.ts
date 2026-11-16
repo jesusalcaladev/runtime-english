@@ -26,6 +26,54 @@ test.describe('video library', () => {
   })
 })
 
+test.describe('player sync and accessibility', () => {
+  test('highlights the active cue from the player time and seeks on click', async ({ page }) => {
+    await page.addInitScript(() => {
+      const w = window as unknown as Record<string, unknown>
+      w.__ytTime = 0
+      w.__ytSeek = -1
+      class FakePlayer {
+        playVideo() {}
+        pauseVideo() {}
+        seekTo(seconds: number) {
+          w.__ytSeek = seconds
+        }
+        getCurrentTime() {
+          return Number(w.__ytTime ?? 0)
+        }
+        setPlaybackRate() {}
+        destroy() {}
+      }
+      w.YT = { Player: FakePlayer }
+    })
+
+    await page.goto('/learn.html')
+    await page.getByRole('button', { name: /How to Speak So That People Want to Listen/ }).click()
+
+    await page.evaluate(() => {
+      ;(window as unknown as Record<string, unknown>).__ytTime = 95
+    })
+    await expect(page.getByText('Well, this is the national art of the U.K.')).toBeVisible()
+
+    await page.getByRole('button', { name: /Ir a 1:38/ }).click()
+    const seek = await page.evaluate(() => (window as unknown as Record<string, unknown>).__ytSeek)
+    expect(Number(seek)).toBeCloseTo(98.98, 1)
+  })
+
+  test('all visible buttons have an accessible name', async ({ page }) => {
+    await page.goto('/learn.html')
+    const unnamed = await page.locator('button').evaluateAll((buttons) =>
+      buttons
+        .filter((button) => {
+          const label = button.getAttribute('aria-label') ?? button.textContent?.trim() ?? ''
+          return label.length === 0
+        })
+        .map((button) => button.outerHTML.slice(0, 120)),
+    )
+    expect(unnamed).toEqual([])
+  })
+})
+
 test.describe('self-study and placement', () => {
   test('the resource directory filters and searches', async ({ page }) => {
     await page.goto('/learn.html')

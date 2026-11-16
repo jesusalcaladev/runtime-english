@@ -1,7 +1,9 @@
 import { Check, ChevronRight, Clock, Layers, Play, Sparkles, Target } from 'lucide-preact'
+import { useState } from 'preact/hooks'
 import type { NavModule, NavSession } from '../../data/curriculum'
 import { isSessionRelevantToGoal } from '../../lib/goals'
 import { getUiStage, tAction } from '../../lib/i18n'
+import { getMasteredSessionIds } from '../../lib/mastery'
 import { route } from '../../lib/routes'
 import { useProgress } from '../../lib/useProgress'
 
@@ -11,12 +13,14 @@ interface Props {
 }
 
 type Stage = ReturnType<typeof getUiStage>
+type LevelFilter = 'all' | 'mine' | 'a1' | 'b1'
 
 function SessionRow({
   session,
   moduleId,
   nextSessionId,
   completedSessions,
+  masteredIds,
   stage,
   goal,
 }: {
@@ -24,10 +28,12 @@ function SessionRow({
   moduleId: string
   nextSessionId: string
   completedSessions: Record<string, number>
+  masteredIds: Set<string>
   stage: Stage
   goal: 'daily' | 'interviews' | 'work' | 'all'
 }) {
   const complete = Boolean(completedSessions[session.id])
+  const mastered = masteredIds.has(session.id)
   const isNext = session.id === nextSessionId && !complete
   const goalRelevant = goal !== 'all' && isSessionRelevantToGoal(session.slug, goal)
   const isIntegrated = !session.id.startsWith(`${moduleId}-`)
@@ -78,6 +84,14 @@ function SessionRow({
               {tAction(stage, 'continueHere')}
             </span>
           )}
+          {mastered && (
+            <span
+              className="inline-flex items-center gap-1 rounded-full bg-success/12 px-2 py-0.5 text-[9px] font-medium text-success"
+              title={tAction(stage, 'masteryProgress')}
+            >
+              <Check className="h-2.5 w-2.5" /> {tAction(stage, 'masteredBadge')}
+            </span>
+          )}
           {isIntegrated && (
             <span
               className="hidden rounded-full bg-base-content/[0.06] px-2 py-0.5 text-[9px] font-medium text-base-content/45 sm:inline-flex"
@@ -125,12 +139,14 @@ function ModuleCard({
   module,
   nextSessionId,
   completedSessions,
+  masteredIds,
   stage,
   goal,
 }: {
   module: NavModule
   nextSessionId: string
   completedSessions: Record<string, number>
+  masteredIds: Set<string>
   stage: Stage
   goal: 'daily' | 'interviews' | 'work' | 'all'
 }) {
@@ -181,6 +197,7 @@ function ModuleCard({
             moduleId={module.id}
             nextSessionId={nextSessionId}
             completedSessions={completedSessions}
+            masteredIds={masteredIds}
             stage={stage}
             goal={goal}
           />
@@ -194,6 +211,9 @@ export default function Roadmap({ modules, nextSessionId }: Props) {
   const state = useProgress()
   const stage = getUiStage(state)
   const goal = state.settings.goal ?? 'all'
+  const [levelFilter, setLevelFilter] = useState<LevelFilter>('all')
+  const masteredIds = new Set(getMasteredSessionIds(state))
+  const diagnosticLevel = state.settings.diagnostic?.level
   const totalSessions = modules.reduce((total, module) => total + module.sessions.length, 0)
   const totalExercises = modules.reduce(
     (total, module) =>
@@ -219,6 +239,24 @@ export default function Roadmap({ modules, nextSessionId }: Props) {
       modules: modules.filter((module) => module.level === 'B1-B2'),
     },
   ] as const
+
+  const targetGroup =
+    levelFilter === 'mine'
+      ? diagnosticLevel === 'B1' || diagnosticLevel === 'B2'
+        ? 'b1'
+        : 'a1'
+      : levelFilter
+  const visibleGroups = groups.filter((group) => targetGroup === 'all' || group.id === targetGroup)
+
+  const filters: { id: LevelFilter; label: string }[] = [
+    { id: 'all', label: tAction(stage, 'filterAll') },
+    {
+      id: 'mine',
+      label: `${tAction(stage, 'myLevel')}${diagnosticLevel ? ` · ${diagnosticLevel}` : ''}`,
+    },
+    { id: 'a1', label: 'A1–A2' },
+    { id: 'b1', label: 'B1–B2' },
+  ]
 
   return (
     <section id="roadmap" className="mt-14 scroll-mt-20">
@@ -251,8 +289,27 @@ export default function Roadmap({ modules, nextSessionId }: Props) {
           />
         </div>
 
+        <fieldset className="mt-6 flex flex-wrap items-center gap-2 border-0 p-0">
+          <legend className="sr-only">{tAction(stage, 'filterByLevel')}</legend>
+          {filters.map((filter) => (
+            <button
+              key={filter.id}
+              type="button"
+              onClick={() => setLevelFilter(filter.id)}
+              aria-pressed={levelFilter === filter.id}
+              className={`h-8 rounded-full px-3 text-[11px] transition ${
+                levelFilter === filter.id
+                  ? 'bg-accent/15 font-medium text-accent'
+                  : 'bg-base-100/70 text-base-content/50 hover:text-base-content'
+              }`}
+            >
+              {filter.label}
+            </button>
+          ))}
+        </fieldset>
+
         <div className="mt-8 space-y-10">
-          {groups.map((group) => {
+          {visibleGroups.map((group) => {
             const sessions = group.modules.flatMap((module) => module.sessions)
             const done = sessions.filter((session) => state.completedSessions[session.id]).length
             const pct = Math.round((done / Math.max(sessions.length, 1)) * 100)
@@ -286,6 +343,7 @@ export default function Roadmap({ modules, nextSessionId }: Props) {
                       module={module}
                       nextSessionId={nextSessionId}
                       completedSessions={state.completedSessions}
+                      masteredIds={masteredIds}
                       stage={stage}
                       goal={goal}
                     />

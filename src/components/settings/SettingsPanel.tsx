@@ -47,7 +47,7 @@ function GitHubIcon(props: { class?: string }) {
   )
 }
 
-import ResponsiveDialog from '../ui/ResponsiveDialog'
+import { CURRENT_APP_VERSION } from '../../data/changelog'
 import { useAuthSession } from '../../hooks/useAuthSession'
 import { useKokoroStatus } from '../../hooks/useKokoroStatus'
 import { useProgress } from '../../hooks/useProgress'
@@ -60,7 +60,6 @@ import {
   isNativeAndroid,
 } from '../../lib/appUpdate'
 import { signInWithProvider, signOut } from '../../lib/auth'
-import { CURRENT_APP_VERSION } from '../../data/changelog'
 import { SHOW_CHANGELOG_EVENT } from '../../lib/changelog'
 import type { LearningGoal } from '../../lib/goals'
 import { getLanguageStatus } from '../../lib/i18n'
@@ -79,6 +78,7 @@ import {
 } from '../../lib/speech'
 import { isSupabaseConfigured } from '../../lib/supabase'
 import { emitToast } from '../../lib/toast'
+import ResponsiveDialog from '../ui/ResponsiveDialog'
 
 const IMMERSION_OPTIONS: {
   value: ProgressSettings['immersion']

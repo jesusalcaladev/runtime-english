@@ -196,8 +196,8 @@
     border-radius: 0.5rem;
   }
 
-  [role='dialog']:focus-visible,
-  [role='dialog'] :where(a, button, input, select, textarea):focus-visible {
+  [role="dialog"]:focus-visible,
+  [role="dialog"] :where(a, button, input, select, textarea):focus-visible {
     outline-offset: -2px;
   }
 

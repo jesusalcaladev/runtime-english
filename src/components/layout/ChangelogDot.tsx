@@ -1,9 +1,5 @@
 import { useEffect, useState } from 'preact/hooks'
-import {
-  CHANGELOG_SEEN_EVENT,
-  getUnseenReleases,
-  SHOW_CHANGELOG_EVENT,
-} from '../../lib/changelog'
+import { CHANGELOG_SEEN_EVENT, getUnseenReleases, SHOW_CHANGELOG_EVENT } from '../../lib/changelog'
 
 /** Small dot on the settings button while there are unseen release notes. */
 export default function ChangelogDot() {

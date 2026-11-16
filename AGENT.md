@@ -97,7 +97,9 @@ npm run android:apk
 
 **VideoLab UX:** `VideoLibrary.tsx` is a catalog with YouTube thumbnails, duration badges, level/topic and resume progress; only the selected video mounts a player (avoids multiple iframes). `VideoLab.tsx` keeps a two-column layout on desktop, saves resume position every 5 s (`src/lib/videoProgress.ts`, key `runtimeenglish_video_progress_v1`), offers "Mark as watched", transcript search, per-line mic shadowing, keyboard shortcuts (space / ← → / F), saved-phrase flashcards and 3 comprehension questions per video (`VideoComprehension.tsx`).
 
-**E2E:** `e2e/learning.spec.ts` covers `/learn` resource filters, video library selection/transcript search, the dashboard skeleton/greeting stability and the full `/placement` flow. Run with `npm run test:e2e` (Playwright serves `dist/` on port 4321).
+**Mastery & roadmap filter:** `src/lib/mastery.ts` marks an exercise as mastered after 2 correct streaks and a session as "Dominada" at ≥85% of its exercises (non-blocking: it is a goal indicator, navigation is never locked). `Roadmap.tsx` offers level filters (All / My level from the placement diagnostic / A1-A2 / B1-B2) and shows the mastery badge.
+
+**E2E:** `e2e/learning.spec.ts` covers `/learn` resource filters, video library selection/transcript search, a mocked YouTube player (active cue from `getCurrentTime`, click-to-seek), an accessible-name audit of all visible buttons, the dashboard skeleton/greeting stability and the full `/placement` flow. Run with `npm run test:e2e` (Playwright serves `dist/` on port 4321).
 
 **Native QA checklist (manual, required before releasing a VideoLab change):** build with `pnpm android:apk`, install on a device, open `/learn.html` and confirm (1) the iframe loads and plays, (2) the highlighted line changes with the audio, (3) tapping a line seeks, (4) "Guardar" adds the phrase to the dictionary, (5) "Practicar frases guardadas" grades through FSRS, and (6) with no network the fallback link appears instead of a blank box. `INTERNET` permission and HTTPS iframe are already configured; `allowMixedContent` is false on purpose.
 

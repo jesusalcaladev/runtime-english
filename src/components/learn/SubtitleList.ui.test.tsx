@@ -3,7 +3,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { VideoCue } from '../../data/learningResources'
 import SubtitleList from './SubtitleList'
 
-vi.mock('../../lib/speech', () => ({ speak: vi.fn() }))
 vi.mock('../session/SavePhraseButton', () => ({
   default: () => <span>save</span>,
 }))
@@ -46,7 +45,7 @@ describe('SubtitleList', () => {
     const mark = screen.getByText('listen first')
     expect(mark.tagName.toLowerCase()).toBe('mark')
 
-    fireEvent.click(screen.getByRole('button', { name: /Ir a 0:08/ }))
+    fireEvent.click(screen.getByRole('button', { name: /Ir a: We need to listen first/ }))
     expect(onSeek).toHaveBeenCalledWith(8)
   })
 })

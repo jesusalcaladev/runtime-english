@@ -11,7 +11,9 @@ function register(close: () => void): () => void {
 
 describe('dialogStack', () => {
   afterEach(() => {
-    cleanups.splice(0).forEach((cleanup) => cleanup())
+    cleanups.splice(0).forEach((cleanup) => {
+      cleanup()
+    })
   })
 
   it('reports when there is no open dialog', () => {

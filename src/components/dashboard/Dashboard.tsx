@@ -27,6 +27,7 @@ import type { NavModule } from '../../data/curriculum'
 import { aggregateErrorPatterns } from '../../lib/errorPatterns'
 import { GOAL_LABELS, isSessionRelevantToGoal } from '../../lib/goals'
 import { getUiStage, t, tAction } from '../../lib/i18n'
+import { getMasteredSessionIds } from '../../lib/mastery'
 import { loadPlacementResult, PLACEMENT_START_SLUG } from '../../lib/placement'
 import { getDuePhraseEntries, getReviewStats, progressStore, todayKey } from '../../lib/progress'
 import { route } from '../../lib/routes'
@@ -164,9 +165,7 @@ export default function Dashboard({
   const placementSession = placement
     ? allSessions.find((session) => session.slug === PLACEMENT_START_SLUG[placement.level])
     : null
-  const masteredExercises = Object.values(state.exerciseSrs ?? {}).filter(
-    (card) => card.correctStreak >= 2,
-  ).length
+  const masteredSessions = getMasteredSessionIds(state).length
 
   const reviewHref =
     duePhrases > 0 && review.due === 0 ? '/dictionary?review=1' : '/practice?mode=review'
@@ -206,7 +205,7 @@ export default function Dashboard({
           <p class="mono-label text-accent/70">{tAction(stage, 'todayRoutine')}</p>
           <p class="mt-2 font-mono text-xl font-semibold text-base-content/90">{totalDue}</p>
           <p class="mt-1 text-[11px] text-base-content/45">
-            {tAction(stage, 'review')} · {masteredExercises} {tAction(stage, 'mastered')}
+            {tAction(stage, 'review')} · {masteredSessions} {tAction(stage, 'masteredBadge')}
           </p>
         </div>
         <div class="rounded-2xl bg-base-200 p-4">
@@ -245,7 +244,7 @@ export default function Dashboard({
             </div>
             <button
               type="button"
-              onClick={() => progressStore.setSettings({ planIntroDismissed: true } as any)}
+              onClick={() => progressStore.setSettings({ planIntroDismissed: true })}
               class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-base-content/45 hover:bg-base-100/70 hover:text-base-content/70"
               aria-label="Cerrar resumen del plan"
             >

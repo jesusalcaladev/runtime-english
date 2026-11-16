@@ -126,7 +126,10 @@ export default function InstallAppButton() {
               </>,
               <>Confirma para instalar la app (PWA).</>,
             ].map((step, index) => (
-              <li key={index} class="flex items-start gap-3 rounded-2xl bg-base-200/60 p-3 sm:bg-transparent sm:p-0">
+              <li
+                key={index}
+                class="flex items-start gap-3 rounded-2xl bg-base-200/60 p-3 sm:bg-transparent sm:p-0"
+              >
                 <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-accent/15 text-[11px] font-semibold text-accent">
                   {index + 1}
                 </span>

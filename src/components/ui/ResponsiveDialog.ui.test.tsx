@@ -8,7 +8,9 @@ describe('ResponsiveDialog', () => {
   const unmounts: Array<() => void> = []
 
   afterEach(() => {
-    unmounts.splice(0).forEach((unmount) => unmount())
+    unmounts.splice(0).forEach((unmount) => {
+      unmount()
+    })
     globalThis.matchMedia = originalMatchMedia
     vi.unstubAllGlobals()
   })

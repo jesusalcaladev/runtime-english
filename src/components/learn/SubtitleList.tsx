@@ -1,7 +1,6 @@
-import { Mic, Volume2 } from 'lucide-preact'
+import { Mic } from 'lucide-preact'
 import { useEffect, useMemo, useRef } from 'preact/hooks'
 import type { VideoCue } from '../../data/learningResources'
-import { speak } from '../../lib/speech'
 import SavePhraseButton from '../session/SavePhraseButton'
 
 interface Props {
@@ -47,10 +46,6 @@ function HighlightedText({ cue }: { cue: VideoCue }) {
   )
 }
 
-function formatTime(seconds: number): string {
-  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`
-}
-
 export default function SubtitleList({
   cues,
   activeIndex,
@@ -87,13 +82,8 @@ export default function SubtitleList({
               type="button"
               onClick={() => onSeek(cue.start)}
               class="flex min-w-0 flex-1 items-start gap-2 text-left"
-              aria-label={`Ir a ${formatTime(cue.start)}: ${cue.en}`}
+              aria-label={`Ir a: ${cue.en}`}
             >
-              <span
-                class={`mt-0.5 w-8 shrink-0 font-mono text-[10px] ${active ? 'text-accent/70' : 'text-base-content/25'}`}
-              >
-                {formatTime(cue.start)}
-              </span>
               <span class="min-w-0 flex-1">
                 <span
                   class={`block font-mono text-[13px] leading-relaxed sm:text-[14px] ${active ? 'text-base-content/95' : 'text-base-content/55'}`}
@@ -108,14 +98,6 @@ export default function SubtitleList({
             <span
               class={`flex shrink-0 items-center gap-1 transition ${active ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
             >
-              <button
-                type="button"
-                onClick={() => void speak(cue.en)}
-                class="flex h-7 w-7 items-center justify-center rounded-full text-base-content/40 transition hover:bg-base-200 hover:text-accent"
-                aria-label={`Escuchar: ${cue.en}`}
-              >
-                <Volume2 class="h-3.5 w-3.5" />
-              </button>
               <button
                 type="button"
                 onClick={() => onShadow(index, cue.en)}

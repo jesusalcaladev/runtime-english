@@ -221,6 +221,11 @@ export const UI_STRINGS: Record<string, Entry> = {
   chooseVideo: { es: 'Elige un video para estudiar', en: 'Choose a video to study' },
   backToLibrary: { es: 'Volver a la biblioteca', en: 'Back to library' },
   videosAvailable: { es: 'videos con subtítulos completos', en: 'videos with full subtitles' },
+  filterAll: { es: 'Todas', en: 'All' },
+  myLevel: { es: 'Mi nivel', en: 'My level' },
+  filterByLevel: { es: 'Filtrar roadmap por nivel', en: 'Filter path by level' },
+  masteredBadge: { es: 'Dominada', en: 'Mastered' },
+  masteryProgress: { es: 'Dominio', en: 'Mastery' },
   comprehension: { es: 'Comprensión del video', en: 'Video comprehension' },
   comprehensionTip: {
     es: 'Responde sin volver a ver el video. Después, comprueba con la transcripción.',
