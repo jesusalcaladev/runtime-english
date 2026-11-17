@@ -21,6 +21,20 @@ export interface ChangelogRelease {
 
 export const CHANGELOG: ChangelogRelease[] = [
   {
+    version: '1.2.7',
+    title: 'Release firmado',
+    entries: [
+      {
+        kind: 'improvement',
+        text: 'APK de release firmado con la misma identidad de la app para poder seguir recibiendo actualizaciones.',
+      },
+      {
+        kind: 'improvement',
+        text: 'Incluye todas las mejoras de VideoLab y voz de la versión 1.2.6.',
+      },
+    ],
+  },
+  {
     version: '1.2.6',
     title: 'VideoLab aún más claro y preciso',
     entries: [

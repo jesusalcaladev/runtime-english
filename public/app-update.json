@@ -1,7 +1,7 @@
 {
-  "versionName": "1.2.6",
-  "versionCode": 9,
-  "apkUrl": "https://github.com/jesusalcaladev/runtime-english/releases/download/v1.2.6/RuntimeEnglish.apk",
+  "versionName": "1.2.7",
+  "versionCode": 10,
+  "apkUrl": "https://github.com/jesusalcaladev/runtime-english/releases/download/v1.2.7/RuntimeEnglish.apk",
   "title": "Nueva versión disponible",
-  "notes": "VideoLab con 11 videos, traducción por frase, resaltado palabra por palabra, reproductor propio, escucha activa, práctica de huecos y progreso y quiz sincronizados. Además, estudio de voz unificado con Piper y sesiones más ligeras."
+  "notes": "Release firmado de RuntimeEnglish con VideoLab completo: 11 videos, traducción por frase, resaltado palabra por palabra, reproductor propio, escucha activa, práctica de huecos, progreso y quiz sincronizados, y voz unificada con Piper."
 }
