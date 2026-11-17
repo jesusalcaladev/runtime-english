@@ -176,7 +176,14 @@ type WorkerOutMessage =
   | { type: 'ready' }
   | { type: 'error'; error: string }
   | { type: 'audio'; id: number; buffer: ArrayBuffer }
-  | { type: 'audio-chunk'; id: number; index: number; total: number; text: string; buffer: ArrayBuffer }
+  | {
+      type: 'audio-chunk'
+      id: number
+      index: number
+      total: number
+      text: string
+      buffer: ArrayBuffer
+    }
   | { type: 'stream-done'; id: number }
   | { type: 'gen-error'; id: number; error: string }
 
@@ -671,34 +678,42 @@ function startGeneration(
         finished = true
         callback()
       }
-      tts.generateStream(text, { voice: getKokoroVoice(), priority }, {
-        onChunk: ({ index, total, buffer }) => {
-          if (record.error) return
-          if (!firstChunkAt) {
-            firstChunkAt = performance.now()
-            diagnostics.lastFirstChunkMs = firstChunkAt - generationStartedAt
-          }
-          diagnostics.lastChunks = total
-          try {
-            const blob = new Blob([buffer], { type: 'audio/wav' })
-            const url = URL.createObjectURL(blob)
-            const chunkKey = total > 1 ? `${key}#${index}` : key
-            const chunk: StoredChunk = { url, key: chunkKey, index, total }
-            record.chunks.push(chunk)
-            cacheKokoroAudio(chunkKey, url, blob)
-            if (total > 1) setManifest(key, record.chunks.map((item) => item.key))
-            for (const listener of record.listeners) {
-              try {
-                listener(chunk)
-              } catch {}
+      tts.generateStream(
+        text,
+        { voice: getKokoroVoice(), priority },
+        {
+          onChunk: ({ index, total, buffer }) => {
+            if (record.error) return
+            if (!firstChunkAt) {
+              firstChunkAt = performance.now()
+              diagnostics.lastFirstChunkMs = firstChunkAt - generationStartedAt
             }
-          } catch {
-            // A failed chunk must never break the rest of the stream.
-          }
+            diagnostics.lastChunks = total
+            try {
+              const blob = new Blob([buffer], { type: 'audio/wav' })
+              const url = URL.createObjectURL(blob)
+              const chunkKey = total > 1 ? `${key}#${index}` : key
+              const chunk: StoredChunk = { url, key: chunkKey, index, total }
+              record.chunks.push(chunk)
+              cacheKokoroAudio(chunkKey, url, blob)
+              if (total > 1)
+                setManifest(
+                  key,
+                  record.chunks.map((item) => item.key),
+                )
+              for (const listener of record.listeners) {
+                try {
+                  listener(chunk)
+                } catch {}
+              }
+            } catch {
+              // A failed chunk must never break the rest of the stream.
+            }
+          },
+          onDone: () => finish(resolve),
+          onError: (error) => finish(() => reject(error)),
         },
-        onDone: () => finish(resolve),
-        onError: (error) => finish(() => reject(error)),
-      })
+      )
     })
   })()
     .then(() => {

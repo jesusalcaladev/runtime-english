@@ -15,8 +15,12 @@ test('renders the two avatars and the conversation lines', async ({ page }) => {
   await expect(page.getByText('Morning, Leo.')).toBeVisible()
   await expect(page.getByText('I finished the API integration and pushed the PR.')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Reproducir conversación' })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Escuchar a Maya' }).first()).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Escuchar a Leo' }).first()).toBeVisible()
+  await expect(
+    page.getByRole('button', { name: /Reproducir: Maya|Play: Maya/ }).first(),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('button', { name: /Reproducir: Leo|Play: Leo/ }).first(),
+  ).toBeVisible()
 })
 
 test('highlights the active line and can stop playback', async ({ page }) => {
@@ -31,8 +35,11 @@ test('highlights the active line and can stop playback', async ({ page }) => {
   await expect(page.locator('[data-active="true"]')).toHaveCount(0)
 })
 
-test('replays a single line and shows comprehension questions', async ({ page }) => {
-  await page.getByRole('button', { name: 'Escuchar a Leo' }).first().click()
+test('replays a single line and keeps the practice section available', async ({ page }) => {
+  await page
+    .getByRole('button', { name: /Reproducir: Leo|Play: Leo/ })
+    .first()
+    .click()
   const leoLine = page
     .locator('[data-active="true"]')
     .filter({ hasText: 'I finished the API integration and pushed the PR.' })
@@ -40,8 +47,9 @@ test('replays a single line and shows comprehension questions', async ({ page })
 
   await page.locator('#practica').scrollIntoViewIfNeeded()
   await expect(page.getByText('Ejercicios de la sesión')).toBeVisible()
-  // ExerciseRunner renders one exercise at a time; the comprehension question
-  // is part of the serialized session props and becomes reachable in the runner.
-  const html = await page.content()
-  expect(html).toContain('En la conversación, ¿qué hizo Leo ayer?')
+  await expect(
+    page.getByText('Un colega propone una arquitectura con la que no estás de acuerdo', {
+      exact: false,
+    }),
+  ).toBeVisible()
 })
