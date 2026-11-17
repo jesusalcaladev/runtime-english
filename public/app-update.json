@@ -1,7 +1,7 @@
 {
-  "versionName": "1.2.5",
-  "versionCode": 8,
-  "apkUrl": "https://github.com/jesusalcaladev/runtime-english/releases/download/v1.2.5/RuntimeEnglish.apk",
+  "versionName": "1.2.6",
+  "versionCode": 9,
+  "apkUrl": "https://github.com/jesusalcaladev/runtime-english/releases/download/v1.2.6/RuntimeEnglish.apk",
   "title": "Nueva versión disponible",
-  "notes": "VideoLab profesional: biblioteca de videos con miniaturas, progreso guardado, subtítulos completos sincronizados, búsqueda, shadowing por línea y comprensión. Nuevos ejercicios de match, respuesta múltiple y diálogos con decisiones, micro-drills adaptativos y test de nivel inicial."
+  "notes": "VideoLab con 11 videos, traducción por frase, resaltado palabra por palabra, reproductor propio, escucha activa, práctica de huecos y progreso y quiz sincronizados. Además, estudio de voz unificado con Piper y sesiones más ligeras."
 }

@@ -21,6 +21,32 @@ export interface ChangelogRelease {
 
 export const CHANGELOG: ChangelogRelease[] = [
   {
+    version: '1.2.6',
+    title: 'VideoLab aún más claro y preciso',
+    entries: [
+      {
+        kind: 'feature',
+        text: 'Cinco videos nuevos de internet, la web, algoritmos, presentaciones y hábitos de sueño, con subtítulos y ejercicios.',
+      },
+      {
+        kind: 'feature',
+        text: 'Traducción española de cada frase y resaltado de la palabra exacta que se está diciendo, con tiempos reales de YouTube.',
+      },
+      {
+        kind: 'feature',
+        text: 'Reproductor propio sin controles de YouTube, pantalla completa a pantalla llena, escucha activa y práctica de huecos por línea.',
+      },
+      {
+        kind: 'improvement',
+        text: 'Biblioteca con búsqueda, filtros por nivel, estadísticas y reanudación; resultados del quiz guardados y sincronizados.',
+      },
+      {
+        kind: 'improvement',
+        text: 'Estudio de voz unificado con Piper, ajustes de tono y voz, y sesiones más ligeras y consistentes.',
+      },
+    ],
+  },
+  {
     version: '1.2.5',
     title: 'Aprende con videos y práctica a tu medida',
     entries: [

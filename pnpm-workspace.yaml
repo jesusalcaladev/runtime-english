@@ -1,7 +1,7 @@
 allowBuilds:
   core-js: true
-  esbuild: set this to true or false
-  msw: set this to true or false
+  esbuild: true
+  msw: true
   onnxruntime-node: false
   protobufjs: true
   sharp: false
