@@ -21,6 +21,24 @@ export interface ChangelogRelease {
 
 export const CHANGELOG: ChangelogRelease[] = [
   {
+    version: '1.2.8',
+    title: 'Voces que funcionan y más videos',
+    entries: [
+      {
+        kind: 'feature',
+        text: 'Voz online gratuita e instantánea: si tu navegador no tiene voces (Brave), Piper falla o Kokoro tarda, la app usa Google automáticamente.',
+      },
+      {
+        kind: 'feature',
+        text: 'Tres videos nuevos: gestión del tiempo, comunicación clara y correos profesionales, con traducción por frase y resaltado palabra por palabra.',
+      },
+      {
+        kind: 'improvement',
+        text: 'La mascota cambia de frase más despacio para una experiencia más tranquila.',
+      },
+    ],
+  },
+  {
     version: '1.2.7',
     title: 'Release firmado',
     entries: [

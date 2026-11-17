@@ -1,7 +1,7 @@
 {
-  "versionName": "1.2.7",
-  "versionCode": 10,
-  "apkUrl": "https://github.com/jesusalcaladev/runtime-english/releases/download/v1.2.7/RuntimeEnglish.apk",
+  "versionName": "1.2.8",
+  "versionCode": 11,
+  "apkUrl": "https://github.com/jesusalcaladev/runtime-english/releases/download/v1.2.8/RuntimeEnglish.apk",
   "title": "Nueva versión disponible",
-  "notes": "Release firmado de RuntimeEnglish con VideoLab completo: 11 videos, traducción por frase, resaltado palabra por palabra, reproductor propio, escucha activa, práctica de huecos, progreso y quiz sincronizados, y voz unificada con Piper."
+  "notes": "Voz online gratuita e instantánea con fallback automático para Brave, Piper y Kokoro. Tres videos nuevos (gestión del tiempo, comunicación clara y correos profesionales) con traducción por frase y resaltado palabra por palabra. Mascota más pausada."
 }
