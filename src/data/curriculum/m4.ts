@@ -236,7 +236,10 @@ export const m4: Module = {
         {
           type: 'dialogue',
           title: 'Daily standup: tu turno en 60 segundos',
-          context: 'Maya lidera el daily y Leo reporta su progreso con la estructura de 3 puntos.',
+          setting: 'Daily, sala de equipo',
+          goal: 'Reportar tu turno de standup en 60 segundos.',
+          context:
+            'Maya lidera el daily y Leo reporta qué hizo ayer, qué hace hoy y qué bloqueo tiene.',
           lines: [
             {
               speaker: 'a',
@@ -400,6 +403,8 @@ export const m4: Module = {
           id: 'm4-l1-e11',
           type: 'dialogue-branch',
           prompt: 'Elige la mejor respuesta en el daily.',
+          context:
+            'Es el daily diario y Maya pregunta a Leo por su trabajo de ayer y sus bloqueos de hoy.',
           steps: [
             {
               speaker: 'Maya',
@@ -523,7 +528,10 @@ export const m4: Module = {
         {
           type: 'dialogue',
           title: 'Code review: signals, impacto y tono',
-          context: 'Maya revisa el PR de Leo y distingue un nit de un comentario bloqueante.',
+          setting: 'GitHub, comentarios del PR',
+          goal: 'Distinguir un nit de un comentario bloqueante con tono respetuoso.',
+          context:
+            'Maya revisa el PR de Leo y deja comentarios. Leo pregunta cuál bloquea y cómo solucionarlo.',
           lines: [
             {
               speaker: 'a',
@@ -669,6 +677,8 @@ export const m4: Module = {
           id: 'm4-l2-e10',
           type: 'dialogue-branch',
           prompt: 'Elige cómo responder en un code review.',
+          context:
+            'Leo pide a Maya que revise su PR hoy y después pregunta si la nomenclatura es clara.',
           steps: [
             {
               speaker: 'Leo',
@@ -790,8 +800,10 @@ export const m4: Module = {
         {
           type: 'dialogue',
           title: 'Incidente en producción: impacto, mitigación y causa',
+          setting: 'Incidente, canal #on-call de Slack',
+          goal: 'Comunicar impacto, mitigación y causa de una caída.',
           context:
-            'Maya coordina una caída en producción y Leo investiga la causa mientras aplican la mitigación.',
+            'Hay una caída en producción. Maya coordina la comunicación y Leo investiga y aplica la mitigación.',
           lines: [
             {
               speaker: 'a',
@@ -934,6 +946,8 @@ export const m4: Module = {
           id: 'm4-l3-e11',
           type: 'dialogue-branch',
           prompt: 'Elige la mejor comunicación durante un incidente.',
+          context:
+            'Hay una caída en la API y Maya pide a Leo información clara sobre el impacto y la mitigación.',
           steps: [
             {
               speaker: 'Maya',
@@ -1211,7 +1225,10 @@ export const m4: Module = {
         {
           type: 'dialogue',
           title: 'Pedir ayuda con contexto (y no perder tiempo)',
-          context: 'Leo reporta un error de CORS en staging y Maya le pide los datos exactos.',
+          setting: 'Slack, #backend',
+          goal: 'Pedir ayuda con contexto concreto y recibir seguimiento.',
+          context:
+            'Leo tiene un error de CORS solo en staging y pide ayuda a Maya. Maya le pide los datos exactos para avanzar.',
           lines: [
             {
               speaker: 'b',
@@ -1351,6 +1368,8 @@ export const m4: Module = {
           id: 'm4-l5-e10',
           type: 'dialogue-branch',
           prompt: 'Elige cómo pedir ayuda con contexto.',
+          context:
+            'Leo está atascado con un bug y pide unos minutos a Maya para explicarle el contexto.',
           steps: [
             {
               speaker: 'Leo',

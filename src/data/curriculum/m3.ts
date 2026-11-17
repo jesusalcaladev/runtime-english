@@ -118,49 +118,52 @@ export const m3: Module = {
         {
           type: 'dialogue',
           title: 'Del error al PR',
-          context: 'Leo ve un error de puerto y Maya le da instrucciones de Git paso a paso.',
+          setting: 'Pair programming, escritorio de Leo',
+          goal: 'Dar y seguir instrucciones de Git con imperativos.',
+          context:
+            'Leo intenta subir su cambio y Maya le guía con comandos de Git. Surge un error de puerto y después abren el PR.',
           lines: [
             {
               speaker: 'a',
               name: 'Maya',
               role: 'Lead',
-              en: 'Pull before you push.',
-              es: 'Haz pull antes de hacer push.',
+              en: 'Before you push, pull the latest changes.',
+              es: 'Antes de hacer push, haz pull de los últimos cambios.',
             },
             {
               speaker: 'b',
               name: 'Leo',
               role: 'Dev',
-              en: "I did, but I see 'Port already in use'.",
-              es: "Lo hice, pero me sale 'Port already in use'.",
+              en: "I did, but now I see 'Port already in use'.",
+              es: "Lo hice, pero ahora me sale 'Port already in use'.",
             },
             {
               speaker: 'a',
               name: 'Maya',
               role: 'Lead',
-              en: 'Kill the previous process.',
-              es: 'Mata el proceso anterior.',
+              en: 'Kill the previous process and try again.',
+              es: 'Mata el proceso anterior y vuelve a intentarlo.',
             },
             {
               speaker: 'b',
               name: 'Leo',
               role: 'Dev',
-              en: 'OK. Now I need to open a PR.',
-              es: 'Vale. Ahora necesito abrir un PR.',
+              en: 'That worked. Now I need to open a PR.',
+              es: 'Funcionó. Ahora necesito abrir un PR.',
             },
             {
               speaker: 'a',
               name: 'Maya',
               role: 'Lead',
-              en: 'Create a new branch first.',
-              es: 'Crea una rama nueva primero.',
+              en: 'Create a new branch first, then push it.',
+              es: 'Crea una rama nueva primero y súbela.',
             },
             {
               speaker: 'b',
               name: 'Leo',
               role: 'Dev',
-              en: 'Done. The PR is open.',
-              es: 'Listo. El PR está abierto.',
+              en: 'Done. The PR is open and ready for review.',
+              es: 'Listo. El PR está abierto y listo para revisión.',
             },
           ],
         },
@@ -815,8 +818,10 @@ export const m3: Module = {
         {
           type: 'dialogue',
           title: 'Reportar un error con contexto',
+          setting: 'Slack, #backend',
+          goal: 'Reportar un error con archivo, línea y contexto.',
           context:
-            'Leo comparte un TypeError y Maya le pide el archivo, la línea y lo que ya revisó.',
+            'Leo encuentra un TypeError y se lo reporta a Maya. Maya le pide la ubicación exacta y lo que ya revisó antes de ayudar.',
           lines: [
             {
               speaker: 'b',
@@ -850,15 +855,15 @@ export const m3: Module = {
               speaker: 'b',
               name: 'Leo',
               role: 'Dev',
-              en: 'The stack trace points to the login function.',
-              es: 'El stack trace apunta a la función de login.',
+              en: 'The stack trace points to the login function. I already checked the logs.',
+              es: 'El stack trace apunta a la función de login. Ya revisé los logs.',
             },
             {
               speaker: 'a',
               name: 'Maya',
               role: 'Lead',
-              en: 'I already checked the logs. Send me the stack trace.',
-              es: 'Ya revisé los logs. Mándame el stack trace.',
+              en: "Thanks. Send me the stack trace and I'll take a look.",
+              es: 'Gracias. Mándame el stack trace y le echo un vistazo.',
             },
           ],
         },
@@ -1277,7 +1282,9 @@ export const m3: Module = {
         {
           type: 'dialogue',
           title: 'Un bug en staging, paso a paso',
-          context: 'Maya y Leo comentan un fallo en staging y deciden qué hacer.',
+          setting: 'Daily, sala de equipo',
+          goal: 'Usar phrasal verbs para describir un fallo y sus siguientes pasos.',
+          context: 'Aparece un bug en staging y Maya y Leo deciden cómo actuar y a quién incluir.',
           lines: [
             {
               speaker: 'a',

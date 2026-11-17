@@ -34,6 +34,8 @@ const { blocks } = Astro.props
           <DialogueScene
             client:only="preact"
             title={block.title}
+            setting={block.setting}
+            goal={block.goal}
             context={block.context}
             lines={block.lines}
           />

@@ -50,7 +50,13 @@ export default function LessonBlocksClient({ blocks }: Props) {
       {blocks.map((block, idx) => (
         <section key={`${block.type}-${idx}`}>
           {block.type === 'dialogue' && (
-            <DialogueScene title={block.title} context={block.context} lines={block.lines} />
+            <DialogueScene
+              title={block.title}
+              setting={block.setting}
+              goal={block.goal}
+              context={block.context}
+              lines={block.lines}
+            />
           )}
 
           {block.type === 'technique' && (

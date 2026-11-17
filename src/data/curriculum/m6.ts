@@ -101,8 +101,10 @@ export const m6: Module = {
         {
           type: 'dialogue',
           title: 'Un token filtrado en los logs',
+          setting: 'Slack, #security',
+          goal: 'Responder a una filtración de credenciales con medidas concretas.',
           context:
-            'Leo detecta un token expuesto en los logs y Maya coordina la respuesta de seguridad.',
+            'Leo detecta un token expuesto en los logs y Maya coordina la rotación de la clave y el menor privilegio.',
           lines: [
             {
               speaker: 'b',
@@ -349,7 +351,10 @@ export const m6: Module = {
         {
           type: 'dialogue',
           title: 'Abrir una sesión de system design',
-          context: 'Maya y Leo aclaran requisitos antes de dibujar la arquitectura.',
+          setting: 'Entrevista de system design, sala de reuniones',
+          goal: 'Abrir una sesión de system design aclarando requisitos y riesgos.',
+          context:
+            'Maya y Leo aclaran los requisitos de un sistema antes de dibujar la arquitectura: latencia, fuente de datos y riesgos.',
           lines: [
             {
               speaker: 'a',
@@ -580,7 +585,10 @@ export const m6: Module = {
         {
           type: 'dialogue',
           title: 'Latencia p95: medir antes de optimizar',
-          context: 'Maya y Leo revisan una regresión de rendimiento después de un despliegue.',
+          setting: 'Reunión de rendimiento, sala de equipo',
+          goal: 'Medir y diagnosticar una regresión de rendimiento antes de optimizar.',
+          context:
+            'Tras un despliegue se duplica la latencia p95. Maya y Leo perfilan el endpoint para encontrar la causa antes de optimizar.',
           lines: [
             {
               speaker: 'a',

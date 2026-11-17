@@ -21,6 +21,11 @@ export type ContentBlock =
   | {
       type: 'dialogue'
       title?: string
+      /** Where and when the scene happens (e.g. "Daily, sala de equipo"). */
+      setting?: string
+      /** What the conversation is trying to accomplish. */
+      goal?: string
+      /** Short description of the situation so the lines make sense in context. */
       context?: string
       lines: DialogueLine[]
     }
@@ -164,6 +169,8 @@ export interface DialogueBranchExercise {
   id: string
   type: 'dialogue-branch'
   prompt: string
+  /** Scene context shown before the first turn so the exchange makes sense. */
+  context?: string
   steps: {
     speaker: string
     line: string

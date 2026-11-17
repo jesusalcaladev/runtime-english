@@ -114,6 +114,43 @@ export async function stopNativeSpeech() {
   }
 }
 
+type NativeVoiceChoice = { lang: string; voice?: number }
+let nativeVoicePromise: Promise<NativeVoiceChoice> | null = null
+
+/** Resuelve la voz nativa una sola vez por sesión (evita consultarla en cada línea). */
+function resolveNativeVoice(): Promise<NativeVoiceChoice> {
+  const preferredLang = getSpeechLanguage()
+  if (!nativeVoicePromise) {
+    nativeVoicePromise = import('@capacitor-community/text-to-speech')
+      .then(async ({ TextToSpeech }) => {
+        try {
+          const supported = await TextToSpeech.getSupportedVoices()
+          const voices = Array.isArray((supported as { voices?: unknown[] })?.voices)
+            ? ((supported as { voices: Array<{ lang?: string; index?: number }> }).voices ?? [])
+            : []
+          const pick =
+            voices.find(
+              (item) => (item.lang ?? '').toLowerCase() === preferredLang.toLowerCase(),
+            ) ?? voices.find((item) => (item.lang ?? '').toLowerCase().startsWith('en'))
+          return {
+            lang: pick?.lang ?? preferredLang,
+            ...(typeof pick?.index === 'number' ? { voice: pick.index } : {}),
+          }
+        } catch {
+          return { lang: preferredLang }
+        }
+      })
+      .catch((): NativeVoiceChoice => ({ lang: preferredLang }))
+  }
+  return nativeVoicePromise
+}
+
+/** Calienta la voz nativa antes de que empiece la primera línea del diálogo. */
+export function warmNativeVoices(): void {
+  if (!isNativePlatform()) return
+  void resolveNativeVoice()
+}
+
 export async function speakNative(
   text: string,
   button?: HTMLElement | null,
@@ -123,22 +160,7 @@ export async function speakNative(
 
   try {
     const { TextToSpeech } = await import('@capacitor-community/text-to-speech')
-
-    const preferredLang = getSpeechLanguage()
-    let lang: string = preferredLang
-    let voice: number | undefined
-
-    try {
-      const supported = await TextToSpeech.getSupportedVoices()
-      const voices = Array.isArray((supported as { voices?: unknown[] })?.voices)
-        ? ((supported as { voices: Array<{ lang?: string; index?: number }> }).voices ?? [])
-        : []
-      const pick =
-        voices.find((item) => (item.lang ?? '').toLowerCase() === preferredLang.toLowerCase()) ??
-        voices.find((item) => (item.lang ?? '').toLowerCase().startsWith('en'))
-      if (pick?.lang) lang = pick.lang
-      if (typeof pick?.index === 'number') voice = pick.index
-    } catch {}
+    const { lang, voice } = await resolveNativeVoice()
 
     await TextToSpeech.stop().catch(() => undefined)
 

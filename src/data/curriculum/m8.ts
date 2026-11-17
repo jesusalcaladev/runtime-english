@@ -93,7 +93,10 @@ export const m8: Module = {
         {
           type: 'dialogue',
           title: 'Leer la spec en voz alta',
-          context: 'Maya y Leo repasan los requisitos de una spec y resumen qué deben hacer.',
+          setting: 'Reunión de specs, sala de equipo',
+          goal: 'Resumir los requisitos de una spec con must, optional y deprecated.',
+          context:
+            'Maya y Leo repasan la documentación de un endpoint para decidir qué es obligatorio, opcional y qué debe actualizarse.',
           lines: [
             {
               speaker: 'a',
@@ -421,8 +424,10 @@ export const m8: Module = {
         {
           type: 'dialogue',
           title: 'Escribir el prompt antes de pasarlo',
+          setting: 'Pair programming, sesión con agente de IA',
+          goal: 'Escribir un prompt con contexto, restricción y formato de salida.',
           context:
-            'Dos devs acuerdan el contexto, la restricción y el formato del prompt para un agente.',
+            'Maya y Leo redactan juntos el prompt para un agente de IA: contexto del bug, restricción de API y formato de respuesta.',
           lines: [
             {
               speaker: 'a',

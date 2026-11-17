@@ -73,6 +73,12 @@ export default function DialogueBranchInput({
   return (
     <div class="mt-5 space-y-3">
       <p class="px-1 text-[11px] text-base-content/45">{tAction(stage, 'branchPrompt')}</p>
+      {exercise.context ? (
+        <p class="rounded-xl bg-base-200/60 px-3 py-2 text-[11px] leading-relaxed text-base-content/60">
+          <span class="mono-label mr-1.5 text-accent/70">Escena</span>
+          {exercise.context}
+        </p>
+      ) : null}
       <div class="flex items-center gap-1">
         {exercise.steps.map((_, index) => (
           <span

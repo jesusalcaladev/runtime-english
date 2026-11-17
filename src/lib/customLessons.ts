@@ -392,9 +392,17 @@ function validateExercise(
           ok: false,
           error: `Ejercicio #${index + 1} (dialogue-branch): necesita al menos 2 pasos con 2 opciones y una respuesta correcta por paso.`,
         }
+      const context = asString(value.context)?.trim()
       return {
         ok: true,
-        exercise: { id, type: 'dialogue-branch', prompt, steps, explanation },
+        exercise: {
+          id,
+          type: 'dialogue-branch',
+          prompt,
+          ...(context ? { context } : {}),
+          steps,
+          explanation,
+        },
       }
     }
     default:
@@ -437,19 +445,48 @@ function validateBlock(
           es: asString(line.es)?.trim(),
         }))
         .filter((line) => line.en && line.name)
-      if (lines.length < 2)
+      if (lines.length < 4)
         return {
           ok: false,
-          error: `Bloque #${index + 1} (dialogue): agrega al menos 2 líneas con "name" y "en".`,
+          error: `Bloque #${index + 1} (dialogue): agrega al menos 4 líneas con "name" y "en" para que sea una conversación real.`,
         }
-      const title = asString(value.title)?.trim()
       const context = asString(value.context)?.trim()
+      if (!context)
+        return {
+          ok: false,
+          error: `Bloque #${index + 1} (dialogue): falta "context". Describe la escena para que las líneas tengan sentido.`,
+        }
+
+      // A coherent scene: turns alternate and each speaker keeps the same name.
+      const namesBySpeaker = new Map<string, string>()
+      for (let lineIndex = 0; lineIndex < lines.length; lineIndex += 1) {
+        const line = lines[lineIndex]
+        const previous = namesBySpeaker.get(line.speaker)
+        if (previous && previous !== line.name)
+          return {
+            ok: false,
+            error: `Bloque #${index + 1} (dialogue): "${line.speaker}" cambia de nombre (${previous} / ${line.name}). Usa los mismos nombres en toda la escena.`,
+          }
+        namesBySpeaker.set(line.speaker, line.name)
+        const next = lines[lineIndex + 1]
+        if (next && next.speaker === line.speaker)
+          return {
+            ok: false,
+            error: `Bloque #${index + 1} (dialogue): los hablantes deben alternarse (líneas ${lineIndex + 1} y ${lineIndex + 2}).`,
+          }
+      }
+
+      const title = asString(value.title)?.trim()
+      const setting = asString(value.setting)?.trim()
+      const goal = asString(value.goal)?.trim()
       return {
         ok: true,
         block: {
           type: 'dialogue',
           ...(title ? { title } : {}),
-          ...(context ? { context } : {}),
+          ...(setting ? { setting } : {}),
+          ...(goal ? { goal } : {}),
+          context,
           lines,
         },
       }
@@ -651,7 +688,7 @@ export function buildAiLessonPrompt(topic: string): string {
     '3) vocab: { "type": "vocab", "title": "string", "items": [ { "en": "string", "es": "string", "example": "string" } ] }',
     '4) phrases: { "type": "phrases", "title": "string", "items": [ { "en": "string", "es": "string" } ] }',
     '5) callout: { "type": "callout", "tone": "tip" | "warning" | "info", "title": "string", "body": "string" }',
-    '6) dialogue: { "type": "dialogue", "title": "string", "context": "string", "lines": [ { "speaker": "a" | "b", "name": "string", "role": "string" (opcional), "en": "string", "es": "string" (opcional) } ] }',
+    '6) dialogue: { "type": "dialogue", "title": "string", "setting": "string", "goal": "string", "context": "string", "lines": [ { "speaker": "a" | "b", "name": "string", "role": "string" (opcional), "en": "string", "es": "string" (opcional) } ] }',
     '',
     'LÍMITE DE CONSEJOS (REGLA ESTRICTA):',
     '- Cuenta como "consejo" todo bloque "technique" y todo bloque "callout", sea cual sea su tone ("tip", "info" o "warning").',
@@ -661,8 +698,11 @@ export function buildAiLessonPrompt(topic: string): string {
     'REGLAS PARA EL BLOQUE "dialogue" (IMPORTANTE):',
     '- Es OPCIONAL. Inclúyelo SOLO si el tema es una situación conversacional concreta (standups, code review, pedir ayuda, async, entrevistas, demos, incidentes).',
     '- Para temas puramente gramaticales (p. ej. "have to", pretéritos, preposiciones), NO uses dialogue: usa technique/vocab/phrases/callout.',
-    '- Si lo incluyes, usa entre 4 y 6 líneas, alterna "speaker" entre "a" y "b", y usa los mismos nombres en todas las líneas.',
-    '- Cada "en" debe ser una frase corta y natural; "es" es la traducción al español.',
+    '- "context" es OBLIGATORIO: 1 o 2 frases en español que digan quién habla, dónde y qué está pasando. "setting" es una etiqueta corta (p. ej. "Daily, sala de equipo") y "goal" dice qué se quiere lograr (p. ej. "Aclarar el bloqueo y pedir ayuda").',
+    '- Si lo incluyes, usa entre 4 y 6 líneas, alterna "speaker" entre "a" y "b" en TODAS las líneas, y usa los MISMOS nombres y roles para cada hablante en toda la escena.',
+    '- Las líneas DEBEN formar una conversación con arco: apertura → problema o pregunta → reacción/aclaración → cierre o solución. Cada línea responde o reacciona a la anterior; nada de saltos de tema.',
+    '- PROHIBIDO escribir una lista de frases de ejemplo independientes para practicar gramática. Aunque el tema sea gramatical, si usas dialogue debe parecer una escena real: alguien pregunta, el otro contesta y se llega a un acuerdo.',
+    '- Cada "en" debe ser una frase corta y natural; "es" es la traducción al español. Mantén la estructura gramatical del tema DENTRO del flujo conversacional.',
     '- La app reproducirá el diálogo con voz y mostrará dos avatares; por eso las líneas deben sonar a conversación real, no a lista de ejemplos.',
     '- Si incluyes dialogue, añade también 1 o 2 ejercicios de comprensión como choice dentro de los 6 ejercicios básicos.',
     '',
@@ -729,7 +769,7 @@ export function buildAiLessonPrompt(topic: string): string {
     '- 4-6 bloques, todos de tipos permitidos.',
     '- Máximo 2 consejos en total (technique + callout de cualquier tone); el resto es contenido, no consejos.',
     '- Hay 2-4 phrasal verbs dev, cada uno con significado en español y ejemplo en inglés.',
-    '- Si hay dialogue: 4-6 líneas, speakers alternados y nombres coherentes.',
+    '- Si hay dialogue: 4-6 líneas, speakers alternados sin excepción, mismos nombres/roles, con context/setting/goal y un arco apertura → problema → reacción → cierre.',
     '- Exactamente 8 ejercicios: ex-1 choice, ex-2 fill-blank, ex-3 fix-error, ex-4 builder, ex-5 dialogue-order, ex-6 write, ex-7 match, ex-8 shadow o multi-choice.',
     '- En choice, answer es un índice válido.',
     '- En fill-blank, número de "___" = número de blanks.',
@@ -739,10 +779,12 @@ export function buildAiLessonPrompt(topic: string): string {
     '- Sin campos extra, sin emojis, sin markdown.',
     '',
     'EJEMPLO DE BLOQUE dialogue VÁLIDO (solo si el tema es conversacional):',
-    '{ "type": "dialogue", "title": "Pedir ayuda en un daily", "context": "Leo reporta un bloqueo y Maya le pide detalles.", "lines": [',
+    '{ "type": "dialogue", "title": "Pedir ayuda en un daily", "setting": "Daily, sala de equipo", "goal": "Aclarar el bloqueo y acordar quién lo resuelve", "context": "Es el daily de la mañana. Leo tiene un bloqueo con un token de API y Maya quiere detalles para poder ayudar.", "lines": [',
     '  { "speaker": "a", "name": "Maya", "role": "Lead", "en": "Any blockers today?", "es": "¿Algún bloqueo hoy?" },',
-    '  { "speaker": "b", "name": "Leo", "role": "Dev", "en": "Yes, I am blocked by the API token.", "es": "Sí, estoy bloqueado por el token de la API." },',
-    '  { "speaker": "a", "name": "Maya", "role": "Lead", "en": "I will refresh it after the standup.", "es": "Lo renovaré después del daily." }',
+    '  { "speaker": "b", "name": "Leo", "role": "Dev", "en": "Yes, I am blocked by the API token. The tests fail with a 401.", "es": "Sí, estoy bloqueado por el token de la API. Los tests fallan con un 401." },',
+    '  { "speaker": "a", "name": "Maya", "role": "Lead", "en": "Thanks. Is the token expired or missing from the config?", "es": "Gracias. ¿El token está caducado o falta en la configuración?" },',
+    '  { "speaker": "b", "name": "Leo", "role": "Dev", "en": "It is missing in staging. I can add it and rerun the suite.", "es": "Falta en staging. Puedo añadirlo y volver a correr la suite." },',
+    '  { "speaker": "a", "name": "Maya", "role": "Lead", "en": "Great, do that and ping me if it is still red.", "es": "Perfecto, hazlo y avísame si sigue en rojo." }',
     '] }',
     '',
     'EJEMPLO COMPLETO (sigues este nivel de detalle, sin copiar el tema):',

@@ -67,7 +67,12 @@ import { getReminderPermissionStatus, requestReminderPermission } from '../../li
 import type { StudyPlan } from '../../lib/progress'
 import { type ProgressSettings, progressStore } from '../../lib/progress'
 import { clearSyncError } from '../../lib/progressSync'
-import { ensureMicrophonePermission, getMicrophonePermissionStatus } from '../../lib/speech'
+import {
+  ensureMicrophonePermission,
+  getMicrophonePermissionStatus,
+  isSpeechRecognitionSupported,
+  recognizeOnce,
+} from '../../lib/speech'
 import { isSupabaseConfigured } from '../../lib/supabase'
 import { emitToast } from '../../lib/toast'
 import ResponsiveDialog from '../ui/ResponsiveDialog'
@@ -215,6 +220,7 @@ export default function SettingsPanel() {
   const [checkingUpdate, setCheckingUpdate] = useState(false)
   const [notificationPermission, setNotificationPermission] = useState<string>('unknown')
   const [micPermission, setMicPermission] = useState<string>('unknown')
+  const [micDiagnostic, setMicDiagnostic] = useState<string | null>(null)
   const [permissionBusy, setPermissionBusy] = useState<
     'notifications' | 'microphone' | 'settings' | null
   >(null)
@@ -289,6 +295,30 @@ export default function SettingsPanel() {
       setMicPermission(await getMicrophonePermissionStatus())
       if (ok) emitToast('Micrófono listo para usar.', 'success')
       // Si falla, ensureMicrophonePermission ya muestra el toast contextual.
+    } finally {
+      setPermissionBusy(null)
+    }
+  }
+
+  async function handleMicDiagnostic() {
+    setPermissionBusy('microphone')
+    setMicDiagnostic('Comprobando micrófono… habla cuando aparezca el aviso.')
+    try {
+      const supported = isSpeechRecognitionSupported()
+      const status = await getMicrophonePermissionStatus()
+      const result = await recognizeOnce('en-US', 6_000)
+      const parts = [
+        supported ? 'Reconocimiento: disponible' : 'Reconocimiento: no disponible',
+        `Permiso: ${status}`,
+        result.transcript
+          ? `Prueba correcta: “${result.transcript}”`
+          : `Prueba sin resultado: ${result.error ?? 'inténtalo de nuevo'}`,
+      ]
+      setMicDiagnostic(parts.join(' · '))
+    } catch (error) {
+      setMicDiagnostic(
+        `No se pudo completar el diagnóstico: ${error instanceof Error ? error.message : 'error desconocido'}`,
+      )
     } finally {
       setPermissionBusy(null)
     }
@@ -1140,20 +1170,38 @@ export default function SettingsPanel() {
                   <p class="mt-1 font-mono text-[10px] text-base-content/40">
                     Estado: {micPermission}
                   </p>
+                  {micDiagnostic ? (
+                    <p
+                      class="mt-1 max-w-md text-[10px] leading-relaxed text-base-content/50"
+                      role="status"
+                    >
+                      {micDiagnostic}
+                    </p>
+                  ) : null}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => void handleRequestMicrophonePermission()}
-                  disabled={permissionBusy !== null}
-                  class="flex h-9 items-center gap-1.5 rounded-xl bg-base-100 px-3 text-[11px] font-medium text-base-content/70 transition hover:bg-base-200 hover:text-base-content disabled:opacity-50"
-                >
-                  {permissionBusy === 'microphone' ? (
-                    <Loader2 class="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <Mic class="h-3.5 w-3.5" />
-                  )}
-                  Probar / solicitar
-                </button>
+                <div class="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => void handleRequestMicrophonePermission()}
+                    disabled={permissionBusy !== null}
+                    class="flex h-9 items-center gap-1.5 rounded-xl bg-base-100 px-3 text-[11px] font-medium text-base-content/70 transition hover:bg-base-200 hover:text-base-content disabled:opacity-50"
+                  >
+                    {permissionBusy === 'microphone' ? (
+                      <Loader2 class="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Mic class="h-3.5 w-3.5" />
+                    )}
+                    Probar / solicitar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void handleMicDiagnostic()}
+                    disabled={permissionBusy !== null}
+                    class="flex h-9 items-center gap-1.5 rounded-xl bg-base-100/70 px-3 text-[11px] font-medium text-base-content/60 transition hover:bg-base-200 hover:text-base-content disabled:opacity-50"
+                  >
+                    <RefreshCw class="h-3.5 w-3.5" /> Diagnóstico
+                  </button>
+                </div>
               </div>
             </div>
 

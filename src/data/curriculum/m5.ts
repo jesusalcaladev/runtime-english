@@ -128,8 +128,10 @@ export const m5: Module = {
         {
           type: 'dialogue',
           title: 'Del commit al PR: convenciones en equipo',
+          setting: 'PR en GitHub, revisión rápida',
+          goal: 'Aplicar convenciones de commit y descripción en un PR.',
           context:
-            'Maya revisa el PR de Leo y repasan juntos el mensaje de commit y la descripción.',
+            'Maya revisa el PR de Leo y le sugiere mejorar el mensaje de commit y la descripción antes de aprobarlo.',
           lines: [
             {
               speaker: 'a',
@@ -366,7 +368,10 @@ export const m5: Module = {
         {
           type: 'dialogue',
           title: 'Un mensaje de Slack que se entiende sin contexto',
-          context: 'Leo avisa por Slack de un bloqueo y Maya responde con una petición y un plazo.',
+          setting: 'Slack, #releases',
+          goal: 'Escribir un mensaje asíncrono claro con contexto y plazo.',
+          context:
+            'El despliegue está bloqueado y Leo avisa por Slack. Maya pide una estimación y una revisión concreta.',
           lines: [
             {
               speaker: 'b',
@@ -504,6 +509,8 @@ export const m5: Module = {
           id: 'm5-l2-e11',
           type: 'dialogue-branch',
           prompt: 'Elige la mejor respuesta asíncrona.',
+          context:
+            'El equipo trabaja en remoto y Maya pide a Leo que deje el update por Slack en lugar de llamar.',
           steps: [
             {
               speaker: 'Maya',
@@ -1089,6 +1096,8 @@ export const m5: Module = {
           id: 'm5-l5-e8',
           type: 'dialogue-branch',
           prompt: 'Elige cómo abrir una demo.',
+          context:
+            'Maya y Leo inician una demo: Leo presenta y Maya pregunta quién cierra con los siguientes pasos.',
           steps: [
             {
               speaker: 'Leo',

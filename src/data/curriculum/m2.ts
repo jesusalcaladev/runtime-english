@@ -88,8 +88,10 @@ export const m2: Module = {
         {
           type: 'dialogue',
           title: 'Ayer, ahora y mañana en una conversación',
+          setting: 'Standup, sala de equipo',
+          goal: 'Narrar un bug con los cuatro tiempos.',
           context:
-            'Maya y Leo repasan el bug con los cuatro tiempos: presente simple, continuo, pasado y futuro.',
+            'Maya pregunta a Leo por el bug de login. Leo explica qué arregló ayer, qué hace ahora y cuándo desplegará el arreglo.',
           lines: [
             {
               speaker: 'a',
@@ -102,36 +104,36 @@ export const m2: Module = {
               speaker: 'b',
               name: 'Leo',
               role: 'Dev',
-              en: "I'm running the tests.",
-              es: 'Estoy ejecutando los tests.',
+              en: "I'm running the tests for the login bug.",
+              es: 'Estoy ejecutando los tests del bug de login.',
             },
             {
               speaker: 'a',
               name: 'Maya',
               role: 'Lead',
-              en: 'I fixed the login bug yesterday.',
-              es: 'Arreglé el bug de login ayer.',
+              en: 'Did you fix it? I thought the function returns a string.',
+              es: '¿Lo arreglaste? Pensaba que la función devuelve un string.',
             },
             {
               speaker: 'b',
               name: 'Leo',
               role: 'Dev',
-              en: 'The function returns a string.',
-              es: 'La función devuelve un string.',
+              en: 'Yes, I fixed the bug yesterday. It returns the right value now.',
+              es: 'Sí, arreglé el bug ayer. Ahora devuelve el valor correcto.',
             },
             {
               speaker: 'a',
               name: 'Maya',
               role: 'Lead',
-              en: 'I will deploy the fix tomorrow.',
-              es: 'Desplegaré el arreglo mañana.',
+              en: 'Nice. When will you deploy the fix?',
+              es: 'Bien. ¿Cuándo desplegarás el arreglo?',
             },
             {
               speaker: 'b',
               name: 'Leo',
               role: 'Dev',
-              en: 'Great. I will add tests too.',
-              es: 'Genial. También añadiré tests.',
+              en: "I'll deploy it tomorrow, and I will add more tests.",
+              es: 'Lo desplegaré mañana, y añadiré más tests.',
             },
           ],
         },
@@ -286,8 +288,10 @@ export const m2: Module = {
         {
           type: 'dialogue',
           title: 'El update del bug en tres tiempos',
+          setting: 'Slack, #backend',
+          goal: 'Dar un update claro: pasado, presente y futuro.',
           context:
-            'Maya pregunta por el bug y Leo narra qué pasó, qué hace ahora y cuándo lo arregla.',
+            'Maya pide novedades sobre el bug de login y Leo narra qué pasó, qué hace ahora y cuándo lo arreglará.',
           lines: [
             {
               speaker: 'a',

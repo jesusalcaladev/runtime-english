@@ -3,11 +3,11 @@ import { useCallback, useEffect, useRef, useState } from 'preact/hooks'
 import { useUiStage } from '../../hooks/useUiStage'
 import { tAction } from '../../lib/i18n'
 import {
-  getKokoroPhraseStatus,
+  getSpeechPhraseStatus,
   primeSpeechPhrase,
   speakLine,
   stopSpeech,
-  subscribeKokoroPhraseStatus,
+  subscribeSpeechPhraseStatus,
   warmConversationPhrases,
 } from '../../lib/speech'
 import type { DialogueLine } from '../../lib/types'
@@ -15,6 +15,10 @@ import Mascot from '../ui/Mascot'
 
 interface Props {
   title?: string
+  /** Where the scene happens (e.g. "Daily, sala de equipo"). */
+  setting?: string
+  /** What the speakers are trying to accomplish. */
+  goal?: string
   context?: string
   lines: DialogueLine[]
 }
@@ -39,19 +43,19 @@ const SPEAKER_STYLES: Record<DialogueLine['speaker'], { pitch: number; rateScale
 function useAudioReadiness(lines: DialogueLine[]): AudioReadiness {
   const textsKey = lines.map((line) => line.en).join('\u0000')
   const [status, setStatus] = useState<AudioReadiness>(() =>
-    getKokoroPhraseStatus(lines.map((line) => line.en)),
+    getSpeechPhraseStatus(lines.map((line) => line.en)),
   )
 
   useEffect(() => {
     const texts = textsKey ? textsKey.split('\u0000') : []
     const update = () => {
-      const next = getKokoroPhraseStatus(texts)
+      const next = getSpeechPhraseStatus(texts)
       setStatus((previous) =>
         previous.ready === next.ready && previous.total === next.total ? previous : next,
       )
     }
     update()
-    return subscribeKokoroPhraseStatus(update)
+    return subscribeSpeechPhraseStatus(update)
   }, [textsKey])
 
   return status
@@ -76,6 +80,11 @@ function useDialoguePlayback(lines: DialogueLine[]): DialoguePlayback {
     async (index: number) => {
       const line = lines[index]
       if (!line) return
+      // Keep the following lines ready even when the user taps one line at a time.
+      for (let ahead = 1; ahead <= 3; ahead += 1) {
+        const upcoming = lines[index + ahead]
+        if (upcoming) primeSpeechPhrase(upcoming.en)
+      }
       setActiveIndex(index)
       await speakLine(line.en, SPEAKER_STYLES[line.speaker])
       if (isMounted.current) setActiveIndex(null)
@@ -96,7 +105,7 @@ function useDialoguePlayback(lines: DialogueLine[]): DialoguePlayback {
     for (let index = 0; index < lines.length; index += 1) {
       if (!isMounted.current) return
       // Keep the next lines generating while the current one is speaking.
-      for (let ahead = 1; ahead <= 2; ahead += 1) {
+      for (let ahead = 1; ahead <= 3; ahead += 1) {
         const upcoming = lines[index + ahead]
         if (upcoming) primeSpeechPhrase(upcoming.en)
       }
@@ -233,7 +242,7 @@ function DialogueBubble({
   )
 }
 
-export default function DialogueScene({ title, context, lines }: Props) {
+export default function DialogueScene({ title, setting, goal, context, lines }: Props) {
   const { activeIndex, isPlaying, playLine, togglePlayback } = useDialoguePlayback(lines)
   const audioReadiness = useAudioReadiness(lines)
   const stage = useUiStage()
@@ -264,8 +273,25 @@ export default function DialogueScene({ title, context, lines }: Props) {
           <h3 class="text-[17px] font-semibold tracking-tight text-base-content/90">
             {title ?? 'Escucha y entiende'}
           </h3>
+          {setting || goal ? (
+            <div class="flex flex-wrap items-center gap-1.5">
+              {setting ? (
+                <span class="inline-flex items-center rounded-full bg-base-200/80 px-2 py-0.5 text-[10px] font-medium text-base-content/55">
+                  {setting}
+                </span>
+              ) : null}
+              {goal ? (
+                <span class="inline-flex items-center rounded-full bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent/80">
+                  {goal}
+                </span>
+              ) : null}
+            </div>
+          ) : null}
           {context ? (
-            <p class="max-w-2xl text-[12px] leading-relaxed text-base-content/50">{context}</p>
+            <p class="max-w-2xl rounded-xl bg-base-200/50 px-3 py-2 text-[12px] leading-relaxed text-base-content/60">
+              <span class="mono-label mr-1.5 text-accent/70">Escena</span>
+              {context}
+            </p>
           ) : null}
         </div>
 

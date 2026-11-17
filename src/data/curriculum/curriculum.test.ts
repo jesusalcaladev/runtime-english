@@ -77,6 +77,10 @@ function validateExercise(exercise: Exercise, session: Session) {
       }
       break
     case 'dialogue-branch':
+      expect(
+        exercise.context?.trim().length ?? 0,
+        `${exercise.id} (dialogue-branch) needs a scene context`,
+      ).toBeGreaterThan(0)
       expect(exercise.steps.length).toBeGreaterThanOrEqual(2)
       for (const step of exercise.steps) {
         expect(step.line.trim().length).toBeGreaterThan(0)
@@ -157,12 +161,39 @@ describe('curriculum / roadmap integrity', () => {
 
       for (const block of session.blocks) {
         if (block.type === 'dialogue') {
-          expect(block.lines.length).toBeGreaterThanOrEqual(2)
-          for (const line of block.lines) {
+          expect(
+            block.lines.length,
+            `${session.id} dialogue should have 4-8 lines, got ${block.lines.length}`,
+          ).toBeGreaterThanOrEqual(4)
+          expect(block.lines.length).toBeLessThanOrEqual(8)
+          expect(block.context?.trim(), `${session.id} dialogue needs a context`).toBeTruthy()
+          expect(block.setting?.trim(), `${session.id} dialogue needs a setting`).toBeTruthy()
+          expect(block.goal?.trim(), `${session.id} dialogue needs a goal`).toBeTruthy()
+
+          const namesBySpeaker = new Map<string, string>()
+          block.lines.forEach((line, lineIndex) => {
             expect(['a', 'b']).toContain(line.speaker)
             expect(line.name.trim().length).toBeGreaterThan(0)
             expect(line.en.trim().length).toBeGreaterThan(0)
-          }
+            expect(line.es?.trim().length ?? 0).toBeGreaterThan(0)
+
+            const previousName = namesBySpeaker.get(line.speaker)
+            if (previousName) {
+              expect(
+                previousName,
+                `${session.id} dialogue uses inconsistent names for speaker ${line.speaker}`,
+              ).toBe(line.name)
+            }
+            namesBySpeaker.set(line.speaker, line.name)
+
+            const nextLine = block.lines[lineIndex + 1]
+            if (nextLine) {
+              expect(
+                nextLine.speaker,
+                `${session.id} dialogue turns must alternate (lines ${lineIndex + 1}/${lineIndex + 2})`,
+              ).not.toBe(line.speaker)
+            }
+          })
         }
       }
 

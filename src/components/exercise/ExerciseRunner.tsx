@@ -13,6 +13,7 @@ import {
 } from 'lucide-preact'
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks'
 import { openAppSettings } from '../../lib/appSettings'
+import { isNativeAndroid } from '../../lib/appUpdate'
 import { detectErrorSkills } from '../../lib/errorPatterns'
 import {
   canCheckExercise,
@@ -890,7 +891,7 @@ export default function ExerciseRunner({
                     {micError}
                   </p>
                 )}
-                {micError && /denegad|permiso/i.test(micError) && (
+                {micError && (isNativeAndroid() || /denegad|permiso/i.test(micError)) && (
                   <button
                     type="button"
                     onClick={() => void openAppSettings()}

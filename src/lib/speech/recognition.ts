@@ -52,6 +52,9 @@ type NativeListenerData = { matches?: string[]; status?: 'started' | 'stopped' }
 type NativeListenerHandle = { remove: () => Promise<void> }
 
 interface NativeSpeechRecognition {
+  /** Plugin preflight: false when the device has no speech service (e.g. no Google app). */
+  available?: () => Promise<{ available: boolean }>
+  isListening?: () => Promise<{ listening: boolean }>
   checkPermissions: () => Promise<{ speechRecognition?: NativePermissionState }>
   requestPermissions: () => Promise<{ speechRecognition?: NativePermissionState }>
   start: (options: {
@@ -78,6 +81,20 @@ const WEB_ERROR_MESSAGES: Record<string, string> = {
   network: 'Error de red al usar el reconocimiento de voz.',
   aborted: 'Reconocimiento cancelado.',
 }
+
+const NATIVE_NOT_AVAILABLE_MESSAGE =
+  'El reconocimiento de voz no está disponible en este dispositivo. Revisa que tengas instalada la app de Google o un servicio de voz.'
+const NATIVE_NO_SPEECH_MESSAGE =
+  'No se detectó voz. Habla más cerca del micrófono e inténtalo de nuevo.'
+const NATIVE_START_FAILED_MESSAGE =
+  'No se pudo iniciar el micrófono. Revisa que haya un servicio de voz disponible.'
+
+/** Time after the last partial result before we treat natural speech as finished. */
+const NATIVE_SILENCE_MS = 1_500
+/** A `stopped` with no text this soon after start means the recognizer never really started. */
+const NATIVE_STARTUP_GRACE_MS = 600
+/** `onEndOfSpeech` can precede `onResults`; wait briefly for the final transcript. */
+const NATIVE_FINAL_RESULT_GRACE_MS = 250
 
 let nativeSpeechPromise: Promise<NativeSpeechRecognition | null> | null = null
 let activeWebRecognition: SpeechRecognitionInstance | null = null
@@ -191,17 +208,61 @@ function getErrorMessage(error: unknown): string {
   return ''
 }
 
-function mapNativeError(error: unknown): string {
-  const message = getErrorMessage(error)
-  if (message.includes('cancel') || message.includes('abort')) return 'Reconocimiento cancelado.'
-  if (message.includes('permission') || message.includes('not allowed')) {
-    return 'Permiso de micrófono denegado. Actívalo en Ajustes → Permisos.'
+type MappedNativeError = { message: string; retryable: boolean }
+
+function mapNativeError(error: unknown): MappedNativeError {
+  // Android reports errors via call.reject with the messages from getErrorText()
+  // ("No match", "Network error", "RecognitionService busy", ...), but in
+  // partialResults mode the call was already resolved, so those rejects are lost.
+  const text = `${getErrorMessage(error)} ${getErrorName(error)}`.toLowerCase()
+
+  if (text.includes('cancel') || text.includes('abort')) {
+    return { message: 'Reconocimiento cancelado.', retryable: false }
   }
-  if (message.includes('speech') && message.includes('available')) {
-    return 'El reconocimiento de voz no está disponible en este dispositivo.'
+  if (
+    text.includes('not available') ||
+    text.includes('not-available') ||
+    text.includes('unavailable')
+  ) {
+    return { message: NATIVE_NOT_AVAILABLE_MESSAGE, retryable: false }
   }
-  if (message.includes('network')) return 'Error de red al usar el reconocimiento de voz.'
-  return 'No se pudo reconocer la voz. Inténtalo de nuevo.'
+  if (
+    text.includes('permission') ||
+    text.includes('not allowed') ||
+    text.includes('missing permission')
+  ) {
+    return {
+      message: 'Permiso de micrófono denegado. Actívalo en Ajustes → Permisos.',
+      retryable: false,
+    }
+  }
+  if (
+    text.includes('no match') ||
+    text.includes('no speech') ||
+    text.includes("didn't understand") ||
+    text.includes('did not understand')
+  ) {
+    return { message: NATIVE_NO_SPEECH_MESSAGE, retryable: true }
+  }
+  if (text.includes('network') || text.includes('timeout') || text.includes('server')) {
+    return {
+      message: 'Error de red al usar el reconocimiento de voz. Inténtalo de nuevo.',
+      retryable: true,
+    }
+  }
+  if (text.includes('audio')) {
+    return {
+      message: 'Error con el micrófono. Revisa que esté conectado e inténtalo de nuevo.',
+      retryable: true,
+    }
+  }
+  if (text.includes('busy')) {
+    return {
+      message: 'El servicio de voz está ocupado. Inténtalo de nuevo en un momento.',
+      retryable: true,
+    }
+  }
+  return { message: 'No se pudo reconocer la voz. Inténtalo de nuevo.', retryable: true }
 }
 
 function getBestTranscript(result: SpeechRecognitionResultLike | undefined): {
@@ -337,12 +398,198 @@ export function stopSpeechRecognition(): void {
   } catch {}
 }
 
+function firstNativeMatch(matches: string[] | undefined): string {
+  return (
+    (matches ?? []).map((match) => (typeof match === 'string' ? match.trim() : '')).find(Boolean) ??
+    ''
+  )
+}
+
+type NativeAttemptMode = { partialResults: boolean; popup: boolean }
+
+type NativeAttemptResult = {
+  transcript: string
+  confidence: number
+  error?: string
+  /** True when a popup retry is worth trying (no permission/not-available/cancel). */
+  retryable: boolean
+}
+
+/**
+ * One native recognition pass. All listeners are registered *before* start():
+ * with partialResults the plugin resolves start() immediately and delivers
+ * everything through events, so attaching afterwards races and loses results.
+ */
+function runNativeAttempt(
+  native: NativeSpeechRecognition,
+  lang: string,
+  timeoutMs: number,
+  onPartial: ((text: string) => void) | undefined,
+  mode: NativeAttemptMode,
+): Promise<NativeAttemptResult> {
+  const usePartial = mode.partialResults && typeof native.addListener === 'function'
+
+  return new Promise((resolve) => {
+    let isSettled = false
+    let lastText = ''
+    let silenceId: number | null = null
+    let finalResultId: number | null = null
+    let timeoutId: number | null = null
+    const handles: NativeListenerHandle[] = []
+    const startedAt = Date.now()
+    activeNativeRecognition = native
+
+    const clearSilenceTimer = () => {
+      if (silenceId === null) return
+      window.clearTimeout(silenceId)
+      silenceId = null
+    }
+
+    const clearFinalResultTimer = () => {
+      if (finalResultId === null) return
+      window.clearTimeout(finalResultId)
+      finalResultId = null
+    }
+
+    const finish = (transcript: string, failure?: MappedNativeError) => {
+      if (isSettled) return
+      isSettled = true
+      if (timeoutId !== null) window.clearTimeout(timeoutId)
+      clearSilenceTimer()
+      clearFinalResultTimer()
+      if (activeNativeRecognition === native) activeNativeRecognition = null
+      for (const handle of handles) {
+        void handle.remove().catch(() => undefined)
+      }
+      resolve({
+        transcript,
+        confidence: transcript ? 1 : 0,
+        error: transcript ? undefined : failure?.message,
+        retryable: transcript ? false : Boolean(failure?.retryable),
+      })
+    }
+
+    const fail = (message: string, error?: unknown) => {
+      finish('', error !== undefined ? mapNativeError(error) : { message, retryable: true })
+    }
+
+    const stopListening = () => {
+      try {
+        void native.stop().catch(() => undefined)
+      } catch {}
+    }
+
+    const handlePartialResults = (data: NativeListenerData) => {
+      if (!usePartial) return
+      const text = firstNativeMatch(data.matches)
+      if (!text) return
+      lastText = text
+      if (usePartial) onPartial?.(text)
+      clearFinalResultTimer()
+      clearSilenceTimer()
+      // Native recognition stays open until stopped: a short pause means the user finished.
+      silenceId = window.setTimeout(() => {
+        stopListening()
+        finish(lastText)
+      }, NATIVE_SILENCE_MS)
+    }
+
+    const handleListeningState = (data: NativeListenerData) => {
+      if (data.status !== 'stopped') return
+      if (mode.popup) return // The system dialog reports its result through start().
+      if (lastText) {
+        finish(lastText)
+        return
+      }
+      const elapsed = Date.now() - startedAt
+      if (elapsed < NATIVE_STARTUP_GRACE_MS) {
+        // An instant "stopped" means the recognizer failed to start (missing voice service).
+        fail(NATIVE_START_FAILED_MESSAGE)
+        return
+      }
+      // Android fires onEndOfSpeech before onResults; allow the final transcript in.
+      clearFinalResultTimer()
+      finalResultId = window.setTimeout(
+        () => fail(NATIVE_NO_SPEECH_MESSAGE),
+        NATIVE_FINAL_RESULT_GRACE_MS,
+      )
+    }
+
+    void (async () => {
+      // Register (and await) before start(): in partial mode the plugin resolves
+      // start() immediately and delivers everything through these events.
+      if (native.addListener) {
+        const registrations = await Promise.allSettled([
+          native.addListener('partialResults', handlePartialResults),
+          native.addListener('listeningState', handleListeningState),
+        ])
+        for (const registration of registrations) {
+          if (registration.status !== 'fulfilled' || !registration.value) continue
+          if (isSettled) void registration.value.remove().catch(() => undefined)
+          else handles.push(registration.value)
+        }
+      }
+      if (isSettled) return
+
+      timeoutId = window.setTimeout(() => {
+        stopListening()
+        if (lastText) finish(lastText)
+        else fail('Tiempo de espera agotado. Inténtalo de nuevo.')
+      }, timeoutMs)
+
+      try {
+        const response = await native.start({
+          language: lang,
+          maxResults: 3,
+          prompt: 'Di tu respuesta en inglés',
+          partialResults: usePartial,
+          popup: mode.popup,
+        })
+        if (usePartial) return // start() is only an ack; the listeners drive completion.
+        const transcript = firstNativeMatch(response?.matches)
+        if (transcript) finish(transcript)
+        else fail(NATIVE_NO_SPEECH_MESSAGE)
+      } catch (error) {
+        // With partialResults the native reject arrives after resolve and is lost,
+        // so the listeningState/timeout watchdogs above are the real error signal.
+        fail('', error)
+      }
+    })()
+  })
+}
+
+function toSpeechResult(attempt: NativeAttemptResult): SpeechRecognitionResult {
+  return {
+    transcript: attempt.transcript,
+    confidence: attempt.confidence,
+    supported: true,
+    error: attempt.error,
+  }
+}
+
 async function recognizeWithNative(
   native: NativeSpeechRecognition,
   lang: string,
   timeoutMs: number,
   onPartial?: (text: string) => void,
 ): Promise<SpeechRecognitionResult> {
+  // Preflight: some ROMs/devices have no speech service at all.
+  if (typeof native.available === 'function') {
+    try {
+      const availability = await native.available()
+      if (availability?.available === false) {
+        return {
+          transcript: '',
+          confidence: 0,
+          supported: true,
+          error: NATIVE_NOT_AVAILABLE_MESSAGE,
+        }
+      }
+    } catch {
+      // Best effort: still give start() a chance.
+    }
+  }
+
   try {
     const status = await native.checkPermissions()
     if (status.speechRecognition === 'denied') {
@@ -368,103 +615,23 @@ async function recognizeWithNative(
     // Permission probing is best effort; start() will surface any real failure.
   }
 
-  const usePartial = Boolean(onPartial && native.addListener)
-
-  return new Promise((resolve) => {
-    let isSettled = false
-    let lastText = ''
-    let silenceId: number | null = null
-    const handles: NativeListenerHandle[] = []
-    activeNativeRecognition = native
-
-    const clearSilenceTimer = () => {
-      if (silenceId === null) return
-      window.clearTimeout(silenceId)
-      silenceId = null
-    }
-
-    const finish = (transcript: string, error?: string) => {
-      if (isSettled) return
-      isSettled = true
-      window.clearTimeout(timeoutId)
-      clearSilenceTimer()
-      activeNativeRecognition = null
-      for (const handle of handles) {
-        void handle.remove().catch(() => undefined)
-      }
-      if (!usePartial) void native.removeAllListeners?.().catch(() => undefined)
-      resolve({
-        transcript,
-        confidence: transcript ? 1 : 0,
-        supported: true,
-        error: transcript ? undefined : error,
-      })
-    }
-
-    const stopListening = () => {
-      void native.stop().catch(() => undefined)
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      stopListening()
-      finish(lastText, lastText ? undefined : 'Tiempo de espera agotado. Inténtalo de nuevo.')
-    }, timeoutMs)
-
-    if (usePartial) {
-      void native
-        .addListener?.('partialResults', (data) => {
-          const text = (data.matches ?? []).map((match) => match.trim()).find(Boolean) ?? ''
-          if (!text) return
-          lastText = text
-          onPartial?.(text)
-          clearSilenceTimer()
-          // Native recognition stays open until stopped: a short pause means the user finished.
-          silenceId = window.setTimeout(() => {
-            stopListening()
-            finish(lastText)
-          }, 1500)
-        })
-        .then((handle) => {
-          if (!handle) return
-          if (isSettled) void handle.remove().catch(() => undefined)
-          else handles.push(handle)
-        })
-        .catch(() => undefined)
-
-      void native
-        .addListener?.('listeningState', (data) => {
-          if (data.status !== 'stopped') return
-          finish(
-            lastText,
-            lastText ? undefined : 'No se detectó voz. Habla más cerca del micrófono.',
-          )
-        })
-        .then((handle) => {
-          if (!handle) return
-          if (isSettled) void handle.remove().catch(() => undefined)
-          else handles.push(handle)
-        })
-        .catch(() => undefined)
-    }
-
-    void native
-      .start({
-        language: lang,
-        maxResults: 3,
-        prompt: 'Di tu respuesta en inglés',
-        // With partialResults the plugin resolves right away; the listeners drive completion.
-        partialResults: usePartial,
-        popup: false,
-      })
-      .then(({ matches }) => {
-        if (usePartial) return
-        const transcript = (matches ?? []).map((match) => match.trim()).find(Boolean) ?? ''
-        finish(transcript, 'No se detectó voz. Habla más cerca del micrófono.')
-      })
-      .catch((error) => {
-        finish('', mapNativeError(error))
-      })
+  // First pass: direct SpeechRecognizer. With a partial callback it streams results.
+  const primary = await runNativeAttempt(native, lang, timeoutMs, onPartial, {
+    partialResults: Boolean(onPartial && native.addListener),
+    popup: false,
   })
+  if (primary.transcript || !primary.retryable) return toSpeechResult(primary)
+
+  // Second pass: the Android system voice-input dialog works on more devices.
+  // Permission was already handled above, so this never prompts twice for it.
+  try {
+    await native.removeAllListeners?.()
+  } catch {}
+  const fallback = await runNativeAttempt(native, lang, timeoutMs, onPartial, {
+    partialResults: false,
+    popup: true,
+  })
+  return toSpeechResult(fallback.transcript || !fallback.error ? fallback : primary)
 }
 
 function recognizeWithWeb(

@@ -102,8 +102,10 @@ export const m9: Module = {
         {
           type: 'dialogue',
           title: 'Contestar con impacto (STAR)',
+          setting: 'Entrevista técnica, videollamada',
+          goal: 'Responder una pregunta de comportamiento con estructura STAR.',
           context:
-            'Una entrevistadora pregunta por un reto y el candidato responde con estructura STAR.',
+            'Una entrevistadora pregunta por un reto anterior y el candidato responde con situación, acción, resultado y trade-off.',
           lines: [
             {
               speaker: 'a',
@@ -130,8 +132,8 @@ export const m9: Module = {
               speaker: 'b',
               name: 'Leo',
               role: 'Candidate',
-              en: 'I took ownership of the migration and added caching. As a result, we reduced latency by 30%.',
-              es: 'Me hice responsable de la migración y añadí caché. Como resultado, redujimos la latencia un 30%.',
+              en: 'I took ownership of the migration and added caching. As a result, we reduced latency by 20%.',
+              es: 'Me hice responsable de la migración y añadí caché. Como resultado, redujimos la latencia un 20%.',
             },
             {
               speaker: 'a',
@@ -227,6 +229,8 @@ export const m9: Module = {
           id: 'm9-l1-e10',
           type: 'dialogue-branch',
           prompt: 'Elige la mejor respuesta en una entrevista técnica.',
+          context:
+            'En una entrevista técnica, la entrevistadora pregunta por un bug difícil y qué aprendió de él.',
           steps: [
             {
               speaker: 'Interviewer',
@@ -337,8 +341,10 @@ export const m9: Module = {
         {
           type: 'dialogue',
           title: 'Del incidente al RFC y la demo',
+          setting: 'Canal #on-call, repaso integrado',
+          goal: 'Repasar update de incidente, feedback de RFC y demo en una conversación.',
           context:
-            'Maya y Leo pasan de un update de incidente al feedback sobre un RFC y una demo.',
+            'Tras un incidente, Maya y Leo pasan del update al feedback sobre el RFC y la demo de la solución.',
           lines: [
             {
               speaker: 'a',
@@ -365,22 +371,22 @@ export const m9: Module = {
               speaker: 'b',
               name: 'Leo',
               role: 'Dev',
-              en: 'Got it. Could you give me actionable feedback on my RFC for the fix?',
-              es: 'Entendido. ¿Podrías darme feedback accionable sobre mi RFC para la solución?',
+              en: 'Got it. While that runs, could you give me actionable feedback on my RFC for the fix?',
+              es: 'Entendido. Mientras tanto, ¿podrías darme feedback accionable sobre mi RFC para la solución?',
             },
             {
               speaker: 'a',
               name: 'Maya',
               role: 'Lead',
-              en: 'Sure. The goal of this RFC is clear, but let me walk you through the demo first.',
-              es: 'Claro. El objetivo del RFC es claro, pero déjame mostrarte primero la demo paso a paso.',
+              en: 'Sure. The goal of this RFC is clear. Let me walk you through the demo first.',
+              es: 'Claro. El objetivo del RFC es claro. Déjame mostrarte primero la demo paso a paso.',
             },
             {
               speaker: 'b',
               name: 'Leo',
               role: 'Dev',
-              en: 'Thanks. Could you clarify what you mean by the fallback plan?',
-              es: 'Gracias. ¿Podrías aclarar a qué te refieres con el plan de respaldo?',
+              en: 'Thanks. Before that, could you clarify what you mean by the fallback plan?',
+              es: 'Gracias. Antes, ¿podrías aclarar a qué te refieres con el plan de respaldo?',
             },
           ],
         },

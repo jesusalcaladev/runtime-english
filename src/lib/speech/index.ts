@@ -1,6 +1,17 @@
 import { emitToast } from '../toast'
-import { primeWebVoices, speakNative, speakWeb, stopNativeSpeech } from './browser'
-import { speakWithGoogle, stopGooglePlayback } from './google'
+import {
+  primeWebVoices,
+  speakNative,
+  speakWeb,
+  stopNativeSpeech,
+  warmNativeVoices,
+} from './browser'
+import {
+  getGooglePhraseStatus,
+  prefetchGooglePhrase,
+  speakWithGoogle,
+  stopGooglePlayback,
+} from './google'
 import {
   canAutoLoadKokoroInBackground,
   getKokoroDiagnostics,
@@ -19,7 +30,13 @@ import {
   subscribeKokoroPhraseStatus,
   subscribeKokoroStatus,
 } from './kokoro'
-import { speakWithPiper, stopPiperPlayback } from './piper'
+import { bumpPhraseStatus, subscribePhraseStatus } from './phraseStatus'
+import {
+  getPiperPhraseStatus,
+  prefetchPiperPhrase,
+  speakWithPiper,
+  stopPiperPlayback,
+} from './piper'
 import { getSpeechEngine, isNativePlatform, isSpeechEnabled, normalizeSpeechText } from './platform'
 import type { SpeechStyle } from './types'
 import { clearAllSpeakStates, setSpeaking, setSpeakLoading } from './ui'
@@ -75,6 +92,28 @@ function notifyKokoroReadyOnce(): void {
   emitToast('Voz HQ lista. Se usará en la próxima reproducción.', 'info')
 }
 
+export type SpeechPhraseStatus = { ready: number; total: number }
+
+// Kokoro publishes its own phrase-status events; bridge them into the shared signal.
+if (typeof window !== 'undefined') {
+  subscribeKokoroPhraseStatus(() => bumpPhraseStatus())
+}
+
+export function subscribeSpeechPhraseStatus(listener: () => void): () => void {
+  return subscribePhraseStatus(listener)
+}
+
+/** Readiness of the exact phrases for the currently selected TTS engine. */
+export function getSpeechPhraseStatus(texts: string[]): SpeechPhraseStatus {
+  if (typeof window === 'undefined') return { ready: 0, total: 0 }
+  const engine = getSpeechEngine()
+  if (engine === 'kokoro') return getKokoroPhraseStatus(texts)
+  if (engine === 'google') return getGooglePhraseStatus(texts)
+  if (engine === 'piper') return getPiperPhraseStatus(texts)
+  // The device voice is always available: there is nothing to pre-generate.
+  return { ready: texts.length, total: texts.length }
+}
+
 /** Pre-generate on-screen phrases so the first tap on them is instant. */
 export function warmSpeechPhrases(texts: string[]): void {
   if (typeof window === 'undefined') return
@@ -86,14 +125,33 @@ export function warmSpeechPhrases(texts: string[]): void {
   }
 }
 
-/** Start generating one exact phrase right away (user intent or next dialogue line). */
+/**
+ * Start preparing one exact phrase right away (user intent or next dialogue line).
+ * Works for every engine: Kokoro generates audio, Google/Piper download/generate
+ * and cache it, and the system voice just resolves once and is reused.
+ */
 export function primeSpeechPhrase(text: string): void {
   if (typeof window === 'undefined') return
-  if (!isSpeechEnabled() || getSpeechEngine() !== 'kokoro') return
-  // Never trigger a heavy uncached model download just by opening a lesson on native.
-  if (isNativePlatform() && !kokoroIsCached()) return
+  if (!isSpeechEnabled()) return
   try {
-    prepareKokoroPhrase(text)
+    switch (getSpeechEngine()) {
+      case 'kokoro':
+        // Never trigger a heavy uncached model download just by opening a lesson on native.
+        if (isNativePlatform() && !kokoroIsCached()) return
+        prepareKokoroPhrase(text)
+        break
+      case 'google':
+        prefetchGooglePhrase(text)
+        break
+      case 'piper':
+        prefetchPiperPhrase(text)
+        break
+      default:
+        if (canUseWebSpeech()) primeWebVoices()
+        warmNativeVoices()
+        break
+    }
+    bumpPhraseStatus()
   } catch {
     // Priming is best effort.
   }
@@ -119,9 +177,10 @@ export function warmConversationPhrases(texts: string[]): void {
   if (!isSpeechEnabled() || texts.length === 0) return
   try {
     if (canUseWebSpeech()) primeWebVoices()
+    warmNativeVoices()
     warmSpeechPhrases(texts)
     // Prime the first lines immediately so the dialogue starts without waiting.
-    for (const text of texts.slice(0, 2)) primeSpeechPhrase(text)
+    for (const text of texts.slice(0, 3)) primeSpeechPhrase(text)
     // On native, avoid a heavy uncached model download just by opening a lesson.
     if (getSpeechEngine() === 'kokoro' && !(isNativePlatform() && !kokoroIsCached())) {
       void loadKokoro().catch(() => {})

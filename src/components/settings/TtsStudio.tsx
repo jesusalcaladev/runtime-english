@@ -309,6 +309,21 @@ export default function TtsStudio() {
             })}
           </div>
 
+          <p class="mt-2 text-[10px] leading-relaxed text-base-content/45">
+            Motor activo:{' '}
+            <span class="font-mono text-accent">
+              {state.settings.ttsEngine === 'google'
+                ? 'Google'
+                : state.settings.ttsEngine === 'kokoro'
+                  ? 'HQ Kokoro'
+                  : state.settings.ttsEngine === 'piper'
+                    ? 'Piper'
+                    : 'Sistema'}
+            </span>
+            . Las líneas siguientes de cada conversación se preparan en segundo plano mientras suena
+            la actual.
+          </p>
+
           {(state.settings.ttsEngine === 'kokoro' || kokoro.state !== 'idle') && (
             <div class="mt-3 rounded-xl bg-base-100/60 p-3">
               <div class="flex flex-wrap items-center justify-between gap-2">

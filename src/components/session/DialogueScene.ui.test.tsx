@@ -14,6 +14,8 @@ vi.mock('../../lib/speech', () => ({
   primeSpeechPhrase: vi.fn(),
   getKokoroPhraseStatus: vi.fn().mockReturnValue({ ready: 0, total: 2 }),
   subscribeKokoroPhraseStatus: vi.fn().mockReturnValue(() => {}),
+  getSpeechPhraseStatus: vi.fn().mockReturnValue({ ready: 0, total: 2 }),
+  subscribeSpeechPhraseStatus: vi.fn().mockReturnValue(() => {}),
 }))
 
 const lines: DialogueLine[] = [
@@ -37,6 +39,23 @@ describe('DialogueScene', () => {
     expect(screen.queryByRole('button', { name: /micrófono|Repetir línea de/ })).toBeNull()
   })
 
+  it('shows the scene setting and goal', () => {
+    cleanup()
+    render(
+      <DialogueScene
+        title="Daily"
+        setting="Daily, sala de equipo"
+        goal="Aclarar el bloqueo"
+        context="Leo reporta un bloqueo con el token de la API."
+        lines={lines}
+      />,
+    )
+
+    expect(screen.getByText('Daily, sala de equipo')).toBeTruthy()
+    expect(screen.getByText('Aclarar el bloqueo')).toBeTruthy()
+    expect(screen.getByText('Leo reporta un bloqueo con el token de la API.')).toBeTruthy()
+  })
+
   it('toggles Spanish translations and audio-only mode', () => {
     cleanup()
     render(<DialogueScene title="Daily" lines={lines} />)
@@ -54,7 +73,7 @@ describe('DialogueScene', () => {
 
   it('shows when every line already has audio cached', () => {
     cleanup()
-    const status = speech.getKokoroPhraseStatus as ReturnType<typeof vi.fn>
+    const status = speech.getSpeechPhraseStatus as ReturnType<typeof vi.fn>
     status.mockReturnValue({ ready: 2, total: 2 })
     render(<DialogueScene title="Daily" lines={lines} />)
     expect(screen.getByText('Audio listo')).toBeTruthy()

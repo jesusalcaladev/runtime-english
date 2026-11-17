@@ -347,8 +347,10 @@ export const m7: Module = {
         {
           type: 'dialogue',
           title: 'Alinear prioridades sin perder tiempo',
+          setting: 'Reunión de planificación, sala de equipo',
+          goal: 'Aparcar un bloqueo y acordar quién lo retoma con jerga de reunión.',
           context:
-            'Maya y Leo usan jerga de reunión para aparcar un bloqueo y acordar quién lo retoma.',
+            'La reunión se queda sin tiempo y Maya y Leo usan expresiones de reunión para aparcar un bloqueo y seguir adelante.',
           lines: [
             {
               speaker: 'a',
@@ -477,6 +479,8 @@ export const m7: Module = {
           id: 'm7-l3-e11',
           type: 'dialogue-branch',
           prompt: 'Elige el slang adecuado en una reunión.',
+          context:
+            'En una reunión, Maya quiere aparcar un tema y después confirmar la fecha límite.',
           steps: [
             {
               speaker: 'Maya',
@@ -593,7 +597,10 @@ export const m7: Module = {
         {
           type: 'dialogue',
           title: 'Un review en lenguaje real',
-          context: 'Maya deja comentarios claros y Leo responde con naturalidad.',
+          setting: 'GitHub, comentarios del PR',
+          goal: 'Dar y recibir feedback de review con slang natural.',
+          context:
+            'Maya deja comentarios en el PR de Leo usando LGTM y nit. Leo responde y aplica los cambios antes de desplegar.',
           lines: [
             {
               speaker: 'a',
