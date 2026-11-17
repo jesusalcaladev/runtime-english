@@ -3,7 +3,7 @@ import { z } from 'zod'
 export const learningGoalSchema = z.enum(['daily', 'interviews', 'work', 'all'])
 export const immersionSchema = z.enum(['auto', 'es', 'mixed', 'en'])
 export const themeSchema = z.enum(['light', 'dark'])
-export const ttsEngineSchema = z.enum(['system', 'kokoro', 'piper'])
+export const ttsEngineSchema = z.enum(['system', 'google', 'kokoro', 'piper'])
 
 export const remindersSchema = z.object({
   enabled: z.boolean().catch(false),

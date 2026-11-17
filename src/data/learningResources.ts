@@ -3,9 +3,14 @@ import {
   durationSeconds as algorithmDuration,
 } from './videoTranscripts/algorithm'
 import {
+  cues as communicateCues,
+  durationSeconds as communicateDuration,
+} from './videoTranscripts/communicate'
+import {
   cues as confidenceCues,
   durationSeconds as confidenceDuration,
 } from './videoTranscripts/confidence'
+import { cues as emailCues, durationSeconds as emailDuration } from './videoTranscripts/email'
 import {
   cues as internetCues,
   durationSeconds as internetDuration,
@@ -24,6 +29,7 @@ import {
 } from './videoTranscripts/laughter'
 import { cues as sleepCues, durationSeconds as sleepDuration } from './videoTranscripts/sleep'
 import { cues as socialCues, durationSeconds as socialDuration } from './videoTranscripts/social'
+import { cues as timeCues, durationSeconds as timeDuration } from './videoTranscripts/time'
 import {
   cues as treasureCues,
   durationSeconds as treasureDuration,
@@ -748,6 +754,159 @@ export const VIDEO_LESSONS: VideoLesson[] = [
         answer: 0,
         explanation:
           "'College students who keep regular sleep hours have, on average, a higher GPA.'",
+      },
+    ],
+  },
+  {
+    id: 'time-management-machines',
+    title: 'How to Manage Your Time More Effectively (According to Machines)',
+    channel: 'TED · Brian Christian',
+    youtubeId: 'iDbdXTMnOmE',
+    level: 'B1-B2',
+    topic: 'Productividad · Atención y descanso',
+    description:
+      'Qué nos enseña el error de una sonda de la NASA sobre la procrastinación, las prioridades y la necesidad de parar.',
+    segment: 'Video completo · 0:00 – 5:10',
+    durationSeconds: timeDuration,
+    cues: timeCues,
+    questions: [
+      {
+        id: 'time-q1',
+        prompt: '¿Qué le pasó a la sonda Pathfinder en Marte?',
+        options: [
+          'Dejó de transmitir porque se ocupaba en tareas poco importantes.',
+          'Se quedó sin batería por la noche.',
+          'Perdió contacto por una tormenta.',
+          'Terminó su misión y volvió a la Tierra.',
+        ],
+        answer: 0,
+        explanation: "'Keeping itself fully occupied but failing to do its most important work.'",
+      },
+      {
+        id: 'time-q2',
+        prompt: '¿Qué era el fallo del planificador (scheduler)?',
+        options: [
+          'No asignaba bien el tiempo entre tareas.',
+          'Tenía un problema de memoria física.',
+          'No recibía las órdenes de la Tierra.',
+          'Era demasiado rápido para la CPU.',
+        ],
+        answer: 0,
+        explanation: "'There was a bug in its scheduler.'",
+      },
+      {
+        id: 'time-q3',
+        prompt: '¿Qué nos sugiere el video para recuperar la atención?',
+        options: [
+          'Adoptar una approach parecida a la de la sonda: bajar a un estado de bajo consumo.',
+          'Trabajar el doble de horas.',
+          'Apagar completamente el cerebro.',
+          'Delegar todas las tareas a una máquina.',
+        ],
+        answer: 0,
+        explanation: "'Might allow us users to reclaim our own attention.'",
+      },
+    ],
+  },
+  {
+    id: 'communicate-clearly',
+    title: 'How to Communicate Clearly',
+    channel: 'TED-Ed',
+    youtubeId: 'btWlBHE0pe4',
+    level: 'B1-B2',
+    topic: 'Speaking · Hablar en público',
+    description:
+      'Cómo encontrar la idea principal de tu mensaje (throughline) y estructurar una charla que se entienda de verdad.',
+    segment: 'Video completo · 0:00 – 7:11',
+    durationSeconds: communicateDuration,
+    cues: communicateCues,
+    questions: [
+      {
+        id: 'communicate-q1',
+        prompt: '¿Qué es una “throughline”?',
+        options: [
+          'La idea principal que recorre toda una charla.',
+          'Un tipo de diapositiva.',
+          'El tono de voz del ponente.',
+          'La duración máxima del video.',
+        ],
+        answer: 0,
+        explanation: "'The throughline of a talk is the main idea.'",
+      },
+      {
+        id: 'communicate-q2',
+        prompt: '¿Cuándo conviene dejar clara la throughline?',
+        options: [
+          'Desde el principio.',
+          'Solo al final.',
+          'Nunca, para generar misterio.',
+          'Solo en presentaciones largas.',
+        ],
+        answer: 0,
+        explanation: "'A talk where the throughline is made clear from the start.'",
+      },
+      {
+        id: 'communicate-q3',
+        prompt: '¿Cuánto contenido recomienda cubrir?',
+        options: [
+          'Solo lo que puedas explorar en profundidad en el tiempo disponible.',
+          'Todo lo que sepas del tema.',
+          'El máximo número de datos posible.',
+          'Solo una frase.',
+        ],
+        answer: 0,
+        explanation: "'Only cover as much as you have time to really explore in depth.'",
+      },
+    ],
+  },
+  {
+    id: 'importance-of-emails',
+    title: 'The Importance of Emails',
+    channel: 'TED-Ed · Guy Katz',
+    youtubeId: 'SMnjShkHCug',
+    level: 'A1-A2',
+    topic: 'Writing · Correos profesionales',
+    description:
+      'Una analogía muy visual (un sándwich) para escribir correos claros y profesionales. Ideal para A1-A2.',
+    segment: 'Video completo · 0:00 – 2:32',
+    durationSeconds: emailDuration,
+    cues: emailCues,
+    questions: [
+      {
+        id: 'email-q1',
+        prompt: '¿Con qué compara escribir un buen correo?',
+        options: [
+          'Con hacer un sándwich',
+          'Con cocinar una paella',
+          'Con escribir un tuit',
+          'Con una llamada',
+        ],
+        answer: 0,
+        explanation: "'Writing an email is the equivalent of making a sandwich for your teacher.'",
+      },
+      {
+        id: 'email-q2',
+        prompt: '¿Qué partes necesita un buen correo según el video?',
+        options: [
+          'Tono, asunto, saludo, cuerpo y firma.',
+          'Solo el asunto y el cuerpo.',
+          'Emojis y una foto.',
+          'Muchos párrafos sin estructura.',
+        ],
+        answer: 0,
+        explanation: "'A proper tone, subject, greeting, body, signature...'",
+      },
+      {
+        id: 'email-q3',
+        prompt: '¿Qué consejo da para sonar profesional?',
+        options: [
+          'Evitar la agresividad y no enviar correos como si fueran mensajes.',
+          'Escribir siempre en mayúsculas.',
+          'Enviar varios correos seguidos.',
+          'Usar el tono de un chat con amigos.',
+        ],
+        answer: 0,
+        explanation: "'Nobody wants to receive a threatening email.'",
       },
     ],
   },

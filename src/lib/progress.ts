@@ -46,7 +46,7 @@ export interface ProgressSettings {
   ttsRate: number
   ttsPitch?: number
   ttsVoiceName?: string
-  ttsEngine: 'system' | 'kokoro' | 'piper'
+  ttsEngine: 'system' | 'google' | 'kokoro' | 'piper'
   speechLanguage: 'en-US' | 'en-GB'
   reminders: ReminderSettings
   name: string

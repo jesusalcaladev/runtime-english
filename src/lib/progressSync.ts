@@ -64,7 +64,7 @@ interface CompactSettingsState {
   im?: 'auto' | 'es' | 'mixed' | 'en'
   tts?: boolean
   rate?: number
-  eng?: 'system' | 'kokoro' | 'piper'
+  eng?: 'system' | 'google' | 'kokoro' | 'piper'
   lng?: 'en-US' | 'en-GB'
   name?: string
   ob?: boolean
@@ -456,7 +456,10 @@ export function expandState(raw: unknown, defaults: ProgressState): ProgressStat
         : defaults.settings.immersion,
     ttsEnabled: typeof settings.tts === 'boolean' ? settings.tts : defaults.settings.ttsEnabled,
     ttsRate: toFiniteNumber(settings.rate, defaults.settings.ttsRate),
-    ttsEngine: settings.eng === 'kokoro' || settings.eng === 'piper' ? settings.eng : 'system',
+    ttsEngine:
+      settings.eng === 'kokoro' || settings.eng === 'piper' || settings.eng === 'google'
+        ? settings.eng
+        : 'system',
     speechLanguage: settings.lng === 'en-GB' ? 'en-GB' : 'en-US',
     name: toStringValue(settings.name, ''),
     onboarded: Boolean(settings.ob),

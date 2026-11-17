@@ -85,9 +85,9 @@ export function getPreferredVoiceName(): string | null {
   return name || null
 }
 
-export function getSpeechEngine(): 'system' | 'kokoro' | 'piper' {
+export function getSpeechEngine(): 'system' | 'google' | 'kokoro' | 'piper' {
   const engine = readStoredSpeechSettings()?.ttsEngine
-  return engine === 'kokoro' || engine === 'piper' ? engine : 'system'
+  return engine === 'kokoro' || engine === 'piper' || engine === 'google' ? engine : 'system'
 }
 
 export function getSpeechLanguage(): 'en-US' | 'en-GB' {

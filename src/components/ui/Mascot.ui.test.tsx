@@ -1,6 +1,6 @@
 import { act, cleanup, render, screen } from '@testing-library/preact'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import Mascot from './Mascot'
+import Mascot, { MASCOT_LINE_INTERVAL_MS } from './Mascot'
 
 afterEach(() => {
   cleanup()
@@ -27,11 +27,11 @@ describe('Mascot', () => {
     render(<Mascot lines={['Uno', 'Dos', 'Tres']} />)
     expect(screen.getByText('Uno')).toBeTruthy()
     act(() => {
-      vi.advanceTimersByTime(3300)
+      vi.advanceTimersByTime(MASCOT_LINE_INTERVAL_MS + 100)
     })
     expect(screen.getByText('Dos')).toBeTruthy()
     act(() => {
-      vi.advanceTimersByTime(3300)
+      vi.advanceTimersByTime(MASCOT_LINE_INTERVAL_MS + 100)
     })
     expect(screen.getByText('Tres')).toBeTruthy()
   })

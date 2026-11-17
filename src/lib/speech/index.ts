@@ -1,5 +1,6 @@
 import { emitToast } from '../toast'
 import { primeWebVoices, speakNative, speakWeb, stopNativeSpeech } from './browser'
+import { speakWithGoogle, stopGooglePlayback } from './google'
 import {
   canAutoLoadKokoroInBackground,
   getKokoroDiagnostics,
@@ -199,6 +200,7 @@ export function stopSpeech(): void {
 
   stopKokoroPlayback()
   stopPiperPlayback()
+  stopGooglePlayback()
 
   try {
     window.speechSynthesis?.cancel()
@@ -288,7 +290,10 @@ async function playWithSystemVoice(
   const webHandled = await speakWeb(text, button, style)
   if (webHandled) return true
 
-  // Browser voice failed (e.g. Brave without voices): try ready Kokoro as fallback.
+  // Brave/Linux often has no Web Speech voices: use the fast online voice first.
+  if (await speakWithGoogle(text, button)) return true
+
+  // Last resort: a Kokoro model that is already loaded (never wait for download).
   return tryKokoroPlayback(text, button)
 }
 
@@ -298,6 +303,17 @@ async function playSpeech(
   style?: SpeechStyle,
 ): Promise<void> {
   const engine = getSpeechEngine()
+
+  if (engine === 'google') {
+    if (await speakWithGoogle(text, button).catch(() => false)) return
+    const handledByWeb = await speakWeb(text, button, style).catch(() => false)
+    if (handledByWeb) return
+    if (await tryKokoroPlayback(text, button)) return
+    setSpeaking(button, false)
+    setSpeakLoading(button, false)
+    emitToast('No se pudo reproducir la voz online. Revisa tu conexión.', 'error')
+    return
+  }
 
   if (engine === 'piper') {
     const handledByPiper = await speakWithPiper(text, button, style).catch(() => false)
@@ -376,7 +392,10 @@ export function speak(text: string, button?: HTMLElement | null, style?: SpeechS
     .catch(() => {
       setSpeaking(button, false)
       setSpeakLoading(button, false)
-      emitToast('No se pudo reproducir el audio. Prueba la voz HQ (Kokoro) en Ajustes.', 'error')
+      emitToast(
+        'No se pudo reproducir el audio. Prueba otra voz en Ajustes (Google/Kokoro).',
+        'error',
+      )
     })
     .finally(() => {
       // Keep "playing" icon/state while audio is speaking; clear only loading.

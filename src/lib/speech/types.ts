@@ -1,4 +1,4 @@
-export type SpeechEngine = 'system' | 'kokoro' | 'piper'
+export type SpeechEngine = 'system' | 'google' | 'kokoro' | 'piper'
 
 /** Small per-speaker tweaks so two-avatar conversations sound less flat. */
 export type SpeechStyle = {

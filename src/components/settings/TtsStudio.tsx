@@ -271,9 +271,10 @@ export default function TtsStudio() {
             </span>
           </div>
 
-          <div class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
+          <div class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
             {(
               [
+                { value: 'google' as const, label: 'Google', desc: 'Online gratis, al instante' },
                 { value: 'system' as const, label: 'Sistema', desc: 'Voz del dispositivo' },
                 { value: 'kokoro' as const, label: 'HQ Kokoro', desc: 'Neural local' },
                 { value: 'piper' as const, label: 'Piper', desc: 'Rápida y natural' },

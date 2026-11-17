@@ -9,6 +9,9 @@ interface Props {
   className?: string
 }
 
+/** Ritmo pausado de los globos: dar tiempo a leer cada frase. */
+export const MASCOT_LINE_INTERVAL_MS = 7000
+
 const ART_SIZES = {
   sm: 'h-8 w-8',
   md: 'h-10 w-10',
@@ -25,7 +28,7 @@ export default function Mascot({ mood = 'idle', size = 'sm', lines = [], classNa
     if (lines.length < 2) return
     const timer = window.setInterval(() => {
       setLineIndex((current) => (current + 1) % lines.length)
-    }, 3200)
+    }, MASCOT_LINE_INTERVAL_MS)
     return () => window.clearInterval(timer)
   }, [linesKey])
 
