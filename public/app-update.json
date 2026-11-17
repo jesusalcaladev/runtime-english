@@ -1,7 +1,7 @@
 {
-  "versionName": "1.2.8",
-  "versionCode": 11,
-  "apkUrl": "https://github.com/jesusalcaladev/runtime-english/releases/download/v1.2.8/RuntimeEnglish.apk",
+  "versionName": "1.2.9",
+  "versionCode": 12,
+  "apkUrl": "https://github.com/jesusalcaladev/runtime-english/releases/download/v1.2.9/RuntimeEnglish.apk",
   "title": "Nueva versión disponible",
-  "notes": "Voz online gratuita e instantánea con fallback automático para Brave, Piper y Kokoro. Tres videos nuevos (gestión del tiempo, comunicación clara y correos profesionales) con traducción por frase y resaltado palabra por palabra. Mascota más pausada."
+  "notes": "Diálogos con escena y contexto real, voces de las próximas líneas preparadas en segundo plano y micrófono más fiable en Android (con respaldo del cuadro de voz del sistema)."
 }

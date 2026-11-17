@@ -21,6 +21,28 @@ export interface ChangelogRelease {
 
 export const CHANGELOG: ChangelogRelease[] = [
   {
+    version: '1.2.9',
+    title: 'Conversaciones con contexto y voz siempre lista',
+    entries: [
+      {
+        kind: 'improvement',
+        text: 'Los diálogos son ahora escenas reales: ves dónde ocurren y qué se quiere lograr, y las frases siguen un hilo lógico en vez de ser ejemplos sueltos.',
+      },
+      {
+        kind: 'improvement',
+        text: 'La voz de las próximas líneas se prepara en segundo plano para que las conversaciones fluyan sin pausas con Google, Kokoro, Piper o la voz del sistema.',
+      },
+      {
+        kind: 'fix',
+        text: 'Micrófono más fiable en Android: si el reconocimiento directo falla, se abre el cuadro de voz del sistema, con errores claros y acceso a ajustes.',
+      },
+      {
+        kind: 'feature',
+        text: 'Los ejercicios de diálogo ramificado muestran la escena antes de elegir la respuesta.',
+      },
+    ],
+  },
+  {
     version: '1.2.8',
     title: 'Voces que funcionan y más videos',
     entries: [
