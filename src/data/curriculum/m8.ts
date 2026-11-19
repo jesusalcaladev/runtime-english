@@ -161,15 +161,6 @@ export const m8: Module = {
             "'Deprecated' significa obsoleto: aún puede funcionar, pero no se recomienda y puede eliminarse.",
         },
         {
-          id: 'm8-l1-e3',
-          type: 'write',
-          prompt: "Escríbelo en inglés: 'En resumen, debemos enviar una clave de API.'",
-          answer: 'In short, we must send an API key.',
-          accept: ['In short, we must send an API key'],
-          hint: "Usa 'In short, we must...'",
-          explanation: "'In short' resume; 'must' marca que es obligatorio.",
-        },
-        {
           id: 'm8-l1-e4',
           type: 'builder',
           prompt: "Construye: 'Este campo es opcional, así que podemos omitirlo por ahora.'",
@@ -186,16 +177,6 @@ export const m8: Module = {
           answer: 1,
           explanation:
             "'Should' indica recomendación (buena práctica), no una obligación estricta como 'must'.",
-        },
-        {
-          id: 'm8-l1-e6',
-          type: 'write',
-          prompt: "Escríbelo en inglés: 'Según la documentación, este endpoint está obsoleto.'",
-          answer: 'According to the docs, this endpoint is deprecated.',
-          accept: ['According to the docs, this endpoint is deprecated'],
-          hint: "Usa 'According to the docs...' y 'deprecated'.",
-          explanation:
-            'Frase modelo de la lección para resumir un estado importante encontrado en documentación.',
         },
         {
           id: 'm8-l1-e7',
@@ -483,20 +464,6 @@ export const m8: Module = {
             "Es una restricción: define un límite claro ('do not change the public API').",
         },
         {
-          id: 'm8-l7-e2',
-          type: 'choice',
-          prompt: 'De forma nativa, ¿cómo pides que te expliquen algo paso a paso?',
-          options: [
-            'Can you walk me through it?',
-            'Can you road me it?',
-            'Do a walking to me.',
-            'You explain me walking.',
-          ],
-          answer: 0,
-          explanation:
-            "'Walk me through it' es una frase nativa muy común para pedir una explicación guiada.",
-        },
-        {
           id: 'm8-l7-e3',
           type: 'builder',
           prompt: "Construye: 'Señala cualquier caso borde o trade-off.'",
@@ -517,19 +484,6 @@ export const m8: Module = {
           ],
           hint: "Usa 'Walk me through...'",
           explanation: 'Forma nativa y clara de pedir que desglosen el razonamiento.',
-        },
-        {
-          id: 'm8-l7-e5',
-          type: 'choice',
-          prompt: "¿Qué significa 'take another pass at the error handling'?",
-          options: [
-            'Ignorar el manejo de errores',
-            'Revisarlo/mejorarlo otra vez',
-            'Borrarlo desde cero sin razón',
-            'Pasarlo a otro equipo',
-          ],
-          answer: 1,
-          explanation: "'Take another pass' es hacer otra revisión o intento para mejorarlo.",
         },
         {
           id: 'm8-l7-e6',
@@ -678,19 +632,6 @@ export const m8: Module = {
           explanation: 'Sentence frame de estado + siguiente paso: rápido y claro en async.',
         },
         {
-          id: 'm8-l5-e5',
-          type: 'write',
-          prompt:
-            "Situación: reformula para que se entienda. Escríbelo: 'En otras palabras, necesitamos reintentar la petición.'",
-          answer: 'In other words, we need to retry the request.',
-          accept: [
-            'In other words, we need to retry the request',
-            'In other words we need to retry the request.',
-          ],
-          hint: "Empieza con 'In other words,'.",
-          explanation: "'In other words' reformula la idea con otras palabras más claras.",
-        },
-        {
           id: 'm8-l5-e6',
           type: 'choice',
           prompt: 'Situación: necesitas ayuda sin urgencia agresiva. ¿Qué eliges?',
@@ -808,20 +749,6 @@ export const m8: Module = {
           ],
           hint: "Usa 'Let me know if...'",
           explanation: 'Cierre útil que deja abierta la comunicación sin sonar insistente.',
-        },
-        {
-          id: 'm8-l6-e4',
-          type: 'choice',
-          prompt: '¿Qué mensaje cierra mejor una tarea por escrito?',
-          options: [
-            'Done.',
-            "I'll follow up once I have more information.",
-            'Whatever happens happens.',
-            'No more messages.',
-          ],
-          answer: 1,
-          explanation:
-            "Indicar el siguiente paso o seguimiento ('I'll follow up...') da claridad sobre qué esperar.",
         },
         {
           id: 'm8-l6-e5',
@@ -1020,35 +947,6 @@ export const m8: Module = {
           words: ['Can you review', 'this PR', 'when you have', 'a minute?'],
           answer: 'Can you review this PR when you have a minute?',
           explanation: "Petición amable y común en trabajo asíncrono: 'when you have a minute'.",
-        },
-        {
-          id: 'm7-l5-e6',
-          type: 'choice',
-          prompt: 'Quieres corregir algo que dijiste antes. ¿Cuál suena más natural?',
-          options: [
-            'Actually, the issue is in the frontend.',
-            'Currently, the issue is in the frontend.',
-            'Yesterday, the issue is in the frontend.',
-            'Maybe actually currently frontend.',
-          ],
-          answer: 0,
-          explanation:
-            "'Actually' corrige o aclara: 'en realidad, el problema está en el frontend'.",
-        },
-        {
-          id: 'm7-l5-e7',
-          type: 'write',
-          prompt:
-            "Escríbelo en inglés: 'O sea, no es un bloqueador, pero deberíamos arreglarlo pronto.'",
-          answer: "I mean, it's not a blocker, but we should fix it soon.",
-          accept: [
-            'I mean, it is not a blocker, but we should fix it soon.',
-            "I mean, it isn't a blocker, but we should fix it soon.",
-            "I mean it isn't a blocker, but we should fix it soon.",
-          ],
-          hint: "Empieza con 'I mean,'.",
-          explanation:
-            "'I mean' reformula o suaviza la idea; 'we should fix it soon' propone el siguiente paso.",
         },
         {
           id: 'm7-l5-e8',

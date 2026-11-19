@@ -1021,6 +1021,12 @@ export default function ExerciseRunner({
 
           {exercise.type === 'dialogue-order' && (
             <div class="mt-5 space-y-4">
+              {exercise.context ? (
+                <p class="rounded-xl bg-base-200/60 px-3 py-2 text-[11px] leading-relaxed text-base-content/60">
+                  <span class="mono-label mr-1.5 text-accent/70">Escena</span>
+                  {exercise.context}
+                </p>
+              ) : null}
               <div class="min-h-[64px] rounded-2xl bg-base-200/70 p-3 space-y-1.5">
                 {dialoguePicked.length === 0 ? (
                   <p class="px-1 py-2 text-xs text-base-content/30">

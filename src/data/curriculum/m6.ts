@@ -182,20 +182,6 @@ export const m6: Module = {
           explanation: "'Rotate a key' significa reemplazarla por una nueva y revocar la anterior.",
         },
         {
-          id: 'm6-l1-e4',
-          type: 'write',
-          prompt: "Escribe en inglés: 'Nunca subas secretos al repositorio.'",
-          answer: 'Never commit secrets to the repository.',
-          accept: [
-            'Never push secrets to the repository.',
-            'Never commit secrets to the repo.',
-            'Never push secrets to the repo.',
-          ],
-          hint: "Usa 'Never commit secrets...'.",
-          explanation:
-            "En inglés técnico, 'commit secrets' es la forma habitual de hablar de subir credenciales al control de versiones.",
-        },
-        {
           id: 'm6-l1-e5',
           type: 'choice',
           prompt: '¿Qué frase comunica mejor el problema y la acción inmediata?',
@@ -208,21 +194,6 @@ export const m6: Module = {
           answer: 1,
           explanation:
             "Buena comunicación de seguridad: hecho concreto ('leaked in the logs') + acción inmediata ('I'm rotating it now').",
-        },
-        {
-          id: 'm6-l1-e6',
-          type: 'builder',
-          prompt:
-            "Construye: 'Este servicio tiene demasiados permisos. Deberíamos aplicar mínimo privilegio.'",
-          words: [
-            'This service has',
-            'too many permissions.',
-            'We should apply',
-            'least privilege.',
-          ],
-          answer: 'This service has too many permissions. We should apply least privilege.',
-          explanation:
-            "Identificas el problema (demasiados permisos) y propones la práctica correcta: 'least privilege' (mínimo privilegio).",
         },
         {
           id: 'm6-l1-e7',
@@ -453,20 +424,6 @@ export const m6: Module = {
             "Un 'single point of failure' es un componente cuya caída tumba todo el sistema.",
         },
         {
-          id: 'm6-l2-e5',
-          type: 'choice',
-          prompt: '¿Qué frase explica un trade-off de forma clara?',
-          options: [
-            'Caching is good.',
-            'We can cache reads to reduce latency, but it adds complexity.',
-            'Use cache always.',
-            'Latency is a problem.',
-          ],
-          answer: 1,
-          explanation:
-            "Un buen trade-off menciona beneficio y coste: 'reduce latency, but it adds complexity'.",
-        },
-        {
           id: 'm6-l2-e6',
           type: 'write',
           prompt: "Escribe en inglés: 'Empecemos por los requisitos.'",
@@ -667,19 +624,6 @@ export const m6: Module = {
             "'Let's + verbo base' propone el siguiente paso; 'before we optimize' marca el orden.",
         },
         {
-          id: 'm6-l3-e4',
-          type: 'write',
-          prompt: "Escribe en inglés: 'La latencia p95 se duplicó después del despliegue.'",
-          answer: 'The p95 latency doubled after the deploy.',
-          accept: [
-            'The p95 latency doubled after deployment.',
-            'P95 latency doubled after the deploy.',
-          ],
-          hint: "Usa 'p95 latency' y 'doubled'.",
-          explanation:
-            "'Doubled' significa que se multiplicó por dos; es una forma precisa de describir una regresión.",
-        },
-        {
           id: 'm6-l3-e5',
           type: 'choice',
           prompt:
@@ -693,15 +637,6 @@ export const m6: Module = {
           answer: 0,
           explanation:
             "'I/O-bound' indica que el cuello de botella está en entrada/salida (red, disco, base de datos), no en la CPU.",
-        },
-        {
-          id: 'm6-l3-e6',
-          type: 'builder',
-          prompt: "Construye: 'Perfila el endpoint antes de optimizar.'",
-          words: ['Profile', 'the endpoint', 'before you optimize.'],
-          answer: 'Profile the endpoint before you optimize.',
-          explanation:
-            'Imperativo con paso concreto: primero perfilar/midir, luego optimizar. Usa estructuras ya vistas.',
         },
         {
           id: 'm6-l3-e7',
@@ -818,20 +753,6 @@ export const m6: Module = {
           accept: ["Let's measure before optimizing.", 'Let us measure before we optimize.'],
           hint: "Usa 'Let's measure...'",
           explanation: 'Medir primero evita optimizaciones basadas en suposiciones.',
-        },
-        {
-          id: 'm6-l4-e4',
-          type: 'choice',
-          prompt: "'A single point of failure' significa:",
-          options: [
-            'Un componente cuya caída tumba el sistema',
-            'Un error que solo ocurre una vez',
-            'Un test que falla en CI',
-            'Una métrica de latencia',
-          ],
-          answer: 0,
-          explanation:
-            'Es un componente crítico sin redundancia: si falla, todo el sistema se ve afectado.',
         },
         {
           id: 'm6-l4-e5',

@@ -114,6 +114,8 @@ export interface DialogueOrderExercise {
   id: string
   type: 'dialogue-order'
   prompt: string
+  /** Scene context shown before the lines so the exchange makes sense. */
+  context?: string
   lines: string[] // líneas en orden correcto
   explanation: string
 }

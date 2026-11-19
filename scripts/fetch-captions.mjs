@@ -37,8 +37,22 @@ try {
   console.warn('No se pudo leer la duración del video:', error.message)
 }
 
-const lines = await YoutubeTranscript.fetchTranscript(videoId, { lang: 'en' })
+// YouTube publica la pista en inglés como `en`, `en-US` o `en-GB` según el canal.
+let lines = []
+let captionLang = null
+for (const lang of ['en', 'en-US', 'en-GB', 'en-orig']) {
+  try {
+    lines = await YoutubeTranscript.fetchTranscript(videoId, { lang })
+    if (lines.length) {
+      captionLang = lang
+      break
+    }
+  } catch {
+    //Probamos la siguiente variante.
+  }
+}
 if (!lines.length) throw new Error('El video no tiene subtítulos en inglés')
+console.log(`Subtítulos: ${captionLang} · ${lines.length} líneas`)
 
 const round = (value) => Math.round(value * 100) / 100
 const normalize = (text) => text.replace(/\s+/g, ' ').trim()

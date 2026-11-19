@@ -54,6 +54,10 @@ function validateExercise(exercise: Exercise, session: Session) {
       expect(exercise.answer.trim().length).toBeGreaterThan(0)
       break
     case 'dialogue-order':
+      expect(
+        exercise.context?.trim().length ?? 0,
+        `${exercise.id} (dialogue-order) needs a scene context`,
+      ).toBeGreaterThan(0)
       expect(exercise.lines.length).toBeGreaterThanOrEqual(2)
       break
     case 'fix-error':
@@ -215,12 +219,12 @@ describe('curriculum / roadmap integrity', () => {
     }
   })
 
-  it('keeps sessions focused (max 9 exercises and 7 blocks)', () => {
+  it('keeps sessions focused (max 7 exercises and 7 blocks)', () => {
     for (const { session } of ALL_SESSIONS) {
       expect(
         session.exercises.length,
         `${session.id} has ${session.exercises.length} exercises`,
-      ).toBeLessThanOrEqual(9)
+      ).toBeLessThanOrEqual(7)
       expect(
         session.blocks.length,
         `${session.id} has ${session.blocks.length} blocks`,

@@ -3,6 +3,11 @@ import {
   durationSeconds as algorithmDuration,
 } from './videoTranscripts/algorithm'
 import {
+  cues as apisCues,
+  durationSeconds as apisDuration,
+} from './videoTranscripts/apis-explained'
+import { cues as cicdCues, durationSeconds as cicdDuration } from './videoTranscripts/cicd'
+import {
   cues as communicateCues,
   durationSeconds as communicateDuration,
 } from './videoTranscripts/communicate'
@@ -10,7 +15,15 @@ import {
   cues as confidenceCues,
   durationSeconds as confidenceDuration,
 } from './videoTranscripts/confidence'
+import {
+  cues as devVocabularyCues,
+  durationSeconds as devVocabularyDuration,
+} from './videoTranscripts/dev-vocabulary'
 import { cues as emailCues, durationSeconds as emailDuration } from './videoTranscripts/email'
+import {
+  cues as gitCues,
+  durationSeconds as gitDuration,
+} from './videoTranscripts/git-fundamentals'
 import {
   cues as internetCues,
   durationSeconds as internetDuration,
@@ -29,6 +42,10 @@ import {
 } from './videoTranscripts/laughter'
 import { cues as sleepCues, durationSeconds as sleepDuration } from './videoTranscripts/sleep'
 import { cues as socialCues, durationSeconds as socialDuration } from './videoTranscripts/social'
+import {
+  cues as standupCues,
+  durationSeconds as standupDuration,
+} from './videoTranscripts/standup-meeting'
 import { cues as timeCues, durationSeconds as timeDuration } from './videoTranscripts/time'
 import {
   cues as treasureCues,
@@ -907,6 +924,244 @@ export const VIDEO_LESSONS: VideoLesson[] = [
         ],
         answer: 0,
         explanation: "'Nobody wants to receive a threatening email.'",
+      },
+    ],
+  },
+  {
+    id: 'git-fundamentals',
+    title: 'How Git Works: Explained in 4 Minutes',
+    channel: 'ByteByteGo',
+    youtubeId: 'e9lnsKot_SQ',
+    level: 'B1-B2',
+    topic: 'Git · Flujo de trabajo',
+    description:
+      'Las cuatro zonas de Git y el recorrido de tus cambios: clone, add, commit, push y pull. Ideal para fijar el vocabulario de Git en contexto.',
+    segment: 'Video completo · 0:00 – 4:18',
+    durationSeconds: gitDuration,
+    cues: gitCues,
+    questions: [
+      {
+        id: 'git-q1',
+        prompt: 'Según el video, ¿cuántas ubicaciones principales tiene el código en Git?',
+        options: [
+          'Dos: local y remota.',
+          'Tres: working directory, staging area y remota.',
+          'Cuatro: working directory, staging area, repositorio local y repositorio remoto.',
+          'Cinco: working, staging, local, remota y RAM.',
+        ],
+        answer: 2,
+        explanation:
+          "El video dice: 'There are four main locations where your code lives in Git': working directory, staging area, local repository y remote repository.",
+      },
+      {
+        id: 'git-q2',
+        prompt: '¿Qué comando guarda la instantánea del staging area en el repositorio local?',
+        options: ['git add', 'git commit', 'git push', 'git clone'],
+        answer: 1,
+        explanation:
+          "'git add' prepara los cambios en el staging area; 'git commit' los guarda en el repositorio local y 'git push' los envía al remoto.",
+      },
+      {
+        id: 'git-q3',
+        prompt: '¿Qué comando combina git fetch y git merge?',
+        options: ['git pull', 'git branch', 'git switch', 'git checkout'],
+        answer: 0,
+        explanation:
+          "El video explica que 'git pull' trae los cambios del remoto y los integra: fetch + merge.",
+      },
+    ],
+  },
+  {
+    id: 'apis-explained',
+    title: 'APIs Explained in 6 Minutes!',
+    channel: 'ByteByteGo',
+    youtubeId: 'hltLrjabkiY',
+    level: 'B1-B2',
+    topic: 'APIs · Conceptos técnicos',
+    description:
+      'Tipos de API, métodos HTTP, autenticación, documentación y buenas prácticas de diseño con subtítulos reales y chunks resaltados.',
+    segment: 'Video completo · 0:00 – 6:41',
+    durationSeconds: apisDuration,
+    cues: apisCues,
+    questions: [
+      {
+        id: 'apis-q1',
+        prompt: '¿Qué significa la sigla API?',
+        options: [
+          'Application Programming Interface',
+          'Automated Program Interface',
+          'Advanced Protocol Integration',
+          'Application Process Interaction',
+        ],
+        answer: 0,
+        explanation: 'El video define API como Application Programming Interface.',
+      },
+      {
+        id: 'apis-q2',
+        prompt: '¿Qué método HTTP se usa para recuperar (retrieve) recursos?',
+        options: ['Post', 'Get', 'Put', 'Delete'],
+        answer: 1,
+        explanation:
+          "El video resume: 'Post crea, Get recupera recursos, Put actualiza y Delete elimina'.",
+      },
+      {
+        id: 'apis-q3',
+        prompt: 'Según el video, ¿para qué sirve el rate limiting?',
+        options: [
+          'Para proteger la API contra abuso.',
+          'Para acelerar la compilación del cliente.',
+          'Para firmar los tokens de acceso.',
+          'Para crear ramas nuevas.',
+        ],
+        answer: 0,
+        explanation: "El video habla de 'applying rate limiting to protect against abuse'.",
+      },
+    ],
+  },
+  {
+    id: 'cicd-basics',
+    title: 'CI/CD In 5 Minutes | Crash Course System Design',
+    channel: 'ByteByteGo',
+    youtubeId: '42UP1fxi2SY',
+    level: 'B1-B2',
+    topic: 'DevOps · CI/CD',
+    description:
+      'Qué significa integración y entrega continua, qué herramientas se usan y por qué el despliegue continuo no sirve para todos los sistemas.',
+    segment: 'Video completo · 0:08 – 5:46',
+    durationSeconds: cicdDuration,
+    cues: cicdCues,
+    questions: [
+      {
+        id: 'cicd-q1',
+        prompt: '¿Qué significa CI en CI/CD?',
+        options: [
+          'Continuous Integration',
+          'Continuous Inspection',
+          'Code Integration',
+          'Continuous Improvement',
+        ],
+        answer: 0,
+        explanation:
+          'CI es Continuous Integration: integrar cambios en el repositorio compartido pronto y a menudo.',
+      },
+      {
+        id: 'cicd-q2',
+        prompt: '¿Qué práctica separa desplegar el código de activar una funcionalidad?',
+        options: ['Feature flags', 'Canary deployment', 'Rollbacks', 'Unit tests'],
+        answer: 0,
+        explanation:
+          "El video dice que se usan 'feature flags' para separar el despliegue del código de la activación de las funcionalidades.",
+      },
+      {
+        id: 'cicd-q3',
+        prompt: 'En el video, ¿qué es el “blast radius”?',
+        options: [
+          'El alcance del impacto si algo falla.',
+          'El tamaño del repositorio.',
+          'La velocidad del pipeline.',
+          'El número de tests unitarios.',
+        ],
+        answer: 0,
+        explanation:
+          'El despliegue canary limita el blast radius: prueba con pocos usuarios para reducir el impacto de un error.',
+      },
+    ],
+  },
+  {
+    id: 'standup-meeting',
+    title: 'English for Developers: Real Daily Stand-up Meeting',
+    channel: 'EnglishNotNull',
+    youtubeId: 'MsxcpZr1LpM',
+    level: 'A1-A2',
+    topic: 'Speaking · Daily stand-up',
+    description:
+      'Una reunión diaria real de desarrollo: reportar bloqueos, pedir aclaraciones y dar seguimiento con frases naturales de trabajo.',
+    segment: 'Video completo · 0:01 – 7:31',
+    durationSeconds: standupDuration,
+    cues: standupCues,
+    questions: [
+      {
+        id: 'standup-q1',
+        prompt: '¿Qué problema tiene el feature de password reset?',
+        options: [
+          'A veces no envía el correo de reset.',
+          'Siempre falla el login.',
+          'El token caduca demasiado rápido.',
+          'La base de datos está caída.',
+        ],
+        answer: 0,
+        explanation:
+          "'Sometimes it doesn't send the reset email' y promete 'I'll debug it and update you later.'",
+      },
+      {
+        id: 'standup-q2',
+        prompt: '¿Dónde dice Mark que estaba la información del schema actualizado?',
+        options: ['En el chat del equipo / Slack', 'En un email', 'En la wiki', 'En el PR'],
+        answer: 0,
+        explanation:
+          "'Mark mentioned something about that in the team chat this morning. Did you check Slack?'",
+      },
+      {
+        id: 'standup-q3',
+        prompt: '¿Qué encuentra QA en el flujo de actualización de perfil?',
+        options: [
+          'Casos límite y un bug intermitente con las fotos.',
+          'Que el build no compila.',
+          'Que no hay tests automatizados.',
+          'Que la API está deprecated.',
+        ],
+        answer: 0,
+        explanation:
+          "'We've uncovered a few edge cases' y 'an intermittent bug where profile pictures sometimes don't update immediately.'",
+      },
+    ],
+  },
+  {
+    id: 'dev-vocabulary',
+    title: '20 English Words Every SOFTWARE DEVELOPER Should Know',
+    channel: 'English For Tech Professionals',
+    youtubeId: 'fooBj0nkdak',
+    level: 'A1-A2',
+    topic: 'Vocabulario · Términos dev',
+    description:
+      'Veinte palabras técnicas con explicación y ejemplo: algorithm, bug, deploy, deadline, tech debt, stakeholder y más.',
+    segment: 'Video completo · 0:00 – 12:28',
+    durationSeconds: devVocabularyDuration,
+    cues: devVocabularyCues,
+    questions: [
+      {
+        id: 'devvocab-q1',
+        prompt: 'Según el video, ¿qué significa “to deploy”?',
+        options: [
+          'Publicar o liberar una actualización.',
+          'Corregir un bug.',
+          'Escribir tests.',
+          'Renombrar una variable.',
+        ],
+        answer: 0,
+        explanation:
+          "'To deploy means to release' una nueva versión, por ejemplo un update en viernes.",
+      },
+      {
+        id: 'devvocab-q2',
+        prompt: '¿Qué palabra significa “el tiempo límite para completar una tarea”?',
+        options: ['deadline', 'milestone', 'backlog', 'sprint'],
+        answer: 0,
+        explanation:
+          "El video define deadline como 'the time by which you need' terminar la tarea.",
+      },
+      {
+        id: 'devvocab-q3',
+        prompt: '¿Qué es un stakeholder?',
+        options: [
+          'Cualquier persona con interés o influencia en el proyecto.',
+          'Solo los inversores de la empresa.',
+          'Un tipo de test automático.',
+          'El servidor de producción.',
+        ],
+        answer: 0,
+        explanation:
+          "El video aclara que un stakeholder puede ser el equipo, un inversor o los usuarios: 'anyone' afectado por el proyecto.",
       },
     ],
   },

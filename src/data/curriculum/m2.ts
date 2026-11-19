@@ -175,16 +175,6 @@ export const m2: Module = {
           explanation: "Compromiso rápido a futuro → 'I will + verbo base (push)'.",
         },
         {
-          id: 'm2-l1-e4',
-          type: 'write',
-          prompt: "Escribe en inglés: 'Ayer desplegué la versión 2.0.'",
-          answer: 'I deployed version 2.0 yesterday.',
-          accept: ['Yesterday I deployed version 2.0.', 'I deployed v2.0 yesterday.'],
-          hint: "'Deploy' en pasado simple añade -ed: 'deployed'.",
-          explanation:
-            "El pasado simple con un marcador temporal ('yesterday') es la forma más clara de reportar algo terminado en una retrospectiva.",
-        },
-        {
           id: 'm2-l1-e5',
           type: 'choice',
           prompt:
@@ -198,15 +188,6 @@ export const m2: Module = {
           answer: 0,
           explanation:
             'Para describir comportamiento habitual o lo que el código hace, usa presente simple: es claro y suena natural en docs y reviews.',
-        },
-        {
-          id: 'm2-l1-e6',
-          type: 'builder',
-          prompt: "Construye: 'Estoy revisando tu PR ahora mismo.'",
-          words: ["I'm reviewing", 'your PR', 'right now.'],
-          answer: "I'm reviewing your PR right now.",
-          explanation:
-            "Presente continuo + 'right now' comunica lo que está pasando en este momento, sin sonar robótico.",
         },
         {
           id: 'm2-l1-e7',
@@ -354,19 +335,6 @@ export const m2: Module = {
             "'Now' y una acción en curso piden presente continuo: 'I'm fixing the login bug'.",
         },
         {
-          id: 'm2-l2-e2',
-          type: 'choice',
-          prompt: '¿Cuál cuenta correctamente la causa del bug en el pasado?',
-          options: [
-            'The token expires yesterday.',
-            'The token expired yesterday.',
-            'The token is expiring yesterday.',
-            'The token will expire yesterday.',
-          ],
-          answer: 1,
-          explanation: "'Yesterday' cierra el evento en el pasado: 'expired'.",
-        },
-        {
           id: 'm2-l2-e3',
           type: 'builder',
           prompt: "Construye: 'Desplegaré el arreglo cuando pasen los tests.'",
@@ -384,21 +352,6 @@ export const m2: Module = {
           hint: "'Find' es irregular: find → found.",
           explanation:
             "'Found' es el pasado de 'find'. Añadir 'yesterday' deja claro que la acción ya terminó.",
-        },
-        {
-          id: 'm2-l2-e5',
-          type: 'choice',
-          prompt:
-            "Quieres sonar claro y tranquilo en un update: 'El problema sigue abierto.' ¿Cuál eliges?",
-          options: [
-            'The issue is still open.',
-            'The issue still opens.',
-            'The issue opened still.',
-            'The issue is still opening.',
-          ],
-          answer: 0,
-          explanation:
-            "'Is still open' describe el estado actual de forma simple y natural. No necesitas una frase complicada para comunicar bien.",
         },
         {
           id: 'm2-l2-e6',

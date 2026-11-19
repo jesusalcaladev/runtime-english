@@ -231,7 +231,18 @@ function validateExercise(
           ok: false,
           error: `Ejercicio #${index + 1} (dialogue-order): "lines" debe tener al menos 2 líneas.`,
         }
-      return { ok: true, exercise: { id, type: 'dialogue-order', prompt, lines, explanation } }
+      const context = asString(value.context)?.trim()
+      return {
+        ok: true,
+        exercise: {
+          id,
+          type: 'dialogue-order',
+          prompt,
+          ...(context ? { context } : {}),
+          lines,
+          explanation,
+        },
+      }
     }
     case 'fix-error': {
       const sentence = asString(value.sentence)?.trim() ?? ''
@@ -745,8 +756,9 @@ export function buildAiLessonPrompt(topic: string): string {
     '   - REGLA ESTRICTA: words.join(" ") debe ser IGUAL a answer (mismo orden y puntuación).',
     '',
     'E) dialogue-order (ex-5):',
-    '   { "id": "ex-5", "type": "dialogue-order", "prompt": "...", "lines": ["A: ...", "B: ...", "A: ..."], "explanation": "..." }',
+    '   { "id": "ex-5", "type": "dialogue-order", "prompt": "...", "context": "Quién habla, dónde y por qué: una escena concreta, no una lista de frases de gramática.", "lines": ["A: ...", "B: ...", "A: ..."], "explanation": "..." }',
     '   - lines: al menos 2 strings YA en el orden correcto final.',
+    '   - context: obligatorio; describe la escena para que las líneas tengan sentido.',
     '',
     'F) write (ex-6):',
     '   { "id": "ex-6", "type": "write", "prompt": "...", "answer": "I have to deploy the hotfix today.", "hint": "...", "accept": ["I need to deploy the hotfix today."], "explanation": "..." }',
@@ -818,7 +830,7 @@ export function buildAiLessonPrompt(topic: string): string {
     '    { "id": "ex-2", "type": "fill-blank", "prompt": "Completa la oración con la forma correcta.", "template": "We ___ review the code before merging.", "blanks": ["have to"], "explanation": "Con we usamos have to + verbo base." },',
     '    { "id": "ex-3", "type": "fix-error", "prompt": "Corrige el error en la oración.", "sentence": "I have to fixed the login bug.", "answer": "I have to fix the login bug.", "explanation": "Después de have to va el verbo base: fix (no fixed)." },',
     '    { "id": "ex-4", "type": "builder", "prompt": "Ordena las palabras para formar una oración correcta.", "words": ["have", "to", "update", "the", "documentation"], "answer": "have to update the documentation", "explanation": "La estructura es: have to + verbo base + complemento." },',
-    '    { "id": "ex-5", "type": "dialogue-order", "prompt": "Ordena el diálogo correctamente.", "lines": ["A: We have to fix this bug before release.", "B: Okay, I have to test it after your fix.", "A: Great, then we have to deploy it."], "explanation": "El diálogo sigue una secuencia lógica: problema, acción siguiente y despliegue." },',
+    '    { "id": "ex-5", "type": "dialogue-order", "prompt": "Ordena el diálogo correctamente.", "context": "En una reunión de release, Maya y Leo acuerdan arreglar un bug, probarlo y desplegarlo.", "lines": ["A: We have to fix this bug before release.", "B: Okay, I have to test it after your fix.", "A: Great, then we have to deploy it."], "explanation": "El diálogo sigue una secuencia lógica: problema, acción siguiente y despliegue." },',
     '    { "id": "ex-6", "type": "write", "prompt": "Escribe una oración en inglés usando \'have to\' sobre una tarea de desarrollo.", "answer": "I have to finish the API tests today.", "hint": "Empieza con I have to + verbo base.", "accept": ["I need to finish the API tests today."], "explanation": "Respuesta modelo con have to + verbo base en contexto dev." }',
     '    { "id": "ex-7", "type": "match", "prompt": "Empareja cada chunk con su significado.", "pairs": [ { "en": "set up", "es": "configurar / preparar" }, { "en": "roll back", "es": "revertir un despliegue" }, { "en": "follow up", "es": "dar seguimiento" } ], "explanation": "Chunks habituales en equipos de desarrollo." }',
     '    { "id": "ex-8", "type": "shadow", "prompt": "Escucha y repite en voz alta.", "answer": "I have to review the pull request today.", "explanation": "Repetir el chunk completo mejora ritmo y pronunciación." }',

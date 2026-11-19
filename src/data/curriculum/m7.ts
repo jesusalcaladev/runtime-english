@@ -109,20 +109,6 @@ export const m7: Module = {
             "'Pure' funciona como intensificador. 'Review' se usa tanto para code review como para revisar tests.",
         },
         {
-          id: 'm7-l1-e5',
-          type: 'choice',
-          prompt: "¿En qué contexto es más apropiado usar términos como 'AI slop' o 'meat proxy'?",
-          options: [
-            'En un reporte formal para un cliente externo.',
-            'En un chat interno informal, describiendo un patrón (no atacando a una persona).',
-            'En documentación oficial del producto.',
-            'En cualquier correo sin importar la audiencia.',
-          ],
-          answer: 1,
-          explanation:
-            'Son términos informales y pueden sonar despectivos. Úsalos con cuidado en contextos de confianza y enfocados en el trabajo, no en la persona.',
-        },
-        {
           id: 'm7-l1-e6',
           type: 'write',
           prompt: "Escribe en inglés: 'No seas un meat proxy. Lee el diff.'",
@@ -401,20 +387,6 @@ export const m7: Module = {
             "'Take it offline' saca el tema de la reunión para tratarlo después con las personas implicadas.",
         },
         {
-          id: 'm7-l3-e2',
-          type: 'choice',
-          prompt: "'I don't have the bandwidth this week.' ¿Qué significa?",
-          options: [
-            'No tengo internet esta semana.',
-            'No tengo tiempo o capacidad esta semana.',
-            'No tengo reuniones esta semana.',
-            'No tengo feedback esta semana.',
-          ],
-          answer: 1,
-          explanation:
-            "En contexto de trabajo, 'bandwidth' es la capacidad disponible para asumir más trabajo.",
-        },
-        {
           id: 'm7-l3-e3',
           type: 'builder',
           prompt: "Construye: 'Retomémoslo después del standup.'",
@@ -430,20 +402,6 @@ export const m7: Module = {
           accept: ['Thanks for the heads up.', 'Thank you for the heads-up.'],
           hint: "Usa 'heads-up'.",
           explanation: "'Heads-up' es un aviso previo, normalmente informal pero profesional.",
-        },
-        {
-          id: 'm7-l3-e5',
-          type: 'choice',
-          prompt: 'Quieren ponerse de acuerdo sobre el alcance antes de empezar. ¿Qué dices?',
-          options: [
-            "Let's align on the scope.",
-            "Let's take the scope offline.",
-            'We are cooked on scope.',
-            'Ship the scope.',
-          ],
-          answer: 0,
-          explanation:
-            "'Align on the scope' significa ponerse de acuerdo sobre el alcance (vocabulario de esta lección).",
         },
         {
           id: 'm7-l3-e6',
@@ -692,20 +650,6 @@ export const m7: Module = {
           hint: "Usa 'pay down the tech debt'.",
           explanation:
             "'Pay down debt' se usa tanto para dinero como para deuda técnica: reducirla de forma progresiva.",
-        },
-        {
-          id: 'm7-l4-e5',
-          type: 'choice',
-          prompt: "Alguien comenta 'nit: rename this variable' en tu PR. ¿Qué implica normalmente?",
-          options: [
-            'Debes rehacer todo el PR.',
-            'Es un detalle menor, normalmente no bloqueante.',
-            'El PR será rechazado.',
-            'Hay un fallo de seguridad crítico.',
-          ],
-          answer: 1,
-          explanation:
-            "'Nit' señala un detalle menor (estilo/claridad). A menos que se indique lo contrario, no suele bloquear el merge.",
         },
         {
           id: 'm7-l4-e6',

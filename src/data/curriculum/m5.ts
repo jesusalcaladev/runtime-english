@@ -227,29 +227,6 @@ export const m5: Module = {
             "Un cambio solo de documentación usa 'docs:' y verbo en presente imperativo: 'update installation instructions'.",
         },
         {
-          id: 'm5-l1-e5',
-          type: 'builder',
-          prompt: "Construye la descripción breve de un PR: 'Esto arregla el error de login.'",
-          words: ['This PR', 'fixes', 'the login bug.'],
-          answer: 'This PR fixes the login bug.',
-          explanation:
-            "Descripción clara y directa: qué hace el PR. Usar 'fixes' vincula la intención del cambio.",
-        },
-        {
-          id: 'm5-l1-e6',
-          type: 'write',
-          prompt:
-            "Escribe en inglés: 'Agrega tests para el hash de contraseñas.' (como mensaje de commit tipo test:)",
-          answer: 'test: add tests for password hashing',
-          accept: [
-            'test: add unit tests for password hashing',
-            'test: add tests for password hashing.',
-          ],
-          hint: "Usa el prefijo 'test:' y verbo imperativo 'add'.",
-          explanation:
-            "Conventional Commits: tipo + dos puntos + descripción breve en imperativo ('add tests...').",
-        },
-        {
           id: 'm5-l1-e7',
           type: 'choice',
           prompt: '¿Qué estaba mal en el mensaje de commit de Leo?',
@@ -427,15 +404,6 @@ export const m5: Module = {
             "El mensaje útil incluye contexto, petición concreta y plazo. 'hey' obliga a otra ronda de preguntas.",
         },
         {
-          id: 'm5-l2-e2',
-          type: 'choice',
-          prompt: '¿Cómo pides un ETA sin sonar agresivo?',
-          options: ['When?', 'Do you have an ETA for the fix?', 'Why are you late?', 'Fix it now'],
-          answer: 1,
-          explanation:
-            "'Do you have an ETA for the fix?' pide una estimación de forma neutra y profesional.",
-        },
-        {
           id: 'm5-l2-e3',
           type: 'builder',
           prompt: "Construye: 'Añado a Ana para dar contexto.'",
@@ -462,6 +430,8 @@ export const m5: Module = {
           id: 'm5-l2-e5',
           type: 'dialogue-order',
           prompt: 'Ordena un mensaje asíncrono claro (contexto → petición → seguimiento).',
+          context:
+            'El despliegue está bloqueado por un cambio de API; Leo avisa por Slack a Maya y le pide revisar el PR antes de las 3 p.m.',
           lines: [
             'Quick heads-up: the deploy is blocked by the API change.',
             'Can you review the PR by 3 p.m.?',
@@ -469,20 +439,6 @@ export const m5: Module = {
           ],
           explanation:
             'Un buen mensaje async da contexto, hace una petición concreta (con plazo si aplica) y muestra el siguiente paso.',
-        },
-        {
-          id: 'm5-l2-e6',
-          type: 'choice',
-          prompt: 'Quieres confirmar un acuerdo sin sonar agresivo. ¿Qué frase encaja mejor?',
-          options: [
-            "Just to confirm: we're shipping on Friday, right?",
-            'We ship Friday. Ok?',
-            "You said Friday, don't forget.",
-            'Friday. Yes or no.',
-          ],
-          answer: 0,
-          explanation:
-            "'Just to confirm...' es una forma educada y clara de verificar entendimiento en trabajo asíncrono.",
         },
         {
           id: 'm5-l2-e9',
@@ -903,16 +859,6 @@ export const m5: Module = {
             "Cada marcador señala intención: 'Actually' introduce una corrección y 'Basically' resume la idea principal.",
         },
         {
-          id: 'm5-l4-e6',
-          type: 'choice',
-          prompt:
-            'Quieres cerrar una digresión y volver al tema principal. ¿Qué marcador encaja mejor?',
-          options: ['Anyway', 'Actually', 'To be honest', 'You know'],
-          answer: 0,
-          explanation:
-            "'Anyway' se usa para retomar o cerrar el tema: 'Anyway, back to the main issue.'",
-        },
-        {
           id: 'm5-l4-e7',
           type: 'shadow',
           prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
@@ -1051,20 +997,6 @@ export const m5: Module = {
           accept: ['Now it handles the error correctly.', 'Now, it handles errors correctly.'],
           hint: "Empieza con 'Now,'.",
           explanation: "'Now' marca el resultado actual después del cambio.",
-        },
-        {
-          id: 'm5-l5-e4',
-          type: 'choice',
-          prompt: '¿Cómo invitas preguntas al final de una explicación?',
-          options: [
-            "That's it.",
-            'Let me know if anything is unclear.',
-            'No questions.',
-            'Finished.',
-          ],
-          answer: 1,
-          explanation:
-            "'Let me know if anything is unclear' abre espacio a preguntas de forma amable y profesional.",
         },
         {
           id: 'm5-l5-e5',

@@ -87,6 +87,28 @@ describe('ExerciseRunner new exercise types', () => {
     expect(screen.getByText('Comunicación clara.')).toBeTruthy()
   })
 
+  it('shows the scene context before ordering a dialogue', () => {
+    const exercise: Exercise = {
+      id: 'test-order',
+      type: 'dialogue-order',
+      prompt: 'Ordena el diálogo',
+      context: 'Maya pide a Leo que ejecute los tests antes del deploy.',
+      lines: ['Can you run the tests?', 'Sure, I will run them now.', 'Thanks, let me know.'],
+      explanation: 'Petición, respuesta y seguimiento.',
+    }
+    render(
+      <ExerciseRunner
+        sessionId="test-order-session"
+        sessionTitle="Test"
+        exercises={[exercise]}
+        next={null}
+      />,
+    )
+
+    expect(screen.getByText(/Maya pide a Leo que ejecute los tests/)).toBeTruthy()
+    expect(screen.getByText('Can you run the tests?')).toBeTruthy()
+  })
+
   it('accepts several correct answers in multi-choice', () => {
     const exercise: Exercise = {
       id: 'test-multi',

@@ -208,15 +208,6 @@ export const m3: Module = {
             "Imperativo + 'before' + presente simple: una estructura muy común en documentación.",
         },
         {
-          id: 'm3-l1-e4',
-          type: 'builder',
-          prompt: "Construye: 'Mata el proceso anterior y cambia el puerto.'",
-          words: ['Kill', 'the previous process', 'and', 'change the port.'],
-          answer: 'Kill the previous process and change the port.',
-          explanation:
-            "Dos imperativos unidos con 'and'. Es la instrucción típica cuando 'Port already in use' bloquea el arranque.",
-        },
-        {
           id: 'm3-l1-e5',
           type: 'choice',
           prompt: "Ves 'Module not found'. ¿Qué haces primero de forma natural?",
@@ -229,15 +220,6 @@ export const m3: Module = {
           answer: 0,
           explanation:
             'Cuando falta un módulo, lo normal es instalar dependencias o revisar la ruta. Un diagnóstico simple y tranquilo funciona mejor.',
-        },
-        {
-          id: 'm3-l1-e6',
-          type: 'write',
-          prompt: "Escríbelo en inglés: 'Abre un PR cuando termines.'",
-          answer: "Open a PR when you're done.",
-          accept: ['Open a PR when you are done.', "Open a pull request when you're done."],
-          hint: "Usa el imperativo 'Open a PR...'",
-          explanation: 'Instrucción clara y muy común en equipos: cuándo abrir el pull request.',
         },
         {
           id: 'm3-l1-e7',
@@ -382,21 +364,6 @@ export const m3: Module = {
             "'Figure out' significa entender o resolver. Es una de las formas más naturales de pedir ayuda con un bug.",
         },
         {
-          id: 'm3-l2-e5',
-          type: 'choice',
-          prompt:
-            'Estás depurando y encontraste un problema inesperado. ¿Cómo lo dices naturalmente?',
-          options: [
-            'I ran into a bug.',
-            'I ran to a bug.',
-            'I ran inside a bug.',
-            'I run intoed a bug.',
-          ],
-          answer: 0,
-          explanation:
-            "'Run into' significa encontrarse con un problema o bug. Es muy común y suena natural en equipos de desarrollo.",
-        },
-        {
           id: 'm3-l2-e6',
           type: 'write',
           prompt: "Escríbelo en inglés: 'Sincronízate con los últimos cambios.'",
@@ -500,15 +467,6 @@ export const m3: Module = {
             "Un 'unit test' prueba una unidad pequeña y aislada, normalmente una función o un módulo.",
         },
         {
-          id: 'm3-l3-e2',
-          type: 'choice',
-          prompt: 'Un test pasa a veces y falla sin que cambie el código. ¿Cómo lo describes?',
-          options: ['A flaky test', 'A legacy test', 'A mocked test', 'A green test'],
-          answer: 0,
-          explanation:
-            "'Flaky' describe un test inestable que no da el mismo resultado en cada ejecución.",
-        },
-        {
           id: 'm3-l3-e3',
           type: 'builder',
           prompt: "Construye: 'Necesitamos añadir un test de regresión para este bug.'",
@@ -540,20 +498,6 @@ export const m3: Module = {
           words: ['Add', 'a unit test', 'for this', 'function.'],
           answer: 'Add a unit test for this function.',
           explanation: 'Petición directa y natural en un PR o tarea de equipo.',
-        },
-        {
-          id: 'm3-l3-e6',
-          type: 'choice',
-          prompt: "¿Qué significa 'edge case'?",
-          options: [
-            'El caso principal y más común',
-            'Un caso límite o poco común',
-            'Un error de compilación',
-            'Una prueba borrada',
-          ],
-          answer: 1,
-          explanation:
-            "'Edge case' es un caso límite. Pensar en edge cases te ayuda a escribir software más sólido y a comunicarte con precisión.",
         },
         {
           id: 'm3-l3-e7',
@@ -689,15 +633,6 @@ export const m3: Module = {
           hint: "Usa 'failed because' + pasado simple.",
           explanation:
             "'Expired' es pasado simple (la forma más directa aquí). 'Had expired' y 'has expired' se explican en el Paso 4.0 (B1); con lo visto hasta ahora 'expired' es suficiente y claro.",
-        },
-        {
-          id: 'm3-l4-e5',
-          type: 'choice',
-          prompt: 'Quieres decir que falta autenticación. ¿Qué status code encaja?',
-          options: ['401 Unauthorized', '403 Forbidden', '200 OK', '409 Conflict'],
-          answer: 0,
-          explanation:
-            '401 significa que no estás autenticado (falta o es inválido el token). 403 es cuando sí estás autenticado pero no tienes permiso.',
         },
         {
           id: 'm3-l4-e6',
@@ -904,20 +839,6 @@ export const m3: Module = {
           explanation: "Citar el mensaje exacto ('connection refused') hace el reporte preciso.",
         },
         {
-          id: 'm3-l5-e4',
-          type: 'choice',
-          prompt: '¿Qué información hace más útil tu pedido de ayuda?',
-          options: [
-            "Solo decir 'it doesn't work'.",
-            'Error exacto, dónde ocurre, qué esperabas y qué probaste.',
-            'Enviar una captura sin texto.',
-            'Decir que es urgente.',
-          ],
-          answer: 1,
-          explanation:
-            'Error + ubicación + expectativa + intentos previos es la fórmula más rápida para recibir ayuda.',
-        },
-        {
           id: 'm3-l5-e5',
           type: 'builder',
           prompt: "Construye: 'El stack trace apunta a la función de login.'",
@@ -944,6 +865,8 @@ export const m3: Module = {
           id: 'm3-l5-e7',
           type: 'dialogue-order',
           prompt: 'Ordena cómo pedir ayuda con un error (de forma clara).',
+          context:
+            'Leo no puede entrar y pide ayuda por Slack: describe el error, dónde ocurre y lo que ya revisó antes de preguntar.',
           lines: [
             "I'm getting this error: connection refused.",
             'It fails in auth.ts when I try to log in.',
@@ -951,19 +874,6 @@ export const m3: Module = {
           ],
           explanation:
             'Orden útil: error exacto → dónde/cuándo ocurre → qué ya probaste + pregunta. Así facilitas que te ayuden.',
-        },
-        {
-          id: 'm3-l5-e8',
-          type: 'choice',
-          prompt: '¿Dónde falla el error que reporta Leo?',
-          options: [
-            'En la línea 42 de auth.ts.',
-            'En la línea 24 de login.ts.',
-            'En la base de datos.',
-          ],
-          answer: 0,
-          explanation:
-            "Leo dice 'It fails at line 42 in auth.ts': dar archivo y línea hace el reporte preciso.",
         },
         {
           id: 'm3-l5-e10',
@@ -1060,14 +970,6 @@ export const m3: Module = {
           accept: ['I pushed the changes'],
           hint: "Pasado de 'push' = 'pushed'.",
           explanation: "En git, 'push the changes' es la forma común de decir subir los cambios.",
-        },
-        {
-          id: 'm8-l3-e6',
-          type: 'choice',
-          prompt: 'Te piden repetir. ¿Qué dices?',
-          options: ['No.', 'Could you say that again, please?', 'Listen better.', 'Again now.'],
-          answer: 1,
-          explanation: "Pedir repetición con cortesía: 'Could you say that again, please?'",
         },
         {
           id: 'm8-l3-e7',

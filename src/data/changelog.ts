@@ -40,6 +40,18 @@ export const CHANGELOG: ChangelogRelease[] = [
         kind: 'feature',
         text: 'Los ejercicios de diálogo ramificado muestran la escena antes de elegir la respuesta.',
       },
+      {
+        kind: 'feature',
+        text: 'Cinco videos nuevos de desarrollo: Git, APIs, CI/CD, daily stand-up y vocabulario técnico, con subtítulos, traducción y preguntas de comprensión.',
+      },
+      {
+        kind: 'improvement',
+        text: 'Sesiones más ligeras: como máximo 7 ejercicios por lección y menos repeticiones del mismo tipo de ejercicio.',
+      },
+      {
+        kind: 'improvement',
+        text: 'Los ejercicios de ordenar diálogos también muestran la escena, para que las frases tengan contexto.',
+      },
     ],
   },
   {

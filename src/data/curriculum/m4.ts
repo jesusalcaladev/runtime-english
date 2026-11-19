@@ -120,21 +120,6 @@ export const m4: Module = {
             "Pasado perfecto ('had expired') para la acción anterior y pasado simple ('failed') para la acción posterior.",
         },
         {
-          id: 'm4-l0-e5',
-          type: 'choice',
-          prompt:
-            "En un review te dicen: 'Nice catch! I hadn't thought about that edge case.' ¿Qué significa 'hadn't thought'?",
-          options: [
-            'No lo había pensado antes de tu comentario.',
-            'No lo estoy pensando ahora.',
-            'No lo pensaré mañana.',
-            'No lo pensé ayer.',
-          ],
-          answer: 0,
-          explanation:
-            "'Hadn't thought' es had not + participio: algo que no había ocurrido antes de otro momento en el pasado (tu comentario).",
-        },
-        {
           id: 'm4-l0-e6',
           type: 'fill-blank',
           prompt: 'Completa con presente perfecto y pasado perfecto.',
@@ -336,35 +321,6 @@ export const m4: Module = {
           hint: "Usa 'taking longer than expected' y 'one more day'.",
           explanation:
             'Es una forma profesional y directa de ajustar una estimación sin excusas vagas.',
-        },
-        {
-          id: 'm4-l1-e5',
-          type: 'builder',
-          prompt:
-            "Construye un update cómodo y claro: 'Ayer terminé la integración. Hoy estoy trabajando en los tests. No tengo bloqueos.'",
-          words: [
-            'Yesterday I finished the integration.',
-            "Today I'm working on the tests.",
-            'No blockers on my side.',
-          ],
-          answer:
-            "Yesterday I finished the integration. Today I'm working on the tests. No blockers on my side.",
-          explanation:
-            'Estructura clásica del daily: ayer, hoy y estado de bloqueos. Frases cortas te ayudan a hablar con confianza.',
-        },
-        {
-          id: 'm4-l1-e6',
-          type: 'choice',
-          prompt: 'Quieres sonar natural al pedir ayuda en la daily. ¿Qué opción es mejor?',
-          options: [
-            "I'm stuck on the CORS error. Could someone help me with the headers?",
-            'I have problem. Help.',
-            'CORS is impossible for me.',
-            'Someone must fix my bug now.',
-          ],
-          answer: 0,
-          explanation:
-            "Nombrar el bloqueo y pedir ayuda de forma específica ('Could someone help me with...') es claro, educado y muy natural.",
         },
         {
           id: 'm4-l1-e9',
@@ -603,32 +559,6 @@ export const m4: Module = {
             "'Blocking' señala un problema que debe resolverse antes del merge. Una fuga de credenciales siempre lo es.",
         },
         {
-          id: 'm4-l2-e3',
-          type: 'builder',
-          prompt:
-            "Construye la sugerencia: '¿Podríamos renombrar esta variable para mayor claridad?'",
-          words: ['Could we', 'rename', 'this variable', 'for clarity?'],
-          answer: 'Could we rename this variable for clarity?',
-          explanation:
-            "'Could we...?' es la forma más natural y educada de sugerir un cambio en un review.",
-        },
-        {
-          id: 'm4-l2-e4',
-          type: 'write',
-          prompt:
-            "Escribe en inglés: 'Apliqué tus comentarios. ¿Puedes revisarlo otra vez? (usa la sigla)'",
-          answer: 'I addressed your comments. PTAL.',
-          accept: [
-            "I've addressed your comments. PTAL.",
-            'Addressed your comments. PTAL.',
-            'I addressed your comments, PTAL.',
-            'I have addressed your comments. PTAL.',
-          ],
-          hint: "Usa 'I addressed...' o 'I've addressed...' y cierra con 'PTAL'.",
-          explanation:
-            "'Address comments' significa aplicar los cambios pedidos en un review. 'PTAL' = Please Take Another Look. Puedes decir 'I addressed...' (pasado simple) o 'I've addressed...' (presente perfecto del Paso 4.0, muy común en equipos).",
-        },
-        {
           id: 'm4-l2-e5',
           type: 'fix-error',
           prompt: 'Haz el comentario de review más claro y profesional.',
@@ -858,20 +788,6 @@ export const m4: Module = {
           explanation: "'We have a production outage' comunica impacto y urgencia sin dramatismo.",
         },
         {
-          id: 'm4-l3-e2',
-          type: 'choice',
-          prompt: 'Un deploy acaba de romper producción. ¿Cuál es la primera mitigación habitual?',
-          options: [
-            'Write a postmortem',
-            'Roll back the deploy',
-            'Add more logs',
-            'Ask for a new estimate',
-          ],
-          answer: 1,
-          explanation:
-            'Primero se reduce el impacto; un rollback devuelve el servicio a la última versión estable.',
-        },
-        {
           id: 'm4-l3-e3',
           type: 'builder',
           prompt: "Construye: 'Volvamos a la versión anterior.'",
@@ -896,6 +812,8 @@ export const m4: Module = {
           id: 'm4-l3-e5',
           type: 'dialogue-order',
           prompt: 'Ordena la comunicación básica de un incidente.',
+          context:
+            'Hay una caída en producción: Maya coordina el canal #on-call mientras Leo revierte el despliegue y anuncia el próximo aviso.',
           lines: [
             'We have a production outage.',
             "I'm rolling back the last deploy now.",
@@ -903,20 +821,6 @@ export const m4: Module = {
           ],
           explanation:
             'Secuencia clara: impacto → mitigación en curso → próxima actualización. Esto da calma y contexto al equipo.',
-        },
-        {
-          id: 'm4-l3-e6',
-          type: 'choice',
-          prompt: '¿Qué pregunta ayuda a entender el alcance del problema?',
-          options: [
-            "What's the blast radius?",
-            'Who wrote this code?',
-            'Can we deploy again?',
-            'Is this funny?',
-          ],
-          answer: 0,
-          explanation:
-            "'Blast radius' se refiere al alcance/impacto del incidente (qué usuarios, servicios o regiones se ven afectados).",
         },
         {
           id: 'm4-l3-e9',
@@ -1128,21 +1032,6 @@ export const m4: Module = {
             'Estimación profesional: rango + supuesto explícito. Así el equipo entiende de qué depende el plazo.',
         },
         {
-          id: 'm4-l4-e6',
-          type: 'choice',
-          prompt:
-            'Quieren añadir otra tarea y el plazo es ajustado. ¿Qué respuesta es más profesional?',
-          options: [
-            'I can do everything.',
-            'If we add that, something else will slip. Which one is the priority?',
-            "No, I won't do it.",
-            "Maybe, I don't know.",
-          ],
-          answer: 1,
-          explanation:
-            'Explicas el impacto (trade-off) y pides priorizar. Es claro, colaborativo y realista.',
-        },
-        {
           id: 'm4-l4-e7',
           type: 'shadow',
           prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
@@ -1313,20 +1202,6 @@ export const m4: Module = {
             "Decir lo que ya probaste evita sugerencias repetidas y muestra contexto. Aquí usamos pasado simple, una forma clara y ya conocida; la alternativa con presente perfecto ('I've already tried...') se explica en el Paso 4.0.",
         },
         {
-          id: 'm4-l5-e4',
-          type: 'choice',
-          prompt: "¿Qué significa 'What am I missing?'",
-          options: [
-            '¿Qué perdí?',
-            '¿Qué se me está pasando / qué no estoy viendo?',
-            '¿Qué falta en el calendario?',
-            '¿A quién extraño?',
-          ],
-          answer: 1,
-          explanation:
-            "'What am I missing?' pide que te señalen lo que no estás considerando en el problema.",
-        },
-        {
           id: 'm4-l5-e5',
           type: 'write',
           prompt: "Escribe en inglés: 'Estoy intentando reproducir el bug, pero no puedo.'",
@@ -1347,14 +1222,6 @@ export const m4: Module = {
           answer: 'I already tried restarting the service, but it still fails.',
           explanation:
             'Contexto + intento previo + resultado actual: una forma clara y útil de pedir ayuda.',
-        },
-        {
-          id: 'm4-l5-e7',
-          type: 'choice',
-          prompt: 'En la conversación, ¿dónde falla la petición?',
-          options: ['En auth.ts, línea 42', 'En el build', 'En la base de datos'],
-          answer: 0,
-          explanation: "Leo dice 'It fails in auth.ts at line 42' y comparte el stack trace.",
         },
         {
           id: 'm4-l5-e9',

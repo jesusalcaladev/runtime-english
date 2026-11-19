@@ -161,15 +161,6 @@ export const m1: Module = {
           explanation: "Pasado con 'was' (para it/the app) + marcador de tiempo 'yesterday'.",
         },
         {
-          id: 'm1-l0-e4',
-          type: 'write',
-          prompt: "Escribe en inglés: 'El servidor está caído ahora.'",
-          answer: 'The server is down now.',
-          accept: ['The server is down now'],
-          hint: "Presente: 'is'.",
-          explanation: "Estado actual (presente): 'The server is down now.'",
-        },
-        {
           id: 'm1-l0-e5',
           type: 'fill-blank',
           prompt: 'Completa con presente o pasado según el tiempo.',
@@ -423,20 +414,6 @@ export const m1: Module = {
             "'The script' es tercera persona singular, así que usa 'does': 'The script does nothing'. Es una forma simple y muy común de reportar un fallo.",
         },
         {
-          id: 'm1-l1-e6',
-          type: 'write',
-          prompt: "Escríbelo en inglés de forma natural: 'No sé por qué esto está roto.'",
-          answer: "I don't know why this is broken.",
-          accept: [
-            'I do not know why this is broken.',
-            "I don't know why it is broken.",
-            "I don't know why it's broken.",
-          ],
-          hint: "Usa 'I don't know why...' + 'is broken' (ya visto en el vocabulario).",
-          explanation:
-            "Frase honesta y muy útil en debugging. Usa solo estructuras ya vistas: 'I don't know' y 'is broken' (estado).",
-        },
-        {
           id: 'm1-l1-e7',
           type: 'listen',
           prompt: 'Escucha y escribe la frase (listening/dictado).',
@@ -456,15 +433,6 @@ export const m1: Module = {
           hint: "Con 'I' usa 'think'. Con 'the function' (it) usa 'has'.",
           explanation:
             "Repaso en contexto: 'I think...' (opinión/hipótesis) y 'the function has...' (tercera persona singular). Todas las palabras ya aparecieron en los ejemplos.",
-        },
-        {
-          id: 'm1-l1-e9',
-          type: 'choice',
-          prompt: '¿Qué dice el error en la conversación?',
-          options: ["'permission denied'", "'Module not found'", "'Port already in use'"],
-          answer: 0,
-          explanation:
-            "Leo responde 'It says permission denied': 'says' es la forma de tercera persona del verbo 'say'.",
         },
       ],
     },
@@ -540,16 +508,6 @@ export const m1: Module = {
             "'fetch' significa obtener o traer datos (ej: 'Fetch the data from the database').",
         },
         {
-          id: 'm1-l2-e2',
-          type: 'choice',
-          prompt:
-            "Completa la instrucción de manejo de errores: '_____ an error if the token is invalid.'",
-          options: ['Catch', 'Throw', 'Merge', 'Deploy'],
-          answer: 1,
-          explanation:
-            "'Throw an error' significa lanzar una excepción cuando una validación falla; 'catch' es capturarla.",
-        },
-        {
           id: 'm1-l2-e3',
           type: 'builder',
           prompt: "Construye: 'Esta función devuelve una promesa.'",
@@ -567,15 +525,6 @@ export const m1: Module = {
           hint: "Empieza con el verbo en forma base: 'Run...'.",
           explanation:
             "El imperativo técnico va al inicio y sin sujeto. 'Before you deploy' deja claro el orden de las acciones.",
-        },
-        {
-          id: 'm1-l2-e5',
-          type: 'choice',
-          prompt: "Quieres decir 'trae los últimos cambios del remoto'. ¿Qué verbo usas?",
-          options: ['push', 'pull', 'commit', 'throw'],
-          answer: 1,
-          explanation:
-            "'Pull' trae cambios desde el remoto; 'push' los envía. Confundirlos es muy común al principio, así que fija el par: pull = traer, push = subir.",
         },
         {
           id: 'm1-l2-e6',
@@ -600,6 +549,8 @@ export const m1: Module = {
           id: 'm1-l2-e8',
           type: 'dialogue-order',
           prompt: 'Ordena este mini diálogo de trabajo (petición → respuesta → seguimiento).',
+          context:
+            'Maya pide por Slack a Leo que traiga los últimos cambios antes de seguir; Leo responde y queda pendiente saber si pasan los tests.',
           lines: [
             'Can you pull the latest changes?',
             'Sure. I can pull them and run the tests now.',
@@ -734,20 +685,6 @@ export const m1: Module = {
           hint: "Usa 'was released on' + la fecha (pasado, ya visto en Paso 1.0).",
           explanation:
             "'Was released' usa 'was' (pasado de 'is') para hablar de algo que ya ocurrió; 'on' acompaña al día concreto.",
-        },
-        {
-          id: 'm1-l3-e5',
-          type: 'choice',
-          prompt: "¿Cómo dices 'la reunión es a las 10:30 a. m.' de forma natural?",
-          options: [
-            'The meeting is in ten thirty a.m.',
-            'The meeting is at ten thirty a.m.',
-            'The meeting is on ten thirty a.m.',
-            'The meeting is to ten thirty a.m.',
-          ],
-          answer: 1,
-          explanation:
-            "Para horas usamos 'at': 'at ten thirty a.m.'. Preposiciones pequeñas, pero hacen que suenes mucho más natural.",
         },
         {
           id: 'm1-l3-e6',
@@ -901,20 +838,6 @@ export const m1: Module = {
             "La estructura correcta es 'What does + palabra + mean?'. 'What means flaky?' es un error frecuente.",
         },
         {
-          id: 'm1-l4-e2',
-          type: 'choice',
-          prompt: 'No oíste la última parte de una explicación. ¿Qué dices?',
-          options: [
-            "Sorry, I didn't catch that. Could you repeat it?",
-            'Repeat.',
-            "I don't hear you.",
-            'What?',
-          ],
-          answer: 0,
-          explanation:
-            "'I didn't catch that' es la forma natural de decir que no entendiste (usa pasado: 'didn't catch' = no lo captaste). Añadir 'Could you repeat it?' suena educado.",
-        },
-        {
           id: 'm1-l4-e3',
           type: 'builder',
           prompt: "Construye: '¿Podrías explicar eso otra vez, por favor?'",
@@ -976,15 +899,6 @@ export const m1: Module = {
           hint: 'Estructura: What does + palabra + mean?',
           explanation:
             "Para preguntar por el significado: 'What does X mean?' (no 'What means X?').",
-        },
-        {
-          id: 'm1-l4-e9',
-          type: 'choice',
-          prompt: "¿Qué pregunta hace Leo sobre la palabra 'flaky'?",
-          options: ["What does 'flaky' mean?", "What means 'flaky'?", "How 'flaky' means?"],
-          answer: 0,
-          explanation:
-            "Leo pregunta 'What does flaky mean?': la estructura correcta es 'What does + palabra + mean?'.",
         },
       ],
     },
