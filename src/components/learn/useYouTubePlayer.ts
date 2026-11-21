@@ -1,31 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks'
 import { getActiveCueIndex, type VideoCue } from '../../data/learningResources'
+import type { PlayerController, PlayerOptions } from './playerTypes'
 import { loadYouTubeApi } from './youtube'
 
 const PLAYBACK_RATES = [0.5, 0.75, 1, 1.25, 1.5] as const
 
-export interface YouTubePlayerController {
+export interface YouTubePlayerController extends PlayerController {
   mountRef: { current: HTMLDivElement | null }
-  activeIndex: number
-  time: number
-  playing: boolean
-  error: boolean
-  offset: number
-  rate: number
-  loopLine: boolean
-  autoPause: boolean
-  togglePlay(): void
-  cycleRate(): void
-  toggleLoop(): void
-  toggleAutoPause(): void
-  changeOffset(delta: number): void
-  seekTo(seconds: number): void
-}
-
-export interface PlayerOptions {
-  initialPosition?: number
-  duration?: number
-  onProgress?: (position: number, duration: number) => void
 }
 
 /** Reproductor de YouTube + estado de sincronización con los subtítulos. */
@@ -50,13 +31,23 @@ export function useYouTubePlayer(
   const lastCueRef = useRef<number>(-2)
   const optionsRef = useRef(options)
   optionsRef.current = options
+  const enabled = options.enabled !== false
 
   useEffect(() => {
+    if (!enabled) {
+      readyRef.current = false
+      setTime(0)
+      setPlaying(false)
+      setError(false)
+      return
+    }
+
     let cancelled = false
     let interval: number | undefined
     readyRef.current = false
     setTime(0)
     setPlaying(false)
+    setError(false)
 
     loadYouTubeApi()
       .then(() => {
@@ -131,7 +122,7 @@ export function useYouTubePlayer(
       playerRef.current = null
       readyRef.current = false
     }
-  }, [videoId, cues])
+  }, [videoId, cues, enabled])
 
   const togglePlay = useCallback(() => {
     const player = playerRef.current

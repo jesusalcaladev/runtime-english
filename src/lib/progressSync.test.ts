@@ -25,6 +25,25 @@ describe('progressSync', () => {
     expect(expanded.settings.onboarded).toBe(true)
   })
 
+  it('round-trips and merges the daily study route', () => {
+    const state = createDefaultState()
+    const steps = [
+      { id: 'phrases-0', kind: 'phrases' as const, lessonId: null, minutes: 2, value: 4 },
+      { id: 'resume-1', kind: 'resume' as const, lessonId: 'm1-l1', minutes: 3, value: 20 },
+    ]
+    state.dailyRoute = { date: '2026-11-20', steps, done: ['phrases-0'] }
+
+    const compact = compactState(state)
+    expect(compact.dr).toEqual(state.dailyRoute)
+    const expanded = expandState(compact, createDefaultState())
+    expect(expanded.dailyRoute).toEqual(state.dailyRoute)
+
+    const remote = createDefaultState()
+    remote.dailyRoute = { date: '2026-11-20', steps, done: ['resume-1'] }
+    const { merged } = mergeProgressDetailed(expanded, remote)
+    expect(merged.dailyRoute.done).toEqual(['phrases-0', 'resume-1'])
+  })
+
   it('compacts, expands and merges one certificate per level', () => {
     const state = createDefaultState()
     const a1 = {

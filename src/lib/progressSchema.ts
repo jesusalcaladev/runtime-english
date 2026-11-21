@@ -126,6 +126,7 @@ export const compactStateSchema = z
       })
       .optional(),
     se: compactSettingsSchema.optional(),
+    dr: z.unknown().optional(),
   })
   .loose()
 

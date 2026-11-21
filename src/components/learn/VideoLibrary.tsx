@@ -1,4 +1,4 @@
-import { ArrowLeft, Check, Clock, Play, Search, Sparkles, X } from 'lucide-preact'
+import { ArrowLeft, Check, Clock, EyeOff, Play, Search, Sparkles, X } from 'lucide-preact'
 import { useMemo, useState } from 'preact/hooks'
 import type { VideoLesson } from '../../data/learningResources'
 import { useUiStage } from '../../hooks/useUiStage'
@@ -6,6 +6,7 @@ import { tAction, type UiStage } from '../../lib/i18n'
 import { useProgress } from '../../lib/useProgress'
 import { getAllVideoProgress } from '../../lib/videoProgress'
 import { getVideoQuizProgress } from '../../lib/videoQuiz'
+import DailyRoute from './DailyRoute'
 import VideoLab from './VideoLab'
 
 interface Props {
@@ -13,6 +14,7 @@ interface Props {
 }
 
 type LevelFilter = 'all' | 'mine' | 'a1' | 'b1'
+type SortKey = 'default' | 'unwatched' | 'recent' | 'shortest'
 
 function formatDuration(seconds: number): string {
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`
@@ -31,6 +33,7 @@ function VideoCard({
   watched: boolean
   onOpen(): void
 }) {
+  const [imageFailed, setImageFailed] = useState(false)
   return (
     <button
       type="button"
@@ -38,12 +41,21 @@ function VideoCard({
       class="group flex flex-col overflow-hidden rounded-3xl bg-base-200 text-left ring-1 ring-base-content/[0.04] transition duration-200 hover:-translate-y-0.5 hover:ring-accent/35 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
     >
       <div class="relative aspect-video overflow-hidden bg-black">
-        <img
-          src={`https://i.ytimg.com/vi/${lesson.youtubeId}/hqdefault.jpg`}
-          alt=""
-          loading="lazy"
-          class="h-full w-full object-cover opacity-85 transition duration-300 group-hover:scale-[1.03] group-hover:opacity-100"
-        />
+        {imageFailed ? (
+          <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-accent/25 via-base-300 to-base-200 p-3 text-center">
+            <span class="line-clamp-2 text-[11px] font-medium text-base-content/60">
+              {lesson.topic}
+            </span>
+          </div>
+        ) : (
+          <img
+            src={`https://i.ytimg.com/vi/${lesson.youtubeId}/hqdefault.jpg`}
+            alt=""
+            loading="lazy"
+            onError={() => setImageFailed(true)}
+            class="h-full w-full object-cover opacity-85 transition duration-300 group-hover:scale-[1.03] group-hover:opacity-100"
+          />
+        )}
         <span class="absolute inset-0 flex items-center justify-center">
           <span class="flex h-12 w-12 items-center justify-center rounded-full bg-black/55 text-white ring-1 ring-white/30 backdrop-blur-sm transition group-hover:scale-105 group-hover:bg-accent group-hover:text-accent-content">
             <Play class="h-5 w-5 fill-current" />
@@ -89,6 +101,8 @@ export default function VideoLibrary({ lessons }: Props) {
   const [progressVersion, setProgressVersion] = useState(0)
   const [levelFilter, setLevelFilter] = useState<LevelFilter>('all')
   const [query, setQuery] = useState('')
+  const [unwatchedOnly, setUnwatchedOnly] = useState(false)
+  const [sort, setSort] = useState<SortKey>('default')
   void progressVersion // fuerza relectura al volver de un video
 
   const progress = getAllVideoProgress()
@@ -125,16 +139,28 @@ export default function VideoLibrary({ lessons }: Props) {
 
   const visible = useMemo(() => {
     const needle = query.trim().toLowerCase()
-    return lessons.filter((lesson) => {
+    const result = lessons.filter((lesson) => {
       const matchesLevel =
         levelFilter === 'all' ||
         (levelFilter === 'mine' && lesson.level === myLevel) ||
         (levelFilter === 'a1' && lesson.level === 'A1-A2') ||
         (levelFilter === 'b1' && lesson.level === 'B1-B2')
+      if (unwatchedOnly && progress[lesson.id]?.completed) return false
       const haystack = `${lesson.title} ${lesson.topic} ${lesson.channel} ${lesson.description}`
       return matchesLevel && haystack.toLowerCase().includes(needle)
     })
-  }, [lessons, levelFilter, myLevel, query])
+    if (sort === 'unwatched') {
+      result.sort(
+        (a, b) =>
+          Number(Boolean(progress[a.id]?.completed)) - Number(Boolean(progress[b.id]?.completed)),
+      )
+    } else if (sort === 'recent') {
+      result.sort((a, b) => (progress[b.id]?.updatedAt ?? 0) - (progress[a.id]?.updatedAt ?? 0))
+    } else if (sort === 'shortest') {
+      result.sort((a, b) => a.durationSeconds - b.durationSeconds)
+    }
+    return result
+  }, [lessons, levelFilter, myLevel, query, progress, unwatchedOnly, sort])
 
   const active = lessons.find((lesson) => lesson.id === activeId) ?? null
   const resume = stats.resume
@@ -196,6 +222,8 @@ export default function VideoLibrary({ lessons }: Props) {
           {lessons.length} {tAction(stage, 'videosAvailable')}
         </span>
       </div>
+
+      <DailyRoute lessons={lessons} onOpenLesson={open} />
 
       <div class="flex flex-wrap gap-2">
         <span class="flex items-center gap-2 rounded-full bg-base-200 px-3 py-1.5 font-mono text-[10px] text-base-content/55">
@@ -265,6 +293,33 @@ export default function VideoLibrary({ lessons }: Props) {
         </fieldset>
       </div>
 
+      <div class="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setUnwatchedOnly((value) => !value)}
+          aria-pressed={unwatchedOnly}
+          class={`inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[10px] transition ${unwatchedOnly ? 'bg-accent/15 text-accent' : 'bg-base-200 text-base-content/55 hover:text-base-content'}`}
+        >
+          <EyeOff class="h-3 w-3" /> {tAction(stage, 'unwatchedOnly')}
+        </button>
+        <label class="flex h-8 items-center gap-2 rounded-full bg-base-200 px-3 text-[10px] text-base-content/55">
+          <span class="sr-only">{tAction(stage, 'sortVideos')}</span>
+          <select
+            value={sort}
+            onChange={(event) =>
+              setSort((event.currentTarget as HTMLSelectElement).value as SortKey)
+            }
+            aria-label={tAction(stage, 'sortVideos')}
+            class="max-w-[150px] bg-transparent text-[10px] text-base-content/75 outline-none"
+          >
+            <option value="default">{tAction(stage, 'sortDefault')}</option>
+            <option value="unwatched">{tAction(stage, 'sortUnwatched')}</option>
+            <option value="recent">{tAction(stage, 'sortRecent')}</option>
+            <option value="shortest">{tAction(stage, 'sortShortest')}</option>
+          </select>
+        </label>
+      </div>
+
       {visible.length === 0 ? (
         <div class="rounded-2xl bg-base-200/70 p-8 text-center">
           <X class="mx-auto h-5 w-5 text-base-content/30" />
@@ -274,6 +329,8 @@ export default function VideoLibrary({ lessons }: Props) {
             onClick={() => {
               setQuery('')
               setLevelFilter('all')
+              setUnwatchedOnly(false)
+              setSort('default')
             }}
             class="btn btn-sm mt-3 rounded-xl bg-base-100"
           >

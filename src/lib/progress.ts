@@ -2,6 +2,14 @@ import { differenceInCalendarDays, format } from 'date-fns'
 import { ALL_SESSIONS, getAllExerciseIds, levelStats } from '../data/curriculum'
 import { evaluateAchievements } from './achievements'
 import { onAuthStateChange } from './auth'
+import {
+  createDefaultDailyRouteState,
+  type DailyRouteState,
+  type DailyRouteStep,
+  localDateKey,
+  normalizeDailyRouteState,
+  readLegacyDailyRoute,
+} from './dailyRoute'
 import { sanitizeCertificate, sanitizeSettings, sanitizeStreak } from './progressSchema'
 import {
   expandState,
@@ -150,6 +158,8 @@ export interface ProgressState {
   /** Progreso y quiz de VideoLab (sincronizado en el mismo JSON de Supabase). */
   videoLab: VideoLabState
   videoLabMigratedAt?: number | null
+  /** Ruta diaria de /learn, también incluida en el JSON compacto de Supabase. */
+  dailyRoute: DailyRouteState
 }
 
 /** Comprobación diferida de retención (24 h / 72 h) de un ejercicio ya acertado. */
@@ -266,6 +276,7 @@ export function createDefaultState(): ProgressState {
     dictionaryBackfilledAt: null,
     videoLab: createDefaultVideoLabState(),
     videoLabMigratedAt: null,
+    dailyRoute: createDefaultDailyRouteState(),
   }
 }
 
@@ -635,6 +646,9 @@ export function mergeState(raw: unknown): ProgressState {
     dictionaryBackfilledAt: getNumber(mergedBase.dictionaryBackfilledAt) ?? null,
     videoLab: normalizeVideoLab(mergedBase.videoLab),
     videoLabMigratedAt: getNumber(mergedBase.videoLabMigratedAt) ?? null,
+    dailyRoute: normalizeDailyRouteState(
+      mergedBase.dailyRoute ?? readLegacyDailyRoute() ?? createDefaultDailyRouteState(),
+    ),
     settings: sanitizeSettings(
       { ...defaults.settings, ...(toRecord(mergedBase.settings) as Partial<ProgressSettings>) },
       defaults.settings,
@@ -847,6 +861,33 @@ class ProgressStore {
       delete quiz[lessonId]
       return { ...state, videoLab: { ...state.videoLab, quiz } }
     })
+  }
+
+  /** Fija la ruta del día; conserva solo los pasos hechos que siguen existiendo. */
+  saveDailyRoute(steps: DailyRouteStep[]): void {
+    this.update((state) => {
+      const done = (state.dailyRoute?.done ?? []).filter((id) =>
+        steps.some((step) => step.id === id),
+      )
+      return {
+        ...state,
+        dailyRoute: { date: localDateKey(Date.now()), steps, done },
+      }
+    })
+  }
+
+  setDailyRouteDone(ids: string[]): void {
+    this.update((state) => ({
+      ...state,
+      dailyRoute: {
+        ...state.dailyRoute,
+        done: ids.filter((id) => state.dailyRoute.steps.some((step) => step.id === id)),
+      },
+    }))
+  }
+
+  resetDailyRoute(): void {
+    this.update((state) => ({ ...state, dailyRoute: createDefaultDailyRouteState() }))
   }
 
   private evaluate(state: ProgressState) {

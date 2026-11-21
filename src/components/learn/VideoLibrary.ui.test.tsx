@@ -72,4 +72,17 @@ describe('VideoLibrary', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Quitar filtros' }))
     expect(screen.queryByText('No hay videos con esos filtros.')).toBeNull()
   })
+
+  it('sorts the library by duration', () => {
+    const { container } = render(<VideoLibrary lessons={lessons} />)
+    fireEvent.change(screen.getByLabelText('Ordenar videos'), {
+      target: { value: 'shortest' },
+    })
+
+    const cards = [...container.querySelectorAll('button')].filter((button) =>
+      button.className.includes('overflow-hidden'),
+    )
+    const shortest = [...lessons].sort((a, b) => a.durationSeconds - b.durationSeconds)[0]
+    expect(cards[0].textContent).toContain(shortest.title)
+  })
 })

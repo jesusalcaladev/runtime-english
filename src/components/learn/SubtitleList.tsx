@@ -9,6 +9,8 @@ interface Props {
   playing: boolean
   follow: boolean
   onShadow(index: number, text: string): void
+  /** El usuario scrolleó a mano: el padre debe desactivar "Seguir". */
+  onUserScroll?(): void
   shadowLine: number | null
   shadowScore: number | null
   listening: string
@@ -112,6 +114,7 @@ export default function SubtitleList({
   playing,
   follow,
   onShadow,
+  onUserScroll,
   shadowLine,
   shadowScore,
   listening,
@@ -122,22 +125,35 @@ export default function SubtitleList({
 }: Props) {
   const activeRef = useRef<HTMLButtonElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
+  const lastAutoScrollRef = useRef(0)
 
   useEffect(() => {
     if (!playing || !follow) return
     const list = listRef.current
     const active = activeRef.current
     if (!list || !active) return
-    // Desplazamos solo la lista para que la página no salte al seguir la línea activa.
+    // Desplazamos solo la lista (nunca la página) y marcamos el evento como
+    // programado para que no desactive el seguimiento.
     const listBox = list.getBoundingClientRect()
     const activeBox = active.getBoundingClientRect()
-    list.scrollTop += activeBox.top - listBox.top - (listBox.height - activeBox.height) / 2
+    const delta = activeBox.top - listBox.top - (listBox.height - activeBox.height) / 2
+    if (Math.abs(delta) > 1) {
+      lastAutoScrollRef.current = Date.now()
+      list.scrollTop += delta
+    }
   }, [activeIndex, playing, follow])
+
+  function handleScroll() {
+    if (!onUserScroll) return
+    if (Date.now() - lastAutoScrollRef.current < 250) return
+    onUserScroll()
+  }
 
   return (
     <div
       ref={listRef}
-      class="mt-2 max-h-[440px] space-y-1 overflow-y-auto rounded-2xl bg-base-100/70 p-2 lg:max-h-[560px]"
+      onScroll={handleScroll}
+      class="mt-2 max-h-[440px] space-y-1 overflow-y-auto overscroll-contain rounded-2xl bg-base-100/70 p-2 [scroll-behavior:auto] lg:max-h-[min(560px,calc(100dvh-13rem))]"
     >
       {cues.map((cue, index) => {
         const active = index === activeIndex

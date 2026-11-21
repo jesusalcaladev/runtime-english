@@ -106,3 +106,27 @@ test.describe('self-study and placement', () => {
     await expect(page.getByRole('link', { name: /Ir a mi sesión/ })).toBeVisible()
   })
 })
+
+test.describe('daily route and offline mode', () => {
+  test('shows a short routine above the video library', async ({ page }) => {
+    await page.goto('/learn.html')
+    await expect(page.getByText('Rutina de hoy')).toBeVisible()
+    await expect(page.getByLabel(/Empezar paso 1/)).toBeVisible()
+  })
+
+  test('switches to transcript mode and keeps studying without network', async ({
+    page,
+    context,
+  }) => {
+    await page.goto('/learn.html')
+    await page.getByRole('button', { name: /How to Speak So That People Want to Listen/ }).click()
+    await page.getByRole('button', { name: 'Sin conexión' }).click()
+
+    await expect(page.getByText('Modo transcripción', { exact: true })).toBeVisible()
+    await expect(page.getByText(/Subtítulos originales de YouTube/)).toBeVisible()
+
+    await context.setOffline(true)
+    await expect(page.getByText('Comprensión del video', { exact: true })).toBeVisible()
+    await expect(page.getByRole('button', { name: /Ir a:/ }).first()).toBeVisible()
+  })
+})

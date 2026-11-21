@@ -72,6 +72,31 @@ describe('SubtitleList', () => {
     const mark = screen.getByText('listen first')
     expect(mark.tagName.toLowerCase()).toBe('mark')
   })
+
+  it('asks the parent to stop following when the user scrolls by hand', () => {
+    const onUserScroll = vi.fn()
+    const { container } = render(
+      <SubtitleList
+        cues={cues}
+        activeIndex={0}
+        playing={false}
+        follow
+        onShadow={vi.fn()}
+        onUserScroll={onUserScroll}
+        shadowLine={null}
+        shadowScore={null}
+        listening="Escuchando…"
+        shadowLabel="Repetir esta línea"
+        matchLabel="Coincidencia"
+        onSeek={vi.fn()}
+        currentTime={2}
+      />,
+    )
+    const list = container.querySelector('.overflow-y-auto')
+    expect(list).not.toBeNull()
+    fireEvent.scroll(list as Element)
+    expect(onUserScroll).toHaveBeenCalledTimes(1)
+  })
 })
 
 describe('KaraokeText', () => {

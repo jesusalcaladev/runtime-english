@@ -1,4 +1,10 @@
 import { ACHIEVEMENTS } from './achievements'
+import {
+  createDefaultDailyRouteState,
+  type DailyRouteState,
+  mergeDailyRouteStates,
+  normalizeDailyRouteState,
+} from './dailyRoute'
 import type {
   CertificateState,
   ExerciseSrs,
@@ -114,6 +120,7 @@ interface CompactProgressState {
   sk?: CompactStreakState
   se?: CompactSettingsState
   vl?: CompactVideoLab
+  dr?: DailyRouteState
 }
 
 type UnknownRecord = Record<string, unknown>
@@ -274,6 +281,8 @@ export function compactState(state: ProgressState): Record<string, unknown> {
   if (!isEmptyRecord(state.achievements)) compact.ac = state.achievements
   const videoLab = compactVideoLab(state.videoLab ?? createDefaultVideoLabState())
   if (videoLab) compact.vl = videoLab
+  const dailyRoute = normalizeDailyRouteState(state.dailyRoute)
+  if (dailyRoute.steps.length) compact.dr = dailyRoute
   if (state.streak.current || state.streak.longest || state.streak.lastActiveDate) {
     compact.sk = state.streak
   }
@@ -480,7 +489,8 @@ function toCompactState(raw: unknown): CompactProgressState | null {
 export function expandState(raw: unknown, defaults: ProgressState): ProgressState {
   if (!isRecord(raw)) return defaults
 
-  const compactCandidate = 'v' in raw || 'ce' in raw || 'cs' in raw || 'se' in raw || 'vl' in raw
+  const compactCandidate =
+    'v' in raw || 'ce' in raw || 'cs' in raw || 'se' in raw || 'vl' in raw || 'dr' in raw
   if (!compactCandidate) {
     return { ...defaults, ...(raw as Partial<ProgressState>) } as ProgressState
   }
@@ -547,6 +557,7 @@ export function expandState(raw: unknown, defaults: ProgressState): ProgressStat
     retentionChecks: asRetentionRecord(compact.rt),
     achievements: asNumberRecord(compact.ac),
     videoLab: compact.vl ? expandVideoLab(compact.vl) : createDefaultVideoLabState(),
+    dailyRoute: compact.dr ? normalizeDailyRouteState(compact.dr) : createDefaultDailyRouteState(),
     streak: {
       current: toFiniteNumber(streak.current, 0),
       longest: toFiniteNumber(streak.longest, 0),
@@ -808,6 +819,7 @@ export function mergeProgressDetailed(local: ProgressState, remote: ProgressStat
     remote.videoLab ?? createDefaultVideoLabState(),
   )
   const streak = mergeStreak(local.streak, remote.streak)
+  const dailyRoute = mergeDailyRouteStates(local.dailyRoute, remote.dailyRoute)
   const xp = Math.max(
     local.xp ?? 0,
     remote.xp ?? 0,
@@ -839,6 +851,7 @@ export function mergeProgressDetailed(local: ProgressState, remote: ProgressStat
     retentionChecks,
     achievements,
     videoLab,
+    dailyRoute,
     streak,
     xp,
     startedAt: Math.min(local.startedAt ?? Date.now(), remote.startedAt ?? Date.now()),

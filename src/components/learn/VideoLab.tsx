@@ -12,6 +12,7 @@ import {
   Play,
   Repeat2,
   Search,
+  WifiOff,
 } from 'lucide-preact'
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks'
 import type { VideoLesson } from '../../data/learningResources'
@@ -20,6 +21,8 @@ import { tAction } from '../../lib/i18n'
 import { getVideoProgress, markVideoCompleted, saveVideoProgress } from '../../lib/videoProgress'
 import LinePractice from './LinePractice'
 import SubtitleList, { KaraokeText } from './SubtitleList'
+import { useOfflineMode } from './useOfflineMode'
+import { useTranscriptPlayer } from './useTranscriptPlayer'
 import { useYouTubePlayer } from './useYouTubePlayer'
 import VideoComprehension from './VideoComprehension'
 import VideoPhraseReview from './VideoPhraseReview'
@@ -41,9 +44,31 @@ export default function VideoLab({ lesson, onProgressChange }: Props) {
   const [showOnVideo, setShowOnVideo] = useState(true)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const playerShellRef = useRef<HTMLDivElement>(null)
+  const { offline, setForced, setTransient } = useOfflineMode()
 
+  const playerOptions = {
+    initialPosition: saved?.completed ? 0 : saved?.position,
+    duration: lesson.durationSeconds,
+    onProgress: (position: number, duration: number) => {
+      const now = Date.now()
+      if (position < 1 || now - lastSaveRef.current < 5000) return
+      lastSaveRef.current = now
+      saveVideoProgress(lesson.id, {
+        position,
+        duration: duration || lesson.durationSeconds,
+        completed: false,
+        updatedAt: now,
+      })
+      onProgressChange?.()
+    },
+    onFinish: complete,
+  }
+  const youtube = useYouTubePlayer(lesson.youtubeId, lesson.cues, {
+    ...playerOptions,
+    enabled: !offline,
+  })
+  const transcript = useTranscriptPlayer(lesson.cues, { ...playerOptions, enabled: offline })
   const {
-    mountRef,
     activeIndex,
     playing,
     error,
@@ -58,22 +83,13 @@ export default function VideoLab({ lesson, onProgressChange }: Props) {
     changeOffset,
     seekTo,
     time,
-  } = useYouTubePlayer(lesson.youtubeId, lesson.cues, {
-    initialPosition: saved?.completed ? 0 : saved?.position,
-    duration: lesson.durationSeconds,
-    onProgress: (position, duration) => {
-      const now = Date.now()
-      if (position < 1 || now - lastSaveRef.current < 5000) return
-      lastSaveRef.current = now
-      saveVideoProgress(lesson.id, {
-        position,
-        duration: duration || lesson.durationSeconds,
-        completed: false,
-        updatedAt: now,
-      })
-      onProgressChange?.()
-    },
-  })
+  } = offline ? transcript : youtube
+
+  // Si YouTube no carga (sin red, WebView restrictiva), pasamos a la transcripción
+  // solo durante esta sesión; el usuario puede volver a intentar con el botón.
+  useEffect(() => {
+    if (youtube.error && !offline) setTransient(true)
+  }, [youtube.error, offline, setTransient])
 
   useEffect(() => {
     setWatched(Boolean(getVideoProgress(lesson.id)?.completed))
@@ -179,7 +195,17 @@ export default function VideoLab({ lesson, onProgressChange }: Props) {
             )}
           </p>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setForced(!offline)}
+            aria-pressed={offline}
+            title={offline ? tAction(stage, 'onlineMode') : tAction(stage, 'offlineMode')}
+            class={`inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[11px] transition ${offline ? 'bg-accent/15 text-accent' : 'bg-base-100 text-base-content/60 hover:text-base-content'}`}
+          >
+            <WifiOff class="h-3.5 w-3.5" />
+            {offline ? tAction(stage, 'onlineMode') : tAction(stage, 'offlineMode')}
+          </button>
           <button
             type="button"
             onClick={complete}
@@ -203,47 +229,73 @@ export default function VideoLab({ lesson, onProgressChange }: Props) {
 
       <div class="mt-4 grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(340px,0.8fr)] xl:grid-cols-[minmax(0,1.25fr)_minmax(380px,0.75fr)]">
         <div class="space-y-3">
-          {error ? (
-            <div class="rounded-2xl bg-base-100 p-5 text-center">
-              <p class="text-[13px] text-base-content/70">{tAction(stage, 'playerUnavailable')}</p>
-              <a
-                href={youtubeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="btn btn-sm btn-primary mt-3 rounded-xl"
+          <div
+            ref={playerShellRef}
+            class={`video-player-shell group/player relative overflow-hidden rounded-2xl bg-black ${isFullscreen ? 'flex items-center justify-center' : ''}`}
+          >
+            {offline ? (
+              <div
+                class={`flex w-full flex-col justify-center bg-neutral px-6 text-center text-neutral-content ${isFullscreen ? 'h-full' : 'aspect-video'}`}
               >
-                {tAction(stage, 'openYoutube')}
-              </a>
-            </div>
-          ) : (
-            <div
-              ref={playerShellRef}
-              class={`video-player-shell group/player relative overflow-hidden rounded-2xl bg-black ${isFullscreen ? 'flex items-center justify-center' : ''}`}
-            >
-              <div ref={mountRef} class={isFullscreen ? 'h-full w-full' : 'aspect-video w-full'} />
-              {showOnVideo && activeCue && (
-                <div class="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/90 via-black/70 to-transparent px-4 pb-5 pt-12 text-center sm:px-8 sm:pb-7">
-                  <p class="text-[15px] font-medium leading-snug text-white drop-shadow sm:text-[19px]">
+                <p class="mono-label text-accent">{tAction(stage, 'transcriptMode')}</p>
+                <p class="mt-4 text-[17px] font-medium leading-relaxed text-neutral-content sm:text-[22px]">
+                  {activeCue ? (
                     <KaraokeText cue={activeCue} currentTime={time + offset} onDark />
-                  </p>
-                  {activeCue.es && (
-                    <p class="mt-1 text-[11px] leading-snug text-white/70 sm:text-[13px]">
-                      {activeCue.es}
-                    </p>
+                  ) : (
+                    tAction(stage, 'offlineHint')
                   )}
-                </div>
-              )}
-              <button
-                type="button"
-                onClick={() => void toggleFullscreen()}
-                class="absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-black/55 text-white/80 opacity-0 backdrop-blur transition hover:bg-black/75 hover:text-white focus:opacity-100 group-hover/player:opacity-100 sm:opacity-70"
-                aria-label={tAction(stage, isFullscreen ? 'exitFullscreen' : 'fullscreen')}
-                title={tAction(stage, isFullscreen ? 'exitFullscreen' : 'fullscreen')}
-              >
-                {isFullscreen ? <Minimize2 class="h-4 w-4" /> : <Maximize2 class="h-4 w-4" />}
-              </button>
-            </div>
-          )}
+                </p>
+                {activeCue?.es && (
+                  <p class="mt-2 text-[12px] text-neutral-content/60 sm:text-[14px]">
+                    {activeCue.es}
+                  </p>
+                )}
+                <p class="mx-auto mt-6 max-w-md text-[11px] leading-relaxed text-neutral-content/45">
+                  {tAction(stage, 'offlineHint')}
+                </p>
+              </div>
+            ) : error ? (
+              <div class="flex aspect-video w-full flex-col items-center justify-center gap-2 px-6 text-center">
+                <p class="text-[13px] text-white/70">{tAction(stage, 'playerUnavailable')}</p>
+                <a
+                  href={youtubeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-sm btn-primary rounded-xl"
+                >
+                  {tAction(stage, 'openYoutube')}
+                </a>
+              </div>
+            ) : (
+              <>
+                <div
+                  ref={youtube.mountRef}
+                  class={isFullscreen ? 'h-full w-full' : 'aspect-video w-full'}
+                />
+                {showOnVideo && activeCue && (
+                  <div class="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/90 via-black/70 to-transparent px-4 pb-5 pt-12 text-center sm:px-8 sm:pb-7">
+                    <p class="text-[15px] font-medium leading-snug text-white drop-shadow sm:text-[19px]">
+                      <KaraokeText cue={activeCue} currentTime={time + offset} onDark />
+                    </p>
+                    {activeCue.es && (
+                      <p class="mt-1 text-[11px] leading-snug text-white/70 sm:text-[13px]">
+                        {activeCue.es}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+            <button
+              type="button"
+              onClick={() => void toggleFullscreen()}
+              class="absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-black/55 text-white/80 opacity-0 backdrop-blur transition hover:bg-black/75 hover:text-white focus:opacity-100 group-hover/player:opacity-100 sm:opacity-70"
+              aria-label={tAction(stage, isFullscreen ? 'exitFullscreen' : 'fullscreen')}
+              title={tAction(stage, isFullscreen ? 'exitFullscreen' : 'fullscreen')}
+            >
+              {isFullscreen ? <Minimize2 class="h-4 w-4" /> : <Maximize2 class="h-4 w-4" />}
+            </button>
+          </div>
 
           <div class="flex items-center gap-2">
             <div class="h-1 flex-1 overflow-hidden rounded-full bg-base-300">
@@ -255,83 +307,95 @@ export default function VideoLab({ lesson, onProgressChange }: Props) {
             <span class="font-mono text-[10px] text-base-content/40">{progressPct}%</span>
           </div>
 
-          <div class="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={togglePlay}
-              disabled={error}
-              class="inline-flex h-8 items-center gap-1.5 rounded-full bg-accent/12 px-3 text-[11px] font-medium text-accent transition hover:bg-accent/20 disabled:opacity-40"
-            >
-              {playing ? <Pause class="h-3.5 w-3.5" /> : <Play class="h-3.5 w-3.5" />}
-              {tAction(stage, playing ? 'pause' : 'play')}
-            </button>
-            <button
-              type="button"
-              onClick={cycleRate}
-              disabled={error}
-              class="inline-flex h-8 items-center gap-1.5 rounded-full bg-base-100 px-3 text-[11px] text-base-content/60 transition hover:text-base-content disabled:opacity-40"
-              title={tAction(stage, 'speed')}
-            >
-              <Gauge class="h-3.5 w-3.5" /> {rate}×
-            </button>
-            <button
-              type="button"
-              onClick={toggleLoop}
-              aria-pressed={loopLine}
-              disabled={error}
-              class={`inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[11px] transition disabled:opacity-40 ${loopLine ? 'bg-accent/15 text-accent' : 'bg-base-100 text-base-content/60 hover:text-base-content'}`}
-              title={tAction(stage, 'repeatLine')}
-            >
-              <Repeat2 class="h-3.5 w-3.5" /> {tAction(stage, 'repeatLine')}
-            </button>
-            <button
-              type="button"
-              onClick={toggleAutoPause}
-              aria-pressed={autoPause}
-              disabled={error}
-              title={tAction(stage, 'listenDrill')}
-              class={`inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[11px] transition disabled:opacity-40 ${autoPause ? 'bg-accent/15 text-accent' : 'bg-base-100 text-base-content/60 hover:text-base-content'}`}
-            >
-              <AudioLines class="h-3.5 w-3.5" /> {tAction(stage, 'listenDrill')}
-            </button>
-            <button
-              type="button"
-              onClick={() => setFollow((current) => !current)}
-              aria-pressed={follow}
-              class={`inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[11px] transition ${follow ? 'bg-accent/15 text-accent' : 'bg-base-100 text-base-content/60 hover:text-base-content'}`}
-              title={tAction(stage, 'follow')}
-            >
-              <LocateFixed class="h-3.5 w-3.5" /> {tAction(stage, 'follow')}
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowOnVideo((current) => !current)}
-              aria-pressed={showOnVideo}
-              class={`inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[11px] transition ${showOnVideo ? 'bg-accent/15 text-accent' : 'bg-base-100 text-base-content/60 hover:text-base-content'}`}
-              title={tAction(stage, 'subtitlesOnVideo')}
-            >
-              <Captions class="h-3.5 w-3.5" /> {tAction(stage, 'subtitlesOnVideo')}
-            </button>
-            <div class="ml-auto flex items-center gap-1">
-              <button
-                type="button"
-                onClick={() => changeOffset(-5)}
-                class="h-8 rounded-full bg-base-100 px-2.5 font-mono text-[11px] text-base-content/55 transition hover:text-base-content"
-                title="−5s"
-              >
-                −5s
-              </button>
-              <span class="font-mono text-[10px] text-base-content/35">
-                {offset >= 0 ? `+${offset}` : offset}s
+          <div class="space-y-2">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="w-full font-mono text-[10px] uppercase tracking-wide text-base-content/35 sm:w-auto">
+                {tAction(stage, 'controlsPlayback')}
               </span>
               <button
                 type="button"
-                onClick={() => changeOffset(5)}
-                class="h-8 rounded-full bg-base-100 px-2.5 font-mono text-[11px] text-base-content/55 transition hover:text-base-content"
-                title="+5s"
+                onClick={togglePlay}
+                disabled={error}
+                class="inline-flex h-8 items-center gap-1.5 rounded-full bg-accent/12 px-3 text-[11px] font-medium text-accent transition hover:bg-accent/20 disabled:opacity-40"
               >
-                +5s
+                {playing ? <Pause class="h-3.5 w-3.5" /> : <Play class="h-3.5 w-3.5" />}
+                {tAction(stage, playing ? 'pause' : 'play')}
               </button>
+              <button
+                type="button"
+                onClick={cycleRate}
+                disabled={error}
+                class="inline-flex h-8 items-center gap-1.5 rounded-full bg-base-100 px-3 text-[11px] text-base-content/60 transition hover:text-base-content disabled:opacity-40"
+                title={tAction(stage, 'speed')}
+              >
+                <Gauge class="h-3.5 w-3.5" /> {rate}×
+              </button>
+              <button
+                type="button"
+                onClick={toggleLoop}
+                aria-pressed={loopLine}
+                disabled={error}
+                class={`inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[11px] transition disabled:opacity-40 ${loopLine ? 'bg-accent/15 text-accent' : 'bg-base-100 text-base-content/60 hover:text-base-content'}`}
+                title={tAction(stage, 'repeatLine')}
+              >
+                <Repeat2 class="h-3.5 w-3.5" /> {tAction(stage, 'repeatLine')}
+              </button>
+              <button
+                type="button"
+                onClick={toggleAutoPause}
+                aria-pressed={autoPause}
+                disabled={error}
+                title={tAction(stage, 'listenDrill')}
+                class={`inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[11px] transition disabled:opacity-40 ${autoPause ? 'bg-accent/15 text-accent' : 'bg-base-100 text-base-content/60 hover:text-base-content'}`}
+              >
+                <AudioLines class="h-3.5 w-3.5" /> {tAction(stage, 'listenDrill')}
+              </button>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="w-full font-mono text-[10px] uppercase tracking-wide text-base-content/35 sm:w-auto">
+                {tAction(stage, 'controlsTranscript')}
+              </span>
+              <button
+                type="button"
+                onClick={() => setFollow((current) => !current)}
+                aria-pressed={follow}
+                class={`inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[11px] transition ${follow ? 'bg-accent/15 text-accent' : 'bg-base-100 text-base-content/60 hover:text-base-content'}`}
+                title={tAction(stage, 'follow')}
+              >
+                <LocateFixed class="h-3.5 w-3.5" /> {tAction(stage, 'follow')}
+              </button>
+              {!offline && (
+                <button
+                  type="button"
+                  onClick={() => setShowOnVideo((current) => !current)}
+                  aria-pressed={showOnVideo}
+                  class={`inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[11px] transition ${showOnVideo ? 'bg-accent/15 text-accent' : 'bg-base-100 text-base-content/60 hover:text-base-content'}`}
+                  title={tAction(stage, 'subtitlesOnVideo')}
+                >
+                  <Captions class="h-3.5 w-3.5" /> {tAction(stage, 'subtitlesOnVideo')}
+                </button>
+              )}
+              <div class="ml-auto flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => changeOffset(-5)}
+                  class="h-8 rounded-full bg-base-100 px-2.5 font-mono text-[11px] text-base-content/55 transition hover:text-base-content"
+                  title="−5s"
+                >
+                  −5s
+                </button>
+                <span class="font-mono text-[10px] text-base-content/35">
+                  {offset >= 0 ? `+${offset}` : offset}s
+                </span>
+                <button
+                  type="button"
+                  onClick={() => changeOffset(5)}
+                  class="h-8 rounded-full bg-base-100 px-2.5 font-mono text-[11px] text-base-content/55 transition hover:text-base-content"
+                  title="+5s"
+                >
+                  +5s
+                </button>
+              </div>
             </div>
           </div>
           <p class="hidden px-1 text-[10px] text-base-content/30 sm:block">
@@ -339,7 +403,7 @@ export default function VideoLab({ lesson, onProgressChange }: Props) {
           </p>
         </div>
 
-        <div class="space-y-2 lg:sticky lg:top-4 lg:self-start">
+        <div class="space-y-2 lg:sticky lg:top-4 lg:max-h-[calc(100dvh-6rem)] lg:self-start">
           <div class="flex items-center justify-between gap-2 px-1">
             <p class="mono-label text-base-content/40" aria-live="polite">
               {tAction(stage, 'subtitlesTitle')}
@@ -370,6 +434,7 @@ export default function VideoLab({ lesson, onProgressChange }: Props) {
               playing={playing}
               follow={follow}
               onSeek={seekTo}
+              onUserScroll={() => setFollow(false)}
               onShadow={repeatLine}
               shadowLine={shadowLine}
               shadowScore={shadowScore}
