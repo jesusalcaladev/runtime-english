@@ -10,6 +10,8 @@
     "preview": "astro preview",
     "check": "astro check",
     "test": "vitest run",
+    "test:fast": "vitest run src/lib",
+    "test:ui": "vitest run src/components src/hooks",
     "test:watch": "vitest",
     "android:sync": "npm run build && cap sync android",
     "android:open": "cap open android",

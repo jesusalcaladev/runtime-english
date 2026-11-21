@@ -5,6 +5,7 @@ import type {
   PhrasebookEntry,
   ProgressSettings,
   ProgressState,
+  RetentionCheck,
 } from './progress'
 import { parseCompactState } from './progressSchema'
 import { supabase } from './supabase'
@@ -108,6 +109,7 @@ interface CompactProgressState {
   pb?: Record<string, unknown>
   cert?: unknown
   certs?: Record<string, unknown>
+  rt?: Record<string, unknown>
   ac?: Record<string, number>
   sk?: CompactStreakState
   se?: CompactSettingsState
@@ -268,6 +270,7 @@ export function compactState(state: ProgressState): Record<string, unknown> {
   if (!isEmptyRecord(state.phrasebook)) compact.pb = state.phrasebook
   if (state.certificate) compact.cert = state.certificate
   if (!isEmptyRecord(state.certificates)) compact.certs = state.certificates
+  if (!isEmptyRecord(state.retentionChecks)) compact.rt = state.retentionChecks
   if (!isEmptyRecord(state.achievements)) compact.ac = state.achievements
   const videoLab = compactVideoLab(state.videoLab ?? createDefaultVideoLabState())
   if (videoLab) compact.vl = videoLab
@@ -431,6 +434,24 @@ function asCertificate(value: unknown): CertificateState | null {
   }
 }
 
+function asRetentionRecord(value: unknown): Record<string, RetentionCheck> {
+  const result: Record<string, RetentionCheck> = {}
+  if (!isRecord(value)) return result
+  for (const [key, raw] of Object.entries(value)) {
+    if (!isRecord(raw) || typeof raw.exerciseId !== 'string') continue
+    result[key] = {
+      exerciseId: raw.exerciseId,
+      dueAt: toFiniteNumber(raw.dueAt, 0),
+      offsetDays: raw.offsetDays === 3 ? 3 : 1,
+      attempts: Math.max(0, Math.round(toFiniteNumber(raw.attempts, 0))),
+      correct: Math.max(0, Math.round(toFiniteNumber(raw.correct, 0))),
+      lastResultAt: typeof raw.lastResultAt === 'number' ? raw.lastResultAt : undefined,
+      done: Boolean(raw.done),
+    }
+  }
+  return result
+}
+
 function asCertificates(
   value: unknown,
   legacy: CertificateState | null,
@@ -523,6 +544,7 @@ export function expandState(raw: unknown, defaults: ProgressState): ProgressStat
     phrasebook: asPhrasebookRecord(compact.pb),
     certificate,
     certificates,
+    retentionChecks: asRetentionRecord(compact.rt),
     achievements: asNumberRecord(compact.ac),
     videoLab: compact.vl ? expandVideoLab(compact.vl) : createDefaultVideoLabState(),
     streak: {
@@ -728,6 +750,30 @@ function mergeCertificates(
   return result
 }
 
+function mergeRetentionChecks(
+  local: Record<string, RetentionCheck> | undefined,
+  remote: Record<string, RetentionCheck> | undefined,
+): Record<string, RetentionCheck> {
+  const result: Record<string, RetentionCheck> = { ...(local ?? {}) }
+  for (const [key, remoteCheck] of Object.entries(remote ?? {})) {
+    const localCheck = result[key]
+    if (!localCheck) {
+      result[key] = remoteCheck
+      continue
+    }
+    result[key] = {
+      ...remoteCheck,
+      attempts: Math.max(localCheck.attempts, remoteCheck.attempts),
+      correct: Math.max(localCheck.correct, remoteCheck.correct),
+      dueAt: Math.min(localCheck.dueAt, remoteCheck.dueAt),
+      lastResultAt:
+        Math.max(localCheck.lastResultAt ?? 0, remoteCheck.lastResultAt ?? 0) || undefined,
+      done: localCheck.done || remoteCheck.done,
+    }
+  }
+  return result
+}
+
 export interface MergeReport {
   merged: ProgressState
   hadConflict: boolean
@@ -755,6 +801,7 @@ export function mergeProgressDetailed(local: ProgressState, remote: ProgressStat
   const phrasebook = mergePhrasebook(local.phrasebook, remote.phrasebook)
   const certificate = mergeCertificate(local.certificate, remote.certificate)
   const certificates = mergeCertificates(local.certificates, remote.certificates)
+  const retentionChecks = mergeRetentionChecks(local.retentionChecks, remote.retentionChecks)
   const achievements = unionMinTs(local.achievements ?? {}, remote.achievements ?? {})
   const videoLab = mergeVideoLabStates(
     local.videoLab ?? createDefaultVideoLabState(),
@@ -789,6 +836,7 @@ export function mergeProgressDetailed(local: ProgressState, remote: ProgressStat
     phrasebook,
     certificate,
     certificates,
+    retentionChecks,
     achievements,
     videoLab,
     streak,

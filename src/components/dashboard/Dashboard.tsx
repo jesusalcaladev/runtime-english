@@ -26,6 +26,7 @@ import { CERTIFICATE_LEVELS, isLevelComplete } from '../../lib/certificateLevels
 import { aggregateErrorPatterns } from '../../lib/errorPatterns'
 import { GOAL_LABELS, isSessionRelevantToGoal } from '../../lib/goals'
 import { getUiStage, t, tAction } from '../../lib/i18n'
+import { getRecommendedNextSession, getRetentionStats } from '../../lib/learning'
 import { getDuePhraseEntries, getReviewStats } from '../../lib/progress'
 import { route } from '../../lib/routes'
 import { warmSpeechEngine } from '../../lib/speech'
@@ -106,7 +107,10 @@ export default function Dashboard({
       (entry) => entry.state === 'active' && !isLevelComplete(entry.level, state),
     ) ?? CERTIFICATE_LEVELS[CERTIFICATE_LEVELS.length - 1]
   const selectedLevel: Level = levelParam ?? currentLevel.level
+  const recommendation = getRecommendedNextSession(state)
+  const retention = getRetentionStats(state)
   const nextSession =
+    allSessions.find((session) => session.id === recommendation.sessionId) ??
     allSessions
       .filter((session) => session.module.level === selectedLevel)
       .find((session) => !state.completedSessions[session.id]) ??
@@ -329,6 +333,11 @@ export default function Dashboard({
                 )}
               </div>
 
+              <p class="mt-3 flex items-start gap-1.5 text-[11px] leading-relaxed text-base-content/45">
+                <Target class="mt-0.5 h-3 w-3 shrink-0 text-accent/70" />
+                {recommendation.reason}
+              </p>
+
               {showGoalPick && goalSession && (
                 <a
                   href={route(`/session/${goalSession.slug}`)}
@@ -391,6 +400,13 @@ export default function Dashboard({
               detail={`${weakRate}% a reforzar · ${review.weak} débiles`}
             />
           </section>
+
+          <p class="mt-2 px-1 text-[11px] text-base-content/45">
+            Retención diferida:{' '}
+            <span class="font-mono text-base-content/70">{retention.rate}%</span> (24 h{' '}
+            {retention.byOffset[1].rate}% · 72 h {retention.byOffset[3].rate}%) · {retention.due}{' '}
+            pruebas pendientes.
+          </p>
 
           {/* Accesos secundarios compactos (sin duplicar métricas ni navegación) */}
           <section class="mt-3 flex flex-wrap gap-2">

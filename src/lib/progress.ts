@@ -136,6 +136,8 @@ export interface ProgressState {
   certificate: CertificateState | null
   /** Un certificado por nivel (A1-A2, B1-B2, ...). `certificate` se mantiene por compatibilidad. */
   certificates: Partial<Record<Level, CertificateState>>
+  /** Post-tests de retención diferida por ejercicio. */
+  retentionChecks: Record<string, RetentionCheck>
   achievements: Record<string, number>
   streak: {
     current: number
@@ -150,6 +152,17 @@ export interface ProgressState {
   videoLabMigratedAt?: number | null
 }
 
+/** Comprobación diferida de retención (24 h / 72 h) de un ejercicio ya acertado. */
+export interface RetentionCheck {
+  exerciseId: string
+  dueAt: number
+  offsetDays: 1 | 3
+  attempts: number
+  correct: number
+  lastResultAt?: number
+  done?: boolean
+}
+
 export interface ProgressExportEnvelope {
   format: 'runtimeenglish-progress'
   schemaVersion: number
@@ -161,6 +174,52 @@ export interface ProgressExportEnvelope {
 export const STORAGE_KEY = 'runtimeenglish_v3'
 const LEGACY_STORAGE_KEYS = ['runtimeenglish_v2', 'devlingo_v3', 'devlingo_v2', 'deveng_core_v2']
 export const PROGRESS_SCHEMA_VERSION = 3
+
+const RETENTION_DAY_MS = 86_400_000
+
+/** Programa y puntúa los post-tests de retención (24 h → 72 h) de un ejercicio. */
+function updateRetentionChecks(
+  checks: Record<string, RetentionCheck>,
+  exerciseId: string,
+  correct: boolean,
+  now: number,
+): Record<string, RetentionCheck> {
+  const next = { ...checks }
+  let passedOneDay = false
+  for (const offsetDays of [1, 3] as const) {
+    const key = `${exerciseId}:${offsetDays}`
+    const check = next[key]
+    if (!check || check.done || check.dueAt > now) continue
+    const attempts = check.attempts + 1
+    const passed = correct || attempts >= 2
+    next[key] = {
+      ...check,
+      attempts,
+      correct: check.correct + (correct ? 1 : 0),
+      lastResultAt: now,
+      done: passed,
+      dueAt: passed ? check.dueAt : now + RETENTION_DAY_MS,
+    }
+    if (offsetDays === 1 && passed) passedOneDay = true
+  }
+  const hasActive = Object.values(next).some(
+    (check) => check.exerciseId === exerciseId && !check.done,
+  )
+  if (correct && !hasActive) {
+    const offsetDays: 1 | 3 = passedOneDay ? 3 : 1
+    const key = `${exerciseId}:${offsetDays}`
+    if (!next[key] || next[key].done) {
+      next[key] = {
+        exerciseId,
+        dueAt: now + RETENTION_DAY_MS,
+        offsetDays,
+        attempts: 0,
+        correct: 0,
+      }
+    }
+  }
+  return next
+}
 
 function preferredTheme(): 'light' | 'dark' {
   if (
@@ -186,6 +245,7 @@ export function createDefaultState(): ProgressState {
     phrasebook: {},
     certificate: null,
     certificates: {},
+    retentionChecks: {},
     achievements: {},
     streak: { current: 0, longest: 0, lastActiveDate: null },
     settings: {
@@ -495,6 +555,23 @@ export function mergeState(raw: unknown): ProgressState {
     }
   }
 
+  const retentionChecks: Record<string, RetentionCheck> = {}
+  const rawRetention = isRecord(baseRecord.retentionChecks) ? baseRecord.retentionChecks : {}
+  for (const [key, value] of Object.entries(rawRetention)) {
+    if (!isRecord(value) || typeof value.exerciseId !== 'string') continue
+    const dueAt = getNumber(value.dueAt) ?? 0
+    const offsetDays = value.offsetDays === 3 ? 3 : 1
+    retentionChecks[key] = {
+      exerciseId: value.exerciseId,
+      dueAt,
+      offsetDays,
+      attempts: Math.max(0, getNumber(value.attempts) ?? 0),
+      correct: Math.max(0, getNumber(value.correct) ?? 0),
+      lastResultAt: getNumber(value.lastResultAt) ?? undefined,
+      done: Boolean(value.done),
+    }
+  }
+
   const rawErrorEvents = Array.isArray(baseRecord.errorEvents ?? parsed.errorEvents)
     ? ((baseRecord.errorEvents ?? parsed.errorEvents) as unknown[])
     : []
@@ -547,6 +624,7 @@ export function mergeState(raw: unknown): ProgressState {
     phrasebook,
     certificate,
     certificates,
+    retentionChecks,
     achievements: toRecord(mergedBase.achievements) as Record<string, number>,
     streak: sanitizeStreak(
       (isRecord(mergedBase.streak)
@@ -852,7 +930,19 @@ class ProgressStore {
           at: now,
         }
         errorEvents = [...errorEvents, event].slice(-300)
-        return { ...state, attempts, exerciseSrs, phrasebook, errorEvents }
+        return {
+          ...state,
+          attempts,
+          exerciseSrs,
+          phrasebook,
+          errorEvents,
+          retentionChecks: updateRetentionChecks(
+            state.retentionChecks ?? {},
+            exercise.id,
+            false,
+            now,
+          ),
+        }
       }
 
       const alreadyDone = Boolean(state.completedExercises[exercise.id])
@@ -867,6 +957,7 @@ class ProgressStore {
         phrasebook,
         errorEvents,
         completedExercises,
+        retentionChecks: updateRetentionChecks(state.retentionChecks ?? {}, exercise.id, true, now),
         xp: alreadyDone ? state.xp : state.xp + 10,
         streak: updateStreak(state.streak),
       }

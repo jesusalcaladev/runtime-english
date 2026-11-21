@@ -79,6 +79,25 @@ describe('progressSync', () => {
     expect(expanded.certificates?.['A1-A2']?.level).toBe('A1-A2')
   })
 
+  it('syncs retention checks through compact state', () => {
+    const state = createDefaultState()
+    state.retentionChecks = {
+      'm1-l0-e1:1': {
+        exerciseId: 'm1-l0-e1',
+        dueAt: 1234,
+        offsetDays: 1,
+        attempts: 1,
+        correct: 1,
+        done: true,
+      },
+    }
+    const compact = compactState(state)
+    expect((compact as any).rt['m1-l0-e1:1'].offsetDays).toBe(1)
+    const expanded = expandState(compact, createDefaultState())
+    expect(expanded.retentionChecks['m1-l0-e1:1'].correct).toBe(1)
+    expect(expanded.retentionChecks['m1-l0-e1:1'].done).toBe(true)
+  })
+
   it('merges progress without losing completions and keeps max xp', () => {
     const local = createDefaultState()
     const remote = createDefaultState()

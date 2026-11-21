@@ -116,6 +116,7 @@ export const compactStateSchema = z
     pb: z.record(z.string(), z.unknown()).optional(),
     cert: z.unknown().nullable().optional(),
     certs: z.record(z.string(), z.unknown()).optional(),
+    rt: z.record(z.string(), z.unknown()).optional(),
     ac: z.record(z.string(), z.number()).optional(),
     sk: z
       .object({

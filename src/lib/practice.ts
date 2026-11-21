@@ -1,4 +1,6 @@
+import { inferExerciseSkills } from './errorPatterns'
 import { isSessionRelevantToGoal } from './goals'
+import { getSkillProfile } from './learning'
 import {
   getDuePhraseEntries,
   getWeakPhraseEntries,
@@ -103,7 +105,18 @@ export function buildExercisePool(
   })
   const unseen = items.filter((item) => !state.attempts[item.exercise.id])
 
-  const ranked = [...items].sort((a, b) => reviewScore(b, state, now) - reviewScore(a, state, now))
+  // Habilidades débiles se intercalan en la mezcla, no solo la sesión actual.
+  const weakSkills = new Set(
+    getSkillProfile(state)
+      .filter((skill) => skill.weakness >= 0.4)
+      .map((skill) => skill.skill),
+  )
+  const score = (item: PracticeItem) =>
+    reviewScore(item, state, now) +
+    (weakSkills.size && inferExerciseSkills(item.exercise).some((skill) => weakSkills.has(skill))
+      ? 90
+      : 0)
+  const ranked = [...items].sort((a, b) => score(b) - score(a))
   const interleaved = shuffle(ranked.slice(0, Math.max(count * 4, 40)), random)
 
   let base: PracticeItem[]

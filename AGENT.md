@@ -33,6 +33,9 @@ npm run dev            # Astro dev server
 npm run build          # generates dist/
 npm run preview        # serves dist/
 npm run check          # astro check (types/diagnostics)
+npm test               # full Vitest suite (~40 s)
+npm run test:fast      # only src/lib tests (~19 s), fastest feedback loop
+npm run test:ui        # only component/hook UI tests (~25 s)
 
 npm run android:sync   # build + cap sync android (updates assets/config in android/)
 npm run android:open   # opens the project in Android Studio
