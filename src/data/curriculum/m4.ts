@@ -29,7 +29,7 @@ export const m4: Module = {
           type: 'callout',
           tone: 'info',
           title: 'Antes de esta lección',
-          body: "Completa M2 (pasado simple con marcadores como 'yesterday' o 'last week') y repasa participios regulares (fixed, deployed, pushed). Esta lección responde al 'lo verás más adelante' del Paso 2.1.",
+          body: "Completa M2 (pasado simple con marcadores como 'yesterday' o 'last week') y recuerda formas como fixed, deployed y pushed: hoy las usaremos como participio con have/had. Esta lección responde al 'lo verás más adelante' del Paso 2.1.",
         },
         {
           type: 'technique',
@@ -134,7 +134,7 @@ export const m4: Module = {
           id: 'm4-l0-e7',
           type: 'shadow',
           prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
-          answer: 'I have fixed the bug that broke the build yesterday.',
+          answer: 'I have fixed the build bug from yesterday.',
           hint: 'Presente perfecto + pasado simple.',
           explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
         },
@@ -493,8 +493,8 @@ export const m4: Module = {
               speaker: 'a',
               name: 'Maya',
               role: 'Reviewer',
-              en: 'I left a few comments on your PR. One is a nit, the rest are non-blocking.',
-              es: 'Dejé algunos comentarios en tu PR. Uno es un detalle menor, los demás no bloquean.',
+              en: 'I left a few comments on your PR. One is a nit, one is blocking, and the rest are non-blocking.',
+              es: 'Dejé algunos comentarios en tu PR. Uno es un detalle menor, uno bloquea y los demás no bloquean.',
             },
             {
               speaker: 'b',
@@ -552,7 +552,7 @@ export const m4: Module = {
             'nit: move the key',
             'non-blocking: nice key',
             'blocking: this leaks the API key',
-            'LGTM: ship it',
+            'LGTM: looks good',
           ],
           answer: 2,
           explanation:
@@ -1035,7 +1035,7 @@ export const m4: Module = {
           id: 'm4-l4-e7',
           type: 'shadow',
           prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
-          answer: 'I do not have the bandwidth this week, but I can do it on Monday.',
+          answer: "I don't have the capacity this week, but I can do it on Monday.",
           hint: 'Decir que no con alternativa.',
           explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
         },
@@ -1236,7 +1236,7 @@ export const m4: Module = {
           type: 'dialogue-branch',
           prompt: 'Elige cómo pedir ayuda con contexto.',
           context:
-            'Leo está atascado con un bug y pide unos minutos a Maya para explicarle el contexto.',
+            'Leo está atascado con un error de CORS y pide ayuda a Maya: primero pregunta si tiene un minuto y después explica qué ha probado.',
           steps: [
             {
               speaker: 'Leo',
@@ -1255,13 +1255,13 @@ export const m4: Module = {
               ],
             },
             {
-              speaker: 'Leo',
-              line: 'Thanks, that helps a lot.',
+              speaker: 'Maya',
+              line: 'What have you tried so far?',
               choices: [
                 {
-                  en: 'No problem. Let me know if you need more context.',
+                  en: "I already checked the headers and logs. I'm still stuck on the CORS error.",
                   correct: true,
-                  feedback: 'Cierras con disponibilidad y contexto.',
+                  feedback: 'Das contexto concreto: qué probaste y dónde sigues atascado.',
                 },
                 {
                   en: 'Yes, I am always busy.',
@@ -1389,248 +1389,6 @@ export const m4: Module = {
           hint: "Usa 'Let me share...'",
           explanation:
             'Frase práctica y común en pair programming o llamadas para mostrar el problema en vivo.',
-        },
-      ],
-    },
-    {
-      id: 'm4-l7',
-      slug: 'practica-daily-ayuda-y-pair',
-      title: 'Práctica: daily, ayuda y colaboración',
-      step: 'B1 · Paso 4.7 · Práctica guiada',
-      cefr: 'B1',
-      summary:
-        'Sesión corta para separar y reforzar comunicación diaria: updates, pedir ayuda con contexto y colaborar en vivo.',
-      objectives: [
-        'Dar un update breve (ayer/hoy/bloqueo) con frases ya conocidas.',
-        'Pedir ayuda de forma clara con contexto e intentos previos.',
-        'Usar frases simples para pair programming y debugging.',
-      ],
-      pronunciation:
-        "Yesterday I fixed the bug. Today I'm working on tests. I'm stuck, so could you take a look?",
-      blocks: [
-        {
-          type: 'callout',
-          tone: 'info',
-          title: 'Antes de esta lección',
-          body: 'Repasa y combina lo visto en m4-l1 (daily/standup), m4-l5 (pedir ayuda y contexto) y m4-l6 (pair programming). Esta práctica usa solo estructuras y chunks ya enseñados en esas lecciones.',
-        },
-        {
-          type: 'technique',
-          name: 'Tres marcos útiles',
-          desc: "Daily: 'Yesterday..., Today..., I'm blocked by / No blockers.' Ayuda: objetivo + problema + 'I already tried...' + pregunta. Pair: 'I suspect...', 'What if we...?', 'Can you walk me through...?'",
-        },
-        {
-          type: 'phrases',
-          title: 'Chunks de apoyo',
-          items: [
-            {
-              en: "Yesterday I finished the integration. Today I'm working on the tests.",
-              es: 'Ayer terminé la integración. Hoy estoy trabajando en los tests.',
-            },
-            {
-              en: "I'm stuck on this issue. Could you take a look?",
-              es: 'Estoy atascado con este problema. ¿Podrías echarle un vistazo?',
-            },
-            {
-              en: 'I already tried restarting the service.',
-              es: 'Ya intenté reiniciar el servicio.',
-            },
-            { en: 'What if we add a log here?', es: '¿Y si agregamos un log aquí?' },
-          ],
-        },
-      ],
-      exercises: [
-        {
-          id: 'm4-l7-e1',
-          type: 'builder',
-          prompt:
-            "Construye un update corto: 'Ayer terminé la integración. Hoy estoy trabajando en los tests.'",
-          words: ['Yesterday I finished', 'the integration.', "Today I'm working on", 'the tests.'],
-          answer: "Yesterday I finished the integration. Today I'm working on the tests.",
-          explanation: 'Estructura clara de daily: qué hiciste ayer y qué haces hoy.',
-        },
-        {
-          id: 'm4-l7-e2',
-          type: 'write',
-          prompt:
-            "Escríbelo en inglés: 'Estoy atascado con este problema. ¿Podrías echarle un vistazo?'",
-          answer: "I'm stuck on this issue. Could you take a look?",
-          accept: [
-            'I am stuck on this issue. Could you take a look?',
-            "I'm stuck on this issue. Could you take a look when you have a minute?",
-          ],
-          hint: "Usa 'I'm stuck on...' y 'Could you take a look?'",
-          explanation:
-            'Pedir ayuda con problema claro y petición concreta es directo y profesional.',
-        },
-        {
-          id: 'm4-l7-e3',
-          type: 'choice',
-          prompt: 'Quieres proponer una hipótesis en pair programming. ¿Qué opción es mejor?',
-          options: ['What if we add a log here?', 'Add log now.', 'Log maybe.', 'You add log.'],
-          answer: 0,
-          explanation: "'What if we...?' propone una idea de forma colaborativa.",
-        },
-        {
-          id: 'm4-l7-e4',
-          type: 'write',
-          prompt: "Escríbelo en inglés: 'Ya intenté reiniciar el servicio.'",
-          answer: 'I already tried restarting the service.',
-          accept: [
-            "I've already tried restarting the service.",
-            'I have already tried restarting the service.',
-          ],
-          hint: "Usa 'I already tried...'",
-          explanation:
-            'Compartir lo que ya probaste da contexto útil al pedir ayuda. La variante con presente perfecto ("I\'ve already tried...") se explica en el Paso 4.0.',
-        },
-        {
-          id: 'm4-l7-e5',
-          type: 'builder',
-          prompt: "Construye: 'Sospecho que el problema está en la caché.'",
-          words: ['I suspect', 'the issue', 'is in', 'the cache.'],
-          answer: 'I suspect the issue is in the cache.',
-          explanation: "'I suspect...' expresa una hipótesis mientras depuran juntos.",
-        },
-        {
-          id: 'm4-l7-e6',
-          type: 'choice',
-          prompt: 'En tu daily no tienes impedimentos. ¿Qué dices?',
-          options: [
-            'No blockers on my side.',
-            'I have many blockers.',
-            'Blocker yes.',
-            'Maybe blocked.',
-          ],
-          answer: 0,
-          explanation: 'Es una forma clara y natural de cerrar tu update cuando no hay bloqueos.',
-        },
-        {
-          id: 'm4-l7-e7',
-          type: 'shadow',
-          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
-          answer: 'I will take the frontend task and Maya will review the PR.',
-          hint: 'Dos compromisos con will.',
-          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
-        },
-      ],
-    },
-    {
-      id: 'm4-l8',
-      slug: 'practica-reviews-incidentes-y-plazos',
-      title: 'Práctica: code reviews, incidentes y plazos',
-      step: 'B1-B2 · Paso 4.8 · Práctica guiada',
-      cefr: 'B1',
-      summary:
-        'Sesión corta para separar y reforzar m4-l2, m4-l3 y m4-l4: feedback en reviews, comunicación en incidentes y manejo de plazos.',
-      objectives: [
-        'Dar sugerencias y comentarios de code review de forma clara y profesional.',
-        'Comunicar estado y acciones durante un incidente.',
-        'Hablar de estimaciones, prioridades y alcance con frases ya vistas.',
-      ],
-      pronunciation:
-        "Could we rename this variable for clarity? I'm rolling back the last deploy. My estimate is two to three days.",
-      blocks: [
-        {
-          type: 'callout',
-          tone: 'info',
-          title: 'Antes de esta lección',
-          body: 'Repasa m4-l2 (code review), m4-l3 (incidentes, on-call y postmortems) y m4-l4 (estimaciones, plazos y decir que no). Esta práctica usa solo chunks y estructuras ya enseñados en esas lecciones.',
-        },
-        {
-          type: 'technique',
-          name: 'Tres contextos, lenguaje claro',
-          desc: "Reviews: sugerencias y prioridad ('Could we...?', 'blocking/non-blocking'). Incidentes: estado y acción ('We have a production outage', 'I'm rolling back...', 'We're back to normal'). Plazos: estimación y alcance ('My estimate is...', 'Can we descope something?', 'What's the hard deadline?').",
-        },
-        {
-          type: 'phrases',
-          title: 'Chunks de apoyo',
-          items: [
-            {
-              en: 'Could we rename this variable for clarity?',
-              es: '¿Podríamos renombrar esta variable para mayor claridad?',
-            },
-            {
-              en: "I'm rolling back the last deploy.",
-              es: 'Estoy revirtiendo el último despliegue.',
-            },
-            { en: 'My estimate is two to three days.', es: 'Mi estimación es de dos a tres días.' },
-            { en: "What's the hard deadline?", es: '¿Cuál es la fecha límite estricta?' },
-          ],
-        },
-      ],
-      exercises: [
-        {
-          id: 'm4-l8-e1',
-          type: 'choice',
-          prompt:
-            'Quieres sugerir un cambio de nombre en un code review de forma amable. ¿Qué dices?',
-          options: [
-            'Rename this now.',
-            'Could we rename this variable for clarity?',
-            'Bad name.',
-            'This is wrong.',
-          ],
-          answer: 1,
-          explanation:
-            "'Could we...?' propone el cambio de forma colaborativa y profesional (m4-l2).",
-        },
-        {
-          id: 'm4-l8-e2',
-          type: 'write',
-          prompt: "Escríbelo en inglés: 'Estoy revirtiendo el último despliegue.'",
-          answer: "I'm rolling back the last deploy.",
-          accept: ['I am rolling back the last deploy.'],
-          hint: "Usa presente continuo: 'I'm rolling back...'",
-          explanation: 'En un incidente, comunicar la acción en curso es clave (m4-l3).',
-        },
-        {
-          id: 'm4-l8-e3',
-          type: 'builder',
-          prompt: "Construye: 'Mi estimación es de dos a tres días.'",
-          words: ['My estimate', 'is two', 'to three days.'],
-          answer: 'My estimate is two to three days.',
-          explanation: 'Dar una estimación clara ayuda a alinear expectativas (m4-l4).',
-        },
-        {
-          id: 'm4-l8-e4',
-          type: 'choice',
-          prompt: 'El servicio ya se recuperó después de un incidente. ¿Qué dices?',
-          options: [
-            "We're back to normal.",
-            'We have a production outage.',
-            'The root cause is unknown forever.',
-            "I'm investigating now.",
-          ],
-          answer: 0,
-          explanation:
-            "'We're back to normal' comunica que el servicio se ha estabilizado (m4-l3).",
-        },
-        {
-          id: 'm4-l8-e5',
-          type: 'write',
-          prompt: "Escríbelo en inglés: '¿Cuál es la fecha límite estricta?'",
-          answer: "What's the hard deadline?",
-          accept: ['What is the hard deadline?'],
-          hint: "Usa 'What's the... deadline?' y 'hard' (no negociable).",
-          explanation: 'Aclara si hay una fecha límite no negociable para priorizar (m4-l4).',
-        },
-        {
-          id: 'm4-l8-e6',
-          type: 'builder',
-          prompt: "Construye: 'Esto es un problema bloqueante porque afecta a producción.'",
-          words: ['This is a blocking issue', 'because it affects', 'production.'],
-          answer: 'This is a blocking issue because it affects production.',
-          explanation:
-            'En un review, explicar por qué algo es bloqueante ayuda a priorizarlo (m4-l2).',
-        },
-        {
-          id: 'm4-l8-e7',
-          type: 'shadow',
-          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
-          answer: 'We missed the deadline because the deploy broke production.',
-          hint: 'Causa y efecto.',
-          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
         },
       ],
     },

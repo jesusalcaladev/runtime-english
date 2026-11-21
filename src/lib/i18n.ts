@@ -9,6 +9,7 @@ export interface LanguageStatus {
   score: number
   a1Pct: number
   b1Pct: number
+  c1Pct: number
   exercisePct: number
   accuracyPct: number
   nextTarget: number | null
@@ -17,10 +18,11 @@ export interface LanguageStatus {
 
 /**
  * Immersion combines three signals:
- * - 55%: A1-A2 session progress.
- * - 15%: accuracy (completed exercises / attempts).
- * - 20%: curriculum exercises solved.
- * - 10%: B1-B2 progress.
+ * - 45%: A1-A2 session progress.
+ * - 25%: B1-B2 progress.
+ * - 10%: C1-C2 progress.
+ * - 10%: curriculum exercises solved.
+ * - 10%: accuracy (completed exercises / attempts).
  *
  * The UI switches to mixed at 28 points and to English at 58,
  * but English also requires 55% A1-A2 progress and 55% accuracy, so the UI does not switch
@@ -29,6 +31,7 @@ export interface LanguageStatus {
 export function getLanguageStatus(state: ProgressState): LanguageStatus {
   const a1 = levelStats('A1-A2', state.completedSessions)
   const b1 = levelStats('B1-B2', state.completedSessions)
+  const c1 = levelStats('C1-C2', state.completedSessions)
   const allExerciseIds = ALL_SESSIONS.flatMap(({ session }) =>
     session.exercises.map((exercise) => exercise.id),
   )
@@ -41,7 +44,9 @@ export function getLanguageStatus(state: ProgressState): LanguageStatus {
   const accuracyPct =
     totalAttempts === 0 ? 0 : Math.min(100, Math.round((doneExercises / totalAttempts) * 100))
 
-  const score = Math.round(a1.pct * 0.55 + exercisePct * 0.2 + accuracyPct * 0.15 + b1.pct * 0.1)
+  const score = Math.round(
+    a1.pct * 0.45 + b1.pct * 0.25 + c1.pct * 0.1 + exercisePct * 0.1 + accuracyPct * 0.1,
+  )
   const englishGate = a1.pct >= 55 && accuracyPct >= 55
   const autoStage: UiStage = score >= 58 && englishGate ? 'en' : score >= 28 ? 'mixed' : 'es'
   const preference = state.settings.immersion
@@ -71,6 +76,7 @@ export function getLanguageStatus(state: ProgressState): LanguageStatus {
     score,
     a1Pct: a1.pct,
     b1Pct: b1.pct,
+    c1Pct: c1.pct,
     exercisePct,
     accuracyPct,
     nextTarget,
@@ -92,6 +98,19 @@ export const UI_STRINGS: Record<string, Entry> = {
   settings: { es: 'Ajustes', en: 'Settings' },
   a1: { es: 'Nivel A1–A2 · Fundamentos', en: 'Level A1–A2 · Foundations' },
   b1: { es: 'Nivel B1–B2 · Producción', en: 'Level B1–B2 · Production' },
+  c1: { es: 'Nivel C1–C2 · Maestría', en: 'Level C1–C2 · Mastery' },
+  comingSoon: { es: 'Próximamente', en: 'Coming soon' },
+  certificateLevel: { es: 'Certificado', en: 'Certificate' },
+  levelProgress: { es: 'Progreso del nivel', en: 'Level progress' },
+  nextInLevel: { es: 'Siguiente en este nivel', en: 'Next in this level' },
+  certificateLockedLevel: {
+    es: 'Completa el nivel anterior para desbloquear este certificado.',
+    en: 'Complete the previous level to unlock this certificate.',
+  },
+  certificateUpcoming: {
+    es: 'Las sesiones de C1–C2 todavía están en camino. Mientras tanto, termina los niveles anteriores.',
+    en: 'C1–C2 sessions are on their way. In the meantime, finish the previous levels.',
+  },
   continue: { es: 'Continuar', en: 'Continue' },
   start: { es: 'Empezar', en: 'Start' },
   completed: { es: 'Completada', en: 'Completed' },
@@ -133,6 +152,7 @@ export const UI_STRINGS: Record<string, Entry> = {
   ofCore: { es: 'del Core', en: 'of the Core' },
   foundations: { es: 'Fundamentos', en: 'Foundations' },
   production: { es: 'Producción', en: 'Production' },
+  mastery: { es: 'Maestría', en: 'Mastery' },
   special: { es: 'Especial', en: 'Special' },
   next: { es: 'Siguiente', en: 'Next' },
   completedSessions: { es: 'completadas', en: 'completed' },
@@ -183,6 +203,14 @@ export const UI_STRINGS: Record<string, Entry> = {
   },
   typeAnswer: { es: 'Escribe tu respuesta en inglés…', en: 'Type your answer in English…' },
   wordsSelected: { es: 'palabras seleccionadas', en: 'words selected' },
+  showHint: { es: 'Ver pista', en: 'Show hint' },
+  hideHint: { es: 'Ocultar pista', en: 'Hide hint' },
+  sessionAccuracy: { es: 'Precisión', en: 'Accuracy' },
+  toReview: { es: 'Para repasar', en: 'To review' },
+  levelReady: {
+    es: '¡Nivel completo! Descarga tu certificado',
+    en: 'Level complete! Get your certificate',
+  },
   sessionCompleted: { es: 'Sesión completada', en: 'Session completed' },
   sessionReviewed: { es: 'Sesión repasada', en: 'Session reviewed' },
   sessionXp: { es: '+40 XP de sesión', en: '+40 session XP' },

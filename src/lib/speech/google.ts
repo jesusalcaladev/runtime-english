@@ -8,12 +8,19 @@ import { setSpeaking } from './ui'
  * (caso típico de Brave en Linux).
  *
  * Los MP3 se descargan con antelación (`prefetchGooglePhrase`) y se reutilizan
- * al reproducir, para que el diálogo no se detenga esperando la red en cada línea.
+ * al reproducir. La descarga va por una cola con concurrencia limitada: pedir
+ * 40 frases a la vez saturaba las conexiones del navegador y casi ninguna
+ * llegaba a tiempo. Ahora se descargan de 4 en 4, con dedupe y un reintento.
  */
 const MAX_CHARS = 180
-const AUDIO_CACHE_LIMIT = 32
+const MAX_PARALLEL_PREFETCH = 4
+const AUDIO_CACHE_LIMIT = 160
+const MAX_PREFETCH_RETRIES = 1
 let currentAudio: HTMLAudioElement | null = null
 const audioCache = new Map<string, HTMLAudioElement>()
+const inFlight = new Set<string>()
+const prefetchQueue: { chunk: string; priority: boolean; attempts: number }[] = []
+let activePrefetches = 0
 
 export function splitGoogleText(text: string): string[] {
   const clean = text.replace(/\s+/g, ' ').trim()
@@ -54,7 +61,6 @@ function createAudio(text: string): HTMLAudioElement {
   const audio = new Audio()
   audio.preload = 'auto'
   audio.src = googleAudioUrl(text)
-  // Kick off the download immediately; play() later reuses the buffered audio.
   try {
     audio.load?.()
   } catch {
@@ -94,6 +100,41 @@ function cacheAudio(text: string, audio: HTMLAudioElement): void {
   evictOldest()
 }
 
+/** Processes queued chunks with a small, bounded number of parallel downloads. */
+function pumpPrefetch(): void {
+  while (activePrefetches < MAX_PARALLEL_PREFETCH) {
+    const index = prefetchQueue.findIndex(
+      (item) => !inFlight.has(item.chunk) && !audioCache.has(item.chunk),
+    )
+    if (index < 0) return
+    const [item] = prefetchQueue.splice(index, 1)
+    inFlight.add(item.chunk)
+    activePrefetches += 1
+
+    const audio = createAudio(item.chunk)
+    cacheAudio(item.chunk, audio)
+    let settled = false
+    const finish = (success: boolean) => {
+      if (settled) return
+      settled = true
+      inFlight.delete(item.chunk)
+      activePrefetches -= 1
+      if (!success && item.attempts < MAX_PREFETCH_RETRIES) {
+        prefetchQueue.unshift({ ...item, attempts: item.attempts + 1 })
+      }
+      bumpPhraseStatus()
+      pumpPrefetch()
+    }
+
+    audio.onerror = () => {
+      if (audioCache.get(item.chunk) === audio) audioCache.delete(item.chunk)
+      finish(false)
+    }
+    audio.oncanplaythrough = () => finish(true)
+    audio.onloadeddata = () => finish(true)
+  }
+}
+
 export function stopGooglePlayback(): void {
   if (!currentAudio) return
   try {
@@ -106,24 +147,19 @@ export function stopGooglePlayback(): void {
 }
 
 /**
- * Descarga en segundo plano el MP3 de una frase (y de sus chunks).
- * Llamarlo mientras suena la línea anterior deja la siguiente lista para tocar.
+ * Encola el MP3 de una frase (y de sus chunks). Las frases prioritarias se
+ * descargan primero; el resto se procesa con concurrencia limitada.
  */
-export function prefetchGooglePhrase(text: string): void {
+export function prefetchGooglePhrase(text: string, priority = false): void {
   if (typeof window === 'undefined') return
   for (const chunk of splitGoogleText(text)) {
-    if (!chunk || audioCache.has(chunk)) continue
-    try {
-      const audio = createAudio(chunk)
-      cacheAudio(chunk, audio)
-      audio.onerror = () => {
-        if (audioCache.get(chunk) === audio) audioCache.delete(chunk)
-      }
-      audio.oncanplaythrough = () => bumpPhraseStatus()
-    } catch {
-      // Prefetch is best effort.
-    }
+    if (!chunk || audioCache.has(chunk) || inFlight.has(chunk)) continue
+    if (prefetchQueue.some((item) => item.chunk === chunk)) continue
+    const item = { chunk, priority, attempts: 0 }
+    if (priority) prefetchQueue.unshift(item)
+    else prefetchQueue.push(item)
   }
+  pumpPrefetch()
   bumpPhraseStatus()
 }
 
@@ -142,10 +178,23 @@ export function getGooglePhraseStatus(texts: string[]): { ready: number; total: 
   return { ready, total }
 }
 
-function playChunk(text: string): Promise<void> {
+/** Waits for a queued download to be playable before starting playback. */
+async function waitForBuffer(audio: HTMLAudioElement): Promise<void> {
+  if ((audio.readyState ?? 0) >= 2 || typeof audio.addEventListener !== 'function') return
+  await new Promise<void>((resolve) => {
+    const done = () => resolve()
+    audio.addEventListener('canplaythrough', done, { once: true })
+    audio.addEventListener('loadeddata', done, { once: true })
+    audio.addEventListener('error', done, { once: true })
+    setTimeout(done, 1800)
+  })
+}
+
+async function playChunk(text: string): Promise<void> {
   const cached = audioCache.get(text)
   const audio = cached ?? createAudio(text)
   if (!cached) cacheAudio(text, audio)
+  await waitForBuffer(audio)
   audio.playbackRate = Math.min(2, Math.max(0.5, getSpeechRate()))
   currentAudio = audio
 
@@ -183,6 +232,8 @@ export async function speakWithGoogle(text: string, button?: HTMLElement | null)
   setSpeaking(button, true)
   try {
     for (const chunk of chunks) {
+      // A phrase the user is hearing right now should also be the next to download.
+      if (!audioCache.has(chunk)) prefetchGooglePhrase(chunk, true)
       await playChunk(chunk)
     }
     return true

@@ -14,7 +14,7 @@ import {
 } from './progressSync'
 import { nextSrsFsrs } from './srsFsrs'
 import { emitToast } from './toast'
-import type { Exercise } from './types'
+import type { Exercise, Level } from './types'
 
 export interface ReminderSettings {
   enabled: boolean
@@ -34,7 +34,7 @@ export interface StudyPlan {
 }
 
 export interface DiagnosticResult {
-  level: 'A1' | 'A2' | 'B1' | 'B2'
+  level: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
   score: number // 0-100
   completedAt: number
 }
@@ -90,6 +90,8 @@ export interface CertificateState {
   name: string
   issuedAt: string // ISO date/time
   completionDate: string // human display date
+  /** Nivel del certificado; ausente en certificados legacy de curso completo. */
+  level?: Level
   status?: 'local' | 'pending' | 'issued' | 'verified' | 'revoked' | 'error'
   userId?: string | null
   issuedBy?: 'local' | 'server'
@@ -132,6 +134,8 @@ export interface ProgressState {
   savedSlang: string[]
   phrasebook: Record<string, PhrasebookEntry>
   certificate: CertificateState | null
+  /** Un certificado por nivel (A1-A2, B1-B2, ...). `certificate` se mantiene por compatibilidad. */
+  certificates: Partial<Record<Level, CertificateState>>
   achievements: Record<string, number>
   streak: {
     current: number
@@ -181,6 +185,7 @@ export function createDefaultState(): ProgressState {
     savedSlang: [],
     phrasebook: {},
     certificate: null,
+    certificates: {},
     achievements: {},
     streak: { current: 0, longest: 0, lastActiveDate: null },
     settings: {
@@ -472,6 +477,24 @@ export function mergeState(raw: unknown): ProgressState {
   const rawCertificate = baseRecord.certificate ?? parsed.certificate ?? null
   const certificate = sanitizeCertificate(rawCertificate) as CertificateState | null
 
+  // Un certificado por nivel. Los datos legacy (un único certificado de curso
+  // completo) se migran al primer nivel para no perder el enlace de verificación.
+  const certificates: Partial<Record<Level, CertificateState>> = {}
+  const rawCertificates = isRecord(baseRecord.certificates) ? baseRecord.certificates : {}
+  for (const [key, value] of Object.entries(rawCertificates)) {
+    if (key !== 'A1-A2' && key !== 'B1-B2' && key !== 'C1-C2') continue
+    const levelCert = sanitizeCertificate(value) as CertificateState | null
+    if (levelCert)
+      certificates[key as Level] = { ...levelCert, level: levelCert.level ?? (key as Level) }
+  }
+  if (certificate) {
+    const legacyLevel: Level =
+      certificate.level === 'B1-B2' || certificate.level === 'C1-C2' ? certificate.level : 'A1-A2'
+    if (!certificates[legacyLevel]) {
+      certificates[legacyLevel] = { ...certificate, level: legacyLevel }
+    }
+  }
+
   const rawErrorEvents = Array.isArray(baseRecord.errorEvents ?? parsed.errorEvents)
     ? ((baseRecord.errorEvents ?? parsed.errorEvents) as unknown[])
     : []
@@ -523,6 +546,7 @@ export function mergeState(raw: unknown): ProgressState {
       : [],
     phrasebook,
     certificate,
+    certificates,
     achievements: toRecord(mergedBase.achievements) as Record<string, number>,
     streak: sanitizeStreak(
       (isRecord(mergedBase.streak)
@@ -939,19 +963,31 @@ class ProgressStore {
   }
 
   setCertificate(certificate: NonNullable<ProgressState['certificate']>) {
+    const level: Level =
+      certificate.level === 'B1-B2' || certificate.level === 'C1-C2' ? certificate.level : 'A1-A2'
     this.update((state) => {
-      const prev = state.certificate
+      const prev = state.certificates?.[level]
       if (
         prev &&
         prev.id === certificate.id &&
         prev.name === certificate.name &&
         prev.issuedAt === certificate.issuedAt &&
-        prev.completionDate === certificate.completionDate
+        prev.completionDate === certificate.completionDate &&
+        prev.level === certificate.level
       ) {
         return state
       }
-      return { ...state, certificate }
+      const stored = { ...certificate, level }
+      return {
+        ...state,
+        certificate: stored,
+        certificates: { ...(state.certificates ?? {}), [level]: stored },
+      }
     })
+  }
+
+  setLevelCertificate(level: Level, certificate: NonNullable<ProgressState['certificate']>) {
+    this.setCertificate({ ...certificate, level })
   }
 
   updatePhrase(
@@ -1331,10 +1367,13 @@ export function exerciseProgress(): { done: number; total: number; pct: number }
   }
 }
 
-export function cefrNow(): 'A1-A2' | 'A2 → B1' | 'B1-B2' {
+export function cefrNow(): 'A1-A2' | 'A2 → B1' | 'B1-B2' | 'B2 → C1' | 'C1-C2' {
   const state = progressStore.getState()
   const a = levelStats('A1-A2', state.completedSessions).pct
   const b = levelStats('B1-B2', state.completedSessions).pct
+  const c = levelStats('C1-C2', state.completedSessions).pct
+  if (a >= 90 && b >= 90 && c >= 40) return 'C1-C2'
+  if (a >= 90 && b >= 60) return 'B2 → C1'
   if (a >= 90 && b >= 40) return 'B1-B2'
   if (a >= 50) return 'A2 → B1'
   return 'A1-A2'

@@ -33,6 +33,7 @@ import {
 import { bumpPhraseStatus, subscribePhraseStatus } from './phraseStatus'
 import {
   getPiperPhraseStatus,
+  loadPiper,
   prefetchPiperPhrase,
   speakWithPiper,
   stopPiperPlayback,
@@ -72,6 +73,13 @@ export {
   subscribeKokoroPhraseStatus,
   subscribeKokoroStatus,
 }
+
+/** First phrases of a session are generated with priority; the rest are queued. */
+const SESSION_PRIORITY_PHRASES = 3
+/** Bound bulk warming so opening a lesson never queues hundreds of generations/downloads. */
+const SESSION_WARM_LIMIT = 24
+/** Google downloads small MP3s through a bounded queue, so we can warm a whole lesson. */
+const GOOGLE_WARM_LIMIT = 160
 
 const KOKORO_AUTOLOAD_IDLE_TIMEOUT_MS = 6_000
 const KOKORO_AUTOLOAD_FALLBACK_DELAY_MS = 2_500
@@ -116,10 +124,12 @@ export function getSpeechPhraseStatus(texts: string[]): SpeechPhraseStatus {
 
 /** Pre-generate on-screen phrases so the first tap on them is instant. */
 export function warmSpeechPhrases(texts: string[]): void {
-  if (typeof window === 'undefined') return
-  if (!isSpeechEnabled() || getSpeechEngine() !== 'kokoro') return
+  if (typeof window === 'undefined' || !isSpeechEnabled() || texts.length === 0) return
   try {
-    prewarmKokoroPhrases(texts)
+    const engine = getSpeechEngine()
+    if (engine === 'kokoro') prewarmKokoroPhrases(texts)
+    else if (engine === 'google') texts.forEach((text) => prefetchGooglePhrase(text, true))
+    else if (engine === 'piper') texts.forEach((text) => prefetchPiperPhrase(text))
   } catch {
     // Warmup is best effort.
   }
@@ -187,6 +197,61 @@ export function warmConversationPhrases(texts: string[]): void {
     }
   } catch {
     // Warmup is best effort.
+  }
+}
+
+/**
+ * Warm every phrase a lesson can speak with the engine the learner actually uses.
+ * Voice resolution is always cheap; audio generation is limited to the cache size
+ * and never forces a heavy uncached model download on native.
+ */
+export function warmSessionPhrases(texts: string[]): void {
+  if (typeof window === 'undefined') return
+  if (!isSpeechEnabled() || texts.length === 0) return
+  try {
+    // The system/native voice is instant once resolved, regardless of the engine.
+    if (canUseWebSpeech()) primeWebVoices()
+    warmNativeVoices()
+
+    const selected = texts.slice(0, SESSION_WARM_LIMIT)
+    const engine = getSpeechEngine()
+
+    if (engine === 'kokoro') {
+      // Opening a lesson must not trigger a 90 MB download on native.
+      if (!(isNativePlatform() && !kokoroIsCached())) void loadKokoro().catch(() => {})
+      for (const text of selected.slice(0, SESSION_PRIORITY_PHRASES)) primeSpeechPhrase(text)
+      prewarmKokoroPhrases(selected.slice(SESSION_PRIORITY_PHRASES))
+      return
+    }
+
+    if (engine === 'google') {
+      // Con la cola limitada ya no saturamos la red: en conexión sana se calienta
+      // TODA la sesión (hasta el límite de caché); en conexión lenta, las primeras.
+      const bulk = canPrefetchModelOnCurrentConnection()
+      const limit = bulk ? GOOGLE_WARM_LIMIT : SESSION_WARM_LIMIT
+      const googleTexts = texts.slice(0, limit)
+      googleTexts
+        .slice(0, SESSION_PRIORITY_PHRASES)
+        .forEach((text) => prefetchGooglePhrase(text, true))
+      googleTexts.slice(SESSION_PRIORITY_PHRASES).forEach((text) => prefetchGooglePhrase(text))
+      bumpPhraseStatus()
+      return
+    }
+
+    if (engine === 'piper') {
+      // prefetchPiperPhrase is a no-op until the model is loaded; load it here only
+      // when it is safe and the learner explicitly selected Piper.
+      if (!isNativePlatform() && canPrefetchModelOnCurrentConnection()) {
+        void loadPiper().catch(() => {})
+      }
+      for (const text of selected) prefetchPiperPhrase(text)
+      bumpPhraseStatus()
+      return
+    }
+
+    bumpPhraseStatus()
+  } catch {
+    // Warmup is best effort: never break the lesson.
   }
 }
 

@@ -4,7 +4,12 @@ vi.mock('./supabase', () => ({
   supabase: null,
 }))
 
-import { certificateShareUrl, issueCertificate, verifyCertificate } from './certificates'
+import {
+  certificateShareUrl,
+  displayCertificateLevel,
+  issueCertificate,
+  verifyCertificate,
+} from './certificates'
 
 const originalFetch = globalThis.fetch
 
@@ -60,6 +65,11 @@ describe('certificates', () => {
     expect(globalThis.fetch).toHaveBeenCalledTimes(1)
   })
 
+  it('normalizes legacy level labels for display', () => {
+    expect(displayCertificateLevel('A1 — B2')).toBe('A1-A2')
+    expect(displayCertificateLevel('B1-B2')).toBe('B1-B2')
+  })
+
   it('builds certificate share URL from PUBLIC_APP_URL', () => {
     vi.stubEnv('PUBLIC_APP_URL', 'https://runtimeenglish.dev/')
     expect(certificateShareUrl('ab12cd')).toBe('https://runtimeenglish.dev/verify?id=AB12CD')
@@ -87,6 +97,7 @@ describe('certificates', () => {
       const body = JSON.parse(String(init?.body))
       expect(body.id).toBe('ABC123')
       expect(body.name).toBe('Test User')
+      expect(body.level).toBe('A1-A2')
       return new Response(
         JSON.stringify({
           certificate: {

@@ -14,6 +14,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks'
 import { openAppSettings } from '../../lib/appSettings'
 import { isNativeAndroid } from '../../lib/appUpdate'
+import { getLevelStats, isLevelComplete } from '../../lib/certificateLevels'
 import { detectErrorSkills } from '../../lib/errorPatterns'
 import {
   canCheckExercise,
@@ -35,7 +36,7 @@ import {
   startMicLevelMeter,
   stopSpeechRecognition,
 } from '../../lib/speech'
-import type { Exercise } from '../../lib/types'
+import type { Exercise, Level } from '../../lib/types'
 import { useProgress } from '../../lib/useProgress'
 import Mascot, { type MascotMood } from '../ui/Mascot'
 import DialogueBranchInput from './runner/DialogueBranchInput'
@@ -57,6 +58,7 @@ interface Props {
   sessionTitle: string
   exercises: Exercise[]
   next: NextSession | null
+  level?: Level
 }
 
 function micTimeoutForText(text: string): number {
@@ -69,6 +71,7 @@ export default function ExerciseRunner({
   sessionTitle,
   exercises: rawExercises,
   next,
+  level,
 }: Props) {
   const exercises = useMemo(() => orderExercises(rawExercises), [rawExercises])
   const state = useProgress()
@@ -103,6 +106,7 @@ export default function ExerciseRunner({
   const [solved, setSolved] = useState<string[]>(initialRun.solved)
   const [finished, setFinished] = useState(false)
   const [attempted, setAttempted] = useState(false)
+  const [showHint, setShowHint] = useState(false)
   const [shuffledWords, setShuffledWords] = useState<number[]>([])
   const [micState, setMicState] = useState<'idle' | 'listening' | 'done'>('idle')
   const [heardText, setHeardText] = useState('')
@@ -111,6 +115,7 @@ export default function ExerciseRunner({
   const [micError, setMicError] = useState<string | null>(null)
   const [speechWpm, setSpeechWpm] = useState<number | null>(null)
   const micRunRef = useRef(0)
+  const runAttemptsRef = useRef(0)
   const stopMeterRef = useRef<(() => void) | null>(null)
 
   const exercise = exercises[index]
@@ -183,6 +188,7 @@ export default function ExerciseRunner({
     setDialogueBranchPicked([])
     setStatus('idle')
     setAttempted(false)
+    setShowHint(false)
     micRunRef.current += 1
     stopSpeechRecognition()
     stopMicMeter()
@@ -213,6 +219,7 @@ export default function ExerciseRunner({
     setIndex(0)
     setSolved([])
     setFinished(false)
+    runAttemptsRef.current = 0
     resetInteraction()
   }
 
@@ -222,6 +229,7 @@ export default function ExerciseRunner({
 
   function check() {
     if (!exercise || !canCheck) return
+    runAttemptsRef.current += 1
     const correct = isCorrectAnswer
     const userAnswer = getUserAnswer()
     const skills = !correct ? detectErrorSkills(exercise, userAnswer, correctAnswerText) : []
@@ -415,6 +423,11 @@ export default function ExerciseRunner({
         else if (canCheck) check()
         return
       }
+      if (event.key === 'h' || event.key === 'H') {
+        event.preventDefault()
+        setShowHint((value) => !value)
+        return
+      }
       if (status === 'correct' || !/^[1-9]$/.test(event.key)) return
       const optionIndex = Number(event.key) - 1
       if (exercise?.type === 'choice' && optionIndex < exercise.options.length) {
@@ -468,6 +481,36 @@ export default function ExerciseRunner({
       ? detectErrorSkills(exercise, getUserAnswer(), correctAnswerText)
       : []
 
+  // Resumen de aprendizaje al terminar la sesión.
+  const baseLevelStats = level ? getLevelStats(level, state) : null
+  const levelStats = baseLevelStats
+    ? {
+        ...baseLevelStats,
+        doneSessions: Math.min(
+          baseLevelStats.sessions,
+          baseLevelStats.doneSessions + (wasComplete ? 0 : 1),
+        ),
+      }
+    : null
+  const levelDone = level
+    ? isLevelComplete(level, state) ||
+      (levelStats !== null &&
+        levelStats.sessions > 0 &&
+        levelStats.doneSessions >= levelStats.sessions)
+    : false
+  const sessionErrors = (state.errorEvents ?? []).filter((event) => event.sessionId === sessionId)
+  const skillCounts = new Map<string, number>()
+  for (const event of sessionErrors) {
+    for (const skill of event.skills ?? [])
+      skillCounts.set(skill, (skillCounts.get(skill) ?? 0) + 1)
+  }
+  const reviewSkills = [...skillCounts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([skill]) => skill)
+  const accuracy =
+    runAttemptsRef.current === 0 ? 100 : Math.round((solved.length / runAttemptsRef.current) * 100)
+
   if (finished) {
     return (
       <ExerciseFinishedScreen
@@ -477,6 +520,11 @@ export default function ExerciseRunner({
         wasComplete={wasComplete}
         solvedCount={solved.length}
         total={total}
+        accuracy={accuracy}
+        reviewSkills={reviewSkills}
+        level={level}
+        levelStats={levelStats}
+        levelDone={levelDone}
         onRestart={restart}
       />
     )
@@ -564,8 +612,8 @@ export default function ExerciseRunner({
         })}
       </fieldset>
 
-      <div class="rounded-[26px] bg-base-200 p-1.5">
-        <div class="rounded-[20px] bg-base-100 p-5 sm:p-6">
+      <div class="surface-card bg-base-200 p-1.5">
+        <div class="surface-muted bg-base-100 p-5 sm:p-6">
           <div class="flex items-start gap-3">
             <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-base-200 text-base-content/50">
               <ExerciseTypeIcon type={exercise.type} />
@@ -593,6 +641,28 @@ export default function ExerciseRunner({
           <div class="mt-4 flex items-center rounded-xl bg-base-200/60 px-2.5 py-1.5">
             <Mascot mood={mascotMood} size="sm" lines={mascotLines} />
           </div>
+
+          {hint && (
+            <div class="mt-3">
+              <button
+                type="button"
+                onClick={() => setShowHint((value) => !value)}
+                aria-expanded={showHint}
+                class="inline-flex items-center gap-1.5 rounded-full bg-warning/[0.08] px-3 py-1.5 text-[11px] font-medium text-warning/90 transition hover:bg-warning/[0.14]"
+              >
+                <Lightbulb class="h-3.5 w-3.5" />
+                {showHint ? tAction(stage, 'hideHint') : tAction(stage, 'showHint')}
+              </button>
+              {showHint && (
+                <p
+                  role="status"
+                  class="mt-2 rounded-xl bg-warning/[0.07] px-3 py-2 text-[12px] leading-relaxed text-base-content/65"
+                >
+                  {hint}
+                </p>
+              )}
+            </div>
+          )}
 
           {exercise.type === 'choice' && (
             <div class="mt-5 space-y-1.5">
@@ -748,12 +818,6 @@ export default function ExerciseRunner({
                 class="w-full resize-none rounded-2xl bg-base-200 px-4 py-3.5 font-mono text-sm text-base-content placeholder:text-base-content/25 disabled:opacity-70"
                 spellcheck={false}
               />
-              {hint && (
-                <p class="hidden items-center gap-1.5 px-1 text-[12px] text-base-content/55 sm:flex">
-                  <Lightbulb class="h-3 w-3 text-warning/70" />
-                  {hint}
-                </p>
-              )}
             </div>
           )}
 
@@ -781,12 +845,6 @@ export default function ExerciseRunner({
                 class="w-full resize-none rounded-2xl bg-base-200 px-4 py-3.5 font-mono text-sm text-base-content placeholder:text-base-content/25 disabled:opacity-70"
                 spellcheck={false}
               />
-              {hint && (
-                <p class="hidden items-center gap-1.5 px-1 text-[12px] text-base-content/55 sm:flex">
-                  <Lightbulb class="h-3 w-3 text-warning/70" />
-                  {hint}
-                </p>
-              )}
               {listenScore !== null && (
                 <p class="text-[12px] text-base-content/55">
                   Coincidencia con la frase:{' '}
@@ -919,12 +977,6 @@ export default function ExerciseRunner({
                 class="w-full resize-none rounded-2xl bg-base-200 px-4 py-3.5 font-mono text-sm text-base-content placeholder:text-base-content/25 disabled:opacity-70"
                 spellcheck={false}
               />
-              {hint && (
-                <p class="hidden items-center gap-1.5 px-1 text-[12px] text-base-content/55 sm:flex">
-                  <Lightbulb class="h-3 w-3 text-warning/70" />
-                  {hint}
-                </p>
-              )}
             </div>
           )}
 
@@ -1010,12 +1062,6 @@ export default function ExerciseRunner({
                   </div>
                 )}
               </div>
-              {hint && (
-                <p class="flex items-center gap-1.5 px-1 text-[12px] text-base-content/55">
-                  <Lightbulb class="h-3 w-3 text-warning/70" />
-                  {hint}
-                </p>
-              )}
             </div>
           )}
 

@@ -1,6 +1,7 @@
 import { ALL_SESSIONS, levelStats } from '../data/curriculum'
 import { getLanguageStatus } from './i18n'
 import type { ProgressState } from './progress'
+import type { Level } from './types'
 
 export interface Achievement {
   id: string
@@ -22,7 +23,7 @@ function completedExercises(state: ProgressState): number {
   return Object.keys(state.completedExercises).length
 }
 
-function startedLevel(state: ProgressState, level: 'A1-A2' | 'B1-B2'): boolean {
+function startedLevel(state: ProgressState, level: Level): boolean {
   return ALL_SESSIONS.some(
     (entry) => entry.module.level === level && Boolean(state.completedSessions[entry.session.id]),
   )
@@ -122,6 +123,29 @@ export const ACHIEVEMENTS: Achievement[] = [
     progress: (state) => levelStats('B1-B2', state.completedSessions).done,
     check: (state) => {
       const stats = levelStats('B1-B2', state.completedSessions)
+      return stats.total > 0 && stats.done === stats.total
+    },
+  },
+  {
+    id: 'c1-started',
+    title: 'Nivel maestría',
+    description: 'Completa una sesión de C1–C2.',
+    icon: 'languages',
+    tier: 'silver',
+    xp: 40,
+    check: (state) => startedLevel(state, 'C1-C2'),
+  },
+  {
+    id: 'c1-complete',
+    title: 'Maestría completa',
+    description: 'Completa todas las sesiones de C1–C2.',
+    icon: 'trophy',
+    tier: 'gold',
+    xp: 150,
+    target: levelStats('C1-C2', {}).total,
+    progress: (state) => levelStats('C1-C2', state.completedSessions).done,
+    check: (state) => {
+      const stats = levelStats('C1-C2', state.completedSessions)
       return stats.total > 0 && stats.done === stats.total
     },
   },

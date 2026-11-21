@@ -10,7 +10,7 @@ import type { LearningGoal } from './goals'
 import { type DiagnosticResult, type ProgressState, type StudyPlan, todayKey } from './progress'
 
 export interface PlanRecommendation {
-  level: 'A1' | 'A2' | 'B1' | 'B2'
+  level: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'
   dailyMinutes: number
   dailyExercises: number
   weeklySessions: number
@@ -59,6 +59,22 @@ export function recommendPlan(
       weeklyExercises: 40,
       monthlySessions: 20,
       monthlyExercises: 160,
+    },
+    C1: {
+      dailyMinutes: 20,
+      dailyExercises: 12,
+      weeklySessions: 5,
+      weeklyExercises: 45,
+      monthlySessions: 20,
+      monthlyExercises: 180,
+    },
+    C2: {
+      dailyMinutes: 20,
+      dailyExercises: 12,
+      weeklySessions: 5,
+      weeklyExercises: 48,
+      monthlySessions: 22,
+      monthlyExercises: 190,
     },
   }[level]
 

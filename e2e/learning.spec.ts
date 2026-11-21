@@ -96,7 +96,7 @@ test.describe('self-study and placement', () => {
     await page.goto('/placement.html')
     await expect(page.getByRole('heading', { name: 'Empieza por donde te toca' })).toBeVisible()
 
-    for (let question = 0; question < 8; question += 1) {
+    for (let question = 0; question < 12; question += 1) {
       await page.getByRole('button', { name: /^B / }).first().click()
       await page.getByRole('button', { name: /Siguiente|Terminar/ }).click()
     }

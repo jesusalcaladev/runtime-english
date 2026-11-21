@@ -16,6 +16,18 @@ import {
   durationSeconds as confidenceDuration,
 } from './videoTranscripts/confidence'
 import {
+  cues as cybersecurityCues,
+  durationSeconds as cybersecurityDuration,
+} from './videoTranscripts/cybersecurity'
+import {
+  cues as devCommunicationCues,
+  durationSeconds as devCommunicationDuration,
+} from './videoTranscripts/dev-communication'
+import {
+  cues as devSpeakingCues,
+  durationSeconds as devSpeakingDuration,
+} from './videoTranscripts/dev-speaking'
+import {
   cues as devVocabularyCues,
   durationSeconds as devVocabularyDuration,
 } from './videoTranscripts/dev-vocabulary'
@@ -40,12 +52,25 @@ import {
   cues as laughterCues,
   durationSeconds as laughterDuration,
 } from './videoTranscripts/laughter'
+import {
+  cues as promptEngineeringCues,
+  durationSeconds as promptEngineeringDuration,
+} from './videoTranscripts/prompt-engineering'
+import {
+  cues as promptThinkingCues,
+  durationSeconds as promptThinkingDuration,
+} from './videoTranscripts/prompt-thinking'
 import { cues as sleepCues, durationSeconds as sleepDuration } from './videoTranscripts/sleep'
 import { cues as socialCues, durationSeconds as socialDuration } from './videoTranscripts/social'
 import {
   cues as standupCues,
   durationSeconds as standupDuration,
 } from './videoTranscripts/standup-meeting'
+import {
+  cues as techInterviewCues,
+  durationSeconds as techInterviewDuration,
+} from './videoTranscripts/tech-interview'
+import { cues as testingCues, durationSeconds as testingDuration } from './videoTranscripts/testing'
 import { cues as timeCues, durationSeconds as timeDuration } from './videoTranscripts/time'
 import {
   cues as treasureCues,
@@ -60,7 +85,7 @@ export interface LearningResource {
   name: string
   url: string
   kind: 'youtube' | 'web'
-  level: 'A1-A2' | 'B1-B2' | 'Todos'
+  level: 'A1-A2' | 'B1-B2' | 'C1-C2' | 'Todos'
   focus: string[]
   description: string
   tip: string
@@ -228,6 +253,28 @@ export const LEARNING_RESOURCES: LearningResource[] = [
     focus: ['Listening'],
     description: 'Cientos de conversaciones cortas de hablantes reales con transcripción y quiz.',
     tip: 'Elige un nivel, escucha una conversación y repite la última frase de cada hablante.',
+  },
+  {
+    id: 'google-engineering-practices',
+    name: 'Google Engineering Practices',
+    url: 'https://google.github.io/eng-practices/',
+    kind: 'web',
+    level: 'C1-C2',
+    focus: ['Code review', 'Escritura técnica'],
+    description:
+      'La guía oficial de revisiones de código: ejemplos de comentarios precisos y debates técnicos de alto nivel.',
+    tip: 'Lee una sección y reescribe tres comentarios con un tono constructivo en tu diccionario.',
+  },
+  {
+    id: 'stripe-engineering',
+    name: 'Stripe Engineering Blog',
+    url: 'https://stripe.com/blog/engineering',
+    kind: 'web',
+    level: 'C1-C2',
+    focus: ['Arquitectura', 'Escritura ejecutiva'],
+    description:
+      'Artículos largos sobre sistemas, fiabilidad y decisiones de diseño con un registro profesional excelente.',
+    tip: 'Subraya cinco frases de conclusión y usa su estructura en tus propios RFCs.',
   },
 ]
 
@@ -1162,6 +1209,370 @@ export const VIDEO_LESSONS: VideoLesson[] = [
         answer: 0,
         explanation:
           "El video aclara que un stakeholder puede ser el equipo, un inversor o los usuarios: 'anyone' afectado por el proyecto.",
+      },
+    ],
+  },
+  {
+    id: 'dev-speaking',
+    title: 'Six Steps to a Better Spoken English for Developers',
+    channel: 'Yegor Bugayenko',
+    youtubeId: '6de0RNdIIFk',
+    level: 'B1-B2',
+    topic: 'Learning · Inglés para desarrolladores',
+    description:
+      'Un desarrollador no nativo cuenta cómo dejó de traducir desde su idioma y empezó a pensar directamente en inglés. Muy útil para perder el miedo a hablar.',
+    segment: 'Video completo · 0:00 – 12:09',
+    durationSeconds: devSpeakingDuration,
+    cues: devSpeakingCues,
+    questions: [
+      {
+        id: 'devspeaking-q1',
+        prompt: '¿Qué error cometía el ponente de joven al hablar inglés?',
+        options: [
+          'Traducía desde su idioma natal en lugar de pensar en inglés.',
+          'No conocía suficiente vocabulario técnico.',
+          'Hablaba demasiado rápido en las reuniones.',
+          'Evitaba leer libros técnicos.',
+        ],
+        answer: 0,
+        explanation:
+          "Dice que intentaba formar frases en inglés como lo haría en ruso: 'Translating a Russian thinking into English thinking and it shouldn't work that way.'",
+      },
+      {
+        id: 'devspeaking-q2',
+        prompt: 'Según su primera recomendación, ¿qué libros lee siempre en inglés?',
+        options: [
+          'Libros técnicos (OOP, desarrollo, diseño, DevOps).',
+          'Novelas clásicas.',
+          'Poesía y ficción contemporánea.',
+          'Solo documentación oficial.',
+        ],
+        answer: 0,
+        explanation:
+          "'I read technical books only in English': la tecnología le resulta más fácil que la ficción.",
+      },
+      {
+        id: 'devspeaking-q3',
+        prompt: '¿Qué recomienda hacer cuando olvidas una palabra como “lamp”?',
+        options: [
+          'Explicar su significado con otras palabras.',
+          'Cambiar de idioma a mitad de frase.',
+          'Callarse y esperar a que alguien lo diga.',
+          'Usar un traductor en voz alta.',
+        ],
+        answer: 0,
+        explanation:
+          "'You can really use the language if you can explain the meaning of any word using other words.'",
+      },
+    ],
+  },
+  {
+    id: 'dev-communication',
+    title: 'How to Communicate as a Software Developer',
+    channel: 'Peter Elbaum',
+    youtubeId: 'lOvEOlCcMBI',
+    level: 'B1-B2',
+    topic: 'Speaking · Comunicación en equipos dev',
+    description:
+      'Comunicación proactiva, feedback constructivo en PRs y cuándo usar Slack o una llamada. Inglés profesional directamente aplicable al día a día.',
+    segment: 'Video completo · 0:00 – 5:27',
+    durationSeconds: devCommunicationDuration,
+    cues: devCommunicationCues,
+    questions: [
+      {
+        id: 'devcom-q1',
+        prompt: 'Según el video, ¿qué separa a los ingenieros senior de los demás?',
+        options: [
+          'La comunicación.',
+          'El conocimiento de algoritmos.',
+          'La velocidad al teclear.',
+          'El número de certificaciones.',
+        ],
+        answer: 0,
+        explanation:
+          "'Communication is one of the things that separates senior engineers from everybody else.'",
+      },
+      {
+        id: 'devcom-q2',
+        prompt: '¿Cómo recomienda dar feedback en un pull request en vez de decir “this is wrong”?',
+        options: [
+          'Con preguntas y frases indirectas, p. ej. “is there a way to make this more DRY?”',
+          'Con comentarios en mayúsculas para que se vean.',
+          'Sin comentarios: aprobar directamente.',
+          'Asignando el PR a otra persona.',
+        ],
+        answer: 0,
+        explanation:
+          'El video defiende criticar de forma indirecta: preguntas y frases como “it seems like… does that seem to be the case to you?”',
+      },
+      {
+        id: 'devcom-q3',
+        prompt: '¿Para qué dice que es mejor la comunicación en vivo (Zoom o presencial)?',
+        options: [
+          'Para programar en pareja y explicar temas complejos con matices y tono.',
+          'Para enviar enlaces largos.',
+          'Para evitar hablar con el equipo.',
+          'Para escribir documentación.',
+        ],
+        answer: 0,
+        explanation:
+          'Slack/email es mejor “para todo lo demás”; las llamadas se reservan para trabajo en pareja y matices difíciles de escribir.',
+      },
+    ],
+  },
+  {
+    id: 'tech-interview',
+    title: 'How to Ace Your Technical Interview: Effective Communication',
+    channel: 'Coding With Zhia',
+    youtubeId: 'id7d0HeLT5g',
+    level: 'B1-B2',
+    topic: 'Speaking · Entrevistas técnicas',
+    description:
+      'Cómo comunicarte durante una entrevista técnica: preguntas de aclaración, cómo salir de un bloqueo y cómo hablar de trade-offs con naturalidad.',
+    segment: 'Video completo · 0:00 – 7:54',
+    durationSeconds: techInterviewDuration,
+    cues: techInterviewCues,
+    questions: [
+      {
+        id: 'techint-q1',
+        prompt: '¿Qué debería hacer un buen candidato antes de empezar a programar?',
+        options: [
+          'Hacer preguntas de aclaración en vez de asumir.',
+          'Escribir la solución completa en papel.',
+          'Pedir el salario.',
+          'Cambiar de lenguaje de programación.',
+        ],
+        answer: 0,
+        explanation:
+          'El video recomienda hacer clarifying questions sobre edge cases, scope, use case y requisitos de rendimiento.',
+      },
+      {
+        id: 'techint-q2',
+        prompt: '¿Cuál de estos NO aparece en su checklist de aclaración?',
+        options: [
+          'El salario.',
+          'Los edge cases.',
+          'El alcance (scope).',
+          'Los requisitos de rendimiento.',
+        ],
+        answer: 0,
+        explanation:
+          'Aparecen edge cases, scope, use case, extensiones futuras, tests y rendimiento; el salario no.',
+      },
+      {
+        id: 'techint-q3',
+        prompt: 'Si te quedas atascado, ¿qué quiere ver el entrevistador?',
+        options: [
+          'Que pidas pistas: “I’m kind of stuck here, can you give me some hints?”',
+          'Que te quedes en silencio.',
+          'Que inventes una respuesta.',
+          'Que termines la entrevista.',
+        ],
+        answer: 0,
+        explanation:
+          'Pedir ayuda muestra que serías un buen compañero de equipo: “I’m stuck on here, what are some ways you suggest...?”',
+      },
+    ],
+  },
+  {
+    id: 'prompt-engineering',
+    title: 'Learn Better Prompt Engineering in 7 Minutes',
+    channel: 'AWS Developers',
+    youtubeId: '-Hjw0_PMyfQ',
+    level: 'B1-B2',
+    topic: 'AI · Prompt engineering',
+    description:
+      'Cómo escribir prompts precisos: rol, contexto, restricciones, formato de salida y parámetros como temperature. Vocabulario esencial para trabajar con IA.',
+    segment: 'Video completo · 0:00 – 7:17',
+    durationSeconds: promptEngineeringDuration,
+    cues: promptEngineeringCues,
+    questions: [
+      {
+        id: 'prompteng-q1',
+        prompt: '¿Cómo define el video el prompt engineering?',
+        options: [
+          'Aprender a hacer las preguntas correctas a la IA.',
+          'Escribir código en lugar de prompts.',
+          'Entrenar un modelo desde cero.',
+          'Traducir textos al inglés.',
+        ],
+        answer: 0,
+        explanation:
+          "'Just like with people, how you ask matters': el arte de formular la petición.",
+      },
+      {
+        id: 'prompteng-q2',
+        prompt: '¿Qué añade el prompt mejorado del ejemplo?',
+        options: [
+          'Rol, contexto, áreas concretas, límite de palabras y formato.',
+          'Solo más adjetivos.',
+          'Una traducción al latín.',
+          'El código completo de la aplicación.',
+        ],
+        answer: 0,
+        explanation:
+          'El prompt eficaz da contexto, define áreas, pone un límite (“Limit your response to 300 words”) y pide bullet points.',
+      },
+      {
+        id: 'prompteng-q3',
+        prompt: 'Según el video, ¿qué consigue un temperature bajo?',
+        options: [
+          'Respuestas más deterministas.',
+          'Respuestas más creativas.',
+          'Respuestas más largas siempre.',
+          'Cambiar el idioma de salida.',
+        ],
+        answer: 0,
+        explanation:
+          "'Temperature is a value between zero and one': valores altos dan creatividad; bajos, determinismo.",
+      },
+    ],
+  },
+  {
+    id: 'prompt-thinking',
+    title: 'Prompt Engineering Explained in 5 Minutes',
+    channel: 'KnowledgeCatch',
+    youtubeId: 'sVRV5gKMNhg',
+    level: 'B1-B2',
+    topic: 'AI · Cómo pensar con prompts',
+    description:
+      'Animación clara sobre cómo planificar un prompt: contexto, ejemplos, rol y razonamiento paso a paso (chain of thought).',
+    segment: 'Video completo · 0:00 – 5:01',
+    durationSeconds: promptThinkingDuration,
+    cues: promptThinkingCues,
+    questions: [
+      {
+        id: 'promptthink-q1',
+        prompt: '¿A qué compara el video la ingeniería de prompts?',
+        options: [
+          'A planificar, como dirigir una película donde las palabras son los ángulos de cámara.',
+          'A escribir un correo informal.',
+          'A resolver ecuaciones sin contexto.',
+          'A memorizar definiciones.',
+        ],
+        answer: 0,
+        explanation: 'La analogía es la dirección de cine: cada palabra encuadra la respuesta.',
+      },
+      {
+        id: 'promptthink-q2',
+        prompt: '¿Qué es el “zero prompting”?',
+        options: [
+          'Pedir algo sin ejemplos y con contexto limitado.',
+          'Pedir mil ejemplos distintos.',
+          'Usar un prompt en blanco.',
+          'Pedir respuesta solo en español.',
+        ],
+        answer: 0,
+        explanation: "'This is zero prompting. No examples, limited context.'",
+      },
+      {
+        id: 'promptthink-q3',
+        prompt: '¿Qué técnica recomienda para pedir razonamiento paso a paso?',
+        options: [
+          'Chain of thought (“think step by step”).',
+          'Zero shot.',
+          'Temperature alta.',
+          'Repetir la pregunta tres veces.',
+        ],
+        answer: 0,
+        explanation:
+          "'Chain of thought, request step-by-step': pedir al modelo que explique cada paso mejora el resultado.",
+      },
+    ],
+  },
+  {
+    id: 'cybersecurity',
+    title: 'Every Level of Cybersecurity Explained in 5 Minutes',
+    channel: 'The ByteWise',
+    youtubeId: 'xl99-B_bi1o',
+    level: 'B1-B2',
+    topic: 'Security · Ciberseguridad',
+    description:
+      'Los seis niveles de ciberseguridad con su vocabulario: phishing, ransomware, 2FA, SIEM, zero trust, CISSP y zero-day researchers.',
+    segment: 'Video completo · 0:00 – 5:58',
+    durationSeconds: cybersecurityDuration,
+    cues: cybersecurityCues,
+    questions: [
+      {
+        id: 'cyber-q1',
+        prompt: 'En el nivel 1, ¿con qué términos se familiariza el principiante?',
+        options: [
+          'Phishing, ransomware, VPN y autenticación de dos factores (2FA).',
+          'Zero-day, SIEM y red team.',
+          'CISSP y OSCP.',
+          'Kubernetes y Terraform.',
+        ],
+        answer: 0,
+        explanation:
+          "El nivel inicial se introduce 'with terms like phishing, ransomware...' y conceptos básicos de protección.",
+      },
+      {
+        id: 'cyber-q2',
+        prompt: '¿Qué certificación se presenta como “el estándar de oro” en el nivel 5?',
+        options: ['CISSP.', 'Security+.', 'CompTIA Network+.', 'AWS Certified Cloud Practitioner.'],
+        answer: 0,
+        explanation: 'El video sitúa CISSP entre las certificaciones élite (“find the CISSP”).',
+      },
+      {
+        id: 'cyber-q3',
+        prompt: '¿Qué dice del nivel 6?',
+        options: [
+          'No hay certificación: son investigadores de élite (zero-day, red team).',
+          'Es el nivel para principiantes.',
+          'Solo requiere un curso online.',
+          'Es igual que el nivel 5.',
+        ],
+        answer: 0,
+        explanation:
+          "El nivel 6 no tiene certificación: son 'red teamers, zero-day researchers' que crean las herramientas.",
+      },
+    ],
+  },
+  {
+    id: 'testing',
+    title: 'Unit and Integration Testing Compared | Tech in 5 Minutes',
+    channel: 'Jelvix',
+    youtubeId: 'pf6Zhm-PDfQ',
+    level: 'B1-B2',
+    topic: 'Testing · Calidad de software',
+    description:
+      'Diferencias entre tests unitarios y de integración, con enfoques top-down y bottom-up y el orden en que se ejecutan.',
+    segment: 'Video completo · 0:00 – 5:19',
+    durationSeconds: testingDuration,
+    cues: testingCues,
+    questions: [
+      {
+        id: 'testing-q1',
+        prompt: '¿Qué es un unit test según el video?',
+        options: [
+          'Probar una parte de la app en aislamiento, normalmente una clase o función.',
+          'Probar todos los módulos juntos.',
+          'Probar solo la interfaz de usuario.',
+          'Probar el servidor en producción.',
+        ],
+        answer: 0,
+        explanation:
+          "'Unit testing is concentrated on one part' de la aplicación: una clase o función.",
+      },
+      {
+        id: 'testing-q2',
+        prompt: '¿Cuál de estos NO se menciona como enfoque de integration testing?',
+        options: ['Waterfall.', 'Big bang.', 'Top-down.', 'Bottom-up.'],
+        answer: 0,
+        explanation: 'El video cita big bang, top-down y bottom-up; waterfall no aparece.',
+      },
+      {
+        id: 'testing-q3',
+        prompt: '¿En qué orden se ejecutan según el video?',
+        options: [
+          'Unit al desarrollar el fragmento; integration después de unit y antes de system.',
+          'Integration antes que unit.',
+          'System, luego integration y por último unit.',
+          'Solo integration tests.',
+        ],
+        answer: 0,
+        explanation:
+          'Primero se prueba la unidad, después se integran los módulos y finalmente llega el system testing.',
       },
     ],
   },

@@ -3,10 +3,12 @@ import { useEffect, useState } from 'preact/hooks'
 export function useSidebarNav() {
   const [open, setOpen] = useState(false)
   const [path, setPath] = useState('')
+  const [search, setSearch] = useState('')
 
   useEffect(() => {
     const syncPath = () => {
       setPath(window.location.pathname)
+      setSearch(window.location.search)
       setOpen(false)
       // Defensive: ensure scroll lock never lingers across navigations/swaps.
       try {
@@ -90,5 +92,5 @@ export function useSidebarNav() {
     }
   }, [open])
 
-  return { open, setOpen, path }
+  return { open, setOpen, path, search }
 }

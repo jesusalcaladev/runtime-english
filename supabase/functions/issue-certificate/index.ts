@@ -78,13 +78,62 @@ function parsePositiveIntEnv(name: string): number | null {
   return Math.floor(n);
 }
 
+type CertLevel = "A1-A2" | "B1-B2" | "C1-C2";
+
+/** Umbrales por nivel; C1-C2 no está disponible todavía. */
+const LEVEL_ELIGIBILITY: Record<CertLevel, { sessions: string; exercises: string } | null> = {
+  "A1-A2": {
+    sessions: "CERT_REQUIRED_SESSIONS_A1_A2",
+    exercises: "CERT_REQUIRED_EXERCISES_A1_A2",
+  },
+  "B1-B2": {
+    sessions: "CERT_REQUIRED_SESSIONS_B1_B2",
+    exercises: "CERT_REQUIRED_EXERCISES_B1_B2",
+  },
+  "C1-C2": {
+    sessions: "CERT_REQUIRED_SESSIONS_C1_C2",
+    exercises: "CERT_REQUIRED_EXERCISES_C1_C2",
+  },
+};
+
+/** Acepta también la etiqueta legacy "A1 — B2" de certificados de curso completo. */
+function normalizeLevel(value: unknown): CertLevel | null {
+  const raw = String(value ?? "").replace(/\s+/g, "");
+  if (raw === "A1-A2" || raw === "A1—B2" || raw === "A1-B2") return "A1-A2";
+  if (raw === "B1-B2") return "B1-B2";
+  if (raw === "C1-C2") return "C1-C2";
+  return null;
+}
+
+function parseCertLevel(value: unknown): CertLevel {
+  return normalizeLevel(value) ?? "A1-A2";
+}
+
+function levelSlug(level: CertLevel): string {
+  return level.replace(/-/g, "");
+}
+
+function requiredCountsFor(level: CertLevel): { sessions: number; exercises: number } | null {
+  const config = LEVEL_ELIGIBILITY[level];
+  if (!config) return null;
+  const sessions =
+    parsePositiveIntEnv(config.sessions) ?? parsePositiveIntEnv("CERT_REQUIRED_SESSIONS");
+  const exercises =
+    parsePositiveIntEnv(config.exercises) ?? parsePositiveIntEnv("CERT_REQUIRED_EXERCISES");
+  if (sessions == null || exercises == null) return null;
+  return { sessions, exercises };
+}
+
 async function validateEligibility(
   admin: ReturnType<typeof createClient>,
   userId: string,
+  level: CertLevel,
 ): Promise<{ ok: true } | { ok: false; status: number; error: string }> {
-  const requiredSessions = parsePositiveIntEnv("CERT_REQUIRED_SESSIONS");
-  const requiredExercises = parsePositiveIntEnv("CERT_REQUIRED_EXERCISES");
-  if (requiredSessions == null || requiredExercises == null) {
+  if (!LEVEL_ELIGIBILITY[level]) {
+    return { ok: false, status: 403, error: "level_not_available" };
+  }
+  const required = requiredCountsFor(level);
+  if (!required) {
     return { ok: false, status: 503, error: "issuance_not_configured" };
   }
 
@@ -102,8 +151,18 @@ async function validateEligibility(
 
   const completedSessions = readCompletedCount(data.state, "cs", "completedSessions");
   const completedExercises = readCompletedCount(data.state, "ce", "completedExercises");
-  if (completedSessions < requiredSessions || completedExercises < requiredExercises) {
+  if (completedSessions < required.sessions || completedExercises < required.exercises) {
     return { ok: false, status: 403, error: "not_eligible" };
+  }
+
+  // Desbloqueo progresivo: cada nivel exige el anterior completo.
+  if (level === "B1-B2" || level === "C1-C2") {
+    const previousLevel = level === "B1-B2" ? "A1-A2" : "B1-B2";
+    const previous = requiredCountsFor(previousLevel);
+    if (!previous) return { ok: false, status: 503, error: "issuance_not_configured" };
+    if (completedSessions < previous.sessions || completedExercises < previous.exercises) {
+      return { ok: false, status: 403, error: "previous_level_incomplete" };
+    }
   }
   return { ok: true };
 }
@@ -161,7 +220,7 @@ Deno.serve(async (req) => {
     const issued_at = b.issued_at ? String(b.issued_at) : new Date().toISOString();
     const completion_date = b.completion_date ? String(b.completion_date) : null;
     const program = String(b.program || "RuntimeEnglish");
-    const level = String(b.level || "A1 — B2");
+    const level = parseCertLevel(b.level);
 
     if (!id || !/^[A-Z0-9-]{4,32}$/.test(id)) return json({ error: "invalid_id" }, 400, origin, requestId);
     if (!name || name.length > 120) return json({ error: "invalid_name" }, 400, origin, requestId);
@@ -184,6 +243,11 @@ Deno.serve(async (req) => {
         log("warn", "certificate_conflict", { requestId, userId, certId: id });
         return json({ error: "certificate_id_conflict" }, 409, origin, requestId);
       }
+      // Un ID pertenece a un único nivel (los registros legacy usan "A1 — B2").
+      const existingLevel = normalizeLevel(existing.level);
+      if (existingLevel && existingLevel !== level) {
+        return json({ error: "certificate_level_conflict" }, 409, origin, requestId);
+      }
       // Vincular/actualizar solo si pertenece al usuario o está sin dueño (no hay emisión abierta nueva)
       const patch: Record<string, unknown> = {};
       if (!existing.user_id) {
@@ -192,6 +256,8 @@ Deno.serve(async (req) => {
       }
       if (completion_date && !existing.completion_date) patch.completion_date = completion_date;
       if (name && existing.name !== name) patch.name = name;
+      // Canonicalizar la etiqueta de nivel (p. ej. legacy "A1 — B2" -> "A1-A2").
+      if (String(existing.level ?? "") !== level) patch.level = level;
       let cert = existing;
       if (Object.keys(patch).length) {
         const { data: updated, error: upErr } = await admin
@@ -210,8 +276,11 @@ Deno.serve(async (req) => {
       return json({ ok: true, id, certificate: cert, linked: Boolean(cert.user_id) }, 200, origin, requestId);
     }
 
-    // Nueva emisión: exigir elegibilidad en servidor
-    const eligible = await validateEligibility(admin, userId);
+    // Nueva emisión: el ID debe llevar el sufijo del nivel y superar la elegibilidad.
+    if (!id.endsWith(`-${levelSlug(level)}`)) {
+      return json({ error: "invalid_id_for_level" }, 400, origin, requestId);
+    }
+    const eligible = await validateEligibility(admin, userId, level);
     if (!eligible.ok) {
       log("warn", "issuance_denied", { requestId, userId, reason: eligible.error });
       return json({ error: eligible.error }, eligible.status, origin, requestId);

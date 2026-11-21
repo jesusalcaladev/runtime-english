@@ -16,7 +16,7 @@ export const remindersSchema = z.object({
 
 export const diagnosticSchema = z
   .object({
-    level: z.enum(['A1', 'A2', 'B1', 'B2']),
+    level: z.enum(['A1', 'A2', 'B1', 'B2', 'C1', 'C2']),
     score: z.number().refine(Number.isFinite).min(0).max(100).catch(0),
     completedAt: z
       .number()
@@ -76,6 +76,7 @@ export const certificateSchema = z
     lastVerifiedAt: z.string().nullable().optional(),
     shareUrl: z.string().nullable().optional(),
     lastError: z.string().nullable().optional(),
+    level: z.enum(['A1-A2', 'B1-B2', 'C1-C2']).optional(),
   })
   .nullable()
 
@@ -114,6 +115,7 @@ export const compactStateSchema = z
     ss: z.array(z.string()).optional(),
     pb: z.record(z.string(), z.unknown()).optional(),
     cert: z.unknown().nullable().optional(),
+    certs: z.record(z.string(), z.unknown()).optional(),
     ac: z.record(z.string(), z.number()).optional(),
     sk: z
       .object({

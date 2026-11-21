@@ -93,7 +93,12 @@ export default function VideoLibrary({ lessons }: Props) {
 
   const progress = getAllVideoProgress()
   const diagnostic = state.settings.diagnostic?.level
-  const myLevel = diagnostic === 'B1' || diagnostic === 'B2' ? 'B1-B2' : 'A1-A2'
+  const myLevel =
+    diagnostic === 'C1' || diagnostic === 'C2'
+      ? 'C1-C2'
+      : diagnostic === 'B1' || diagnostic === 'B2'
+        ? 'B1-B2'
+        : 'A1-A2'
 
   const stats = useMemo(() => {
     const entries = lessons.map((lesson) => ({

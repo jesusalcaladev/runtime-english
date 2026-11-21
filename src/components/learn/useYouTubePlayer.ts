@@ -72,6 +72,9 @@ export function useYouTubePlayer(
             fs: 0,
             modestbranding: 1,
             iv_load_policy: 3,
+            // Usamos nuestros propios subtítulos adaptados (VideoCue), no los de YouTube.
+            cc_load_policy: 0,
+            cc_lang_pref: 'en',
           },
           events: {
             onReady: () => {

@@ -21,7 +21,9 @@ function stepModule(step: string): number {
 }
 
 function cefrAllowedFor(level: string, cefr: string): boolean {
-  return level === 'A1-A2' ? ['A1', 'A2'].includes(cefr) : ['B1', 'B2'].includes(cefr)
+  if (level === 'A1-A2') return ['A1', 'A2'].includes(cefr)
+  if (level === 'B1-B2') return ['B1', 'B2'].includes(cefr)
+  return ['C1', 'C2'].includes(cefr)
 }
 
 function validateExercise(exercise: Exercise, session: Session) {

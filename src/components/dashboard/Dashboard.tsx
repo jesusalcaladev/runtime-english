@@ -3,7 +3,6 @@ import {
   ArrowUpRight,
   Award,
   BarChart3,
-  Bell,
   BookText,
   Brain,
   Calendar,
@@ -18,18 +17,16 @@ import {
   Sparkles,
   Target,
   Trophy,
-  X,
   Zap,
 } from 'lucide-preact'
 import type { ComponentType } from 'preact'
 import { useEffect, useLayoutEffect, useState } from 'preact/hooks'
 import type { NavModule } from '../../data/curriculum'
+import { CERTIFICATE_LEVELS, isLevelComplete } from '../../lib/certificateLevels'
 import { aggregateErrorPatterns } from '../../lib/errorPatterns'
 import { GOAL_LABELS, isSessionRelevantToGoal } from '../../lib/goals'
 import { getUiStage, t, tAction } from '../../lib/i18n'
-import { getMasteredSessionIds } from '../../lib/mastery'
-import { loadPlacementResult, PLACEMENT_START_SLUG } from '../../lib/placement'
-import { getDuePhraseEntries, getReviewStats, progressStore, todayKey } from '../../lib/progress'
+import { getDuePhraseEntries, getReviewStats } from '../../lib/progress'
 import { route } from '../../lib/routes'
 import { warmSpeechEngine } from '../../lib/speech'
 import {
@@ -37,6 +34,7 @@ import {
   getConsistencyStats,
   getLearningRecommendations,
 } from '../../lib/studyPlan'
+import type { Level } from '../../lib/types'
 import { useProgress } from '../../lib/useProgress'
 import Mascot from '../ui/Mascot'
 import OnboardingCard from './OnboardingCard'
@@ -52,6 +50,11 @@ interface Props {
 
 const LEVEL_LABELS = ['Rookie', 'Junior', 'Mid', 'Senior', 'Staff', 'Principal']
 
+function readLevelParam(): Level | null {
+  const value = new URLSearchParams(window.location.search).get('level')
+  return value === 'A1-A2' || value === 'B1-B2' || value === 'C1-C2' ? value : null
+}
+
 export default function Dashboard({
   modules,
   totalSessions,
@@ -63,6 +66,23 @@ export default function Dashboard({
   const stage = getUiStage(state)
   const [showHabits, setShowHabits] = useState(false)
   const [showPatterns, setShowPatterns] = useState(false)
+  const [levelParam, setLevelParam] = useState<Level | null>(readLevelParam)
+
+  useEffect(() => {
+    const sync = () => setLevelParam(readLevelParam())
+    const onSelect = (event: Event) => {
+      const level = (event as CustomEvent<string>).detail
+      setLevelParam(level === 'A1-A2' || level === 'B1-B2' || level === 'C1-C2' ? level : null)
+    }
+    window.addEventListener('popstate', sync)
+    document.addEventListener('astro:after-swap', sync)
+    window.addEventListener('runtimeenglish:select-level', onSelect)
+    return () => {
+      window.removeEventListener('popstate', sync)
+      document.removeEventListener('astro:after-swap', sync)
+      window.removeEventListener('runtimeenglish:select-level', onSelect)
+    }
+  }, [])
 
   useLayoutEffect(() => {
     // El skeleton es un overlay con animate-pulse: se quita antes del primer
@@ -81,7 +101,15 @@ export default function Dashboard({
   const allSessions = modules.flatMap((module) =>
     module.sessions.map((session) => ({ ...session, module })),
   )
+  const currentLevel =
+    CERTIFICATE_LEVELS.find(
+      (entry) => entry.state === 'active' && !isLevelComplete(entry.level, state),
+    ) ?? CERTIFICATE_LEVELS[CERTIFICATE_LEVELS.length - 1]
+  const selectedLevel: Level = levelParam ?? currentLevel.level
   const nextSession =
+    allSessions
+      .filter((session) => session.module.level === selectedLevel)
+      .find((session) => !state.completedSessions[session.id]) ??
     allSessions.find((session) => !state.completedSessions[session.id]) ??
     allSessions[allSessions.length - 1]
 
@@ -107,7 +135,7 @@ export default function Dashboard({
   const doneExercises = Object.keys(state.completedExercises).length
   const pct = totalExercises === 0 ? 0 : Math.round((doneExercises / totalExercises) * 100)
   const unlockedAchievements = Object.keys(state.achievements).length
-  const courseComplete = doneSessions >= totalSessions && doneExercises >= totalExercises
+  const levelCertificateReady = isLevelComplete(selectedLevel, state)
   const xpLevel = Math.max(1, Math.floor(state.xp / 150) + 1)
   const intoLevel = state.xp % 150
   const levelLabel = LEVEL_LABELS[Math.min(LEVEL_LABELS.length - 1, xpLevel - 1)]
@@ -132,14 +160,6 @@ export default function Dashboard({
   const totalAttempts = Object.values(state.attempts).reduce((s, v) => s + v, 0)
   const accuracy =
     totalAttempts === 0 ? 0 : Math.min(100, Math.round((doneExercises / totalAttempts) * 100))
-  const today = todayKey()
-  const practicedToday = state.streak.lastActiveDate === today
-  const showStreakReminder =
-    state.settings.onboarded &&
-    state.settings.reminders.enabled &&
-    !practicedToday &&
-    state.settings.reminders.lastNudgeDate !== today
-
   const review = getReviewStats(state, exerciseIds, Date.now())
   const duePhrases = getDuePhraseEntries(state).length
   const totalDue = review.due + duePhrases
@@ -162,12 +182,6 @@ export default function Dashboard({
   const recentErrorEvents = (state.errorEvents ?? []).slice(-120)
   const errorPatterns = aggregateErrorPatterns(recentErrorEvents).slice(0, 5)
 
-  const placement = loadPlacementResult()
-  const placementSession = placement
-    ? allSessions.find((session) => session.slug === PLACEMENT_START_SLUG[placement.level])
-    : null
-  const masteredSessions = getMasteredSessionIds(state).length
-
   const reviewHref =
     duePhrases > 0 && review.due === 0 ? '/dictionary?review=1' : '/practice?mode=review'
   const reviewLabel =
@@ -178,117 +192,9 @@ export default function Dashboard({
         : duePhrases > 0
           ? `Repasar flashcards (${duePhrases} frases)`
           : 'Repasar hoy'
-  const showPlanIntro = Boolean(
-    state.settings.onboarded && state.settings.plan && state.settings.planIntroDismissed === false,
-  )
-  const recommendedNextHref =
-    totalDue > 0 ? route(reviewHref) : route(`/session/${nextSession.slug}`)
-  const recommendedNextLabel = totalDue > 0 ? reviewLabel : `Continuar: ${nextSession.title}`
-
   return (
-    <div class="mx-auto max-w-[1120px] animate-fade-up">
+    <div class="app-container animate-fade-up">
       {!state.settings.onboarded && <OnboardingCard />}
-
-      <section class="mb-4 grid gap-3 sm:grid-cols-3">
-        <div class="rounded-2xl bg-base-200 p-4">
-          <p class="mono-label text-accent/70">{tAction(stage, 'yourLevel')}</p>
-          <p class="mt-2 font-mono text-xl font-semibold text-base-content/90">
-            {placement?.level ?? state.settings.diagnostic?.level ?? '—'}
-          </p>
-          <a
-            href={route('/placement')}
-            class="mt-2 inline-block text-[11px] text-accent/80 hover:text-accent"
-          >
-            {placement ? tAction(stage, 'repeatTest') : tAction(stage, 'levelTest')} →
-          </a>
-        </div>
-        <div class="rounded-2xl bg-base-200 p-4">
-          <p class="mono-label text-accent/70">{tAction(stage, 'todayRoutine')}</p>
-          <p class="mt-2 font-mono text-xl font-semibold text-base-content/90">{totalDue}</p>
-          <p class="mt-1 text-[11px] text-base-content/45">
-            {tAction(stage, 'review')} · {masteredSessions} {tAction(stage, 'masteredBadge')}
-          </p>
-        </div>
-        <div class="rounded-2xl bg-base-200 p-4">
-          <p class="mono-label text-accent/70">{tAction(stage, 'nextStep')}</p>
-          <p class="mt-2 truncate text-[13px] font-medium text-base-content/85">
-            {placementSession?.title ?? nextSession.title}
-          </p>
-          <a
-            href={route(`/session/${placementSession?.slug ?? nextSession.slug}`)}
-            class="mt-2 inline-block text-[11px] text-accent/80 hover:text-accent"
-          >
-            {tAction(stage, 'continueHere')} →
-          </a>
-        </div>
-      </section>
-
-      {showPlanIntro && state.settings.plan && (
-        <section class="mb-4 overflow-hidden rounded-3xl border border-accent/20 bg-accent/[0.07] p-4 sm:p-6">
-          <div class="flex items-start justify-between gap-3 sm:gap-4">
-            <div class="min-w-0">
-              <p class="mono-label flex items-center gap-2 text-accent/90">
-                <Sparkles class="h-3.5 w-3.5" /> Tu plan está listo
-              </p>
-              <h2 class="font-pixel mt-2 text-[1.3rem] tracking-tight sm:text-[1.7rem]">
-                Siguiente paso
-              </h2>
-              <p class="mt-2 hidden max-w-2xl text-sm leading-relaxed text-base-content/60 sm:block">
-                Nivel{' '}
-                <span class="font-mono font-medium text-accent">
-                  {state.settings.plan.level ?? state.settings.diagnostic?.level ?? 'A1'}
-                </span>{' '}
-                · objetivo <span class="font-medium text-base-content/75">{GOAL_LABELS[goal]}</span>
-                . Meta diaria: {state.settings.plan.dailyMinutes} min /{' '}
-                {state.settings.plan.dailyExercises} ejercicios.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => progressStore.setSettings({ planIntroDismissed: true })}
-              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-base-content/45 hover:bg-base-100/70 hover:text-base-content/70"
-              aria-label="Cerrar resumen del plan"
-            >
-              <X class="h-4 w-4" />
-            </button>
-          </div>
-          <div class="mt-3 hidden gap-2 sm:mt-4 sm:grid sm:grid-cols-3">
-            <div class="rounded-2xl bg-base-100/70 p-3">
-              <p class="text-[10px] text-base-content/45">Diario</p>
-              <p class="mt-1 font-mono text-sm font-semibold">
-                {state.settings.plan.dailyExercises} ejercicios · {state.settings.plan.dailyMinutes}{' '}
-                min
-              </p>
-            </div>
-            <div class="rounded-2xl bg-base-100/70 p-3">
-              <p class="text-[10px] text-base-content/45">Semanal</p>
-              <p class="mt-1 font-mono text-sm font-semibold">
-                {state.settings.plan.weeklySessions} sesiones ·{' '}
-                {state.settings.plan.weeklyExercises} ej
-              </p>
-            </div>
-            <div class="rounded-2xl bg-base-100/70 p-3">
-              <p class="text-[10px] text-base-content/45">Mensual</p>
-              <p class="mt-1 font-mono text-sm font-semibold">
-                {state.settings.plan.monthlySessions} sesiones ·{' '}
-                {state.settings.plan.monthlyExercises} ej
-              </p>
-            </div>
-          </div>
-          <div class="mt-3 flex flex-wrap items-center gap-2 sm:mt-4">
-            <a href={recommendedNextHref} class="btn btn-primary h-10 gap-2 rounded-xl px-4">
-              <Play class="h-4 w-4 fill-current" /> <span class="sm:hidden">Continuar</span>
-              <span class="hidden sm:inline">Siguiente paso: {recommendedNextLabel}</span>
-            </a>
-            <a
-              href={route('/settings')}
-              class="btn btn-ghost h-10 rounded-xl px-4 text-base-content/65"
-            >
-              Ajustar plan
-            </a>
-          </div>
-        </section>
-      )}
 
       {/* Banner/CTA persistente si hay repasos pendientes */}
       {state.settings.onboarded && totalDue > 0 && (
@@ -327,53 +233,6 @@ export default function Dashboard({
         </section>
       )}
 
-      {showStreakReminder && (
-        <section class="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-accent/15 bg-accent/[0.06] p-4">
-          <div class="flex min-w-0 items-start gap-3">
-            <span class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-accent">
-              <Bell class="h-4 w-4" />
-            </span>
-            <div class="min-w-0">
-              <p class="text-sm font-medium">
-                {state.streak.current > 0
-                  ? 'No pierdas tu racha hoy'
-                  : 'Unos minutos de práctica hoy'}
-              </p>
-              <p class="mt-1 hidden text-[11px] leading-relaxed text-base-content/55 sm:block">
-                {state.streak.current > 0
-                  ? `Llevas ${state.streak.current} día${state.streak.current === 1 ? '' : 's'} seguidos. Haz una sesión corta o práctica rápida para mantenerla.`
-                  : 'Mantén el hábito: una sesión corta o práctica rápida cuenta para tu racha.'}
-              </p>
-            </div>
-          </div>
-          <div class="flex shrink-0 items-center gap-2">
-            <a
-              href={route(`/session/${nextSession.slug}`)}
-              class="btn btn-primary btn-sm h-9 rounded-xl px-3"
-              onClick={() =>
-                progressStore.setSettings({
-                  reminders: { ...state.settings.reminders, lastNudgeDate: today },
-                })
-              }
-            >
-              Practicar
-            </a>
-            <button
-              type="button"
-              aria-label="Descartar recordatorio de hoy"
-              class="flex h-9 w-9 items-center justify-center rounded-xl text-base-content/45 transition hover:bg-base-100/60 hover:text-base-content/70"
-              onClick={() =>
-                progressStore.setSettings({
-                  reminders: { ...state.settings.reminders, lastNudgeDate: today },
-                })
-              }
-            >
-              <X class="h-4 w-4" />
-            </button>
-          </div>
-        </section>
-      )}
-
       {/* Bloque 1: Acción inmediata (Continuar + Repasar hoy unificado) */}
       <section class="relative mt-2 overflow-hidden rounded-[24px] bg-base-200 p-3.5 sm:rounded-[28px] sm:p-8">
         <div class="pointer-events-none absolute -right-24 -top-28 h-80 w-80 rounded-full bg-accent/[0.07] blur-3xl" />
@@ -407,7 +266,7 @@ export default function Dashboard({
             </div>
           </div>
 
-          <div class="mt-5 grid gap-4 sm:mt-6 sm:gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start">
+          <div class="mt-5 sm:mt-6">
             <div class="max-w-2xl">
               <div class="flex flex-wrap items-center gap-2 sm:gap-2.5">
                 <span class="mono-label text-accent">{t(stage, 'nextUp')}</span>
@@ -493,357 +352,330 @@ export default function Dashboard({
                 </a>
               )}
             </div>
-
-            {/* Progreso compacto dentro del bloque 1 */}
-            <div class="flex items-center gap-3 rounded-2xl bg-base-100/50 p-3 sm:gap-4 sm:p-4 lg:min-w-[220px] lg:flex-col lg:items-stretch">
-              <div class="flex w-full items-center gap-3 sm:gap-4 lg:justify-center">
-                <div class="relative flex h-[52px] w-[52px] shrink-0 items-center justify-center sm:h-[56px] sm:w-[56px]">
-                  <svg viewBox="0 0 100 100" class="h-full w-full -rotate-90" aria-hidden="true">
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="38"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="12"
-                      class="text-base-content/[0.08]"
-                    />
-                    <circle
-                      cx="50"
-                      cy="50"
-                      r="38"
-                      fill="none"
-                      stroke="var(--color-accent)"
-                      strokeWidth="12"
-                      strokeLinecap="round"
-                      strokeDasharray={`${2 * Math.PI * 38} ${2 * Math.PI * 38}`}
-                      strokeDashoffset={2 * Math.PI * 38 - (pct / 100) * 2 * Math.PI * 38}
-                      class="transition-[stroke-dashoffset] duration-700 ease-out"
-                    />
-                  </svg>
-                  <div class="absolute inset-0 flex flex-col items-center justify-center">
-                    <span class="font-mono text-[0.72rem] font-semibold tracking-tight sm:text-[0.75rem]">
-                      {pct}%
-                    </span>
-                  </div>
-                </div>
-                <div class="min-w-0 flex-1 space-y-0.5">
-                  <p class="text-[11px] font-medium text-base-content/70">Progreso total</p>
-                  <p class="font-mono text-[11px] text-base-content/55">
-                    {doneExercises}/{totalExercises} ejercicios
-                  </p>
-                  <p class="hidden text-[10px] text-base-content/40 sm:block">
-                    {doneSessions}/{totalSessions} sesiones · Nivel {xpLevel}
-                  </p>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
 
-      {/* Bloque 2: Estado (3-4 métricas clave, sin duplicados) */}
-      <section class="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Metric
-          icon={Flame}
-          label={t(stage, 'streak')}
-          value={`${state.streak.current}`}
-          detail={`${t(stage, 'days')} · récord ${state.streak.longest}`}
-        />
-        <Metric
-          icon={Zap}
-          label="XP · Nivel"
-          value={`${state.xp}`}
-          detail={`Nivel ${xpLevel} (${levelLabel}) · ${intoLevel}/150`}
-        />
-        <Metric
-          icon={Layers}
-          label="Progreso"
-          value={`${pct}%`}
-          detail={`${doneExercises}/${totalExercises} ejercicios`}
-        />
-        <Metric
-          icon={BarChart3}
-          label="Precisión"
-          value={`${accuracy}%`}
-          detail={`${weakRate}% a reforzar · ${review.weak} débiles`}
-        />
-      </section>
+      <Roadmap modules={modules} nextSessionId={nextSession.id} level={selectedLevel} />
 
-      {/* Accesos secundarios compactos (sin duplicar métricas ni navegación) */}
-      <section class="mt-3 flex flex-wrap gap-2">
-        <a
-          href={route('/practice')}
-          class="inline-flex items-center gap-2 rounded-xl bg-base-200 px-3 py-2 text-[12px] text-base-content/70 hover:bg-base-300/70"
-        >
-          <Zap class="h-3.5 w-3.5 text-accent" /> Práctica{' '}
-          {review.due > 0 ? `· ${review.due} SRS` : ''}
-        </a>
-        <a
-          href={route('/dictionary')}
-          class="inline-flex items-center gap-2 rounded-xl bg-base-200 px-3 py-2 text-[12px] text-base-content/70 hover:bg-base-300/70"
-        >
-          <BookText class="h-3.5 w-3.5 text-accent" /> Diccionario{' '}
-          {duePhrases > 0
-            ? `· ${duePhrases} flashcards`
-            : `· ${Object.keys(state.phrasebook ?? {}).length}`}
-        </a>
-      </section>
+      <details class="group mt-6 rounded-3xl bg-base-200/40 p-3 sm:p-5">
+        <summary class="mono-label flex cursor-pointer list-none items-center justify-between px-2 py-1 text-base-content/55">
+          <span>{stage === 'en' ? 'More tools & progress' : 'Más herramientas y progreso'}</span>
+          <ChevronDown class="h-4 w-4 transition-transform group-open:rotate-180" />
+        </summary>
+        <div class="mt-4 space-y-3">
+          {/* Bloque 2: Estado (3-4 métricas clave, sin duplicados) */}
+          <section class="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <Metric
+              icon={Flame}
+              label={t(stage, 'streak')}
+              value={`${state.streak.current}`}
+              detail={`${t(stage, 'days')} · récord ${state.streak.longest}`}
+            />
+            <Metric
+              icon={Zap}
+              label="XP · Nivel"
+              value={`${state.xp}`}
+              detail={`Nivel ${xpLevel} (${levelLabel}) · ${intoLevel}/150`}
+            />
+            <Metric
+              icon={Layers}
+              label="Progreso total"
+              value={`${pct}%`}
+              detail={`${doneExercises}/${totalExercises} ejercicios`}
+            />
+            <Metric
+              icon={BarChart3}
+              label="Precisión"
+              value={`${accuracy}%`}
+              detail={`${weakRate}% a reforzar · ${review.weak} débiles`}
+            />
+          </section>
 
-      {/* Bloque 3: Profundizar (colapsable en móvil por defecto) */}
-      <section class="mt-4 grid gap-3 lg:grid-cols-2">
-        <div class="rounded-3xl bg-base-200 p-5">
-          <button
-            type="button"
-            onClick={() => setShowHabits((v) => !v)}
-            class="flex w-full cursor-pointer items-center justify-between gap-2 text-left"
-            aria-expanded={showHabits}
-          >
-            <p class="flex items-center gap-2 text-sm font-medium">
-              <Calendar class="h-4 w-4 text-accent" /> Metas y hábitos
-            </p>
-            <span class="flex items-center gap-2">
-              {plan && (
-                <span class="hidden rounded-full bg-accent/10 px-2.5 py-1 text-[10px] font-medium text-accent sm:inline">
-                  {plan.level ?? 'Plan'} ·{' '}
-                  {GOAL_LABELS[plan.focus as keyof typeof GOAL_LABELS] ?? plan.focus}
+          {/* Accesos secundarios compactos (sin duplicar métricas ni navegación) */}
+          <section class="mt-3 flex flex-wrap gap-2">
+            <a
+              href={route('/practice')}
+              class="inline-flex items-center gap-2 rounded-xl bg-base-200 px-3 py-2 text-[12px] text-base-content/70 hover:bg-base-300/70"
+            >
+              <Zap class="h-3.5 w-3.5 text-accent" /> Práctica{' '}
+              {review.due > 0 ? `· ${review.due} SRS` : ''}
+            </a>
+            <a
+              href={route('/dictionary')}
+              class="inline-flex items-center gap-2 rounded-xl bg-base-200 px-3 py-2 text-[12px] text-base-content/70 hover:bg-base-300/70"
+            >
+              <BookText class="h-3.5 w-3.5 text-accent" /> Diccionario{' '}
+              {duePhrases > 0
+                ? `· ${duePhrases} flashcards`
+                : `· ${Object.keys(state.phrasebook ?? {}).length}`}
+            </a>
+          </section>
+
+          {/* Bloque 3: Profundizar (colapsable en móvil por defecto) */}
+          <section class="mt-4 grid gap-3 lg:grid-cols-2">
+            <div class="rounded-3xl bg-base-200 p-5">
+              <button
+                type="button"
+                onClick={() => setShowHabits((v) => !v)}
+                class="flex w-full cursor-pointer items-center justify-between gap-2 text-left"
+                aria-expanded={showHabits}
+              >
+                <p class="flex items-center gap-2 text-sm font-medium">
+                  <Calendar class="h-4 w-4 text-accent" /> Metas y hábitos
+                </p>
+                <span class="flex items-center gap-2">
+                  {plan && (
+                    <span class="hidden rounded-full bg-accent/10 px-2.5 py-1 text-[10px] font-medium text-accent sm:inline">
+                      {plan.level ?? 'Plan'} ·{' '}
+                      {GOAL_LABELS[plan.focus as keyof typeof GOAL_LABELS] ?? plan.focus}
+                    </span>
+                  )}
+                  <ChevronDown
+                    class={`h-4 w-4 text-base-content/40 transition-transform duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] ${showHabits ? 'rotate-180' : ''}`}
+                    aria-hidden="true"
+                  />
                 </span>
-              )}
-              <ChevronDown
-                class={`h-4 w-4 text-base-content/40 transition-transform duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] ${showHabits ? 'rotate-180' : ''}`}
-                aria-hidden="true"
-              />
-            </span>
-          </button>
-          <p
-            class={`mt-2 text-[12px] text-base-content/55 transition-opacity duration-200 ${showHabits ? 'hidden' : 'block'}`}
-          >
-            {plan
-              ? `Hoy ${consistency.todayExercises}/${plan.dailyExercises} ejercicios · Semana ${consistency.weekSessions}/${plan.weeklySessions} sesiones.`
-              : 'Configura tu plan para ver metas diarias, semanales y mensuales.'}
-            <span class="ml-1 text-base-content/40">(ver detalle)</span>
-          </p>
-          <div
-            class={`grid transition-[grid-template-rows,opacity] duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] ${showHabits ? 'mt-4 grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
-          >
-            <div class="overflow-hidden">
-              <div class="space-y-4">
-                {plan ? (
-                  <>
-                    <div class="grid gap-3 sm:grid-cols-3">
-                      <MiniGoal
-                        title="Hoy"
-                        value={`${consistency.todayExercises}/${plan.dailyExercises}`}
-                        sub="ejercicios"
-                        pct={Math.round(
-                          (consistency.todayExercises / Math.max(plan.dailyExercises, 1)) * 100,
-                        )}
-                        extra={`${plan.dailyMinutes} min/día`}
-                      />
-                      <MiniGoal
-                        title="Semana"
-                        value={`${consistency.weekSessions}/${plan.weeklySessions}`}
-                        sub="sesiones"
-                        pct={Math.round(
-                          (consistency.weekSessions / Math.max(plan.weeklySessions, 1)) * 100,
-                        )}
-                        extra={`${consistency.weekExercises}/${plan.weeklyExercises} ej · ${consistency.activeDaysThisWeek} días`}
-                      />
-                      <MiniGoal
-                        title="Mes"
-                        value={`${consistency.monthSessions}/${plan.monthlySessions}`}
-                        sub="sesiones"
-                        pct={Math.round(
-                          (consistency.monthSessions / Math.max(plan.monthlySessions, 1)) * 100,
-                        )}
-                        extra={`${consistency.monthExercises}/${plan.monthlyExercises} ej · ${consistency.activeDaysThisMonth} días`}
-                      />
-                    </div>
-                    <div class="space-y-1.5">
-                      {consistencyTips.map((tip, i) => (
-                        <p
-                          key={i}
-                          class="flex items-start gap-2 text-[12px] leading-relaxed text-base-content/60"
+              </button>
+              <p
+                class={`mt-2 text-[12px] text-base-content/55 transition-opacity duration-200 ${showHabits ? 'hidden' : 'block'}`}
+              >
+                {plan
+                  ? `Hoy ${consistency.todayExercises}/${plan.dailyExercises} ejercicios · Semana ${consistency.weekSessions}/${plan.weeklySessions} sesiones.`
+                  : 'Configura tu plan para ver metas diarias, semanales y mensuales.'}
+                <span class="ml-1 text-base-content/40">(ver detalle)</span>
+              </p>
+              <div
+                class={`grid transition-[grid-template-rows,opacity] duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] ${showHabits ? 'mt-4 grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
+              >
+                <div class="overflow-hidden">
+                  <div class="space-y-4">
+                    {plan ? (
+                      <>
+                        <div class="grid gap-3 sm:grid-cols-3">
+                          <MiniGoal
+                            title="Hoy"
+                            value={`${consistency.todayExercises}/${plan.dailyExercises}`}
+                            sub="ejercicios"
+                            pct={Math.round(
+                              (consistency.todayExercises / Math.max(plan.dailyExercises, 1)) * 100,
+                            )}
+                            extra={`${plan.dailyMinutes} min/día`}
+                          />
+                          <MiniGoal
+                            title="Semana"
+                            value={`${consistency.weekSessions}/${plan.weeklySessions}`}
+                            sub="sesiones"
+                            pct={Math.round(
+                              (consistency.weekSessions / Math.max(plan.weeklySessions, 1)) * 100,
+                            )}
+                            extra={`${consistency.weekExercises}/${plan.weeklyExercises} ej · ${consistency.activeDaysThisWeek} días`}
+                          />
+                          <MiniGoal
+                            title="Mes"
+                            value={`${consistency.monthSessions}/${plan.monthlySessions}`}
+                            sub="sesiones"
+                            pct={Math.round(
+                              (consistency.monthSessions / Math.max(plan.monthlySessions, 1)) * 100,
+                            )}
+                            extra={`${consistency.monthExercises}/${plan.monthlyExercises} ej · ${consistency.activeDaysThisMonth} días`}
+                          />
+                        </div>
+                        <div class="space-y-1.5">
+                          {consistencyTips.map((tip, i) => (
+                            <p
+                              key={i}
+                              class="flex items-start gap-2 text-[12px] leading-relaxed text-base-content/60"
+                            >
+                              <CheckCircle2 class="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent/70" />{' '}
+                              {tip}
+                            </p>
+                          ))}
+                        </div>
+                      </>
+                    ) : (
+                      <div class="rounded-xl bg-base-100/50 p-4 text-sm text-base-content/55">
+                        <p>Aún no tienes un plan personalizado.</p>
+                        <a
+                          href={route('/settings')}
+                          class="btn btn-primary btn-sm mt-3 h-9 rounded-xl px-3"
                         >
-                          <CheckCircle2 class="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent/70" /> {tip}
-                        </p>
-                      ))}
-                    </div>
-                  </>
-                ) : (
-                  <div class="rounded-xl bg-base-100/50 p-4 text-sm text-base-content/55">
-                    <p>Aún no tienes un plan personalizado.</p>
-                    <a
-                      href={route('/settings')}
-                      class="btn btn-primary btn-sm mt-3 h-9 rounded-xl px-3"
-                    >
-                      Configurar plan
-                    </a>
+                          Configurar plan
+                        </a>
+                      </div>
+                    )}
                   </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="rounded-3xl bg-base-200 p-5">
+              <button
+                type="button"
+                onClick={() => setShowPatterns((v) => !v)}
+                class="flex w-full cursor-pointer items-center justify-between gap-2 text-left"
+                aria-expanded={showPatterns}
+              >
+                <p class="flex items-center gap-2 text-sm font-medium">
+                  <Lightbulb class="h-4 w-4 text-accent" /> Recomendaciones y patrones
+                </p>
+                <ChevronDown
+                  class={`h-4 w-4 text-base-content/40 transition-transform duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] ${showPatterns ? 'rotate-180' : ''}`}
+                  aria-hidden="true"
+                />
+              </button>
+              <div
+                class={`mt-2 space-y-2 transition-opacity duration-200 ${showPatterns ? 'hidden' : 'block'}`}
+              >
+                <p class="text-[12px] text-base-content/55">
+                  {recommendations[0] ? recommendations[0].title : 'Sin recomendaciones pendientes'}
+                  {recommendations.length > 1 ? ` · +${recommendations.length - 1} más` : ''}.{' '}
+                  <span class="text-base-content/40">(ver detalle)</span>
+                </p>
+                {recommendations[0] && (
+                  <a
+                    href={route(recommendations[0].href)}
+                    class="inline-flex items-center gap-1.5 text-[12px] font-medium text-accent hover:underline"
+                  >
+                    {recommendations[0].title} <ArrowUpRight class="h-3.5 w-3.5" />
+                  </a>
                 )}
               </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="rounded-3xl bg-base-200 p-5">
-          <button
-            type="button"
-            onClick={() => setShowPatterns((v) => !v)}
-            class="flex w-full cursor-pointer items-center justify-between gap-2 text-left"
-            aria-expanded={showPatterns}
-          >
-            <p class="flex items-center gap-2 text-sm font-medium">
-              <Lightbulb class="h-4 w-4 text-accent" /> Recomendaciones y patrones
-            </p>
-            <ChevronDown
-              class={`h-4 w-4 text-base-content/40 transition-transform duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] ${showPatterns ? 'rotate-180' : ''}`}
-              aria-hidden="true"
-            />
-          </button>
-          <div
-            class={`mt-2 space-y-2 transition-opacity duration-200 ${showPatterns ? 'hidden' : 'block'}`}
-          >
-            <p class="text-[12px] text-base-content/55">
-              {recommendations[0] ? recommendations[0].title : 'Sin recomendaciones pendientes'}
-              {recommendations.length > 1 ? ` · +${recommendations.length - 1} más` : ''}.{' '}
-              <span class="text-base-content/40">(ver detalle)</span>
-            </p>
-            {recommendations[0] && (
-              <a
-                href={route(recommendations[0].href)}
-                class="inline-flex items-center gap-1.5 text-[12px] font-medium text-accent hover:underline"
+              <div
+                class={`grid transition-[grid-template-rows,opacity] duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] ${showPatterns ? 'mt-4 grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
               >
-                {recommendations[0].title} <ArrowUpRight class="h-3.5 w-3.5" />
-              </a>
-            )}
-          </div>
-          <div
-            class={`grid transition-[grid-template-rows,opacity] duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] ${showPatterns ? 'mt-4 grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
-          >
-            <div class="overflow-hidden">
-              <div class="space-y-2">
-                <div class="rounded-xl bg-base-100/60 p-3">
-                  <p class="text-[11px] font-medium text-base-content/60">Patrones de práctica</p>
-                  <ul class="mt-2 space-y-1 text-[12px] leading-relaxed text-base-content/55">
-                    <li>
-                      • Precisión: <span class="font-medium text-base-content/75">{accuracy}%</span>{' '}
-                      ({doneExercises}/{totalAttempts || 0}).
-                    </li>
-                    <li>
-                      • A reforzar:{' '}
-                      <span class="font-medium text-base-content/75">{review.weak}</span>
-                      {review.weak > 0 ? ' ejercicios.' : ' — bien.'}
-                    </li>
-                    <li class="hidden sm:list-item">
-                      • Ejercicios SRS vencidos:{' '}
-                      <span class="font-medium text-base-content/75">{review.due}</span>.
-                    </li>
-                    {duePhrases > 0 && (
-                      <li class="hidden sm:list-item">
-                        • Frases (flashcards) vencidas:{' '}
-                        <span class="font-medium text-base-content/75">{duePhrases}</span>.
-                      </li>
-                    )}
-                    {hardPhraseCount > 0 && (
-                      <li class="hidden sm:list-item">
-                        • Frases difíciles:{' '}
-                        <span class="font-medium text-base-content/75">{hardPhraseCount}</span>.
-                      </li>
-                    )}
-                  </ul>
-                  {errorPatterns.length > 0 && (
-                    <div class="mt-3 border-t border-base-content/10 pt-3">
+                <div class="overflow-hidden">
+                  <div class="space-y-2">
+                    <div class="rounded-xl bg-base-100/60 p-3">
                       <p class="text-[11px] font-medium text-base-content/60">
-                        Patrones de error detectados
+                        Patrones de práctica
                       </p>
-                      <div class="mt-2 space-y-2">
-                        {errorPatterns.map((p, i) => (
-                          <div
-                            key={p.skill}
-                            class={`rounded-lg bg-base-100/70 px-2.5 py-2 ${i > 1 ? 'hidden sm:block' : ''}`}
-                          >
-                            <div class="flex items-center justify-between gap-2">
-                              <span class="text-[12px] font-medium text-base-content/75">
-                                {p.label}
-                              </span>
-                              <span class="rounded-full bg-error/10 px-2 py-0.5 font-mono text-[10px] text-error">
-                                {p.count}
-                              </span>
-                            </div>
+                      <ul class="mt-2 space-y-1 text-[12px] leading-relaxed text-base-content/55">
+                        <li>
+                          • Precisión:{' '}
+                          <span class="font-medium text-base-content/75">{accuracy}%</span> (
+                          {doneExercises}/{totalAttempts || 0}).
+                        </li>
+                        <li>
+                          • A reforzar:{' '}
+                          <span class="font-medium text-base-content/75">{review.weak}</span>
+                          {review.weak > 0 ? ' ejercicios.' : ' — bien.'}
+                        </li>
+                        <li class="hidden sm:list-item">
+                          • Ejercicios SRS vencidos:{' '}
+                          <span class="font-medium text-base-content/75">{review.due}</span>.
+                        </li>
+                        {duePhrases > 0 && (
+                          <li class="hidden sm:list-item">
+                            • Frases (flashcards) vencidas:{' '}
+                            <span class="font-medium text-base-content/75">{duePhrases}</span>.
+                          </li>
+                        )}
+                        {hardPhraseCount > 0 && (
+                          <li class="hidden sm:list-item">
+                            • Frases difíciles:{' '}
+                            <span class="font-medium text-base-content/75">{hardPhraseCount}</span>.
+                          </li>
+                        )}
+                      </ul>
+                      {errorPatterns.length > 0 && (
+                        <div class="mt-3 border-t border-base-content/10 pt-3">
+                          <p class="text-[11px] font-medium text-base-content/60">
+                            Patrones de error detectados
+                          </p>
+                          <div class="mt-2 space-y-2">
+                            {errorPatterns.map((p, i) => (
+                              <div
+                                key={p.skill}
+                                class={`rounded-lg bg-base-100/70 px-2.5 py-2 ${i > 1 ? 'hidden sm:block' : ''}`}
+                              >
+                                <div class="flex items-center justify-between gap-2">
+                                  <span class="text-[12px] font-medium text-base-content/75">
+                                    {p.label}
+                                  </span>
+                                  <span class="rounded-full bg-error/10 px-2 py-0.5 font-mono text-[10px] text-error">
+                                    {p.count}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
                           </div>
-                        ))}
-                      </div>
+                        </div>
+                      )}
                     </div>
-                  )}
+                    {recommendations.map((rec) => (
+                      <a
+                        key={rec.title}
+                        href={route(rec.href)}
+                        class="flex items-start justify-between gap-3 rounded-xl bg-base-100/50 p-3 transition hover:bg-base-100/80"
+                      >
+                        <div class="min-w-0">
+                          <p class="text-[12px] font-medium text-base-content/80">{rec.title}</p>
+                          <p class="mt-0.5 hidden text-[11px] leading-relaxed text-base-content/50 sm:block">
+                            {rec.detail}
+                          </p>
+                        </div>
+                        <ArrowUpRight
+                          class={`mt-0.5 h-4 w-4 shrink-0 ${rec.tone === 'accent' ? 'text-accent' : rec.tone === 'warn' ? 'text-warning' : 'text-base-content/45'}`}
+                        />
+                      </a>
+                    ))}
+                  </div>
                 </div>
-                {recommendations.map((rec) => (
-                  <a
-                    key={rec.title}
-                    href={route(rec.href)}
-                    class="flex items-start justify-between gap-3 rounded-xl bg-base-100/50 p-3 transition hover:bg-base-100/80"
-                  >
-                    <div class="min-w-0">
-                      <p class="text-[12px] font-medium text-base-content/80">{rec.title}</p>
-                      <p class="mt-0.5 hidden text-[11px] leading-relaxed text-base-content/50 sm:block">
-                        {rec.detail}
-                      </p>
-                    </div>
-                    <ArrowUpRight
-                      class={`mt-0.5 h-4 w-4 shrink-0 ${rec.tone === 'accent' ? 'text-accent' : rec.tone === 'warn' ? 'text-warning' : 'text-base-content/45'}`}
-                    />
-                  </a>
-                ))}
               </div>
             </div>
-          </div>
+          </section>
+
+          <section class="mt-10 grid gap-3 md:grid-cols-2">
+            <a
+              href={route('/achievements')}
+              class="group flex items-center justify-between gap-4 rounded-3xl bg-base-200 p-5 transition hover:bg-base-300/70"
+            >
+              <div class="flex items-center gap-3.5">
+                <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-base-100/70 text-base-content/55">
+                  <Trophy class="h-4.5 w-4.5" />
+                </span>
+                <div>
+                  <p class="text-[13px] font-medium">{t(stage, 'achievements')}</p>
+                  <p class="mt-0.5 text-[11px] text-base-content/40">
+                    {unlockedAchievements} {tAction(stage, 'of')} {totalAchievements}{' '}
+                    {tAction(stage, 'unlocked')}
+                  </p>
+                </div>
+              </div>
+              <ArrowUpRight class="h-4 w-4 text-base-content/25 transition group-hover:text-base-content/60" />
+            </a>
+
+            <a
+              href={route(levelCertificateReady ? `/certificate?level=${selectedLevel}` : '/slang')}
+              class="group flex items-center justify-between gap-4 rounded-3xl bg-accent/[0.055] p-5 transition hover:bg-accent/[0.085]"
+            >
+              <div class="flex items-center gap-3.5">
+                <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-accent/10 text-accent">
+                  {levelCertificateReady ? (
+                    <Award class="h-4.5 w-4.5" />
+                  ) : (
+                    <Sparkles class="h-4.5 w-4.5" />
+                  )}
+                </span>
+                <div>
+                  <p class="text-[13px] font-medium">
+                    {levelCertificateReady
+                      ? `${tAction(stage, 'certificateLevel')} ${selectedLevel}`
+                      : tAction(stage, 'slangTitle')}
+                  </p>
+                  <p class="mt-0.5 text-[11px] text-base-content/40">
+                    {levelCertificateReady
+                      ? `${tAction(stage, 'levelReady')} · ${selectedLevel}`
+                      : tAction(stage, 'slangBody')}
+                  </p>
+                </div>
+              </div>
+              <ArrowRight class="h-4 w-4 text-accent/60 transition group-hover:translate-x-0.5" />
+            </a>
+          </section>
         </div>
-      </section>
-
-      <Roadmap modules={modules} nextSessionId={nextSession.id} />
-
-      <section class="mt-10 grid gap-3 md:grid-cols-2">
-        <a
-          href={route('/achievements')}
-          class="group flex items-center justify-between gap-4 rounded-3xl bg-base-200 p-5 transition hover:bg-base-300/70"
-        >
-          <div class="flex items-center gap-3.5">
-            <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-base-100/70 text-base-content/55">
-              <Trophy class="h-4.5 w-4.5" />
-            </span>
-            <div>
-              <p class="text-[13px] font-medium">{t(stage, 'achievements')}</p>
-              <p class="mt-0.5 text-[11px] text-base-content/40">
-                {unlockedAchievements} {tAction(stage, 'of')} {totalAchievements}{' '}
-                {tAction(stage, 'unlocked')}
-              </p>
-            </div>
-          </div>
-          <ArrowUpRight class="h-4 w-4 text-base-content/25 transition group-hover:text-base-content/60" />
-        </a>
-
-        <a
-          href={route(courseComplete ? '/certificate' : '/slang')}
-          class="group flex items-center justify-between gap-4 rounded-3xl bg-accent/[0.055] p-5 transition hover:bg-accent/[0.085]"
-        >
-          <div class="flex items-center gap-3.5">
-            <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-accent/10 text-accent">
-              {courseComplete ? <Award class="h-4.5 w-4.5" /> : <Sparkles class="h-4.5 w-4.5" />}
-            </span>
-            <div>
-              <p class="text-[13px] font-medium">
-                {courseComplete ? 'Certificate ready' : tAction(stage, 'slangTitle')}
-              </p>
-              <p class="mt-0.5 text-[11px] text-base-content/40">
-                {courseComplete
-                  ? 'Print your English for Programmers certificate'
-                  : tAction(stage, 'slangBody')}
-              </p>
-            </div>
-          </div>
-          <ArrowRight class="h-4 w-4 text-accent/60 transition group-hover:translate-x-0.5" />
-        </a>
-      </section>
+      </details>
     </div>
   )
 }

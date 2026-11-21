@@ -1,7 +1,7 @@
 {
   "name": "runtimeenglish",
   "type": "module",
-  "version": "1.2.9",
+  "version": "1.4.0",
   "private": true,
   "license": "GPL-3.0-or-later",
   "scripts": {
@@ -23,6 +23,7 @@
     "check:biome:fix": "biome check --write .",
     "test:coverage": "vitest run --coverage",
     "captions:fetch": "node scripts/fetch-captions.mjs",
+    "scan:lessons": "vite-node scripts/scan-lessons.ts",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
   },

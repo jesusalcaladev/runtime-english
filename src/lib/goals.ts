@@ -10,7 +10,6 @@ const DAILY = new Set([
   'estimaciones-y-plazos',
   'commits-prs-docs',
   'slack-trabajo-asincrono',
-  'comentarios-de-pr-claros',
   'reuniones-cortas-y-actualizaciones',
   'async-avanzado-mensajes-claros',
   'conectores-y-discourse-markers',
@@ -45,7 +44,6 @@ const INTERVIEWS = new Set([
   'micro-repaso-comunicacion-b1-b2',
   'incidentes-rfc-demos-feedback',
   'cuatro-tiempos',
-  'contar-un-bug',
   'preguntar-y-aclarar',
   'pronunciacion-funcional-devs',
 ])
@@ -73,6 +71,9 @@ const WORK = new Set([
   'pronunciacion-funcional-devs',
   'cuatro-tiempos',
 ])
+
+/** All slugs referenced by any goal, used by the curriculum scanner. */
+export const GOAL_SLUGS = new Set([...DAILY, ...INTERVIEWS, ...WORK])
 
 function relevantSet(goal: LearningGoal): Set<string> | null {
   if (goal === 'daily') return DAILY

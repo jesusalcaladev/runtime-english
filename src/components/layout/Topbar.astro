@@ -43,13 +43,15 @@ const iconButtonClass =
     </div>
 
     <div class="flex shrink-0 items-center gap-0.5 sm:gap-1.5">
-      <ProgressPill
-        client:only="preact"
-        a1SessionIds={a1SessionIds}
-        b1SessionIds={b1SessionIds}
-        totalSessions={totalSessions}
-        totalExercises={totalExercises}
-      />
+      <div class="hidden sm:block">
+        <ProgressPill
+          client:only="preact"
+          a1SessionIds={a1SessionIds}
+          b1SessionIds={b1SessionIds}
+          totalSessions={totalSessions}
+          totalExercises={totalExercises}
+        />
+      </div>
       <span class="relative flex shrink-0">
         <a href={route("/settings")} class={iconButtonClass} aria-label="Ajustes de perfil" title="Ajustes">
           <User class="h-4 w-4" />

@@ -17,6 +17,7 @@ const LEVEL_OPTIONS: { value: LevelFilter; label: string }[] = [
   { value: 'all', label: 'Cualquier nivel' },
   { value: 'A1-A2', label: 'A1-A2' },
   { value: 'B1-B2', label: 'B1-B2' },
+  { value: 'C1-C2', label: 'C1-C2' },
   { value: 'Todos', label: 'Todos los niveles' },
 ]
 

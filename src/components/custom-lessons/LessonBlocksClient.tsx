@@ -8,8 +8,10 @@ import {
   TriangleAlert,
   Volume2,
 } from 'lucide-preact'
+import { useEffect, useMemo } from 'preact/hooks'
 import { getSlang } from '../../data/slang'
-import { speak } from '../../lib/speech'
+import { warmSessionPhrases } from '../../lib/speech'
+import { collectSessionSpeechTexts } from '../../lib/speech/sessionPhrases'
 import type { ContentBlock } from '../../lib/types'
 import DialogueScene from '../session/DialogueScene'
 import SavePhraseButton from '../session/SavePhraseButton'
@@ -22,7 +24,7 @@ function SpeakBtn({ text, label }: { text: string; label?: string }) {
   return (
     <button
       type="button"
-      onClick={() => void speak(text)}
+      data-speak={text}
       class={`inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-base-100/80 px-3 text-[11px] font-medium text-base-content/55 transition hover:bg-base-100 hover:text-base-content hover:shadow-sm active:scale-[0.98] ${label ? 'min-w-[2.5rem]' : 'w-10 px-0'}`}
       aria-label={label ? `Escuchar: ${text}` : `Escuchar en inglés: ${text}`}
       title={label ? `Escuchar: ${label}` : 'Escuchar en inglés'}
@@ -34,6 +36,11 @@ function SpeakBtn({ text, label }: { text: string; label?: string }) {
 }
 
 export default function LessonBlocksClient({ blocks }: Props) {
+  const speechTexts = useMemo(() => collectSessionSpeechTexts(blocks, []), [blocks])
+  useEffect(() => {
+    warmSessionPhrases(speechTexts)
+  }, [speechTexts])
+
   return (
     <div class="space-y-8">
       <div class="mb-2 flex flex-wrap items-center gap-2 rounded-2xl bg-accent/[0.06] px-4 py-3 text-[12px] leading-relaxed text-base-content/65 ring-1 ring-accent/10">

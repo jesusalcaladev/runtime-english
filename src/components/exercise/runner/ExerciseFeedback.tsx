@@ -30,7 +30,7 @@ export function ExerciseFeedback({
 }: Props) {
   return (
     <div
-      class={`mt-5 space-y-2.5 rounded-2xl p-4 ${status === 'correct' ? 'bg-accent/[0.07]' : 'bg-error/[0.06]'}`}
+      class={`surface-muted mt-5 space-y-2.5 p-4 ${status === 'correct' ? 'bg-accent/[0.07]' : 'bg-error/[0.06]'}`}
     >
       <div class="flex items-center justify-between gap-2">
         <p
@@ -60,7 +60,7 @@ export function ExerciseFeedback({
       <p class="text-[13px] leading-relaxed text-base-content/70">{explanation}</p>
 
       {status === 'correct' && (
-        <p class="hidden items-center gap-1.5 text-[11px] leading-relaxed text-accent/80 sm:flex">
+        <p class="flex items-center gap-1.5 text-[11px] leading-relaxed text-accent/80">
           <BookText class="h-3.5 w-3.5" /> Se guarda en tu diccionario para repasar con flashcards.
         </p>
       )}

@@ -8,7 +8,7 @@ import AppModals from '../components/layout/AppModals'
 import SidebarNav from '../components/layout/SidebarNav'
 import ToastHost from '../components/layout/ToastHost'
 import Topbar from '../components/layout/Topbar.astro'
-import { ALL_SESSIONS, getNavData, TOTAL_EXERCISES, TOTAL_SESSIONS } from '../data/curriculum'
+import { ALL_SESSIONS, TOTAL_EXERCISES, TOTAL_SESSIONS } from '../data/curriculum'
 
 interface Props {
   title?: string
@@ -45,7 +45,6 @@ const jsonLd = {
   applicationCategory: 'EducationalApplication',
 }
 
-const nav = getNavData()
 const a1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === 'A1-A2').map(
   (entry) => entry.session.id,
 )
@@ -134,7 +133,7 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === 'B1-B
     />
 
     <div class="mx-auto flex w-full max-w-[1600px] flex-1 items-start">
-      <SidebarNav client:only="preact" transition:persist modules={nav} />
+      <SidebarNav client:only="preact" transition:persist />
 
       <main
         class:list={[
@@ -195,7 +194,7 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === 'B1-B
       import { closeTopDialog } from "../lib/dialogStack";
       import { syncStreakReminder } from "../lib/notifications";
       import { progressStore } from "../lib/progress";
-      import { initVoices, primeSpeechPhrase, speak, warmSpeechEngine, warmSpeechPhrases } from "../lib/speech";
+      import { initVoices, primeSpeechPhrase, speak, warmSessionPhrases, warmSpeechEngine, warmSpeechPhrases } from "../lib/speech";
       import { supabase } from "../lib/supabase";
 
       initVoices();
@@ -326,7 +325,7 @@ const b1SessionIds = ALL_SESSIONS.filter((entry) => entry.module.level === 'B1-B
               if (element.dataset.speak) texts.push(element.dataset.speak);
               phraseObserver.unobserve(element);
             }
-            if (texts.length) warmSpeechPhrases(texts);
+            if (texts.length) warmSessionPhrases(texts);
           },
           { rootMargin: "250px" },
         );

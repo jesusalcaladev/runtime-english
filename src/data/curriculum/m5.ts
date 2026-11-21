@@ -151,8 +151,8 @@ export const m5: Module = {
               speaker: 'a',
               name: 'Maya',
               role: 'Lead',
-              en: 'Use a prefix and an imperative verb: "fix: resolve CORS error in production".',
-              es: 'Usa un prefijo y un verbo en imperativo: "fix: resolve CORS error in production".',
+              en: 'Use a prefix and an imperative verb: "fix: resolve login bug in the auth flow".',
+              es: 'Usa un prefijo y un verbo en imperativo: "fix: resolve login bug in the auth flow".',
             },
             {
               speaker: 'b',
@@ -237,7 +237,7 @@ export const m5: Module = {
           ],
           answer: 0,
           explanation:
-            "Maya señala 'the commit message says \"fixed stuff\"' y propone 'fix: resolve CORS error in production': prefijo + imperativo.",
+            "Maya señala 'the commit message says \"fixed stuff\"' y propone 'fix: resolve login bug in the auth flow': prefijo + imperativo que describen el cambio real del PR.",
         },
         {
           id: 'm5-l1-e8',
@@ -475,7 +475,7 @@ export const m5: Module = {
                 {
                   en: 'Sure, I will post it after the standup.',
                   correct: true,
-                  feedback: 'Confirmas y dás momento concreto.',
+                  feedback: 'Confirmas y das un momento concreto.',
                 },
                 {
                   en: 'I will call you right now.',
@@ -862,7 +862,7 @@ export const m5: Module = {
           id: 'm5-l4-e7',
           type: 'shadow',
           prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
-          answer: 'The build failed; however, we fixed it and deployed again.',
+          answer: 'Actually, we fixed the build and deployed it again.',
           hint: 'Conector de contraste.',
           explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
         },
@@ -1029,10 +1029,10 @@ export const m5: Module = {
           type: 'dialogue-branch',
           prompt: 'Elige cómo abrir una demo.',
           context:
-            'Maya y Leo inician una demo: Leo presenta y Maya pregunta quién cierra con los siguientes pasos.',
+            'Maya pregunta a Leo si está listo para la demo y quién se encargará de cerrarla con los siguientes pasos.',
           steps: [
             {
-              speaker: 'Leo',
+              speaker: 'Maya',
               line: 'Ready for the demo?',
               choices: [
                 {
@@ -1048,11 +1048,11 @@ export const m5: Module = {
               ],
             },
             {
-              speaker: 'Leo',
+              speaker: 'Maya',
               line: 'Great. Who closes the demo?',
               choices: [
                 {
-                  en: 'Maya will close with the next steps.',
+                  en: "I'll close with the next steps.",
                   correct: true,
                   feedback: 'Cierre claro con siguientes pasos.',
                 },
@@ -1066,191 +1066,6 @@ export const m5: Module = {
           ],
           explanation:
             'En una conversación real importa sonar claro, concreto y respetuoso con el turno del otro.',
-        },
-      ],
-    },
-    {
-      id: 'm5-l6',
-      slug: 'comentarios-de-pr-claros',
-      title: 'Comentarios de PR: claros y profesionales',
-      step: 'B2 · Paso 5.6',
-      cefr: 'B2',
-      summary:
-        'Aprueba, pide cambios o sugiere mejoras con comentarios concretos, amables y accionables.',
-      objectives: [
-        'Escribir comentarios de PR con contexto y sugerencia clara.',
-        'Distinguir un bloqueo de un nit y comunicarlo bien.',
-        'Reescribir comentarios duros en feedback útil.',
-      ],
-      pronunciation:
-        'Nit: could you rename this variable? This might break when the input is null. LGTM once tests pass.',
-      blocks: [
-        {
-          type: 'callout',
-          tone: 'info',
-          title: 'Antes de esta lección',
-          body: "Requiere frases de sugerencia ('Could you...?', 'I suggest...'), condicionales simples ('might break when...') y etiquetas de review vistas antes. Aquí se practica feedback concreto y respetuoso.",
-        },
-        {
-          type: 'technique',
-          name: 'Comentario de PR accionable: qué + impacto + sugerencia',
-          desc: "Señala el punto concreto, explica el riesgo/impacto y propone una acción ('This might break when... Could you add...?'). Marca si es 'nit' o bloqueante cuando aplique.",
-        },
-        {
-          type: 'vocab',
-          title: 'Vocabulario y etiquetas de revisión',
-          items: [
-            {
-              en: 'nit',
-              es: 'detalle menor (no suele bloquear)',
-              example: 'Nit: consider renaming this variable for clarity.',
-            },
-            {
-              en: 'might break',
-              es: 'podría fallar/romperse',
-              example: 'This might break when the input is null.',
-            },
-            {
-              en: 'guard clause / check',
-              es: 'condición de guarda/validación',
-              example: 'Could you add a check?',
-            },
-            {
-              en: 'extract into a helper function',
-              es: 'extraer a una función auxiliar',
-              example: 'I suggest extracting this into a helper function.',
-            },
-            { en: 'LGTM', es: 'Looks Good To Me (aprobado)', example: 'LGTM once the tests pass.' },
-            {
-              en: 'Nice catch',
-              es: 'buen hallazgo',
-              example: 'Nice catch, thanks for fixing this.',
-            },
-          ],
-        },
-        {
-          type: 'phrases',
-          title: 'Frases para revisar PRs',
-          items: [
-            {
-              en: 'Could you add a test for this case?',
-              es: '¿Podrías agregar un test para este caso?',
-            },
-            {
-              en: 'This might break when the input is null.',
-              es: 'Esto podría fallar cuando la entrada es null.',
-            },
-            {
-              en: 'Nit: consider renaming this variable for clarity.',
-              es: 'Detalle menor: considera renombrar esta variable para mayor claridad.',
-            },
-            {
-              en: 'I suggest extracting this into a helper function.',
-              es: 'Sugiero extraer esto a una función helper.',
-            },
-            { en: 'LGTM once the tests pass.', es: 'Aprobado cuando pasen los tests.' },
-            {
-              en: 'Can you explain why we need this change?',
-              es: '¿Puedes explicar por qué necesitamos este cambio?',
-            },
-            {
-              en: 'Nice catch, thanks for fixing this.',
-              es: 'Buen hallazgo, gracias por arreglarlo.',
-            },
-          ],
-        },
-        {
-          type: 'table',
-          title: 'De duro a útil',
-          columns: ['Comentario duro', 'Comentario útil'],
-          rows: [
-            ['This is wrong.', 'This might break when the list is empty. Could we add a check?'],
-            ['Bad name.', 'Nit: could you rename this to `userId` for clarity?'],
-            ['Why?', 'Can you explain why we need this change here?'],
-          ],
-        },
-      ],
-      exercises: [
-        {
-          id: 'm5-l6-e1',
-          type: 'choice',
-          prompt: 'Quieres pedir un cambio sin sonar agresivo. ¿Qué comentario es mejor?',
-          options: [
-            'This is bad.',
-            'This might break when the input is null. Could you add a guard clause?',
-            'Fix this.',
-            'Wrong.',
-          ],
-          answer: 1,
-          explanation:
-            'Explicas el riesgo y propones una acción concreta: eso es feedback útil y profesional.',
-        },
-        {
-          id: 'm5-l6-e2',
-          type: 'builder',
-          prompt:
-            "Construye: 'Detalle menor: considera renombrar esta variable para mayor claridad.'",
-          words: ['Nit:', 'consider renaming', 'this variable', 'for clarity.'],
-          answer: 'Nit: consider renaming this variable for clarity.',
-          explanation: "'Nit' marca que es un detalle menor; 'consider' suaviza la sugerencia.",
-        },
-        {
-          id: 'm5-l6-e3',
-          type: 'write',
-          prompt: "Escríbelo en inglés: 'Aprobado cuando pasen los tests.'",
-          answer: 'LGTM once the tests pass.',
-          accept: ['LGTM once tests pass.', 'Looks good to me once the tests pass.'],
-          hint: "Usa 'LGTM once...'",
-          explanation: "'LGTM once...' aprueba condicionado a que se cumpla algo específico.",
-        },
-        {
-          id: 'm5-l6-e4',
-          type: 'choice',
-          prompt: "¿Qué significa 'nit' en un code review?",
-          options: [
-            'Un bug crítico.',
-            'Un detalle menor que no suele bloquear el merge.',
-            'Un error de seguridad.',
-            'Una solicitud de borrado.',
-          ],
-          answer: 1,
-          explanation:
-            "'Nit' (nitpick) es un comentario menor, de estilo o claridad, normalmente no bloqueante.",
-        },
-        {
-          id: 'm5-l6-e5',
-          type: 'fix-error',
-          prompt: 'Reescribe este comentario para que sea útil y respetuoso.',
-          sentence: 'Bad name.',
-          answer: 'Nit: could you rename this variable for clarity?',
-          accept: [
-            'Nit: could you rename this to `userId` for clarity?',
-            'Nit: consider renaming this variable for clarity.',
-          ],
-          hint: "Usa 'Nit:' si es menor y sugiere una acción concreta.",
-          explanation:
-            'Un buen comentario indica la intención (nit), el punto (nombre) y una sugerencia concreta.',
-        },
-        {
-          id: 'm5-l6-e6',
-          type: 'write',
-          prompt: "Escríbelo en inglés: '¿Puedes explicar por qué necesitamos este cambio?'",
-          answer: 'Can you explain why we need this change?',
-          accept: [
-            'Could you explain why we need this change?',
-            'Can you explain why we need this change',
-          ],
-          hint: "Usa 'Can/Could you explain why...?'",
-          explanation:
-            'Pedir contexto con respeto ayuda a entender la intención del PR antes de sugerir cambios.',
-        },
-        {
-          id: 'm5-l6-e7',
-          type: 'shadow',
-          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
-          answer: 'This looks good. Could you add a test for the edge case?',
-          hint: 'Feedback positivo + petición.',
-          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
         },
       ],
     },
@@ -1720,8 +1535,8 @@ export const m5: Module = {
           type: 'builder',
           prompt:
             "Construye: 'Esto podría fallar cuando la entrada es null. ¿Podrías agregar una validación?'",
-          words: ['This might break', 'when the input is null.', 'Could you add', 'a validation?'],
-          answer: 'This might break when the input is null. Could you add a validation?',
+          words: ['This might break', 'when the input is null.', 'Could you add', 'a check?'],
+          answer: 'This might break when the input is null. Could you add a check?',
           explanation: 'Feedback de PR útil: riesgo concreto + sugerencia accionable.',
         },
         {
@@ -1730,240 +1545,6 @@ export const m5: Module = {
           prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
           answer: 'We rolled out the feature and followed up with the team.',
           hint: 'Dos phrasal verbs de entrega.',
-          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
-        },
-      ],
-    },
-    {
-      id: 'm5-l10',
-      slug: 'practica-prs-async-y-feedback',
-      title: 'Práctica: PRs, async y feedback claro',
-      step: 'B1-B2 · Paso 5.10 · Práctica guiada',
-      cefr: 'B1',
-      summary:
-        'Sesión corta para separar y reforzar comunicación escrita: commits/PR, mensajes async y feedback accionable.',
-      objectives: [
-        'Usar frases claras para PRs, bloqueos y seguimiento.',
-        'Escribir updates async con estado y siguiente paso.',
-        'Dar feedback de revisión concreto y respetuoso.',
-      ],
-      pronunciation:
-        "LGTM once the tests pass. I'm blocked by API access. Could you add a test for this case?",
-      blocks: [
-        {
-          type: 'callout',
-          tone: 'info',
-          title: 'Antes de esta lección',
-          body: 'Repasa m5-l1 (commits/PRs), m5-l2 (Slack/async), m5-l6 (comentarios de PR) y m5-l8 (handoffs/tickets). Esta práctica usa solo chunks y estructuras ya enseñados.',
-        },
-        {
-          type: 'technique',
-          name: 'Escribir para que otros actúen',
-          desc: "Sé específico: estado/bloqueo + siguiente paso en async; en PRs, riesgo + sugerencia concreta ('This might break...', 'Could you add...') o aprobación clara ('LGTM once...').",
-        },
-        {
-          type: 'phrases',
-          title: 'Chunks de apoyo',
-          items: [
-            { en: 'LGTM once the tests pass.', es: 'Aprobado cuando pasen los tests.' },
-            { en: "I'm blocked by API access.", es: 'Estoy bloqueado por el acceso a la API.' },
-            {
-              en: 'Status: in progress. Next step: open the PR.',
-              es: 'Estado: en progreso. Próximo paso: abrir el PR.',
-            },
-            {
-              en: 'Could you add a test for this case?',
-              es: '¿Podrías agregar un test para este caso?',
-            },
-          ],
-        },
-      ],
-      exercises: [
-        {
-          id: 'm5-l10-e1',
-          type: 'choice',
-          prompt: 'Quieres aprobar un PR condicionado a que pasen los tests. ¿Qué dices?',
-          options: ['Ship now.', 'LGTM once the tests pass.', 'It is bad.', 'No merge.'],
-          answer: 1,
-          explanation: "'LGTM once the tests pass' aprueba con una condición clara.",
-        },
-        {
-          id: 'm5-l10-e2',
-          type: 'write',
-          prompt: "Escríbelo en inglés: 'Estoy bloqueado por el acceso a la API.'",
-          answer: "I'm blocked by API access.",
-          accept: ['I am blocked by API access.', "I'm blocked by access to the API."],
-          hint: "Usa 'I'm blocked by...'",
-          explanation: 'Comunica bloqueo y causa de forma directa.',
-        },
-        {
-          id: 'm5-l10-e3',
-          type: 'builder',
-          prompt: "Construye: 'Estado: en progreso. Próximo paso: abrir el PR.'",
-          words: ['Status: in progress.', 'Next step:', 'open the PR.'],
-          answer: 'Status: in progress. Next step: open the PR.',
-          explanation: 'Marco async claro: estado actual y siguiente acción.',
-        },
-        {
-          id: 'm5-l10-e4',
-          type: 'choice',
-          prompt: 'Quieres pedir un test de forma educada en un PR. ¿Qué opción es mejor?',
-          options: [
-            'Add test now.',
-            'Could you add a test for this case?',
-            'No tests.',
-            'Test missing.',
-          ],
-          answer: 1,
-          explanation: "'Could you add...?' es una sugerencia clara y respetuosa.",
-        },
-        {
-          id: 'm5-l10-e5',
-          type: 'write',
-          prompt: "Escríbelo en inglés: 'Haré seguimiento mañana.'",
-          answer: "I'll follow up tomorrow.",
-          accept: ['I will follow up tomorrow.'],
-          hint: "Usa 'follow up'.",
-          explanation: "'Follow up' indica que harás seguimiento en un momento concreto.",
-        },
-        {
-          id: 'm5-l10-e6',
-          type: 'builder',
-          prompt:
-            "Construye: 'Esto podría fallar cuando la entrada es null. ¿Podrías agregar una validación?'",
-          words: ['This might break', 'when the input is null.', 'Could you add', 'a validation?'],
-          answer: 'This might break when the input is null. Could you add a validation?',
-          explanation: 'Feedback de PR útil: riesgo concreto + sugerencia accionable.',
-        },
-        {
-          id: 'm5-l10-e7',
-          type: 'shadow',
-          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
-          answer: 'I left actionable feedback on the pull request this morning.',
-          hint: 'feedback accionable.',
-          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
-        },
-      ],
-    },
-    {
-      id: 'm5-l11',
-      slug: 'practica-entrevistas-y-demos',
-      title: 'Práctica: entrevistas y demos técnicas',
-      step: 'B1-B2 · Paso 5.11 · Práctica guiada',
-      cefr: 'B1',
-      summary:
-        'Sesión corta para separar y reforzar m5-l3 y m5-l5: hablar de experiencia, trade-offs y explicar un cambio o demo con claridad.',
-      objectives: [
-        'Describir experiencia y decisiones técnicas con frases ya vistas.',
-        'Explicar un cambio (antes/ahora) y su impacto.',
-        'Hacer preguntas claras en contexto de entrevista o demo.',
-      ],
-      pronunciation:
-        'I have three years of experience. Let me walk you through the change. Now, it handles the error correctly.',
-      blocks: [
-        {
-          type: 'callout',
-          tone: 'info',
-          title: 'Antes de esta lección',
-          body: 'Repasa m5-l3 (entrevistas técnicas) y m5-l5 (explicar cambios y dar una demo corta). Esta práctica usa solo chunks y estructuras ya enseñados en esas lecciones.',
-        },
-        {
-          type: 'technique',
-          name: 'Contar experiencia y explicar un cambio',
-          desc: "Entrevista: experiencia ('I have... years of experience'), decisiones/trade-offs ('The main trade-off was...'), preguntas. Demo: guía ('Let me walk you through...'), antes/ahora ('Before..., Now...') e impacto.",
-        },
-        {
-          type: 'phrases',
-          title: 'Chunks de apoyo',
-          items: [
-            {
-              en: 'I have three years of experience as a backend developer.',
-              es: 'Tengo tres años de experiencia como desarrollador backend.',
-            },
-            {
-              en: 'The main trade-off was latency versus cost.',
-              es: 'El principal compromiso fue latencia frente a coste.',
-            },
-            {
-              en: 'Let me walk you through the change.',
-              es: 'Déjame explicarte el cambio paso a paso.',
-            },
-            {
-              en: 'Now, it handles the error correctly.',
-              es: 'Ahora, maneja el error correctamente.',
-            },
-          ],
-        },
-      ],
-      exercises: [
-        {
-          id: 'm5-l11-e1',
-          type: 'choice',
-          prompt: 'En una entrevista quieres mencionar tu experiencia. ¿Qué opción encaja?',
-          options: [
-            'I have three years of experience as a backend developer.',
-            'I experience three years backend.',
-            'Three years I am experience.',
-            'I have experience three years developer.',
-          ],
-          answer: 0,
-          explanation: 'Frase modelo clara para hablar de experiencia en una entrevista (m5-l3).',
-        },
-        {
-          id: 'm5-l11-e2',
-          type: 'builder',
-          prompt: "Construye: 'Déjame explicarte el cambio paso a paso.'",
-          words: ['Let me', 'walk you through', 'the change.'],
-          answer: 'Let me walk you through the change.',
-          explanation:
-            "'Walk you through' es una forma natural de guiar a alguien por un cambio o demo.",
-        },
-        {
-          id: 'm5-l11-e3',
-          type: 'write',
-          prompt: "Escríbelo en inglés: 'Ahora, maneja el error correctamente.'",
-          answer: 'Now, it handles the error correctly.',
-          accept: ['Now it handles the error correctly.'],
-          hint: "Contrasta el estado actual: 'Now, it handles...'",
-          explanation: "En una demo, 'Now...' muestra el resultado después del cambio.",
-        },
-        {
-          id: 'm5-l11-e4',
-          type: 'choice',
-          prompt: 'Quieres explicar una decisión técnica en una entrevista. ¿Qué dices?',
-          options: [
-            'The main trade-off was latency versus cost.',
-            'The main bug was latency versus cost.',
-            'The main test was latency versus cost.',
-            'The main deploy was latency versus cost.',
-          ],
-          answer: 0,
-          explanation: "'Trade-off' describe un compromiso entre dos factores (m5-l3).",
-        },
-        {
-          id: 'm5-l11-e5',
-          type: 'builder',
-          prompt: "Construye: '¿Podrías contarme más sobre la rotación de guardias?'",
-          words: ['Could you tell me more', 'about the on-call', 'rotation?'],
-          answer: 'Could you tell me more about the on-call rotation?',
-          explanation: 'Pregunta educada y específica, útil al final de una entrevista.',
-        },
-        {
-          id: 'm5-l11-e6',
-          type: 'write',
-          prompt: "Escríbelo en inglés: 'Antes de este cambio, la app fallaba al iniciar sesión.'",
-          answer: 'Before this change, the app crashed on login.',
-          accept: ['Before this change the app crashed on login.'],
-          hint: "Usa 'Before this change...' y pasado simple 'crashed'.",
-          explanation:
-            'Describir el estado anterior ayuda a explicar el valor del cambio en una demo.',
-        },
-        {
-          id: 'm5-l11-e7',
-          type: 'shadow',
-          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
-          answer: 'I built a small service and explained the trade-offs in the demo.',
-          hint: 'Explicar decisiones técnicas.',
           explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
         },
       ],

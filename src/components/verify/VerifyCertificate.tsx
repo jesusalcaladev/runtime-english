@@ -3,6 +3,7 @@ import { useEffect, useState } from 'preact/hooks'
 import {
   type CertificateRecord,
   certificateShareUrl,
+  displayCertificateLevel,
   verifyCertificate,
 } from '../../lib/certificates'
 import { isSupabaseConfigured } from '../../lib/supabase'
@@ -176,10 +177,11 @@ export default function VerifyCertificate() {
             </div>
             <div>
               <dt class="text-[10px] uppercase tracking-[0.18em] text-base-content/45">
-                Program / Estado
+                Program / Nivel
               </dt>
               <dd class="mt-1 font-medium">
-                {state.cert.program} · {state.cert.level} · {state.cert.status || 'valid'}
+                {state.cert.program} · {displayCertificateLevel(state.cert.level)} ·{' '}
+                {state.cert.status || 'valid'}
               </dd>
             </div>
           </dl>

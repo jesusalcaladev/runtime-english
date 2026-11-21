@@ -1,7 +1,8 @@
-import { ArrowLeft, ArrowRight, RotateCcw, Trophy } from 'lucide-preact'
+import { ArrowLeft, ArrowRight, Award, RotateCcw, Trophy } from 'lucide-preact'
 import type { UiStage } from '../../../lib/i18n'
 import { tAction } from '../../../lib/i18n'
 import { route } from '../../../lib/routes'
+import type { Level } from '../../../lib/types'
 import Mascot from '../../ui/Mascot'
 import type { NextSession } from './utils'
 
@@ -12,6 +13,11 @@ interface Props {
   wasComplete: boolean
   solvedCount: number
   total: number
+  accuracy: number
+  reviewSkills: string[]
+  level?: Level
+  levelStats?: { doneSessions: number; sessions: number } | null
+  levelDone: boolean
   onRestart: () => void
 }
 
@@ -22,9 +28,18 @@ export function ExerciseFinishedScreen({
   wasComplete,
   solvedCount,
   total,
+  accuracy,
+  reviewSkills,
+  level,
+  levelStats,
+  levelDone,
   onRestart,
 }: Props) {
   const isLast = !next
+  const levelPct =
+    levelStats && levelStats.sessions > 0
+      ? Math.round((levelStats.doneSessions / levelStats.sessions) * 100)
+      : 0
   return (
     <div class="animate-pop overflow-hidden rounded-[26px] bg-base-200 p-1.5">
       <div class="relative overflow-hidden rounded-[20px] bg-base-100 px-6 py-12 text-center sm:px-10">
@@ -41,14 +56,66 @@ export function ExerciseFinishedScreen({
         <p class="relative mx-auto mt-3 max-w-md text-sm leading-6 text-base-content/50">
           {tAction(stage, isLast ? 'lastBody' : 'savedBody')}
         </p>
-        <div class="relative mx-auto mt-6 flex max-w-sm flex-wrap items-center justify-center gap-2">
+
+        <div class="relative mx-auto mt-6 grid max-w-md gap-2 sm:grid-cols-3">
           <span class="rounded-full bg-accent/10 px-3 py-1.5 font-mono text-[11px] font-medium text-accent">
             {tAction(stage, wasComplete ? 'sessionReviewed' : 'sessionXp')}
+          </span>
+          <span class="rounded-full bg-base-200 px-3 py-1.5 font-mono text-[11px] text-base-content/60">
+            {tAction(stage, 'sessionAccuracy')} {accuracy}%
           </span>
           <span class="rounded-full bg-base-200 px-3 py-1.5 font-mono text-[11px] text-base-content/45">
             {solvedCount}/{total} {tAction(stage, 'exercises').toLowerCase()}
           </span>
         </div>
+
+        {reviewSkills.length > 0 && (
+          <div class="relative mx-auto mt-4 max-w-md rounded-2xl bg-base-200/60 p-3 text-left">
+            <p class="mono-label text-base-content/50">{tAction(stage, 'toReview')}</p>
+            <div class="mt-2 flex flex-wrap gap-1.5">
+              {reviewSkills.map((skill) => (
+                <span
+                  key={skill}
+                  class="rounded-full bg-base-100 px-2.5 py-1 font-mono text-[10px] text-base-content/60"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+            <a
+              href={route('/practice?mode=review')}
+              class="mt-3 inline-flex items-center gap-1.5 text-[11px] font-medium text-accent/90 hover:text-accent"
+            >
+              {tAction(stage, 'review')} <ArrowRight class="h-3 w-3" />
+            </a>
+          </div>
+        )}
+
+        {level && levelStats && (
+          <div class="relative mx-auto mt-3 max-w-md rounded-2xl bg-base-200/60 p-3 text-left">
+            <div class="flex items-center justify-between gap-2">
+              <p class="mono-label text-base-content/60">{level}</p>
+              <span class="font-mono text-[10px] text-base-content/45">
+                {levelStats.doneSessions}/{levelStats.sessions}
+              </span>
+            </div>
+            <div class="mt-2 h-1 w-full overflow-hidden rounded-full bg-base-content/[0.07]">
+              <div
+                class="h-full rounded-full bg-accent/70 transition-all duration-500"
+                style={{ width: `${levelPct}%` }}
+              />
+            </div>
+            {levelDone && (
+              <a
+                href={route(`/certificate?level=${level}`)}
+                class="mt-3 inline-flex items-center gap-1.5 rounded-full bg-accent/10 px-3 py-1.5 text-[11px] font-medium text-accent hover:bg-accent/20"
+              >
+                <Award class="h-3.5 w-3.5" /> {tAction(stage, 'levelReady')}
+              </a>
+            )}
+          </div>
+        )}
+
         <div class="relative mt-8 flex flex-col justify-center gap-2 sm:flex-row">
           {next && (
             <a

@@ -13,7 +13,7 @@ create table if not exists public.certificates (
   issued_at timestamptz not null default now(),-- issuance date
   completion_date text,                        -- human-readable completion date
   program text not null default 'RuntimeEnglish',
-  level text not null default 'A1 — B2',
+  level text not null default 'A1-A2', -- A1-A2 / B1-B2 / C1-C2
   status text not null default 'valid',        -- valid | revoked
   user_id uuid references auth.users(id) on delete set null,
   issued_by text not null default 'system',    -- system | user
@@ -30,6 +30,12 @@ alter table public.certificates add column if not exists metadata jsonb not null
 alter table public.certificates add column if not exists updated_at timestamptz not null default now();
 
 create index if not exists certificates_user_id_idx on public.certificates(user_id);
+
+-- The old single certificate covered the whole course and was labelled "A1 — B2".
+-- Per-level certificates use A1-A2 / B1-B2, so normalize legacy rows in place.
+update public.certificates
+set level = 'A1-A2'
+where level in ('A1 — B2', 'A1 - B2', 'A1-B2');
 
 -- Normalize the ID to uppercase
 create or replace function public.normalize_certificate_id()
@@ -87,7 +93,9 @@ language sql
 security definer
 set search_path = public
 as $$
-  select c.id, c.name, c.issued_at, c.program, c.level, c.status, c.user_id, c.completion_date
+  select c.id, c.name, c.issued_at, c.program,
+         case when c.level in ('A1 — B2', 'A1 - B2', 'A1-B2') then 'A1-A2' else c.level end as level,
+         c.status, c.user_id, c.completion_date
   from public.certificates c
   where c.id = upper(trim(cert_id))
     and c.status = 'valid'
@@ -157,5 +165,9 @@ create policy "user_progress_delete_own"
 --    - Redirect URLs: add the URLs where the app runs.
 -- 3. issue-certificate Edge Function (hardened for production): deploy with `supabase functions deploy issue-certificate`.
 --    - Requires an Authorization Bearer token (authenticated user JWT) and links the certificate to the user (user_id). Open issuance is not allowed.
---    - Validates eligibility on the server against public.user_progress before issuing.
---    - Configure in the function: ALLOWED_ORIGINS (CORS), CERT_REQUIRED_SESSIONS, and CERT_REQUIRED_EXERCISES (eligibility policy, fail-closed if missing).
+--    - Validates eligibility on the server against public.user_progress before issuing, per level.
+--    - Verify flow uses the public.certificates row via verify_certificate(cert_id); level is returned by the RPC.
+--    - Configure in the function: ALLOWED_ORIGINS (CORS) and the per-level thresholds
+--      CERT_REQUIRED_SESSIONS_A1_A2 / CERT_REQUIRED_EXERCISES_A1_A2 (16 / 109) and
+--      CERT_REQUIRED_SESSIONS_B1_B2 / CERT_REQUIRED_EXERCISES_B1_B2 (33 / 222, plus A1-A2).
+--      The old CERT_REQUIRED_SESSIONS / CERT_REQUIRED_EXERCISES remain as fallbacks.

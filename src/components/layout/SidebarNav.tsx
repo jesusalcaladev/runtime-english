@@ -2,7 +2,6 @@ import {
   Award,
   BookOpen,
   BookText,
-  Check,
   ChevronRight,
   CirclePlay,
   Dumbbell,
@@ -13,35 +12,17 @@ import {
   Trophy,
   X,
 } from 'lucide-preact'
-import type { NavModule } from '../../data/curriculum'
+import { useEffect, useState } from 'preact/hooks'
 import { useSidebarNav } from '../../hooks/useSidebarNav'
+import { CERTIFICATE_LEVELS, getLevelStats, isLevelComplete } from '../../lib/certificateLevels'
 import { getUiStage, t, tAction } from '../../lib/i18n'
 import { route } from '../../lib/routes'
 import { useProgress } from '../../lib/useProgress'
 
-interface Props {
-  modules: NavModule[]
-}
-
-export default function SidebarNav({ modules }: Props) {
+export default function SidebarNav() {
   const state = useProgress()
   const stage = getUiStage(state)
-  const { open, setOpen, path } = useSidebarNav()
-
-  const allSessions = modules.flatMap((module) => module.sessions)
-  const totalSessions = allSessions.length
-  const totalExercises = allSessions.reduce((sum, session) => sum + session.exerciseCount, 0)
-  const doneSessions = allSessions.filter((session) => state.completedSessions[session.id]).length
-  const doneExercises = Object.keys(state.completedExercises).length
-  const courseComplete = doneSessions >= totalSessions && doneExercises >= totalExercises
-  let devMode = false
-  try {
-    devMode =
-      typeof window !== 'undefined' &&
-      (window.localStorage.getItem('runtimeenglish_dev') === '1' ||
-        window.localStorage.getItem('deveng_dev') === '1')
-  } catch {}
-  const canOpenCertificate = courseComplete || devMode
+  const { open, setOpen, path, search } = useSidebarNav()
 
   const workspaceLinks = [
     { href: '/', label: t(stage, 'roadmap'), icon: LayoutGrid, group: 'main' as const },
@@ -77,6 +58,12 @@ export default function SidebarNav({ modules }: Props) {
     },
     { href: '/slang', label: t(stage, 'slang'), icon: MessageSquare, group: 'tools' as const },
     {
+      href: '/certificate',
+      label: stage === 'en' ? 'Certificate' : 'Certificado',
+      icon: Award,
+      group: 'progress' as const,
+    },
+    {
       href: '/achievements',
       label: t(stage, 'achievements'),
       icon: Trophy,
@@ -92,6 +79,7 @@ export default function SidebarNav({ modules }: Props) {
       <a
         href={routedHref}
         onClick={() => setOpen(false)}
+        aria-current={active ? 'page' : undefined}
         class={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] transition ${
           active
             ? 'bg-base-300 font-medium text-base-content'
@@ -105,9 +93,25 @@ export default function SidebarNav({ modules }: Props) {
     )
   }
 
-  const grouped = {
-    'A1-A2': modules.filter((module) => module.level === 'A1-A2'),
-    'B1-B2': modules.filter((module) => module.level === 'B1-B2'),
+  const onDashboard = path === '/' || path === '/index.html'
+  const [levelParam, setLevelParam] = useState<string | null>(() =>
+    new URLSearchParams(search).get('level'),
+  )
+  const fallbackLevel =
+    CERTIFICATE_LEVELS.find(
+      (entry) => entry.state === 'active' && !isLevelComplete(entry.level, state),
+    )?.level ?? null
+  const activeLevel = levelParam ?? fallbackLevel
+
+  useEffect(() => {
+    setLevelParam(new URLSearchParams(search).get('level'))
+  }, [search])
+
+  function selectLevel(level: string) {
+    setOpen(false)
+    history.replaceState(null, '', route(`/?level=${level}`))
+    setLevelParam(level)
+    window.dispatchEvent(new CustomEvent('runtimeenglish:select-level', { detail: level }))
   }
 
   return (
@@ -123,7 +127,7 @@ export default function SidebarNav({ modules }: Props) {
       <aside
         id="app-sidebar"
         aria-label={stage === 'en' ? 'Main navigation' : 'Navegación principal'}
-        class={`fixed bottom-0 left-0 top-[calc(3.5rem+env(safe-area-inset-top,0px))] z-40 flex w-[286px] flex-col bg-base-100 pb-[env(safe-area-inset-bottom,0px)] transition-transform duration-200 print:hidden lg:sticky lg:top-[calc(3.5rem+env(safe-area-inset-top,0px))] lg:h-[calc(100vh-3.5rem-env(safe-area-inset-top,0px))] lg:translate-x-0 lg:bg-transparent ${
+        class={`fixed bottom-0 left-0 top-[calc(3.5rem+env(safe-area-inset-top,0px))] z-40 flex w-[264px] flex-col bg-base-100 pb-[env(safe-area-inset-bottom,0px)] transition-transform duration-200 print:hidden lg:sticky lg:top-[calc(3.5rem+env(safe-area-inset-top,0px))] lg:h-[calc(100vh-3.5rem-env(safe-area-inset-top,0px))] lg:translate-x-0 lg:bg-transparent ${
           open ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -145,12 +149,12 @@ export default function SidebarNav({ modules }: Props) {
           </button>
         </div>
 
-        <div class="flex-1 space-y-8 overflow-y-auto px-3 pb-4 pt-5">
+        <div class="flex-1 space-y-7 overflow-y-auto px-3 pb-4 pt-5">
           <div class="space-y-5">
             <div class="space-y-1">
               <p class="mono-label px-3 pb-2 text-base-content/55">{t(stage, 'workspace')}</p>
               {workspaceLinks
-                .filter((l) => l.group === 'main')
+                .filter((link) => link.group === 'main')
                 .map((link) => renderLink(link.href, link.label, link.icon))}
             </div>
             <div class="space-y-1">
@@ -158,103 +162,52 @@ export default function SidebarNav({ modules }: Props) {
                 {stage === 'en' ? 'Tools' : 'Herramientas'}
               </p>
               {workspaceLinks
-                .filter((l) => l.group === 'tools')
+                .filter((link) => link.group === 'tools')
                 .map((link) => renderLink(link.href, link.label, link.icon))}
             </div>
             <div class="space-y-1">
-              <p class="mono-label px-3 pb-2 text-base-content/45">
-                {stage === 'en' ? 'Progress' : 'Progreso'}
-              </p>
+              <p class="mono-label px-3 pb-2 text-base-content/45">{t(stage, 'progress')}</p>
               {workspaceLinks
-                .filter((l) => l.group === 'progress')
+                .filter((link) => link.group === 'progress')
                 .map((link) => renderLink(link.href, link.label, link.icon))}
-              {canOpenCertificate ? (
-                renderLink('/certificate', stage === 'en' ? 'Certificate' : 'Certificado', Award)
-              ) : (
-                <span
-                  aria-disabled="true"
-                  class="flex cursor-not-allowed items-center gap-2.5 rounded-xl bg-base-300/45 px-3 py-2 text-[13px] text-base-content/25 opacity-70"
-                >
-                  <Award class="h-4 w-4 shrink-0 text-base-content/20" />
-                  <span class="truncate">{stage === 'en' ? 'Certificate' : 'Certificado'}</span>
-                </span>
-              )}
             </div>
           </div>
 
-          {(['A1-A2', 'B1-B2'] as const).map((level) => (
-            <div class="space-y-4">
-              <p class="mono-label px-3 text-base-content/55">
-                {t(stage, level === 'A1-A2' ? 'a1' : 'b1')}
-              </p>
-              {grouped[level].map((module) => {
-                const done = module.sessions.filter(
-                  (session) => state.completedSessions[session.id],
-                ).length
-                const pct = Math.round((done / Math.max(module.sessions.length, 1)) * 100)
-                return (
-                  <div key={module.id} class="space-y-2">
-                    <div class="flex items-center justify-between gap-2 px-3">
-                      <div class="flex min-w-0 items-center gap-2">
-                        <span class="truncate text-[11px] font-semibold text-base-content/65">
-                          {module.shortTitle}
-                        </span>
-                        {module.featured && (
-                          <Sparkles
-                            class="h-2.5 w-2.5 shrink-0 text-accent"
-                            aria-label={tAction(stage, 'featured')}
-                          />
-                        )}
-                      </div>
-                      <span class="shrink-0 font-mono text-[9px] text-base-content/30">
-                        {done}/{module.sessions.length}
-                      </span>
-                    </div>
-                    <div class="h-0.5 w-full overflow-hidden rounded-full bg-base-content/[0.06]">
-                      <div
-                        class="h-full rounded-full bg-accent/70 transition-all duration-500"
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-                    <div class="space-y-1.5">
-                      {module.sessions.map((session) => {
-                        const complete = Boolean(state.completedSessions[session.id])
-                        const href = route(`/session/${session.slug}`)
-                        const active = path === href
-                        return (
-                          <a
-                            key={session.id}
-                            href={href}
-                            onClick={() => setOpen(false)}
-                            class={`group flex items-start gap-2.5 rounded-xl px-3 py-2.5 text-[12px] leading-snug transition ${
-                              active
-                                ? 'bg-base-300 font-medium text-base-content'
-                                : 'text-base-content/50 hover:bg-base-300/45 hover:text-base-content/80'
-                            }`}
-                          >
-                            <span class="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center">
-                              {complete ? (
-                                <span class="flex h-4 w-4 items-center justify-center rounded-full bg-accent/15 text-accent">
-                                  <Check class="h-2.5 w-2.5" strokeWidth={2.5} />
-                                </span>
-                              ) : (
-                                <span
-                                  class={`h-1.5 w-1.5 rounded-full ${
-                                    active ? 'bg-base-content/50' : 'bg-base-content/20'
-                                  }`}
-                                />
-                              )}
-                            </span>
-                            <span class="line-clamp-2">{session.title}</span>
-                          </a>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          ))}
+          <div class="space-y-1">
+            <p class="mono-label px-3 pb-2 text-base-content/55">{t(stage, 'level')}</p>
+            {CERTIFICATE_LEVELS.map((info) => {
+              const active = onDashboard && activeLevel === info.level
+              const stats = getLevelStats(info.level, state)
+              const pct =
+                stats.sessions === 0 ? 0 : Math.round((stats.doneSessions / stats.sessions) * 100)
+              return (
+                <a
+                  key={info.level}
+                  href={route(`/?level=${info.level}`)}
+                  onClick={(event) => {
+                    if (onDashboard) {
+                      event.preventDefault()
+                      selectLevel(info.level)
+                    }
+                  }}
+                  aria-current={active ? 'page' : undefined}
+                  class={`flex items-center justify-between rounded-xl px-3 py-2 text-[13px] transition ${
+                    active
+                      ? 'bg-base-300 font-medium text-base-content'
+                      : 'text-base-content/60 hover:bg-base-300/55 hover:text-base-content'
+                  }`}
+                >
+                  <span class="flex items-center gap-2.5 truncate">
+                    <Award
+                      class={`h-4 w-4 shrink-0 ${active ? 'text-accent' : 'text-base-content/40'}`}
+                    />
+                    {info.label}
+                  </span>
+                  <span class="font-mono text-[9px] text-base-content/30">{pct}%</span>
+                </a>
+              )
+            })}
+          </div>
         </div>
       </aside>
     </>

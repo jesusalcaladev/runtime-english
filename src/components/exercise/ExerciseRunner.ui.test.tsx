@@ -132,4 +132,30 @@ describe('ExerciseRunner new exercise types', () => {
     fireEvent.click(checkButton())
     expect(screen.getByText('Dos acciones de despliegue.')).toBeTruthy()
   })
+
+  it('muestra y oculta la pista bajo demanda en cualquier tipo de ejercicio', () => {
+    const exercise: Exercise = {
+      id: 'test-hint',
+      type: 'multi-choice',
+      prompt: 'Elige las opciones correctas',
+      options: ['first', 'second'],
+      answers: [0],
+      hint: 'Piensa en la primera opción.',
+      explanation: 'La primera era correcta.',
+    }
+    render(
+      <ExerciseRunner
+        sessionId="test-hint-session"
+        sessionTitle="Test"
+        exercises={[exercise]}
+        next={null}
+      />,
+    )
+
+    expect(screen.queryByText('Piensa en la primera opción.')).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: /Ver pista|Show hint/ }))
+    expect(screen.getByText('Piensa en la primera opción.')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: /Ocultar pista|Hide hint/ }))
+    expect(screen.queryByText('Piensa en la primera opción.')).toBeNull()
+  })
 })

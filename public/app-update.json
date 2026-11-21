@@ -1,7 +1,7 @@
 {
-  "versionName": "1.2.9",
-  "versionCode": 12,
-  "apkUrl": "https://github.com/jesusalcaladev/runtime-english/releases/download/v1.2.9/RuntimeEnglish.apk",
+  "versionName": "1.4.0",
+  "versionCode": 14,
+  "apkUrl": "https://github.com/jesusalcaladev/runtime-english/releases/download/v1.4.0/RuntimeEnglish.apk",
   "title": "Nueva versión disponible",
-  "notes": "Diálogos con escena y contexto real, voces de las próximas líneas preparadas en segundo plano y micrófono más fiable en Android (con respaldo del cuadro de voz del sistema)."
+  "notes": "Nivel C1-C2 completo con 12 sesiones de inglés profesional avanzado, certificado y verificación pública. El test de nivel ya detecta C1 y C2."
 }

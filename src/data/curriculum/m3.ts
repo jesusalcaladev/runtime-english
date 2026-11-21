@@ -273,7 +273,7 @@ export const m3: Module = {
           type: 'callout',
           tone: 'info',
           title: 'Antes de esta lección',
-          body: "Necesitas imperativos y tiempos básicos de M1–M2 (run, pull, push, can, pasado simple como 'ran into'). Aquí aprenderás conceptos de arquitectura y phrasal verbs nuevos como bloques completos; los ejercicios solo usan verbos/estructuras ya vistos más los que se presentan en esta lección.",
+          body: "Necesitas imperativos y tiempos básicos de M1–M2 (run, pull, push, can, pasado simple como 'fixed' o 'pushed'). Aquí aprenderás conceptos de arquitectura y phrasal verbs nuevos como bloques completos; los ejercicios solo usan verbos/estructuras ya vistos más los que se presentan en esta lección.",
         },
         {
           type: 'technique',
@@ -484,12 +484,10 @@ export const m3: Module = {
             'That test is flaky; we will fix it.',
             'That test is flaky, we will fix it.',
             "That test is flaky. We'll fix it.",
-            "That test is flaky; we're going to fix it.",
-            'That test is flaky. We are going to fix it.',
           ],
           hint: "Usa 'flaky' y futuro con 'will' ('We will fix it').",
           explanation:
-            "Para un plan/decisión clara puedes usar 'will' (ya visto): 'We will fix it'. También escucharás 'going to', pero aquí priorizamos una forma simple.",
+            "Para un plan/decisión clara puedes usar 'will' (ya visto): 'We will fix it'. Más adelante verás otras formas de hablar del futuro.",
         },
         {
           id: 'm3-l3-e5',
@@ -982,120 +980,6 @@ export const m3: Module = {
       ],
     },
     {
-      id: 'm3-l7',
-      slug: 'practica-git-http-errores',
-      title: 'Práctica: Git, HTTP y reporte de errores',
-      step: 'A2 · Paso 3.7 · Práctica guiada',
-      cefr: 'A2',
-      summary:
-        'Sesión corta para separar y reforzar m3-l1, m3-l4 y m3-l5: mensajes de error, status codes y reportes claros.',
-      objectives: [
-        'Elegir acciones simples ante errores comunes (puerto, módulo, conexión).',
-        'Describir un fallo HTTP o de runtime con información útil.',
-        'Pedir ayuda con error, ubicación y contexto ya intentado.',
-      ],
-      pronunciation:
-        "I'm getting this error: connection refused. The API returns a 500 error. Could you help me?",
-      blocks: [
-        {
-          type: 'callout',
-          tone: 'info',
-          title: 'Antes de esta lección',
-          body: 'Repasa m3-l1 (Git/errores), m3-l4 (API/HTTP) y m3-l5 (stack traces y logs). Esta práctica usa solo términos y frases ya enseñados en esas lecciones.',
-        },
-        {
-          type: 'technique',
-          name: 'Reportar y actuar con claridad',
-          desc: "Error común → acción típica (p. ej. 'Port already in use' → cambiar puerto/matar proceso). Para pedir ayuda: error exacto + dónde ocurre + qué ya probaste.",
-        },
-        {
-          type: 'phrases',
-          title: 'Chunks de apoyo',
-          items: [
-            { en: 'The API returns a 500 error.', es: 'La API devuelve un error 500.' },
-            {
-              en: "I'm getting this error: connection refused.",
-              es: 'Me está saliendo este error: connection refused.',
-            },
-            { en: 'It fails at line 42 in auth.ts.', es: 'Falla en la línea 42 de auth.ts.' },
-            { en: 'I already checked the logs.', es: 'Ya revisé los logs.' },
-          ],
-        },
-      ],
-      exercises: [
-        {
-          id: 'm3-l7-e1',
-          type: 'choice',
-          prompt: "Ves 'Port already in use'. ¿Qué acción encaja con lo aprendido?",
-          options: [
-            'Kill the previous process or change the port.',
-            'Delete the repo.',
-            'Ignore the error.',
-            'Open a new issue only.',
-          ],
-          answer: 0,
-          explanation:
-            'Si el puerto está ocupado, la acción típica es detener el proceso anterior o cambiar el puerto.',
-        },
-        {
-          id: 'm3-l7-e2',
-          type: 'builder',
-          prompt: "Construye: 'La API devuelve un error 500.'",
-          words: ['The API', 'returns', 'a 500 error.'],
-          answer: 'The API returns a 500 error.',
-          explanation: 'Frase modelo para reportar un status code del servidor.',
-        },
-        {
-          id: 'm3-l7-e3',
-          type: 'write',
-          prompt: "Escríbelo en inglés: 'Me está saliendo este error: conexión rechazada.'",
-          answer: "I'm getting this error: connection refused.",
-          accept: ['I am getting this error: connection refused.'],
-          hint: "Usa 'I'm getting this error: ...'",
-          explanation: 'Cita el mensaje exacto para que el reporte sea claro.',
-        },
-        {
-          id: 'm3-l7-e4',
-          type: 'choice',
-          prompt: '¿Qué mensaje es más útil para pedir ayuda?',
-          options: [
-            "It doesn't work.",
-            "I'm getting this error: connection refused. It fails in auth.ts. I already checked the logs.",
-            'Help now.',
-            'Something is wrong.',
-          ],
-          answer: 1,
-          explanation: 'Incluye error exacto, ubicación y lo que ya probaste.',
-        },
-        {
-          id: 'm3-l7-e5',
-          type: 'builder',
-          prompt: "Construye: 'Falla en la línea 42 de auth.ts.'",
-          words: ['It fails', 'at line 42', 'in auth.ts.'],
-          answer: 'It fails at line 42 in auth.ts.',
-          explanation: 'Indicar archivo y línea ayuda a localizar el problema rápidamente.',
-        },
-        {
-          id: 'm3-l7-e6',
-          type: 'write',
-          prompt: "Escríbelo en inglés: 'Ya revisé los logs.'",
-          answer: 'I already checked the logs.',
-          accept: ["I've already checked the logs.", 'I have already checked the logs.'],
-          hint: "Pasado simple: 'I already checked...'",
-          explanation:
-            'Compartir lo que ya intentaste da contexto y ahorra tiempo. La variante con presente perfecto ("I\'ve already checked...") se explica en el Paso 4.0.',
-        },
-        {
-          id: 'm3-l7-e7',
-          type: 'shadow',
-          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
-          answer: 'The API returns a 500 error and the port is already in use.',
-          hint: 'Dos errores técnicos comunes.',
-          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
-        },
-      ],
-    },
-    {
       id: 'm3-l8',
       slug: 'phrasal-verbs-dev-diario',
       title: 'Phrasal verbs que usa un developer cada día',
@@ -1298,8 +1182,13 @@ export const m3: Module = {
             { en: 'track down', es: 'localizar la causa' },
             { en: 'wrap up', es: 'cerrar / terminar' },
             { en: 'back up', es: 'respaldar' },
+            { en: 'check out', es: 'probar / revisar' },
+            { en: 'spin up', es: 'levantar (un entorno)' },
+            { en: 'figure out', es: 'averiguar' },
+            { en: 'narrow down', es: 'reducir / acotar' },
+            { en: 'sign off', es: 'dar el visto bueno' },
           ],
-          hint: 'Piensa en el contexto: entorno, bug, reunión y base de datos.',
+          hint: 'Piensa en el contexto: entorno, bug, revisión, reunión y base de datos.',
           explanation:
             'Emparejar el chunk completo con su significado es la forma más rápida de memorizar phrasal verbs.',
         },

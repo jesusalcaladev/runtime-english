@@ -25,6 +25,60 @@ describe('progressSync', () => {
     expect(expanded.settings.onboarded).toBe(true)
   })
 
+  it('compacts, expands and merges one certificate per level', () => {
+    const state = createDefaultState()
+    const a1 = {
+      id: 'AB12CD-A1A2',
+      name: 'Ana',
+      issuedAt: '2026-01-01T00:00:00.000Z',
+      completionDate: 'January 1, 2026',
+      level: 'A1-A2' as const,
+      status: 'verified' as const,
+    }
+    const b1 = {
+      id: 'EF34GH-B1B2',
+      name: 'Ana',
+      issuedAt: '2026-02-01T00:00:00.000Z',
+      completionDate: 'February 1, 2026',
+      level: 'B1-B2' as const,
+      status: 'local' as const,
+    }
+    state.certificates = { 'A1-A2': a1, 'B1-B2': b1 }
+
+    const compact = compactState(state)
+    expect((compact as any).certs['A1-A2'].id).toBe(a1.id)
+    expect((compact as any).certs['B1-B2'].id).toBe(b1.id)
+
+    const expanded = expandState(compact, createDefaultState())
+    expect(expanded.certificates?.['A1-A2']?.level).toBe('A1-A2')
+    expect(expanded.certificates?.['B1-B2']?.id).toBe(b1.id)
+
+    const remote = createDefaultState()
+    remote.certificates = {
+      'A1-A2': { ...a1, status: 'local' },
+    }
+    const merged = mergeProgressDetailed(expanded, remote).merged
+    expect(merged.certificates?.['A1-A2']?.status).toBe('verified')
+    expect(merged.certificates?.['B1-B2']?.id).toBe(b1.id)
+  })
+
+  it('migrates the legacy certificate into A1-A2 when expanding', () => {
+    const expanded = expandState(
+      {
+        v: 3,
+        cert: {
+          id: 'OLD123',
+          name: 'Ana',
+          issuedAt: '2026-01-01T00:00:00.000Z',
+          completionDate: 'January 1, 2026',
+        },
+      },
+      createDefaultState(),
+    )
+    expect(expanded.certificates?.['A1-A2']?.id).toBe('OLD123')
+    expect(expanded.certificates?.['A1-A2']?.level).toBe('A1-A2')
+  })
+
   it('merges progress without losing completions and keeps max xp', () => {
     const local = createDefaultState()
     const remote = createDefaultState()

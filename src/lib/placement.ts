@@ -1,15 +1,17 @@
 import type { Cefr } from './types'
 
+export type PlacementLevel = Exclude<Cefr, 'B2'>
+
 export interface PlacementQuestion {
   id: string
-  level: Exclude<Cefr, 'B2'>
+  level: PlacementLevel
   prompt: string
   options: string[]
   answer: number
 }
 
 export interface PlacementResult {
-  level: Exclude<Cefr, 'B2'>
+  level: PlacementLevel
   correct: number
   total: number
 }
@@ -73,31 +75,85 @@ export const PLACEMENT_QUESTIONS: PlacementQuestion[] = [
     options: ['will', 'would have', 'are', 'did'],
     answer: 0,
   },
+  {
+    id: 'p9',
+    level: 'C1',
+    prompt: '___ the migration cost is high, the long-term gains are clear.',
+    options: ['While', 'Despite', 'However', 'Although of'],
+    answer: 0,
+  },
+  {
+    id: 'p10',
+    level: 'C1',
+    prompt:
+      'Choose the most professional nuance: "I see your point, ___ the risk at scale worries me."',
+    options: ['though', 'but', 'and', 'so'],
+    answer: 0,
+  },
+  {
+    id: 'p11',
+    level: 'C2',
+    prompt: 'We ___ a phased rollout to limit exposure while we gather data.',
+    options: ['recommend', 'suggests', 'are recommending to', 'recommend to'],
+    answer: 0,
+  },
+  {
+    id: 'p12',
+    level: 'C2',
+    prompt: 'Choose the precise phrase: "That fix is a bit of a ___; we need the root cause."',
+    options: ['band-aid', 'sticker', 'patchwork', 'quick cover'],
+    answer: 0,
+  },
 ]
 
 export function scorePlacement(answers: (number | null)[]): PlacementResult {
-  let a1 = 0
-  let a2 = 0
-  let b1 = 0
+  const counts: Record<PlacementLevel, number> = { A1: 0, A2: 0, B1: 0, C1: 0, C2: 0 }
   let correct = 0
 
   PLACEMENT_QUESTIONS.forEach((question, index) => {
     if (answers[index] !== question.answer) return
     correct += 1
-    if (question.level === 'A1') a1 += 1
-    else if (question.level === 'A2') a2 += 1
-    else b1 += 1
+    counts[question.level] += 1
   })
 
-  const level: PlacementResult['level'] = b1 >= 1 && a2 >= 2 ? 'B1' : a1 >= 2 ? 'A2' : 'A1'
+  const level: PlacementLevel =
+    counts.C2 >= 1 && counts.C1 >= 1
+      ? 'C2'
+      : counts.C1 >= 1 && counts.B1 >= 1
+        ? 'C1'
+        : counts.B1 >= 1 && counts.A2 >= 2
+          ? 'B1'
+          : counts.A1 >= 2
+            ? 'A2'
+            : 'A1'
+
   return { level, correct, total: PLACEMENT_QUESTIONS.length }
 }
 
 /** Primera sesión recomendada para cada nivel del test. */
-export const PLACEMENT_START_SLUG: Record<PlacementResult['level'], string> = {
+export const PLACEMENT_START_SLUG: Record<PlacementLevel, string> = {
   A1: 'to-be-presente-pasado',
   A2: 'git-y-errores',
   B1: 'leer-docs-y-specs-rapido',
+  C1: 'debatir-arquitectura-con-matices',
+  C2: 'presentaciones-de-alto-nivel',
+}
+
+export function loadPlacementResult(): PlacementResult | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = window.localStorage.getItem(PLACEMENT_STORAGE_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as Partial<PlacementResult>
+    if (!parsed.level || !(parsed.level in PLACEMENT_START_SLUG)) return null
+    return {
+      level: parsed.level,
+      correct: Number(parsed.correct) || 0,
+      total: Number(parsed.total) || 0,
+    }
+  } catch {
+    return null
+  }
 }
 
 export function savePlacementResult(result: PlacementResult): void {
@@ -109,18 +165,5 @@ export function savePlacementResult(result: PlacementResult): void {
     )
   } catch {
     // Almacenamiento no disponible: el resultado sigue visible en pantalla.
-  }
-}
-
-export function loadPlacementResult(): (PlacementResult & { date: string }) | null {
-  if (typeof window === 'undefined') return null
-  try {
-    const raw = window.localStorage.getItem(PLACEMENT_STORAGE_KEY)
-    if (!raw) return null
-    const parsed = JSON.parse(raw) as PlacementResult & { date: string }
-    if (!parsed.level || typeof parsed.correct !== 'number') return null
-    return parsed
-  } catch {
-    return null
   }
 }

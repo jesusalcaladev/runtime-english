@@ -8,6 +8,7 @@ import type {
 } from './progress'
 import { parseCompactState } from './progressSchema'
 import { supabase } from './supabase'
+import type { Level } from './types'
 import {
   type CompactVideoLab,
   compactVideoLab,
@@ -79,6 +80,7 @@ interface CompactStreakState {
 }
 
 interface CompactCertificateState {
+  level?: Level
   id?: string
   name?: string
   issuedAt?: string
@@ -105,6 +107,7 @@ interface CompactProgressState {
   ss?: string[]
   pb?: Record<string, unknown>
   cert?: unknown
+  certs?: Record<string, unknown>
   ac?: Record<string, number>
   sk?: CompactStreakState
   se?: CompactSettingsState
@@ -264,6 +267,7 @@ export function compactState(state: ProgressState): Record<string, unknown> {
   if (state.savedSlang.length > 0) compact.ss = state.savedSlang
   if (!isEmptyRecord(state.phrasebook)) compact.pb = state.phrasebook
   if (state.certificate) compact.cert = state.certificate
+  if (!isEmptyRecord(state.certificates)) compact.certs = state.certificates
   if (!isEmptyRecord(state.achievements)) compact.ac = state.achievements
   const videoLab = compactVideoLab(state.videoLab ?? createDefaultVideoLabState())
   if (videoLab) compact.vl = videoLab
@@ -403,6 +407,10 @@ function asCertificate(value: unknown): CertificateState | null {
     name,
     issuedAt,
     completionDate,
+    level:
+      raw.level === 'A1-A2' || raw.level === 'B1-B2' || raw.level === 'C1-C2'
+        ? raw.level
+        : undefined,
     status:
       status === 'local' ||
       status === 'pending' ||
@@ -421,6 +429,25 @@ function asCertificate(value: unknown): CertificateState | null {
     shareUrl: toNullableString(raw.shareUrl),
     lastError: toNullableString(raw.lastError),
   }
+}
+
+function asCertificates(
+  value: unknown,
+  legacy: CertificateState | null,
+): Partial<Record<Level, CertificateState>> {
+  const result: Partial<Record<Level, CertificateState>> = {}
+  if (isRecord(value)) {
+    for (const [key, raw] of Object.entries(value)) {
+      if (key !== 'A1-A2' && key !== 'B1-B2' && key !== 'C1-C2') continue
+      const cert = asCertificate(raw)
+      if (cert) result[key as Level] = { ...cert, level: cert.level ?? (key as Level) }
+    }
+  }
+  if (legacy) {
+    const target: Level = legacy.level ?? 'A1-A2'
+    if (!result[target]) result[target] = { ...legacy, level: target }
+  }
+  return result
 }
 
 function toCompactState(raw: unknown): CompactProgressState | null {
@@ -480,6 +507,9 @@ export function expandState(raw: unknown, defaults: ProgressState): ProgressStat
     },
   }
 
+  const certificate = asCertificate(compact.cert)
+  const certificates = asCertificates(compact.certs, certificate)
+
   return {
     ...defaults,
     version: toFiniteNumber(compact.v, 3),
@@ -491,7 +521,8 @@ export function expandState(raw: unknown, defaults: ProgressState): ProgressStat
     exerciseSrs: asSrsRecord(compact.sr),
     savedSlang: asStringArray(compact.ss),
     phrasebook: asPhrasebookRecord(compact.pb),
-    certificate: asCertificate(compact.cert),
+    certificate,
+    certificates,
     achievements: asNumberRecord(compact.ac),
     videoLab: compact.vl ? expandVideoLab(compact.vl) : createDefaultVideoLabState(),
     streak: {
@@ -684,6 +715,19 @@ function mergeCertificate(
   return { ...older, ...newer }
 }
 
+function mergeCertificates(
+  local: Partial<Record<Level, CertificateState>> | undefined,
+  remote: Partial<Record<Level, CertificateState>> | undefined,
+): Partial<Record<Level, CertificateState>> {
+  const result: Partial<Record<Level, CertificateState>> = {}
+  const levels: Level[] = ['A1-A2', 'B1-B2', 'C1-C2']
+  for (const level of levels) {
+    const merged = mergeCertificate(local?.[level], remote?.[level])
+    if (merged) result[level] = { ...merged, level: merged.level ?? level }
+  }
+  return result
+}
+
 export interface MergeReport {
   merged: ProgressState
   hadConflict: boolean
@@ -710,6 +754,7 @@ export function mergeProgressDetailed(local: ProgressState, remote: ProgressStat
   const savedSlang = unionStrings(local.savedSlang ?? [], remote.savedSlang ?? [])
   const phrasebook = mergePhrasebook(local.phrasebook, remote.phrasebook)
   const certificate = mergeCertificate(local.certificate, remote.certificate)
+  const certificates = mergeCertificates(local.certificates, remote.certificates)
   const achievements = unionMinTs(local.achievements ?? {}, remote.achievements ?? {})
   const videoLab = mergeVideoLabStates(
     local.videoLab ?? createDefaultVideoLabState(),
@@ -743,6 +788,7 @@ export function mergeProgressDetailed(local: ProgressState, remote: ProgressStat
     savedSlang,
     phrasebook,
     certificate,
+    certificates,
     achievements,
     videoLab,
     streak,

@@ -1,6 +1,6 @@
 # RuntimeEnglish
 
-RuntimeEnglish is a web (PWA-ready) and Android app for learning **technical English for developers** (A1–B2). It combines guided sessions, interactive exercises, progress tracking, achievements, pronunciation tools, and a 2026-focused developer slang deck in a fast, offline-friendly experience.
+RuntimeEnglish is a web (PWA-ready) and Android app for learning **technical English for developers** (A1–C2). It combines guided sessions, interactive exercises, progress tracking, achievements, pronunciation tools, and a 2026-focused developer slang deck in a fast, offline-friendly experience.
 
 - **Web:** Astro (static) + Preact islands
 - **Mobile:** Capacitor (Android)
@@ -9,7 +9,7 @@ RuntimeEnglish is a web (PWA-ready) and Android app for learning **technical Eng
 
 ## Highlights
 
-- **A1–B2 technical English path** with curriculum modules and guided sessions
+- **A1–C2 technical English path** with curriculum modules and guided sessions
 - **Duolingo-style conversations** in the main sessions: two avatars, sequential TTS playback, per-line replay and microphone shadowing, followed by comprehension questions
 - **Interactive exercises** (e.g. choice, builder, write) with XP, streaks, and session completion
 - **Search and quick practice** (`/search`, `/practice`) to review content efficiently
@@ -147,6 +147,8 @@ pnpm android:open
 
 - **Local-first progress:** user progress/settings are stored locally in the browser/app storage.
 - **Export/import:** the app supports backup/restore flows in settings (JSON) for moving progress.
+- **Certificates per level:** completing A1-A2 unlocks its printable certificate; B1-B2 and then C1-C2 unlock progressively afterwards. The design is identical for every level (only the level label and a neutral hue change), IDs include the level suffix, and anyone can verify a certificate at `/verify?id=...`.
+- **Level-first navigation:** the sidebar holds navigation plus the level selector (`/?level=A1-A2` / `?level=B1-B2`); the dashboard shows only the sessions of the chosen level, with secondary tools collapsed under “Más herramientas y progreso”.
 - **Optional Supabase features:** authentication, progress sync, and certificate issuance/verification are supported when Supabase is configured and deployed.
   - Setup/ops (schema, migrations, Auth config, Edge Function deploy, secrets/vars, verification checklist): see [`supabase/README.md`](supabase/README.md).
   - SQL/functions in repo: [`supabase/setup.sql`](supabase/setup.sql), [`supabase/migrations/`](supabase/migrations), [`supabase/functions/issue-certificate/`](supabase/functions/issue-certificate/).

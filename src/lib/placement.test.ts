@@ -1,23 +1,36 @@
 import { describe, expect, it } from 'vitest'
 import { PLACEMENT_QUESTIONS, PLACEMENT_START_SLUG, scorePlacement } from './placement'
 
-describe('placement', () => {
-  it('scores a beginner as A1 and an advanced learner as B1', () => {
-    const allWrong = PLACEMENT_QUESTIONS.map(() => 99)
-    expect(scorePlacement(allWrong).level).toBe('A1')
+const answerAll = (wrongLevels: string[] = []) =>
+  PLACEMENT_QUESTIONS.map((question) =>
+    wrongLevels.includes(question.level) ? 99 : question.answer,
+  )
 
-    const allRight = PLACEMENT_QUESTIONS.map((question) => question.answer)
-    const result = scorePlacement(allRight)
-    expect(result.level).toBe('B1')
+describe('placement', () => {
+  it('scores a beginner as A1 and an expert as C2', () => {
+    expect(scorePlacement(PLACEMENT_QUESTIONS.map(() => 99)).level).toBe('A1')
+
+    const result = scorePlacement(answerAll())
+    expect(result.level).toBe('C2')
     expect(result.correct).toBe(PLACEMENT_QUESTIONS.length)
+    expect(PLACEMENT_START_SLUG[result.level]).toBe('presentaciones-de-alto-nivel')
+  })
+
+  it('recommends B1 when only A1-A2 and B1 are covered', () => {
+    const result = scorePlacement(answerAll(['C1', 'C2']))
+    expect(result.level).toBe('B1')
     expect(PLACEMENT_START_SLUG[result.level]).toBe('leer-docs-y-specs-rapido')
   })
 
+  it('recommends C1 when C1 nuance is correct but C2 is not', () => {
+    const result = scorePlacement(answerAll(['C2']))
+    expect(result.level).toBe('C1')
+    expect(PLACEMENT_START_SLUG[result.level]).toBe('debatir-arquitectura-con-matices')
+  })
+
   it('recommends A2 when the basics are covered but B1 is not', () => {
-    const answers = PLACEMENT_QUESTIONS.map((question) =>
-      question.level === 'B1' ? 99 : question.answer,
-    )
-    expect(scorePlacement(answers).level).toBe('A2')
+    const result = scorePlacement(answerAll(['B1', 'C1', 'C2']))
+    expect(result.level).toBe('A2')
   })
 
   it('has unique question ids and valid options', () => {

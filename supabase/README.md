@@ -71,7 +71,7 @@ Behavior (important):
 - Requires `Authorization: Bearer <user_jwt>`
 - Restricts CORS by allowed origins
 - Validates eligibility server-side from `user_progress` before new issuance
-- **Fail-closed:** returns `503 issuance_not_configured` if required eligibility env vars are missing
+- **Fail-closed:** returns `503 issuance_not_configured` if the eligibility env vars for the requested level are missing
 - Reuses/links existing certificate records safely; rejects conflicting ownership
 
 ## 6) Edge Function secrets/variables (required/recommended)
@@ -81,18 +81,28 @@ Configure these for `issue-certificate` (Dashboard or CLI secrets), in addition 
 | Variable | Required | Purpose | Notes |
 | --- | --- | --- | --- |
 | `ALLOWED_ORIGINS` | Recommended (effectively required for browser clients) | CORS allowlist | Comma-separated origins (no trailing slash issues handled), e.g. `https://yourdomain.com,http://localhost:4321`. If unset, cross-origin requests with `Origin` are rejected. |
-| `CERT_REQUIRED_SESSIONS` | **Required to issue** | Eligibility threshold | Minimum completed sessions from `user_progress` (`cs`/`completedSessions`). Must be a positive integer. |
-| `CERT_REQUIRED_EXERCISES` | **Required to issue** | Eligibility threshold | Minimum completed exercises from `user_progress` (`ce`/`completedExercises`). Must be a positive integer. |
+| `CERT_REQUIRED_SESSIONS` | Fallback | Eligibility threshold | Minimum completed sessions from `user_progress` (`cs`/`completedSessions`). Used when no level-specific threshold is configured. |
+| `CERT_REQUIRED_EXERCISES` | Fallback | Eligibility threshold | Minimum completed exercises from `user_progress` (`ce`/`completedExercises`). Used when no level-specific threshold is configured. |
+| `CERT_REQUIRED_SESSIONS_A1_A2` | **Required for A1-A2** | Per-level threshold | Currently **16** sessions. |
+| `CERT_REQUIRED_EXERCISES_A1_A2` | **Required for A1-A2** | Per-level threshold | Currently **109** exercises. |
+| `CERT_REQUIRED_SESSIONS_B1_B2` | **Required for B1-B2** | Per-level threshold | Currently **33** sessions (plus the A1-A2 threshold, progressive unlock). |
+| `CERT_REQUIRED_EXERCISES_B1_B2` | **Required for B1-B2** | Per-level threshold | Currently **222** exercises (plus the A1-A2 threshold, progressive unlock). |
+| `CERT_REQUIRED_SESSIONS_C1_C2` | **Required for C1-C2** | Per-level threshold | Currently **12** sessions (plus the B1-B2 threshold, progressive unlock). |
+| `CERT_REQUIRED_EXERCISES_C1_C2` | **Required for C1-C2** | Per-level threshold | Currently **60** exercises (plus the B1-B2 threshold, progressive unlock). |
 
-> If `CERT_REQUIRED_SESSIONS` or `CERT_REQUIRED_EXERCISES` is missing/invalid, issuance is denied with `503 issuance_not_configured` by design.
+> Issuance is denied with `503 issuance_not_configured` if the thresholds for the requested level (or their global fallback) are missing/invalid. New certificate IDs must end with the level suffix (`-A1A2`, `-B1B2`, `-C1C2`), otherwise the function returns `400 invalid_id_for_level`.
 
 Example (CLI):
 
 ```bash
 supabase secrets set \
   ALLOWED_ORIGINS="https://yourdomain.com,http://localhost:4321" \
-  CERT_REQUIRED_SESSIONS="10" \
-  CERT_REQUIRED_EXERCISES="50"
+  CERT_REQUIRED_SESSIONS_A1_A2="16" \
+  CERT_REQUIRED_EXERCISES_A1_A2="109" \
+  CERT_REQUIRED_SESSIONS_B1_B2="33" \
+  CERT_REQUIRED_EXERCISES_B1_B2="222" \
+  CERT_REQUIRED_SESSIONS_C1_C2="12" \
+  CERT_REQUIRED_EXERCISES_C1_C2="60"
 ```
 
 Redeploy/restart behavior is handled by Supabase when secrets change as applicable; if issues persist, redeploy the function.
@@ -101,8 +111,10 @@ Redeploy/restart behavior is handled by Supabase when secrets change as applicab
 
 ### Database / RPC
 - [ ] `certificates` and `user_progress` tables exist with expected columns/policies
-- [ ] `verify_certificate(cert_id)` RPC exists and is executable by `anon, authenticated`
-- [ ] A valid certificate row can be verified via RPC/app `/verify?id=...`
+- [ ] `certificates.level` exists (default `A1-A2`), legacy `A1 — B2` rows normalized to `A1-A2`
+- [ ] `verify_certificate(cert_id)` RPC exists, returns `level`, and is executable by `anon, authenticated`
+- [ ] A valid certificate row can be verified via RPC/app `/verify?id=<ID>` and shows `Nivel A1-A2` / `Nivel B1-B2`
+- [ ] Revoked/unknown IDs return "no verificado" (RPC filters `status = 'valid'`)
 
 ### Auth / Sync
 - [ ] User can sign in from the app (provider configured + redirect URLs correct)
@@ -110,13 +122,18 @@ Redeploy/restart behavior is handled by Supabase when secrets change as applicab
 
 ### Issuance (Edge Function)
 - [ ] `issue-certificate` deployed and `PUBLIC_CERTIFICATE_ISSUE_URL` configured in app env
-- [ ] Function secrets set: `ALLOWED_ORIGINS`, `CERT_REQUIRED_SESSIONS`, `CERT_REQUIRED_EXERCISES`
-- [ ] Authenticated eligible user can issue successfully (200 + certificate payload)
+- [ ] Function secrets set: `ALLOWED_ORIGINS` plus `CERT_REQUIRED_{SESSIONS,EXERCISES}_A1_A2`, `..._B1_B2` and `..._C1_C2`
+- [ ] Authenticated eligible user can issue A1-A2 (`-A1A2`), B1-B2 (`-B1B2`) and C1-C2 (`-C1C2`)
+- [ ] Issuing B1-B2 without A1-A2 (or C1-C2 without B1-B2) returns `403 previous_level_incomplete`
 - [ ] Unauthenticated request returns unauthorized; ineligible returns not eligible; missing thresholds returns `503 issuance_not_configured`; disallowed origin is rejected
 
 ## 8) Troubleshooting quick reference
 
-- **`issuance_not_configured` (503):** set `CERT_REQUIRED_SESSIONS` and `CERT_REQUIRED_EXERCISES` for the function.
+- **`issuance_not_configured` (503):** set the per-level thresholds (`CERT_REQUIRED_SESSIONS_A1_A2`, `CERT_REQUIRED_EXERCISES_A1_A2`, etc.) or the global fallbacks.
+- **`previous_level_incomplete` (403):** the previous level is not complete; B1-B2 needs A1-A2 and C1-C2 needs B1-B2.
+- **`invalid_id_for_level` (400):** the ID must end with `-A1A2`, `-B1B2` or `-C1C2`.
+- **`invalid_id_for_level` (400):** the certificate ID must end with `-A1A2` or `-B1B2`.
+- **Verification shows the wrong level:** re-run `migrations/20261120120000_certificate_levels.sql` to normalize legacy `A1 — B2` rows.
 - **CORS/origin rejected:** add the exact app origin(s) to `ALLOWED_ORIGINS` (including scheme/port for local dev).
 - **`unauthorized`:** missing/invalid JWT; ensure user is signed in and app sends `Authorization: Bearer <token>` (handled by client when session exists).
 - **`not_eligible`:** user progress in `user_progress` does not meet configured thresholds.
@@ -128,4 +145,4 @@ Redeploy/restart behavior is handled by Supabase when secrets change as applicab
 - `src/lib/supabase.ts` (client config)
 - `src/lib/progressSync.ts` (sync logic, `user_progress`)
 - `src/lib/certificates.ts` (verify/issue client calls)
-- `src/components/VerifyCertificate.tsx` / `/verify` page (verification UI)
+- `src/components/verify/VerifyCertificate.tsx` / `/verify` page (verification UI)

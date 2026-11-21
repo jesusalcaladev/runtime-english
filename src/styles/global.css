@@ -244,6 +244,30 @@
     @apply font-mono text-[10px] font-medium tracking-[0.04em] text-base-content/55;
   }
 
+  .app-container {
+    @apply mx-auto w-full max-w-[1120px];
+  }
+
+  .surface-card {
+    border-radius: 1.5rem;
+  }
+
+  .surface-muted {
+    border-radius: 1rem;
+  }
+
+  .pill {
+    @apply inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-medium;
+  }
+
+  .section-heading {
+    font-family: "Geist Pixel Variable", "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+    font-variation-settings: "ELSH" 40;
+    font-weight: 400;
+    letter-spacing: -0.035em;
+    color: color-mix(in oklab, var(--color-base-content) 95%, transparent);
+  }
+
   .text-balance {
     text-wrap: balance;
   }

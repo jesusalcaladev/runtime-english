@@ -33,10 +33,23 @@ export async function verifyCertificate(id: string): Promise<VerifyResult> {
         ? `${endpoint}&id=${encodeURIComponent(code)}`
         : `${endpoint}?id=${encodeURIComponent(code)}`
       const res = await fetch(url, { headers: { Accept: 'application/json' } })
-      if (!res.ok) return { ok: false, error: `http_${res.status}` }
-      const data = await res.json()
-      const row = data?.certificate || data
-      if (!row || data?.ok === false) return { ok: false, error: data?.error || 'not_found' }
+      // Los endpoints de verificación responden 404 con { error: 'not_found' }.
+      // Hay que leer el body antes de decidir para mapear el error amigable.
+      const data = await res.json().catch(() => null)
+      if (!res.ok) {
+        const code =
+          isRecord(data) && typeof data.error === 'string' && data.error
+            ? data.error
+            : `http_${res.status}`
+        return { ok: false, error: code }
+      }
+      const row = isRecord(data) ? data.certificate || data : null
+      if (!isRecord(row) || (isRecord(data) && data.ok === false)) {
+        return {
+          ok: false,
+          error: isRecord(data) && typeof data.error === 'string' ? data.error : 'not_found',
+        }
+      }
       return { ok: true, certificate: normalizeCert(row) }
     } catch (e) {
       return { ok: false, error: e instanceof Error ? e.message : 'network_error' }
@@ -63,7 +76,7 @@ function normalizeCert(row: unknown): CertificateRecord {
     name: typeof record.name === 'string' ? record.name : '',
     issued_at: typeof record.issued_at === 'string' ? record.issued_at : new Date().toISOString(),
     program: typeof record.program === 'string' ? record.program : 'RuntimeEnglish',
-    level: typeof record.level === 'string' ? record.level : 'A1 — B2',
+    level: typeof record.level === 'string' ? record.level : 'A1-A2',
     status: typeof record.status === 'string' ? record.status : 'valid',
     user_id: typeof userId === 'string' || userId === null ? userId : null,
   }
@@ -111,7 +124,7 @@ export async function issueCertificate(input: IssueInput): Promise<IssueResult> 
         issued_at: input.issued_at,
         completion_date: input.completion_date || null,
         program: input.program ?? 'RuntimeEnglish',
-        level: input.level ?? 'A1 — B2',
+        level: input.level ?? 'A1-A2',
       }),
     })
     const text = await res.text().catch(() => '')
@@ -141,6 +154,14 @@ export async function issueCertificate(input: IssueInput): Promise<IssueResult> 
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : 'network_error' }
   }
+}
+
+/** Normaliza el nivel legacy ("A1 — B2") al formato usado en la UI. */
+export function displayCertificateLevel(level?: string | null): string {
+  const raw = (level ?? '').trim()
+  if (!raw) return 'A1-A2'
+  if (raw === 'A1 — B2' || raw === 'A1 - B2') return 'A1-A2'
+  return raw
 }
 
 export function certificateShareUrl(id: string): string {

@@ -122,7 +122,7 @@ export const m7: Module = {
           id: 'm7-l1-e7',
           type: 'shadow',
           prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
-          answer: 'That output is pure AI slop, so we need a sanity check.',
+          answer: 'That output is pure AI slop — nobody reviewed the tests.',
           hint: 'Slang de IA + revisión.',
           explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
         },
@@ -196,7 +196,7 @@ export const m7: Module = {
           type: 'choice',
           prompt:
             'En la daily, alguien habla cinco minutos sin decir nada útil. ¿Qué está haciendo?',
-          options: ['Aura farming', 'Yapping', 'Glazing', 'Rubber ducking'],
+          options: ['Aura farming', 'Yapping', 'Glazing', 'We are cooked'],
           answer: 1,
           explanation:
             "'Yapping' es hablar demasiado sin sustancia. 'Aura farming' es actuar para parecer genial; 'glazing' es elogiar en exceso.",
@@ -215,7 +215,7 @@ export const m7: Module = {
           type: 'choice',
           prompt:
             "Tu junior está refactorizando auth y va bien. ¿Qué frase le dice 'déjalo trabajar, va a hacer algo bueno'?",
-          options: ['Touch grass', 'Let him cook', 'Take the L', 'No cap'],
+          options: ['Touch grass', 'Let him cook', 'We are cooked', 'No cap'],
           answer: 1,
           explanation:
             "'Let him cook' = déjalo trabajar, confía en el proceso. Se usa también con 'her/them'.",
@@ -227,7 +227,7 @@ export const m7: Module = {
           words: ['Let him cook —', "he's on", 'it.'],
           answer: "Let him cook — he's on it.",
           explanation:
-            "'Let him cook' = déjalo trabajar; 'he's on it' = ya se está encargando. Ambos son chunks informales vistos en esta lección.",
+            "'Let him cook' = déjalo trabajar; 'he's on it' = ya se está encargando. El segundo es un chunk nuevo que aparece aquí por primera vez.",
         },
         {
           id: 'm7-l2-e6',

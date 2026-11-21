@@ -340,11 +340,11 @@ export const m9: Module = {
         },
         {
           type: 'dialogue',
-          title: 'Del incidente al RFC y la demo',
-          setting: 'Canal #on-call, repaso integrado',
-          goal: 'Repasar update de incidente, feedback de RFC y demo en una conversación.',
+          title: 'Aclarar el plan de respaldo tras el incidente',
+          setting: 'Slack, #on-call (tras el incidente)',
+          goal: 'Aclarar el plan de respaldo y acordar la demo de la solución.',
           context:
-            'Tras un incidente, Maya y Leo pasan del update al feedback sobre el RFC y la demo de la solución.',
+            'Tras un incidente, Maya actualiza a Leo sobre la mitigación y revisan juntos el RFC, el plan de respaldo y la demo de la solución.',
           lines: [
             {
               speaker: 'a',
@@ -378,8 +378,8 @@ export const m9: Module = {
               speaker: 'a',
               name: 'Maya',
               role: 'Lead',
-              en: 'Sure. The goal of this RFC is clear. Let me walk you through the demo first.',
-              es: 'Claro. El objetivo del RFC es claro. Déjame mostrarte primero la demo paso a paso.',
+              en: 'Sure. The goal is clear, but we still need to agree on a fallback plan. Let me walk you through the demo first.',
+              es: 'Claro. El objetivo está claro, pero todavía debemos acordar un plan de respaldo. Déjame mostrarte primero la demo paso a paso.',
             },
             {
               speaker: 'b',
@@ -456,129 +456,6 @@ export const m9: Module = {
           hint: "'Yesterday' pide pasado simple y evita repetir 'we'.",
           explanation:
             'En un reporte de incidente, las acciones pasadas van en pasado simple: rolled back / updated.',
-        },
-      ],
-    },
-    {
-      id: 'm9-l3',
-      slug: 'practica-comunicacion-senior',
-      title: 'Práctica: comunicación senior (entrevista, RFC y demos)',
-      step: 'B2 · Paso 9.3 · Práctica guiada',
-      cefr: 'B2',
-      summary:
-        'Sesión corta para separar y reforzar m9-l1 y m9-l2: impacto en entrevistas, comunicación de incidentes, RFCs y demos.',
-      objectives: [
-        'Expresar responsabilidad e impacto con estructuras ya vistas.',
-        'Comunicar estado en incidentes y objetivos de propuestas.',
-        'Guiar una demo y pedir aclaraciones con claridad.',
-      ],
-      pronunciation:
-        'In my previous role, I was responsible for the API. The goal of this RFC is to simplify deployment. Let me walk you through the demo.',
-      blocks: [
-        {
-          type: 'callout',
-          tone: 'info',
-          title: 'Antes de esta lección',
-          body: 'Repasa m9-l1 (entrevista técnica y comportamental) y m9-l2 (incidentes, RFCs, demos y feedback). Esta práctica usa solo frases y estructuras ya enseñadas en esas lecciones.',
-        },
-        {
-          type: 'technique',
-          name: 'Mensaje claro según el contexto',
-          desc: "Entrevista: responsabilidad + reto/acción + resultado ('I was responsible for...', 'As a result...'). Incidente/RFC: estado u objetivo ('We're investigating...', 'The goal of this RFC is to...'). Demo: guía ('Let me walk you through...').",
-        },
-        {
-          type: 'phrases',
-          title: 'Chunks de apoyo',
-          items: [
-            {
-              en: 'In my previous role, I was responsible for...',
-              es: 'En mi puesto anterior, fui responsable de...',
-            },
-            {
-              en: 'As a result, we reduced latency by 20%.',
-              es: 'Como resultado, redujimos la latencia un 20%.',
-            },
-            {
-              en: "We're investigating the issue and will share an update soon.",
-              es: 'Estamos investigando el problema y compartiremos una actualización pronto.',
-            },
-            { en: 'Let me walk you through the demo.', es: 'Déjame guiarte por la demo.' },
-          ],
-        },
-      ],
-      exercises: [
-        {
-          id: 'm9-l3-e1',
-          type: 'choice',
-          prompt:
-            'En una entrevista quieres mostrar tu responsabilidad en el puesto anterior. ¿Qué opción encaja?',
-          options: [
-            'In my previous role, I was responsible for the payments service.',
-            'I responsible previous role payments.',
-            'My role previous was responsible maybe.',
-            'Payments was my previous.',
-          ],
-          answer: 0,
-          explanation: 'Frase modelo para hablar de responsabilidad en experiencia previa (m9-l1).',
-        },
-        {
-          id: 'm9-l3-e2',
-          type: 'builder',
-          prompt: "Construye: 'Como resultado, redujimos la latencia un 20%.'",
-          words: ['As a result,', 'we reduced latency', 'by 20%.'],
-          answer: 'As a result, we reduced latency by 20%.',
-          explanation:
-            'Expresar impacto con resultado concreto es clave en entrevistas y comunicación senior.',
-        },
-        {
-          id: 'm9-l3-e3',
-          type: 'write',
-          prompt:
-            "Escríbelo en inglés: 'Estamos investigando el problema y compartiremos una actualización pronto.'",
-          answer: "We're investigating the issue and will share an update soon.",
-          accept: ['We are investigating the issue and will share an update soon.'],
-          hint: "Usa 'We're investigating...' y 'will share an update soon'.",
-          explanation: 'Mensaje claro de estado durante un incidente (m9-l2).',
-        },
-        {
-          id: 'm9-l3-e4',
-          type: 'choice',
-          prompt: 'Vas a presentar una demo. ¿Qué dices para guiar a la audiencia?',
-          options: [
-            'Let me walk you through the demo.',
-            'Demo is here now.',
-            'You see demo.',
-            'I show thing demo.',
-          ],
-          answer: 0,
-          explanation:
-            "'Let me walk you through...' es una forma natural de guiar una demo (m9-l2).",
-        },
-        {
-          id: 'm9-l3-e5',
-          type: 'builder',
-          prompt: "Construye: 'El objetivo de este RFC es simplificar el despliegue.'",
-          words: ['The goal of this RFC', 'is to simplify', 'deployment.'],
-          answer: 'The goal of this RFC is to simplify deployment.',
-          explanation: 'Abrir un RFC con el objetivo hace la propuesta clara desde el inicio.',
-        },
-        {
-          id: 'm9-l3-e6',
-          type: 'write',
-          prompt: "Escríbelo en inglés: '¿Podrías aclarar qué quieres decir con eso?'",
-          answer: 'Could you clarify what you mean by that?',
-          accept: ['Could you clarify what you mean by that'],
-          hint: "Usa 'Could you clarify what you mean by...?'",
-          explanation:
-            'Pedir aclaración de forma precisa y educada es útil en discusiones técnicas y feedback.',
-        },
-        {
-          id: 'm9-l3-e7',
-          type: 'shadow',
-          prompt: 'Escucha y repite en voz alta, con el mismo ritmo.',
-          answer: 'The goal of this RFC is to simplify deployment.',
-          hint: "Abre con 'The goal of this RFC is to...'",
-          explanation: 'Repetir el chunk completo mejora el ritmo, la pronunciación y la memoria.',
         },
       ],
     },

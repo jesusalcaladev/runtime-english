@@ -21,6 +21,54 @@ export interface ChangelogRelease {
 
 export const CHANGELOG: ChangelogRelease[] = [
   {
+    version: '1.4.0',
+    title: 'Nivel C1-C2: maestría para developers',
+    entries: [
+      {
+        kind: 'feature',
+        text: 'Nuevo nivel C1-C2 con 12 sesiones en dos módulos: comunicación profesional avanzada (C1) y maestría y liderazgo técnico (C2), con debates de arquitectura, negociación, RFCs, postmortems y registro idiomático.',
+      },
+      {
+        kind: 'feature',
+        text: 'El test de nivel ya detecta C1 y C2 y recomienda la primera sesión del nivel correspondiente.',
+      },
+      {
+        kind: 'feature',
+        text: 'Certificado C1-C2 con el mismo diseño imprimible y verificación pública; se desbloquea al completar B1-B2 y todas sus sesiones.',
+      },
+      {
+        kind: 'improvement',
+        text: 'Nuevos logros de maestría y el progreso C1-C2 se tiene en cuenta en el nivel de inmersión de la interfaz.',
+      },
+    ],
+  },
+  {
+    version: '1.3.0',
+    title: 'Certificados por nivel y un recorrido mucho más claro',
+    entries: [
+      {
+        kind: 'feature',
+        text: 'Ahora tienes un certificado por nivel: termina A1-A2 para desbloquear el suyo y después B1-B2. El mismo diseño imprimible, con el nivel bien visible en el título y un color neutro distinto para cada uno.',
+      },
+      {
+        kind: 'feature',
+        text: 'Puedes verificar cualquier certificado desde /verify con su ID; el registro muestra el nivel y distingue certificados emitidos y vinculados a tu cuenta.',
+      },
+      {
+        kind: 'improvement',
+        text: 'El sidebar solo contiene navegación y el selector de niveles. Al elegir un nivel, el dashboard muestra únicamente sus sesiones, agrupadas y con su progreso.',
+      },
+      {
+        kind: 'improvement',
+        text: 'Dashboard más limpio: lo esencial delante y el resto (métricas, metas, recomendaciones y logros) dentro de “Más herramientas y progreso”.',
+      },
+      {
+        kind: 'improvement',
+        text: 'Ejercicios con pista bajo demanda (también con la tecla H), resumen final con precisión real de la ronda, habilidades a repasar y acceso al certificado del nivel.',
+      },
+    ],
+  },
+  {
     version: '1.2.9',
     title: 'Conversaciones con contexto y voz siempre lista',
     entries: [
@@ -51,6 +99,30 @@ export const CHANGELOG: ChangelogRelease[] = [
       {
         kind: 'improvement',
         text: 'Los ejercicios de ordenar diálogos también muestran la escena, para que las frases tengan contexto.',
+      },
+      {
+        kind: 'improvement',
+        text: 'Todas las frases de una lección se preparan con tu voz activa al abrirla: al pulsar Escuchar, el audio ya está listo.',
+      },
+      {
+        kind: 'improvement',
+        text: 'Escáner de lecciones (npm run scan:lessons): comprueba que ninguna lección quede desconectada y detecta duplicados o datos rotos.',
+      },
+      {
+        kind: 'fix',
+        text: 'Diálogos y ejercicios corregidos: respuestas atribuidas al hablante correcto, traducciones coherentes y sesiones duplicadas eliminadas.',
+      },
+      {
+        kind: 'feature',
+        text: 'Siete videos nuevos: inglés para devs, comunicación en equipos, entrevistas técnicas, prompts de IA, ciberseguridad y testing.',
+      },
+      {
+        kind: 'improvement',
+        text: 'Los subtítulos propios del reproductor ya no se pelean con los de YouTube: los del video van desactivados y solo se muestran los adaptados.',
+      },
+      {
+        kind: 'improvement',
+        text: 'Roadmap más corto y ordenado: se eliminaron 10 sesiones de repetición que copiaban ejercicios de sus lecciones padre.',
       },
     ],
   },

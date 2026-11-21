@@ -1,36 +1,23 @@
 ---
-import { Award } from '@lucide/astro'
 import CertificateView from '../components/certificate/CertificateView'
 import PageHeader from '../components/ui/PageHeader.astro'
-import { TOTAL_EXERCISES, TOTAL_SESSIONS } from '../data/curriculum'
 import BaseLayout from '../layouts/BaseLayout.astro'
 ---
 
 <BaseLayout
   title="Certificate · RuntimeEnglish"
-  description="Print your English for Programmers completion certificate from RuntimeEnglish."
+  description="Print your level certificate (A1-A2, B1-B2, C1-C2) from RuntimeEnglish."
   fullWidth={false}
 >
-  <div class="mx-auto max-w-[1120px] animate-fade-up space-y-6 print:max-w-none">
+  <div class="app-container animate-fade-up space-y-6 print:max-w-none">
     <div class="print:hidden">
       <PageHeader
         eyebrow="Completion / Certificate"
         title="English for Programmers"
-        description="Finish every session and exercise to unlock a printable certificate in English with your name."
-      >
-        <div class="mt-5 flex flex-wrap items-center gap-2">
-          <span class="flex items-center gap-1.5 rounded-full bg-accent/10 px-3 py-1.5 text-[10px] font-medium text-accent">
-            <Award class="h-3 w-3" />
-            {TOTAL_SESSIONS} sessions · {TOTAL_EXERCISES} exercises
-          </span>
-        </div>
-      </PageHeader>
+        description="Completa las sesiones de un nivel para desbloquear su certificado imprimible en inglés con tu nombre."
+      />
     </div>
 
-    <CertificateView
-      client:only="preact"
-      totalSessions={TOTAL_SESSIONS}
-      totalExercises={TOTAL_EXERCISES}
-    />
+    <CertificateView client:only="preact" />
   </div>
 </BaseLayout>

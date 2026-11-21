@@ -34,7 +34,7 @@ const AUDIO_PERSISTENT_CACHE_NAME = 'runtimeenglish-kokoro-audio-v2'
 const AUDIO_PERSISTENT_LIMIT = 80
 const STREAM_MANIFEST_KEY = 'runtimeenglish_kokoro_manifest_v2'
 const MANIFEST_LIMIT = 60
-const PRELOAD_QUEUE_LIMIT = 12
+const PRELOAD_QUEUE_LIMIT = 24
 const PRELOAD_IDLE_TIMEOUT_MS = 1500
 const MODEL_CACHE_HINTS = [
   'transformers-cache',
@@ -910,15 +910,17 @@ async function drainPreloadQueue(): Promise<void> {
 }
 
 /** Queue real on-screen phrases for low-priority pre-generation (instant first tap). */
-export function prewarmKokoroPhrases(texts: string[]): void {
+export function prewarmKokoroPhrases(texts: string[], limit = PRELOAD_QUEUE_LIMIT): void {
   if (typeof window === 'undefined') return
+  // Never queue more phrases than the in-memory cache can hold.
+  const max = Math.min(limit, PRELOAD_QUEUE_LIMIT, getAudioCacheLimit())
   for (const rawText of texts) {
+    if (preloadQueue.length >= max) break
     const text = rawText.replace(/\s+/g, ' ').trim()
     if (!text || preloadEnqueued.has(text)) continue
     const key = getAudioCacheKey(text)
     restoreCachedAudio(key)
     if (audioCache.has(key) || manifestCache.has(key)) continue
-    if (preloadQueue.length >= Math.min(PRELOAD_QUEUE_LIMIT, getAudioCacheLimit())) break
     preloadEnqueued.add(text)
     preloadQueue.push(text)
   }
