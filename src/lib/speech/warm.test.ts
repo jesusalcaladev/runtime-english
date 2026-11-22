@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   emitToast: vi.fn(),
   primeWebVoices: vi.fn(),
   warmNativeVoices: vi.fn(),
+  hasUsableWebVoice: vi.fn(() => false),
   speakNative: vi.fn(),
   speakWeb: vi.fn(),
   stopNativeSpeech: vi.fn(),
@@ -67,6 +68,7 @@ vi.mock('./browser', () => ({
   speakWeb: mocks.speakWeb,
   stopNativeSpeech: mocks.stopNativeSpeech,
   warmNativeVoices: mocks.warmNativeVoices,
+  hasUsableWebVoice: mocks.hasUsableWebVoice,
   getWebVoices: mocks.getWebVoices,
 }))
 vi.mock('./google', () => ({
@@ -135,7 +137,12 @@ vi.mock('./recognition', () => ({
   stopSpeechRecognition: mocks.stopSpeechRecognition,
 }))
 
-import { warmSessionPhrases } from './index'
+import {
+  getSpeechPhraseStatus,
+  primeSpeechPhrase,
+  warmSessionPhrases,
+  warmSpeechPhrases,
+} from './index'
 
 const texts = Array.from({ length: 30 }, (_, i) => `Phrase ${i}`)
 
@@ -146,6 +153,7 @@ describe('warmSessionPhrases', () => {
     mocks.isNativePlatform.mockReturnValue(false)
     mocks.isSpeechEnabled.mockReturnValue(true)
     mocks.kokoroIsCached.mockReturnValue(false)
+    mocks.hasUsableWebVoice.mockReturnValue(false)
     Object.defineProperty(window, 'speechSynthesis', { value: {}, configurable: true })
   })
 
@@ -196,5 +204,56 @@ describe('warmSessionPhrases', () => {
     warmSessionPhrases(texts)
     expect(mocks.prefetchGooglePhrase).not.toHaveBeenCalled()
     expect(mocks.loadKokoro).not.toHaveBeenCalled()
+  })
+
+  it('prefetches Google audio for the system engine when the browser has no host voice', () => {
+    mocks.getSpeechEngine.mockReturnValue('system')
+    warmSessionPhrases(texts.slice(0, 10))
+    expect(mocks.primeWebVoices).toHaveBeenCalled()
+    expect(mocks.prefetchGooglePhrase).toHaveBeenCalledTimes(10)
+    expect(mocks.prefetchGooglePhrase).toHaveBeenCalledWith('Phrase 0', true)
+    expect(mocks.prefetchGooglePhrase).toHaveBeenCalledWith('Phrase 9')
+  })
+
+  it('does not prefetch Google when a host voice is available for the system engine', () => {
+    mocks.getSpeechEngine.mockReturnValue('system')
+    mocks.hasUsableWebVoice.mockReturnValue(true)
+    warmSessionPhrases(texts.slice(0, 10))
+    expect(mocks.prefetchGooglePhrase).not.toHaveBeenCalled()
+  })
+
+  it('never prefetches Google audio on native for the system engine', () => {
+    mocks.getSpeechEngine.mockReturnValue('system')
+    mocks.isNativePlatform.mockReturnValue(true)
+    warmSessionPhrases(texts.slice(0, 10))
+    expect(mocks.prefetchGooglePhrase).not.toHaveBeenCalled()
+    expect(mocks.warmNativeVoices).toHaveBeenCalled()
+  })
+})
+
+describe('Google fallback warming for the system engine', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mocks.getSpeechEngine.mockReturnValue('system')
+    mocks.isNativePlatform.mockReturnValue(false)
+    mocks.isSpeechEnabled.mockReturnValue(true)
+    mocks.hasUsableWebVoice.mockReturnValue(false)
+    Object.defineProperty(window, 'speechSynthesis', { value: {}, configurable: true })
+  })
+
+  it('primes a single phrase for the online fallback', () => {
+    primeSpeechPhrase('Hola')
+    expect(mocks.prefetchGooglePhrase).toHaveBeenCalledWith('Hola')
+  })
+
+  it('warms on-screen phrases with high priority', () => {
+    warmSpeechPhrases(['One', 'Two'])
+    expect(mocks.prefetchGooglePhrase).toHaveBeenCalledWith('One', true)
+    expect(mocks.prefetchGooglePhrase).toHaveBeenCalledWith('Two', true)
+  })
+
+  it('reports Google readiness instead of a false "ready"', () => {
+    expect(getSpeechPhraseStatus(['One'])).toEqual({ ready: 0, total: 0 })
+    expect(mocks.getGooglePhraseStatus).toHaveBeenCalledWith(['One'])
   })
 })

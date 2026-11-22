@@ -125,6 +125,9 @@ export function getSpeechPhraseStatus(texts: string[]): SpeechPhraseStatus {
   if (engine === 'kokoro') return getKokoroPhraseStatus(texts)
   if (engine === 'google') return getGooglePhraseStatus(texts)
   if (engine === 'piper') return getPiperPhraseStatus(texts)
+  // With no host voice, the default engine plays through Google online; report
+  // its real readiness so the UI shows preparation instead of a false "ready".
+  if (shouldWarmGoogleAsWebFallback()) return getGooglePhraseStatus(texts)
   // The device voice is always available: there is nothing to pre-generate.
   return { ready: texts.length, total: texts.length }
 }
@@ -137,6 +140,9 @@ export function warmSpeechPhrases(texts: string[]): void {
     if (engine === 'kokoro') prewarmKokoroPhrases(texts)
     else if (engine === 'google') texts.forEach((text) => prefetchGooglePhrase(text, true))
     else if (engine === 'piper') texts.forEach((text) => prefetchPiperPhrase(text))
+    else if (shouldWarmGoogleAsWebFallback()) {
+      texts.forEach((text) => prefetchGooglePhrase(text, true))
+    }
   } catch {
     // Warmup is best effort.
   }
@@ -166,6 +172,7 @@ export function primeSpeechPhrase(text: string): void {
       default:
         if (canUseWebSpeech()) primeWebVoices()
         warmNativeVoices()
+        if (shouldWarmGoogleAsWebFallback()) prefetchGooglePhrase(text)
         break
     }
     bumpPhraseStatus()
@@ -256,6 +263,20 @@ export function warmSessionPhrases(texts: string[]): void {
       return
     }
 
+    // Default `system` engine: with no host voice, Google is the real playback
+    // path. Warm its audio just like the explicit Google engine so the first tap
+    // is instant, while keeping the same cache/bandwidth bounds.
+    if (shouldWarmGoogleAsWebFallback()) {
+      const googleTexts = texts.slice(
+        0,
+        canPrefetchModelOnCurrentConnection() ? GOOGLE_WARM_LIMIT : SESSION_WARM_LIMIT,
+      )
+      googleTexts
+        .slice(0, SESSION_PRIORITY_PHRASES)
+        .forEach((text) => prefetchGooglePhrase(text, true))
+      googleTexts.slice(SESSION_PRIORITY_PHRASES).forEach((text) => prefetchGooglePhrase(text))
+    }
+
     bumpPhraseStatus()
   } catch {
     // Warmup is best effort: never break the lesson.
@@ -279,6 +300,21 @@ export async function speakLine(text: string, style?: SpeechStyle): Promise<void
 
 function canUseWebSpeech(): boolean {
   return typeof window !== 'undefined' && 'speechSynthesis' in window
+}
+
+/**
+ * On web with the default `system` engine, playback actually falls through to the
+ * fast online voice when the browser exposes no usable host voice (Brave/Linux).
+ * Warm Google's audio in that case so the first tap plays instantly instead of
+ * waiting for an MP3 download. Native platforms use their own voice and skip this.
+ */
+function shouldWarmGoogleAsWebFallback(): boolean {
+  return (
+    !isNativePlatform() &&
+    typeof window !== 'undefined' &&
+    'speechSynthesis' in window &&
+    !hasUsableWebVoice()
+  )
 }
 
 function requestIdleOrTimeout(
