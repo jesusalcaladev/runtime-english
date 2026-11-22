@@ -43,8 +43,8 @@ import { getSpeechEngine, isNativePlatform, isSpeechEnabled, normalizeSpeechText
 import type { SpeechStyle } from './types'
 import { clearAllSpeakStates, setSpeaking, setSpeakLoading } from './ui'
 import {
-  TTS_ATTEMPT_TIMEOUT_MS,
   TTS_LINE_TIMEOUT_MS,
+  ttsAttemptDeadlineMs,
   withFallback,
   withTimeout,
 } from './watchdog'
@@ -472,7 +472,7 @@ async function playWithSystemVoice(
   // Brave/Linux often has no Web Speech voices: use the fast online voice first.
   const googleHandled = await withFallback(
     speakWithGoogle(text, button).catch(() => false),
-    TTS_ATTEMPT_TIMEOUT_MS,
+    ttsAttemptDeadlineMs(text),
     false,
     () => stopSpeech(),
   )
@@ -492,7 +492,7 @@ async function playSpeech(
   if (engine === 'google') {
     const googleHandled = await withFallback(
       speakWithGoogle(text, button).catch(() => false),
-      TTS_ATTEMPT_TIMEOUT_MS,
+      ttsAttemptDeadlineMs(text),
       false,
       () => stopSpeech(),
     )
@@ -511,7 +511,7 @@ async function playSpeech(
   if (engine === 'piper') {
     const handledByPiper = await withFallback(
       speakWithPiper(text, button, style).catch(() => false),
-      TTS_ATTEMPT_TIMEOUT_MS,
+      ttsAttemptDeadlineMs(text),
       false,
       () => stopSpeech(),
     )
@@ -539,7 +539,7 @@ async function playSpeech(
     if (isKokoroReady()) {
       const handledByKokoro = await withFallback(
         speakWithKokoro(text, button).catch(() => false),
-        TTS_ATTEMPT_TIMEOUT_MS,
+        ttsAttemptDeadlineMs(text),
         false,
         () => stopSpeech(),
       )

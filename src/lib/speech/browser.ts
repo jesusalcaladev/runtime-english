@@ -102,7 +102,7 @@ export async function getWebVoices(timeoutMs = 1500): Promise<SpeechSynthesisVoi
 
 export function primeWebVoices() {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
-  void getWebVoices(1200)
+  void getWebVoices(300)
 }
 
 /**
@@ -223,7 +223,7 @@ export async function speakWeb(
   // the main reason a tap on web felt dead (Brave/Linux with no system voices).
   let voices = synth.getVoices()
   if (voices.length === 0) {
-    voices = await getWebVoices(500)
+    voices = await getWebVoices(200)
   }
   cachedVoice = pickEnglishVoice(voices.length ? voices : synth.getVoices()) ?? cachedVoice
 
@@ -245,16 +245,20 @@ export async function speakWeb(
       resolve(ok)
     }
 
-    // Reset the native queue once, then wait a frame before speaking: Chrome
-    // silently drops an utterance when cancel() and speak() share a tick.
-    try {
-      synth.cancel()
-    } catch {}
-    try {
-      synth.resume()
-    } catch {}
+    // Chrome drops an utterance when cancel() and speak() share a tick, so a
+    // dirty queue needs a one-frame delay. Most taps hit a clean queue — speak
+    // synchronously in that case for the lowest possible time-to-first-word.
+    const needsReset = synth.speaking || synth.pending
+    if (needsReset) {
+      try {
+        synth.cancel()
+      } catch {}
+      try {
+        synth.resume()
+      } catch {}
+    }
 
-    window.setTimeout(() => {
+    const speakNow = () => {
       if (finished) return
 
       let utterance: SpeechSynthesisUtterance
@@ -311,8 +315,8 @@ export async function speakWeb(
         finish(false)
       }
 
-      // If no audio starts within ~1.6 s, cancel the stuck native queue and
-      // report failure so the router can use the fast online voice.
+      // If no audio starts quickly, cancel the stuck native queue and report
+      // failure so the router can use the fast online voice without delay.
       startTimer = window.setTimeout(() => {
         if (started || finished) return
         abortedByUs = true
@@ -331,6 +335,9 @@ export async function speakWeb(
       try {
         synth.resume()
       } catch {}
-    }, 40)
+    }
+
+    if (needsReset) window.setTimeout(speakNow, 40)
+    else speakNow()
   })
 }

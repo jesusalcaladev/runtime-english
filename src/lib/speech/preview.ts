@@ -3,7 +3,7 @@ import { speakWithGoogle, stopGooglePlayback } from './google'
 import { stopKokoroPlayback } from './kokoro'
 import { stopPiperPlayback } from './piper'
 import { getPreferredVoiceName, getSpeechPitch, getSpeechRate } from './platform'
-import { TTS_ATTEMPT_TIMEOUT_MS, TTS_START_TIMEOUT_MS, withFallback } from './watchdog'
+import { TTS_START_TIMEOUT_MS, ttsAttemptDeadlineMs, withFallback } from './watchdog'
 
 /** Detiene cualquier reproducción en curso (web y nativa). */
 export async function stopTts(): Promise<void> {
@@ -33,7 +33,7 @@ export async function previewVoice(text: string, voiceName?: string): Promise<bo
   if (!hasUsableWebVoice()) {
     return withFallback(
       speakWithGoogle(text).catch(() => false),
-      TTS_ATTEMPT_TIMEOUT_MS,
+      ttsAttemptDeadlineMs(text),
       false,
       () => stopGooglePlayback(),
     )
@@ -41,7 +41,7 @@ export async function previewVoice(text: string, voiceName?: string): Promise<bo
 
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) return false
 
-  const voices = await getWebVoices(2000)
+  const voices = await getWebVoices(300)
   const wanted = (voiceName ?? getPreferredVoiceName() ?? '').toLowerCase()
   const voice =
     (wanted ? voices.find((item) => item.name.toLowerCase() === wanted) : undefined) ??
@@ -71,7 +71,7 @@ export async function previewVoice(text: string, voiceName?: string): Promise<bo
         finish(false)
       }
     }),
-    TTS_START_TIMEOUT_MS + 2_000,
+    TTS_START_TIMEOUT_MS + 500,
     false,
     () => {
       try {
@@ -87,7 +87,7 @@ export async function previewVoice(text: string, voiceName?: string): Promise<bo
   // audible feedback through the fast online voice.
   return withFallback(
     speakWithGoogle(text).catch(() => false),
-    TTS_ATTEMPT_TIMEOUT_MS,
+    ttsAttemptDeadlineMs(text),
     false,
     () => stopGooglePlayback(),
   )

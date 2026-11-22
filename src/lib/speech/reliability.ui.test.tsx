@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { hasUsableWebVoice, speakWeb } from './browser'
-import { TtsTimeoutError, withFallback, withTimeout } from './watchdog'
+import { TtsTimeoutError, ttsAttemptDeadlineMs, withFallback, withTimeout } from './watchdog'
 
 class FakeUtterance {
   static instances: FakeUtterance[] = []
@@ -77,12 +77,13 @@ describe('web voice playback reliability', () => {
     expect(hasUsableWebVoice()).toBe(true)
   })
 
-  it('cancels the native queue and resolves true when audio ends normally', async () => {
+  it('speaks immediately on a clean queue and resolves true when audio ends', async () => {
     const promise = speakWeb('Hello there')
-    await new Promise((resolve) => setTimeout(resolve, 80))
+    await Promise.resolve()
 
     expect(FakeUtterance.instances).toHaveLength(1)
-    expect(synth.cancelCount).toBeGreaterThanOrEqual(1)
+    // No reset needed on a clean queue: we speak in the same task (no 40ms delay).
+    expect(synth.cancelCount).toBe(0)
     expect(synth.spoken).toHaveLength(1)
 
     FakeUtterance.instances[0].onstart?.()
@@ -90,14 +91,26 @@ describe('web voice playback reliability', () => {
     await expect(promise).resolves.toBe(true)
   })
 
-  it('gives up on a stuck pending utterance in ~1.6s so the online fallback can run', async () => {
+  it('resets a dirty queue before speaking to avoid Chrome dropping the utterance', async () => {
+    synth.speaking = true
+    const promise = speakWeb('Hello there')
+    await new Promise((resolve) => setTimeout(resolve, 80))
+
+    expect(synth.cancelCount).toBeGreaterThanOrEqual(1)
+    expect(synth.spoken).toHaveLength(1)
+    FakeUtterance.instances[0].onstart?.()
+    FakeUtterance.instances[0].onend?.()
+    await expect(promise).resolves.toBe(true)
+  })
+
+  it('gives up on a stuck pending utterance quickly so the online fallback can run', async () => {
     const started = Date.now()
     // The utterance is queued but onstart/onend never fire (Brave/Linux case).
     const result = await speakWeb('This will never start')
     expect(result).toBe(false)
-    expect(Date.now() - started).toBeLessThan(4_000)
+    expect(Date.now() - started).toBeLessThan(2_000)
     // The stuck native queue was cancelled so it cannot blurt out minutes later.
-    expect(synth.cancelCount).toBeGreaterThanOrEqual(2)
+    expect(synth.cancelCount).toBeGreaterThanOrEqual(1)
   }, 6_000)
 })
 
@@ -117,5 +130,11 @@ describe('TTS watchdog helpers', () => {
 
   it('does not fire the fallback when work settles in time', async () => {
     await expect(withFallback(Promise.resolve(true), 100, false)).resolves.toBe(true)
+  })
+
+  it('scales playback deadlines with text so long chunks are not truncated', () => {
+    expect(ttsAttemptDeadlineMs('Hi')).toBeGreaterThanOrEqual(4_000)
+    expect(ttsAttemptDeadlineMs('a'.repeat(180))).toBeGreaterThan(10_000)
+    expect(ttsAttemptDeadlineMs('a'.repeat(2_000))).toBeLessThanOrEqual(15_000)
   })
 })

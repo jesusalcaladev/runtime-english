@@ -9,14 +9,28 @@
  * engine quickly.
  */
 
-/** How long we wait for a web utterance to actually start speaking. */
-export const TTS_START_TIMEOUT_MS = 1_600
+/**
+ * How long we wait for a web utterance to actually start speaking. Kept short on
+ * purpose: a slow/frozen native voice falls back to the online voice fast, which
+ * is what makes the first tap feel instant.
+ */
+export const TTS_START_TIMEOUT_MS = 700
+/** How long we wait for an online MP3 to start streaming before falling back. */
+export const TTS_BUFFER_TIMEOUT_MS = 250
 /** Hard cap for a single web utterance once it has started (keep-alive keeps it alive). */
 export const TTS_UTTERANCE_TIMEOUT_MS = 20_000
-/** Hard cap for an online/local-engine playback attempt before its fallback runs. */
-export const TTS_ATTEMPT_TIMEOUT_MS = 5_000
 /** Upper bound for a full `speakLine()` call so exercises/dialogues never block. */
 export const TTS_LINE_TIMEOUT_MS = 15_000
+
+/**
+ * Deadline for an entire playback attempt. It must scale with the text length:
+ * a fixed 5s cap truncates a normal 180-character chunk (~12s of speech). The
+ * per-engine *start* watchdogs above are what keep failures fast; this is only
+ * a generous safety net for a stream that never ends.
+ */
+export function ttsAttemptDeadlineMs(text: string): number {
+  return Math.min(TTS_LINE_TIMEOUT_MS, Math.max(4_000, text.length * 110 + 2_000))
+}
 
 export class TtsTimeoutError extends Error {
   constructor(label = 'TTS') {

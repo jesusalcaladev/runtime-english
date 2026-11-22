@@ -1,6 +1,7 @@
 import { bumpPhraseStatus } from './phraseStatus'
 import { getSpeechRate } from './platform'
 import { setSpeaking } from './ui'
+import { TTS_BUFFER_TIMEOUT_MS, ttsAttemptDeadlineMs } from './watchdog'
 
 /**
  * Voz online rápida y gratuita (Google Translate TTS). No necesita API key ni
@@ -16,10 +17,8 @@ const MAX_CHARS = 180
 const MAX_PARALLEL_PREFETCH = 4
 const AUDIO_CACHE_LIMIT = 160
 const MAX_PREFETCH_RETRIES = 1
-/** A chunk that cannot start within this window is treated as failed and we fall back. */
-const GOOGLE_BUFFER_TIMEOUT_MS = 1_200
-/** Hard cap for a single MP3 chunk so the exercise flow can never hang on the network. */
-const GOOGLE_PLAY_TIMEOUT_MS = 5_000
+/** A chunk that cannot start streaming within this window is treated as failed. */
+const GOOGLE_START_TIMEOUT_MS = 2_000
 let currentAudio: HTMLAudioElement | null = null
 let cancelActivePlay: (() => void) | null = null
 const audioCache = new Map<string, HTMLAudioElement>()
@@ -199,7 +198,7 @@ async function waitForBuffer(audio: HTMLAudioElement): Promise<void> {
       clearTimeout(timer)
       resolve()
     }
-    const timer = setTimeout(finish, GOOGLE_BUFFER_TIMEOUT_MS)
+    const timer = setTimeout(finish, TTS_BUFFER_TIMEOUT_MS)
     audio.addEventListener('canplaythrough', finish, { once: true })
     audio.addEventListener('loadeddata', finish, { once: true })
     audio.addEventListener('error', finish, { once: true })
@@ -229,8 +228,10 @@ async function playChunk(text: string): Promise<void> {
     }
     const cancel = () => finish(false)
     cancelActivePlay = cancel
-    // Some browsers never fire error/ended when a stream stalls. Always settle.
-    watchdog = setTimeout(cancel, GOOGLE_PLAY_TIMEOUT_MS)
+    // Short start watchdog: a stream that never begins falls back quickly.
+    // Once play() actually starts we re-arm it with a length-based deadline so
+    // a normal 180-char chunk (~12s of speech) is never cut off at 5s.
+    watchdog = setTimeout(cancel, GOOGLE_START_TIMEOUT_MS)
 
     audio.onended = () => finish(true)
     audio.onerror = () => finish(false)
@@ -240,7 +241,14 @@ async function playChunk(text: string): Promise<void> {
       // Ignorar si el navegador aún no permite seek.
     }
     try {
-      void audio.play().catch(() => finish(false))
+      void audio
+        .play()
+        .then(() => {
+          if (settled) return
+          clearTimeout(watchdog)
+          watchdog = setTimeout(() => finish(true), ttsAttemptDeadlineMs(text))
+        })
+        .catch(() => finish(false))
     } catch {
       finish(false)
     }
