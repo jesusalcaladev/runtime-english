@@ -253,10 +253,15 @@ export async function speakWithGoogle(text: string, button?: HTMLElement | null)
   const chunks = splitGoogleText(text)
   if (!chunks.length) return false
 
+  // Queue every chunk of this phrase at once so the bounded downloader fills all
+  // of its parallel slots while the first chunk plays. Enqueueing one chunk per
+  // loop iteration left three slots idle and made long lines stop and wait.
+  prefetchGooglePhrase(text, true)
+
   setSpeaking(button, true)
   try {
     for (const chunk of chunks) {
-      // A phrase the user is hearing right now should also be the next to download.
+      // Re-queue a chunk if its download failed or was evicted meanwhile.
       if (!audioCache.has(chunk)) prefetchGooglePhrase(chunk, true)
       await playChunk(chunk)
     }

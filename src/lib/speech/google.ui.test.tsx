@@ -92,4 +92,18 @@ describe('Google TTS', () => {
     FakeAudio.instances[0].onerror?.()
     expect(await promise).toBe(false)
   })
+
+  it('queues all chunks of a long phrase up front for parallel download', async () => {
+    const long = `${'A sentence here. '.repeat(15)}`
+    expect(splitGoogleText(long).length).toBeGreaterThan(1)
+
+    const promise = speakWithGoogle(long)
+    await Promise.resolve()
+    await Promise.resolve()
+
+    // The bounded downloader fills its parallel slots while the first chunk plays.
+    expect(FakeAudio.instances.length).toBeGreaterThan(1)
+    stopGooglePlayback()
+    await expect(promise).resolves.toBe(false)
+  })
 })
