@@ -16,7 +16,12 @@ const MAX_CHARS = 180
 const MAX_PARALLEL_PREFETCH = 4
 const AUDIO_CACHE_LIMIT = 160
 const MAX_PREFETCH_RETRIES = 1
+/** A chunk that cannot start within this window is treated as failed and we fall back. */
+const GOOGLE_BUFFER_TIMEOUT_MS = 1_200
+/** Hard cap for a single MP3 chunk so the exercise flow can never hang on the network. */
+const GOOGLE_PLAY_TIMEOUT_MS = 5_000
 let currentAudio: HTMLAudioElement | null = null
+let cancelActivePlay: (() => void) | null = null
 const audioCache = new Map<string, HTMLAudioElement>()
 const inFlight = new Set<string>()
 const prefetchQueue: { chunk: string; priority: boolean; attempts: number }[] = []
@@ -136,6 +141,11 @@ function pumpPrefetch(): void {
 }
 
 export function stopGooglePlayback(): void {
+  // Settle any in-flight play() promise first, otherwise a stopped chunk could
+  // leave speakWithGoogle() pending and block the caller forever.
+  const cancel = cancelActivePlay
+  cancelActivePlay = null
+  cancel?.()
   if (!currentAudio) return
   try {
     currentAudio.pause()
@@ -182,11 +192,17 @@ export function getGooglePhraseStatus(texts: string[]): { ready: number; total: 
 async function waitForBuffer(audio: HTMLAudioElement): Promise<void> {
   if ((audio.readyState ?? 0) >= 2 || typeof audio.addEventListener !== 'function') return
   await new Promise<void>((resolve) => {
-    const done = () => resolve()
-    audio.addEventListener('canplaythrough', done, { once: true })
-    audio.addEventListener('loadeddata', done, { once: true })
-    audio.addEventListener('error', done, { once: true })
-    setTimeout(done, 1800)
+    let done = false
+    const finish = () => {
+      if (done) return
+      done = true
+      clearTimeout(timer)
+      resolve()
+    }
+    const timer = setTimeout(finish, GOOGLE_BUFFER_TIMEOUT_MS)
+    audio.addEventListener('canplaythrough', finish, { once: true })
+    audio.addEventListener('loadeddata', finish, { once: true })
+    audio.addEventListener('error', finish, { once: true })
   })
 }
 
@@ -199,17 +215,25 @@ async function playChunk(text: string): Promise<void> {
   currentAudio = audio
 
   return new Promise((resolve, reject) => {
+    let settled = false
+    let watchdog: ReturnType<typeof setTimeout> | undefined
     const finish = (ok: boolean) => {
+      if (settled) return
+      settled = true
+      clearTimeout(watchdog)
+      if (cancelActivePlay === cancel) cancelActivePlay = null
       if (currentAudio === audio) currentAudio = null
+      if (!ok) audioCache.delete(text)
       if (ok) resolve()
       else reject(new Error('Google TTS no disponible'))
     }
+    const cancel = () => finish(false)
+    cancelActivePlay = cancel
+    // Some browsers never fire error/ended when a stream stalls. Always settle.
+    watchdog = setTimeout(cancel, GOOGLE_PLAY_TIMEOUT_MS)
 
     audio.onended = () => finish(true)
-    audio.onerror = () => {
-      audioCache.delete(text)
-      finish(false)
-    }
+    audio.onerror = () => finish(false)
     try {
       audio.currentTime = 0
     } catch {

@@ -1,6 +1,7 @@
 import { getSpeechLanguage, getSpeechRate, isConstrainedDevice } from './platform'
 import type { KokoroStatus } from './types'
 import { setSpeaking } from './ui'
+import { withFallback } from './watchdog'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -36,6 +37,8 @@ const STREAM_MANIFEST_KEY = 'runtimeenglish_kokoro_manifest_v2'
 const MANIFEST_LIMIT = 60
 const PRELOAD_QUEUE_LIMIT = 24
 const PRELOAD_IDLE_TIMEOUT_MS = 1500
+/** Safety net for direct callers: a stream that never finishes must not hang. */
+const KOKORO_PLAY_TIMEOUT_MS = 8_000
 const MODEL_CACHE_HINTS = [
   'transformers-cache',
   'onnx-community/Kokoro-82M-v1.0-ONNX',
@@ -1203,7 +1206,9 @@ export async function speakWithKokoro(text: string, button?: HTMLElement | null)
       () => player.finish(false),
     )
     try {
-      return await player.promise
+      return await withFallback(player.promise, KOKORO_PLAY_TIMEOUT_MS, false, () => {
+        stopKokoroPlayback()
+      })
     } finally {
       unsubscribe()
     }

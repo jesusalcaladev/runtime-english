@@ -1,5 +1,6 @@
 import { emitToast } from '../toast'
 import {
+  hasUsableWebVoice,
   primeWebVoices,
   speakNative,
   speakWeb,
@@ -41,6 +42,12 @@ import {
 import { getSpeechEngine, isNativePlatform, isSpeechEnabled, normalizeSpeechText } from './platform'
 import type { SpeechStyle } from './types'
 import { clearAllSpeakStates, setSpeaking, setSpeakLoading } from './ui'
+import {
+  TTS_ATTEMPT_TIMEOUT_MS,
+  TTS_LINE_TIMEOUT_MS,
+  withFallback,
+  withTimeout,
+} from './watchdog'
 
 export { getWebVoices } from './browser'
 export { speechMatchScore } from './match'
@@ -260,7 +267,14 @@ export async function speakLine(text: string, style?: SpeechStyle): Promise<void
   const cleanText = normalizeSpeechText(text)
   if (!cleanText || !isSpeechEnabled()) return
   warmSpeechEngine()
-  await playSpeech(cleanText, null, style)
+  // A hung voice must never hold back a dialogue or an exercise. Bound the whole
+  // line and cancel any stuck native queue when the deadline is reached.
+  await withFallback<void>(
+    playSpeech(cleanText, null, style),
+    TTS_LINE_TIMEOUT_MS,
+    undefined,
+    () => stopSpeech(),
+  )
 }
 
 function canUseWebSpeech(): boolean {
@@ -411,11 +425,22 @@ async function playWithSystemVoice(
     return speakNative(text, button, style)
   }
 
-  const webHandled = await speakWeb(text, button, style)
-  if (webHandled) return true
+  // Skip Web Speech when the browser has no English voice available right now.
+  // Waiting for a `voiceschanged` event that may never fire made the first tap
+  // feel dead on Brave/Linux; the online voice below is both fast and dependable.
+  if (hasUsableWebVoice()) {
+    const webHandled = await speakWeb(text, button, style).catch(() => false)
+    if (webHandled) return true
+  }
 
   // Brave/Linux often has no Web Speech voices: use the fast online voice first.
-  if (await speakWithGoogle(text, button)) return true
+  const googleHandled = await withFallback(
+    speakWithGoogle(text, button).catch(() => false),
+    TTS_ATTEMPT_TIMEOUT_MS,
+    false,
+    () => stopSpeech(),
+  )
+  if (googleHandled) return true
 
   // Last resort: a Kokoro model that is already loaded (never wait for download).
   return tryKokoroPlayback(text, button)
@@ -429,9 +454,17 @@ async function playSpeech(
   const engine = getSpeechEngine()
 
   if (engine === 'google') {
-    if (await speakWithGoogle(text, button).catch(() => false)) return
-    const handledByWeb = await speakWeb(text, button, style).catch(() => false)
-    if (handledByWeb) return
+    const googleHandled = await withFallback(
+      speakWithGoogle(text, button).catch(() => false),
+      TTS_ATTEMPT_TIMEOUT_MS,
+      false,
+      () => stopSpeech(),
+    )
+    if (googleHandled) return
+    if (hasUsableWebVoice()) {
+      const handledByWeb = await speakWeb(text, button, style).catch(() => false)
+      if (handledByWeb) return
+    }
     if (await tryKokoroPlayback(text, button)) return
     setSpeaking(button, false)
     setSpeakLoading(button, false)
@@ -440,7 +473,12 @@ async function playSpeech(
   }
 
   if (engine === 'piper') {
-    const handledByPiper = await speakWithPiper(text, button, style).catch(() => false)
+    const handledByPiper = await withFallback(
+      speakWithPiper(text, button, style).catch(() => false),
+      TTS_ATTEMPT_TIMEOUT_MS,
+      false,
+      () => stopSpeech(),
+    )
     if (handledByPiper) return
     // Si Piper falla (sin red para la voz), usamos la voz del dispositivo.
     const handledBySystem = await playWithSystemVoice(text, button, style).catch(() => false)
@@ -463,7 +501,12 @@ async function playSpeech(
     }
 
     if (isKokoroReady()) {
-      const handledByKokoro = await speakWithKokoro(text, button).catch(() => false)
+      const handledByKokoro = await withFallback(
+        speakWithKokoro(text, button).catch(() => false),
+        TTS_ATTEMPT_TIMEOUT_MS,
+        false,
+        () => stopSpeech(),
+      )
       if (handledByKokoro) return
     }
 
@@ -487,11 +530,11 @@ async function playSpeech(
     return
   }
 
-  const webHandled = await speakWeb(text, button, style).catch(() => false)
-  if (webHandled) return
-
-  const handledByKokoroFallback = await tryKokoroPlayback(text, button)
-  if (handledByKokoroFallback) return
+  // Default "system" engine on web: try a real device voice if one exists,
+  // then the fast online voice (which also covers browsers with zero voices),
+  // then an already-loaded Kokoro model. Every step is time-bounded.
+  const handledBySystem = await playWithSystemVoice(text, button, style).catch(() => false)
+  if (handledBySystem) return
 
   setSpeaking(button, false)
   setSpeakLoading(button, false)
@@ -512,7 +555,11 @@ export function speak(text: string, button?: HTMLElement | null, style?: SpeechS
   setSpeaking(button, false)
   warmSpeechEngine()
 
-  void playSpeech(cleanText, button, style)
+  void withTimeout(
+    playSpeech(cleanText, button, style),
+    TTS_LINE_TIMEOUT_MS + 2_000,
+    () => stopSpeech(),
+  )
     .catch(() => {
       setSpeaking(button, false)
       setSpeakLoading(button, false)

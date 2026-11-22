@@ -1,6 +1,9 @@
 import { getWebVoices, stopNativeSpeech } from './browser'
+import { stopGooglePlayback } from './google'
+import { stopKokoroPlayback } from './kokoro'
 import { stopPiperPlayback } from './piper'
 import { getPreferredVoiceName, getSpeechPitch, getSpeechRate } from './platform'
+import { TTS_START_TIMEOUT_MS, withFallback } from './watchdog'
 
 /** Detiene cualquier reproducción en curso (web y nativa). */
 export async function stopTts(): Promise<void> {
@@ -13,6 +16,8 @@ export async function stopTts(): Promise<void> {
   }
   await stopNativeSpeech()
   stopPiperPlayback()
+  stopGooglePlayback()
+  stopKokoroPlayback()
 }
 
 /**
@@ -37,19 +42,30 @@ export async function previewVoice(text: string, voiceName?: string): Promise<bo
   utterance.pitch = getSpeechPitch()
   utterance.volume = 1
 
-  return new Promise<boolean>((resolve) => {
-    let settled = false
-    const finish = (ok: boolean) => {
-      if (settled) return
-      settled = true
-      resolve(ok)
-    }
-    utterance.onend = () => finish(true)
-    utterance.onerror = () => finish(false)
-    try {
-      window.speechSynthesis.speak(utterance)
-    } catch {
-      finish(false)
-    }
-  })
+  return withFallback(
+    new Promise<boolean>((resolve) => {
+      let settled = false
+      const finish = (ok: boolean) => {
+        if (settled) return
+        settled = true
+        resolve(ok)
+      }
+      utterance.onend = () => finish(true)
+      utterance.onerror = () => finish(false)
+      try {
+        window.speechSynthesis.speak(utterance)
+      } catch {
+        finish(false)
+      }
+    }),
+    TTS_START_TIMEOUT_MS + 2_000,
+    false,
+    () => {
+      try {
+        window.speechSynthesis.cancel()
+      } catch {
+        // Best effort.
+      }
+    },
+  )
 }

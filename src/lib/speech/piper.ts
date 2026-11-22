@@ -8,6 +8,8 @@ export const PIPER_VOICE = 'en_US-libritts_r-medium'
 const ONNX_WASM_BASE = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/'
 const PHONEMIZE_BASE = 'https://cdn.jsdelivr.net/npm/piper-tts-web@1.1.2/dist/piper/'
 const PHRASE_CACHE_LIMIT = 24
+/** Hard cap for a single generated chunk so a stalled <audio> cannot hang exercises. */
+const PIPER_PLAY_TIMEOUT_MS = 5_000
 
 export type PiperStatus = {
   state: 'idle' | 'loading' | 'ready' | 'error'
@@ -166,13 +168,24 @@ export async function speakWithPiper(
     audio = new Audio(activeUrl)
     audio.playbackRate = Math.min(2, Math.max(0.5, getSpeechRate() * (style?.rateScale ?? 1)))
     await new Promise<void>((resolve, reject) => {
-      if (!audio) {
+      const playingAudio = audio
+      if (!playingAudio) {
         reject(new Error('Audio no disponible'))
         return
       }
-      audio.onended = () => resolve()
-      audio.onerror = () => reject(new Error('No se pudo reproducir el audio'))
-      audio.play().catch(() => reject(new Error('No se pudo reproducir el audio')))
+      let settled = false
+      let watchdog: ReturnType<typeof setTimeout> | undefined
+      const finish = (ok: boolean) => {
+        if (settled) return
+        settled = true
+        clearTimeout(watchdog)
+        if (ok) resolve()
+        else reject(new Error('No se pudo reproducir el audio'))
+      }
+      watchdog = setTimeout(() => finish(false), PIPER_PLAY_TIMEOUT_MS)
+      playingAudio.onended = () => finish(true)
+      playingAudio.onerror = () => finish(false)
+      void playingAudio.play().catch(() => finish(false))
     })
     return true
   } catch (error) {

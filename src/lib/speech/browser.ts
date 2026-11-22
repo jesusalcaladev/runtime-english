@@ -8,6 +8,7 @@ import {
 } from './platform'
 import type { SpeechStyle } from './types'
 import { setSpeaking } from './ui'
+import { TTS_START_TIMEOUT_MS, TTS_UTTERANCE_TIMEOUT_MS } from './watchdog'
 
 let cachedVoice: SpeechSynthesisVoice | null = null
 let voicesPromise: Promise<SpeechSynthesisVoice[]> | null = null
@@ -102,6 +103,20 @@ export async function getWebVoices(timeoutMs = 1500): Promise<SpeechSynthesisVoi
 export function primeWebVoices() {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
   void getWebVoices(1200)
+}
+
+/**
+ * Synchronous check used by the playback router: when the browser has no
+ * English voice *right now* we skip Web Speech entirely and go straight to the
+ * fast online voice instead of waiting for `voiceschanged` that may never fire.
+ */
+export function hasUsableWebVoice(): boolean {
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) return false
+  try {
+    return window.speechSynthesis.getVoices().some(isEnglishVoice)
+  } catch {
+    return false
+  }
 }
 
 export async function stopNativeSpeech() {
@@ -204,100 +219,118 @@ export async function speakWeb(
 
   const synth = window.speechSynthesis
 
+  // One *short* voice wait only. Waiting 2.5 s for voices that never appear was
+  // the main reason a tap on web felt dead (Brave/Linux with no system voices).
   let voices = synth.getVoices()
   if (voices.length === 0) {
-    voices = await getWebVoices(2500)
+    voices = await getWebVoices(500)
   }
   cachedVoice = pickEnglishVoice(voices.length ? voices : synth.getVoices()) ?? cachedVoice
 
   return new Promise<boolean>((resolve) => {
-    let finished = false
     let started = false
-    let attempts = 0
+    let finished = false
+    let abortedByUs = false
+    let startTimer = 0
+    let endTimer = 0
+    let keepAlive = 0
 
     const finish = (ok: boolean) => {
       if (finished) return
       finished = true
-      window.clearTimeout(timeoutId)
+      window.clearTimeout(startTimer)
+      window.clearTimeout(endTimer)
+      window.clearInterval(keepAlive)
       setSpeaking(button, false)
       resolve(ok)
     }
 
-    const doSpeak = () => {
+    // Reset the native queue once, then wait a frame before speaking: Chrome
+    // silently drops an utterance when cancel() and speak() share a tick.
+    try {
+      synth.cancel()
+    } catch {}
+    try {
+      synth.resume()
+    } catch {}
+
+    window.setTimeout(() => {
       if (finished) return
-      attempts += 1
 
+      let utterance: SpeechSynthesisUtterance
       try {
-        synth.resume()
-      } catch {}
-      try {
-        synth.cancel()
-      } catch {}
+        utterance = new SpeechSynthesisUtterance(text)
+      } catch {
+        finish(false)
+        return
+      }
 
-      const utterance = new SpeechSynthesisUtterance(text)
       const currentVoices = synth.getVoices()
       if (currentVoices.length) cachedVoice = pickEnglishVoice(currentVoices) ?? cachedVoice
       const voice = cachedVoice
 
-      utterance.lang = voice?.lang || 'en-US'
+      utterance.lang = voice?.lang || getSpeechLanguage()
       utterance.rate = getSpeechRate() * (style?.rateScale ?? 1)
       utterance.pitch = (style?.pitch ?? 1) * getSpeechPitch()
       utterance.volume = 1
       if (voice) utterance.voice = voice
 
       utterance.onstart = () => {
-        started = true
-        setSpeaking(button, true)
-      }
-      utterance.onend = () => finish(true)
-      utterance.onerror = (event) => {
-        const error = (event as SpeechSynthesisErrorEvent & { error?: string })?.error
-        if (error === 'interrupted' || error === 'canceled') {
-          finish(true)
-          return
-        }
-        if (!started && attempts < 3) {
-          window.setTimeout(doSpeak, 180 * attempts)
-          return
-        }
-        finish(false)
-      }
-
-      window.setTimeout(() => {
         if (finished) return
-        try {
-          synth.speak(utterance)
-          try {
-            synth.resume()
-          } catch {}
-
-          // Chrome workaround: nudge if it gets stuck pending.
-          window.setTimeout(() => {
+        if (!started) {
+          started = true
+          window.clearTimeout(startTimer)
+          setSpeaking(button, true)
+          // Bounded by a generous hard cap so long transcript lines still play,
+          // but a stalled utterance can never hang the exercise for minutes.
+          const estimate = Math.min(
+            TTS_UTTERANCE_TIMEOUT_MS,
+            Math.max(2_500, text.length * 100 + 1_500),
+          )
+          endTimer = window.setTimeout(() => finish(true), estimate)
+          keepAlive = window.setInterval(() => {
             try {
-              if (!started && !finished && synth.pending && !synth.speaking) {
+              if (synth.speaking && !synth.paused) {
                 synth.pause()
                 synth.resume()
               }
             } catch {}
-          }, 350)
-        } catch {
-          if (!started && attempts < 3) window.setTimeout(doSpeak, 180 * attempts)
-          else finish(false)
+          }, 4_000)
         }
-      }, 80)
-    }
-
-    const timeoutId = window.setTimeout(
-      () => {
-        if (!started && attempts < 3) {
-          doSpeak()
+      }
+      utterance.onend = () => finish(true)
+      utterance.onerror = (event) => {
+        const error = (event as SpeechSynthesisErrorEvent & { error?: string })?.error
+        // A cancellation is expected when the learner stops/replaces playback.
+        // (Our own start-timeout cancel is the exception: that means "no audio".)
+        if (error === 'interrupted' || error === 'canceled') {
+          finish(!abortedByUs)
           return
         }
-        finish(started)
-      },
-      Math.max(10000, text.length * 140 + 3000),
-    )
+        // No 3x retry loop: fall back to the online voice immediately.
+        finish(false)
+      }
 
-    doSpeak()
+      // If no audio starts within ~1.6 s, cancel the stuck native queue and
+      // report failure so the router can use the fast online voice.
+      startTimer = window.setTimeout(() => {
+        if (started || finished) return
+        abortedByUs = true
+        try {
+          synth.cancel()
+        } catch {}
+        finish(false)
+      }, TTS_START_TIMEOUT_MS)
+
+      try {
+        synth.speak(utterance)
+      } catch {
+        finish(false)
+        return
+      }
+      try {
+        synth.resume()
+      } catch {}
+    }, 40)
   })
 }
