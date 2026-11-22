@@ -1,9 +1,9 @@
-import { getWebVoices, stopNativeSpeech } from './browser'
-import { stopGooglePlayback } from './google'
+import { getWebVoices, hasUsableWebVoice, stopNativeSpeech } from './browser'
+import { speakWithGoogle, stopGooglePlayback } from './google'
 import { stopKokoroPlayback } from './kokoro'
 import { stopPiperPlayback } from './piper'
 import { getPreferredVoiceName, getSpeechPitch, getSpeechRate } from './platform'
-import { TTS_START_TIMEOUT_MS, withFallback } from './watchdog'
+import { TTS_ATTEMPT_TIMEOUT_MS, TTS_START_TIMEOUT_MS, withFallback } from './watchdog'
 
 /** Detiene cualquier reproducción en curso (web y nativa). */
 export async function stopTts(): Promise<void> {
@@ -26,6 +26,19 @@ export async function stopTts(): Promise<void> {
  */
 export async function previewVoice(text: string, voiceName?: string): Promise<boolean> {
   await stopTts()
+
+  // Browsers without host voices (Brave/Linux) cannot preview a device voice.
+  // Use the fast online voice so the button always produces audible feedback
+  // instead of spinning and failing silently.
+  if (!hasUsableWebVoice()) {
+    return withFallback(
+      speakWithGoogle(text).catch(() => false),
+      TTS_ATTEMPT_TIMEOUT_MS,
+      false,
+      () => stopGooglePlayback(),
+    )
+  }
+
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) return false
 
   const voices = await getWebVoices(2000)
@@ -42,7 +55,7 @@ export async function previewVoice(text: string, voiceName?: string): Promise<bo
   utterance.pitch = getSpeechPitch()
   utterance.volume = 1
 
-  return withFallback(
+  const spoke = await withFallback(
     new Promise<boolean>((resolve) => {
       let settled = false
       const finish = (ok: boolean) => {
@@ -67,5 +80,15 @@ export async function previewVoice(text: string, voiceName?: string): Promise<bo
         // Best effort.
       }
     },
+  )
+  if (spoke) return true
+
+  // The device voice was present but failed to start: still give the learner
+  // audible feedback through the fast online voice.
+  return withFallback(
+    speakWithGoogle(text).catch(() => false),
+    TTS_ATTEMPT_TIMEOUT_MS,
+    false,
+    () => stopGooglePlayback(),
   )
 }
