@@ -33,6 +33,12 @@ export function useYouTubePlayer(
   optionsRef.current = options
   const enabled = options.enabled !== false
 
+  // Re-arm auto-pause after a manual resume: otherwise the same cue cannot be
+  // paused a second time and the subtitles drift away from the audio.
+  useEffect(() => {
+    if (playing) lastCueRef.current = -2
+  }, [playing])
+
   useEffect(() => {
     if (!enabled) {
       readyRef.current = false
@@ -105,7 +111,7 @@ export function useYouTubePlayer(
           } catch {
             // El reproductor aún no está listo; el siguiente tick lo intenta.
           }
-        }, 120)
+        }, 80)
       })
       .catch(() => {
         if (!cancelled) setError(true)

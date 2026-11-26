@@ -72,6 +72,18 @@ export const CHANGELOG: ChangelogRelease[] = [
         kind: 'improvement',
         text: 'El ritmo (palabras/min) se mide solo mientras hablas, sin contar permisos ni arranque, y se oculta el medidor de nivel donde no puede funcionar.',
       },
+      {
+        kind: 'fix',
+        text: 'El skeleton del inicio ya no tapa el footer mientras carga el dashboard.',
+      },
+      {
+        kind: 'feature',
+        text: 'Tres vídeos nuevos en Aprende: Docker, code review y stand-ups Agile, con transcripción real y resaltado palabra por palabra.',
+      },
+      {
+        kind: 'improvement',
+        text: 'Mejor sincronización: seguimiento de subtítulos más fino, pausa automática rearmada y repetición de línea con voz en modo sin conexión.',
+      },
     ],
   },
   {

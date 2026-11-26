@@ -45,6 +45,17 @@ describe('useTranscriptPlayer', () => {
     expect(speakLine).toHaveBeenCalledWith('Second line.')
   })
 
+  it('replays the line when looping, even though the active cue does not change', () => {
+    const { result } = renderHook(() => useTranscriptPlayer(cues, { enabled: true }))
+    act(() => result.current.togglePlay())
+    act(() => result.current.toggleLoop())
+    expect(speakLine).toHaveBeenCalledTimes(1)
+
+    act(() => void vi.advanceTimersByTime(2_200))
+    expect(result.current.time).toBeLessThan(2)
+    expect(speakLine).toHaveBeenCalledTimes(2)
+  })
+
   it('signals completion once when the transcript ends', () => {
     const onFinish = vi.fn()
     const { result } = renderHook(() =>

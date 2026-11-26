@@ -24,6 +24,9 @@ export function useTranscriptPlayer(
   const [offset, setOffset] = useState(0)
   const [loopLine, setLoopLine] = useState(false)
   const [autoPause, setAutoPause] = useState(false)
+  // Looping or seeking inside the same cue must replay its TTS even though the
+  // active index does not change.
+  const [speechRun, setSpeechRun] = useState(0)
 
   const timeRef = useRef(time)
   const rateRef = useRef(PLAYBACK_RATES[rateIndex])
@@ -58,6 +61,7 @@ export function useTranscriptPlayer(
       if (timeRef.current < cue.end) return
       if (loopRef.current) {
         timeRef.current = cue.start
+        setSpeechRun((run) => run + 1)
       } else if (autoPauseRef.current) {
         timeRef.current = cue.start
         setPlaying(false)
@@ -82,7 +86,7 @@ export function useTranscriptPlayer(
     if (!enabled || !playing || activeIndex < 0) return
     void stopTts()
     void speakLine(cues[activeIndex].en)
-  }, [activeIndex, enabled, playing, cues])
+  }, [activeIndex, enabled, playing, cues, speechRun])
 
   useEffect(() => {
     if (!enabled) return
@@ -152,6 +156,7 @@ export function useTranscriptPlayer(
   const seekTo = useCallback((seconds: number) => {
     timeRef.current = Math.max(0, seconds - offsetRef.current)
     setTime(timeRef.current)
+    setSpeechRun((run) => run + 1)
     finishedRef.current = false
   }, [])
 

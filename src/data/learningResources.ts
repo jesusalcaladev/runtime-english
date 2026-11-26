@@ -1,4 +1,8 @@
 import {
+  cues as standupsCues,
+  durationSeconds as standupsDuration,
+} from './videoTranscripts/agile-standups'
+import {
   cues as algorithmCues,
   durationSeconds as algorithmDuration,
 } from './videoTranscripts/algorithm'
@@ -6,6 +10,10 @@ import {
   cues as apisCues,
   durationSeconds as apisDuration,
 } from './videoTranscripts/apis-explained'
+import {
+  cues as codeReviewCues,
+  durationSeconds as codeReviewDuration,
+} from './videoTranscripts/code-review'
 import { cues as cicdCues, durationSeconds as cicdDuration } from './videoTranscripts/cicd'
 import {
   cues as communicateCues,
@@ -19,6 +27,10 @@ import {
   cues as cybersecurityCues,
   durationSeconds as cybersecurityDuration,
 } from './videoTranscripts/cybersecurity'
+import {
+  cues as dockerCues,
+  durationSeconds as dockerDuration,
+} from './videoTranscripts/docker-basics'
 import {
   cues as devCommunicationCues,
   durationSeconds as devCommunicationDuration,
@@ -1573,6 +1585,139 @@ export const VIDEO_LESSONS: VideoLesson[] = [
         answer: 0,
         explanation:
           'Primero se prueba la unidad, después se integran los módulos y finalmente llega el system testing.',
+      },
+    ],
+  },
+  {
+    id: 'docker-basics',
+    title: 'What is Docker in 5 minutes',
+    channel: 'Docker basics · explicado para developers',
+    youtubeId: 'S5vV6VMpiSU',
+    level: 'B1-B2',
+    topic: 'DevOps · Docker',
+    description:
+      'Qué es un contenedor, cómo se diferencia de una imagen y por qué el entorno aislado evita que la app se rompa al desplegarla. Sigue la transcripción palabra por palabra.',
+    segment: 'Video completo · 0:00 – 6:38',
+    durationSeconds: dockerDuration,
+    cues: dockerCues,
+    questions: [
+      {
+        id: 'docker-q1',
+        prompt: '¿Cómo describe el video Docker al principio?',
+        options: [
+          'Un entorno aislado donde puedes ejecutar la aplicación de principio a fin.',
+          'Un lenguaje para escribir tests.',
+          'Un servidor web gratuito.',
+          'Una base de datos en la nube.',
+        ],
+        answer: 0,
+        explanation: 'Dice “think of it like a fake environment that you can run your application from end to end”.',
+      },
+      {
+        id: 'docker-q2',
+        prompt: '¿Qué archivo se usa en el video para construir la imagen?',
+        options: ['Dockerfile.', 'package.json.', 'README.md.', 'docker-compose.yml.'],
+        answer: 0,
+        explanation: '“This is what makes the container. With a Dockerfile, you can then build the image.”',
+      },
+      {
+        id: 'docker-q3',
+        prompt: 'Según el video, ¿qué es una imagen?',
+        options: [
+          'Una versión guardada del entorno a partir de la que se crean contenedores.',
+          'Un contenedor ya en ejecución.',
+          'Un archivo de configuración del servidor.',
+          'Una captura de pantalla del deploy.',
+        ],
+        answer: 0,
+        explanation: 'Explica que las imágenes son versiones (1.0, 1.2) y que el contenedor las ejecuta de forma aislada.',
+      },
+    ],
+  },
+  {
+    id: 'agile-standups',
+    title: 'Agile Essentials: Sprints, Backlogs and Standups Explained',
+    channel: 'Agile explained',
+    youtubeId: 'c1iSFP8Q40g',
+    level: 'B1-B2',
+    topic: 'Agile · Reuniones técnicas',
+    description:
+      'Sprints, product backlog y daily stand-up explicados en inglés claro: vocabulario directo para tus reuniones de equipo.',
+    segment: 'Video completo · 0:00 – 2:18',
+    durationSeconds: standupsDuration,
+    cues: standupsCues,
+    questions: [
+      {
+        id: 'standups-q1',
+        prompt: '¿Qué es un sprint según el video?',
+        options: [
+          'Un ciclo corto de 1 a 4 semanas que entrega una pieza de trabajo terminada.',
+          'Una reunión de dos horas cada mes.',
+          'La lista completa de tareas del producto.',
+          'Una herramienta de programación.',
+        ],
+        answer: 0,
+        explanation: '“Agile works in short cycles called sprints, usually 1 to 4 weeks long.”',
+      },
+      {
+        id: 'standups-q2',
+        prompt: '¿Quién ordena el product backlog por valor?',
+        options: ['El product owner.', 'El equipo de diseño.', 'El cliente final.', 'Nadie, está desordenado.'],
+        answer: 0,
+        explanation: 'El video dice que el product owner posee la lista y la ordena por valor.',
+      },
+      {
+        id: 'standups-q3',
+        prompt: '¿Cuánto dura la reunión diaria recomendada?',
+        options: ['15 minutos.', '1 hora.', '2 horas.', 'Todo el día.'],
+        answer: 0,
+        explanation: 'La recomendación final es “meet for 15 minutes a day”.',
+      },
+    ],
+  },
+  {
+    id: 'code-review-best-practices',
+    title: 'Better Code Reviews in 6 Simple Steps',
+    channel: 'Continuous Delivery · Trisha Gee',
+    youtubeId: 'd9_fweNDjKw',
+    level: 'B1-B2',
+    topic: 'Code review · Colaboración',
+    description:
+      'Seis pasos para hacer revisiones de código menos dolorosas: estándares, automatización y comentarios útiles. Charla larga, ideal para listening avanzado.',
+    segment: 'Charla completa · 0:00 – 20:29',
+    durationSeconds: codeReviewDuration,
+    cues: codeReviewCues,
+    questions: [
+      {
+        id: 'code-review-q1',
+        prompt: '¿Cuántos pasos propone el video para mejorar las revisiones?',
+        options: ['Seis.', 'Tres.', 'Diez.', 'Uno.'],
+        answer: 0,
+        explanation: 'La introducción dice “I’m going to show you six steps”.',
+      },
+      {
+        id: 'code-review-q2',
+        prompt: '¿Qué tipo de comprobaciones se pueden automatizar?',
+        options: [
+          'Los estándares del proyecto y los tests automáticos.',
+          'Solo las decisiones de arquitectura.',
+          'Las opiniones del equipo.',
+          'Ninguna, todo debe revisarse a mano.',
+        ],
+        answer: 0,
+        explanation: 'El video distingue estándares automatizables de los que requieren criterio humano.',
+      },
+      {
+        id: 'code-review-q3',
+        prompt: '¿Qué debe comprobar el revisor aunque exista un test automático?',
+        options: [
+          'Que el test cubra de verdad el comportamiento esperado.',
+          'Que el test esté escrito en inglés.',
+          'Que el test se ejecute en producción.',
+          'Que no haya tests.',
+        ],
+        answer: 0,
+        explanation: 'Dice que el revisor debe asegurarse de que el automated test “really” comprueba lo que toca.',
       },
     ],
   },
