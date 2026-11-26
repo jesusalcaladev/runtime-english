@@ -1,5 +1,13 @@
-import { ArrowRight, BookOpen, Code2, MessageSquareText, Search, Sparkles } from 'lucide-preact'
-import { useMemo, useState } from 'preact/hooks'
+import {
+  ArrowRight,
+  BookOpen,
+  Code2,
+  MessageSquareText,
+  Search,
+  Sparkles,
+  X,
+} from 'lucide-preact'
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks'
 
 interface SearchItem {
   kind: 'session' | 'vocab' | 'phrase' | 'slang' | 'exercise'
@@ -12,6 +20,8 @@ interface SearchItem {
 interface Props {
   items: SearchItem[]
 }
+
+type KindFilter = 'all' | SearchItem['kind']
 
 function normalize(value: string): string {
   return value
@@ -31,8 +41,27 @@ const kindMeta = {
   exercise: { label: 'Ejercicio', icon: Code2 },
 } as const
 
+const KIND_OPTIONS: { value: KindFilter; label: string }[] = [
+  { value: 'all', label: 'Todas' },
+  { value: 'session', label: 'Sesiones' },
+  { value: 'vocab', label: 'Vocabulario' },
+  { value: 'phrase', label: 'Frases' },
+  { value: 'slang', label: 'Slang' },
+  { value: 'exercise', label: 'Ejercicios' },
+]
+
+function chipClass(active: boolean): string {
+  return `h-8 rounded-full px-3 text-[11px] transition ${
+    active
+      ? 'bg-accent/12 font-medium text-accent'
+      : 'bg-base-200 text-base-content/55 hover:text-base-content'
+  }`
+}
+
 export default function SearchView({ items }: Props) {
   const [query, setQuery] = useState('')
+  const [kind, setKind] = useState<KindFilter>('all')
+  const inputRef = useRef<HTMLInputElement>(null)
 
   const indexed = useMemo(
     () =>
@@ -43,11 +72,11 @@ export default function SearchView({ items }: Props) {
     [items],
   )
 
-  const results = useMemo(() => {
+  const scored = useMemo(() => {
     const q = normalize(query)
     if (q.length < 2) return []
     const terms = q.split(' ').filter(Boolean)
-    const scored = indexed
+    return indexed
       .map(({ item, haystack }) => {
         if (!terms.every((term) => haystack.includes(term))) return null
         let score = 0
@@ -60,9 +89,54 @@ export default function SearchView({ items }: Props) {
       })
       .filter((entry): entry is { item: SearchItem; score: number } => Boolean(entry))
       .sort((a, b) => b.score - a.score)
-      .slice(0, 60)
-    return scored.map((entry) => entry.item)
   }, [indexed, query])
+
+  const counts = useMemo(() => {
+    const byKind: Record<KindFilter, number> = {
+      all: scored.length,
+      session: 0,
+      vocab: 0,
+      phrase: 0,
+      slang: 0,
+      exercise: 0,
+    }
+    for (const { item } of scored) byKind[item.kind] += 1
+    return byKind
+  }, [scored])
+
+  const results = useMemo(() => {
+    const visible = kind === 'all' ? scored : scored.filter(({ item }) => item.kind === kind)
+    return visible.slice(0, 60).map(({ item }) => item)
+  }, [scored, kind])
+
+  // Autofocus only with a real pointer: on touch devices it would pop the keyboard immediately.
+  useEffect(() => {
+    if (window.matchMedia?.('(pointer: fine)').matches) inputRef.current?.focus()
+  }, [])
+
+  // Pressing "/" focuses search from anywhere, like a command palette (ignored while typing).
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey) return
+      const target = event.target as HTMLElement | null
+      const typing =
+        target?.tagName === 'INPUT' ||
+        target?.tagName === 'TEXTAREA' ||
+        Boolean(target?.isContentEditable)
+      if (typing) return
+      event.preventDefault()
+      inputRef.current?.focus()
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
+
+  function clearQuery() {
+    setQuery('')
+    inputRef.current?.focus()
+  }
+
+  const hasQuery = query.trim().length >= 2
 
   return (
     <div class="mx-auto max-w-[920px] animate-fade-up">
@@ -81,19 +155,58 @@ export default function SearchView({ items }: Props) {
 
       <div class="mt-6 rounded-2xl bg-base-200 p-2">
         <label class="flex items-center gap-3 rounded-xl bg-base-100 px-4 py-3">
-          <Search class="h-4 w-4 text-base-content/35" />
+          <Search class="h-4 w-4 shrink-0 text-base-content/35" />
           <input
+            ref={inputRef}
             type="search"
             value={query}
             onInput={(event) => setQuery((event.currentTarget as HTMLInputElement).value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') {
+                event.preventDefault()
+                clearQuery()
+              }
+            }}
             placeholder="Ej. pull request, deployment, bug, async, rizz..."
+            aria-label="Buscar en RuntimeEnglish"
+            aria-describedby="search-hint"
             class="w-full bg-transparent text-sm outline-none placeholder:text-base-content/30"
           />
+          {query.length > 0 && (
+            <button
+              type="button"
+              onClick={clearQuery}
+              aria-label="Limpiar búsqueda"
+              class="shrink-0 rounded-full p-1 text-base-content/40 transition hover:bg-base-200 hover:text-base-content"
+            >
+              <X class="h-4 w-4" />
+            </button>
+          )}
         </label>
+        <p id="search-hint" class="hidden px-2 pt-2 text-[11px] text-base-content/35 sm:block">
+          Escribe al menos 2 letras. Pulsa <kbd class="rounded bg-base-100 px-1.5 py-0.5">/</kbd>{' '}
+          para buscar y <kbd class="rounded bg-base-100 px-1.5 py-0.5">Esc</kbd> para limpiar.
+        </p>
       </div>
 
+      {hasQuery && (
+        <div class="mt-4 flex flex-wrap gap-2" aria-label="Filtrar resultados por tipo">
+          {KIND_OPTIONS.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => setKind(option.value)}
+              aria-pressed={kind === option.value}
+              class={chipClass(kind === option.value)}
+            >
+              {option.label} <span class="opacity-50">{counts[option.value]}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
       <div class="mt-6">
-        {query.trim().length < 2 ? (
+        {!hasQuery ? (
           <div class="rounded-2xl bg-base-200/60 px-4 py-7 text-center sm:px-5 sm:py-8">
             <p class="text-sm text-base-content/45">Empieza a escribir para ver resultados.</p>
           </div>
@@ -102,11 +215,19 @@ export default function SearchView({ items }: Props) {
             <p class="text-sm text-base-content/55">Sin resultados para "{query}".</p>
             <p class="mt-1 text-xs text-base-content/35">
               Prueba con otra palabra o en inglés/español.
+              {kind !== 'all' && ' También puedes quitar el filtro de categoría.'}
             </p>
           </div>
         ) : (
           <div class="space-y-2">
-            <p class="px-1 text-[11px] text-base-content/40">{results.length} resultados</p>
+            <p
+              role="status"
+              aria-label="Número de resultados"
+              aria-live="polite"
+              class="px-1 text-[11px] text-base-content/40"
+            >
+              {results.length} resultado{results.length === 1 ? '' : 's'}
+            </p>
             {results.map((item, index) => {
               const meta = kindMeta[item.kind]
               const Icon = meta.icon

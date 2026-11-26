@@ -29,6 +29,7 @@ import { phraseId, progressStore } from '../../lib/progress'
 import {
   ensureMicrophonePermission,
   getSpeechLanguage,
+  isMicLevelMeterSupported,
   isSpeechRecognitionSupported,
   recognizeOnce,
   releaseMicStream,
@@ -315,6 +316,7 @@ export default function ExerciseRunner({
     setMicError(null)
     setLiveText('')
     setMicLevel(0)
+    setSpeechWpm(null)
     const permitted = await ensureMicrophonePermission()
     if (run !== micRunRef.current) return
     if (!permitted) {
@@ -333,7 +335,6 @@ export default function ExerciseRunner({
       })
 
     setMicState('listening')
-    const startedAt = Date.now()
     const stopMeter = await startMicLevelMeter((level) => {
       if (run === micRunRef.current) setMicLevel(level)
     })
@@ -357,9 +358,12 @@ export default function ExerciseRunner({
     setMicState('done')
     setLiveText('')
     if (res.transcript) {
-      const seconds = Math.max(1, (Date.now() - startedAt) / 1000)
-      const words = exercise.answer.trim().split(/\s+/).filter(Boolean).length
-      setSpeechWpm(Math.round(words / (seconds / 60)))
+      // Measure only the time the learner was actually speaking. Including the
+      // permission prompt, recognizer startup and trailing silence produced a
+      // misleadingly low rate (especially on the first attempt).
+      const words = res.transcript.trim().split(/\s+/).filter(Boolean).length
+      const durationMs = res.speechDurationMs
+      setSpeechWpm(durationMs && durationMs >= 800 ? Math.round((words / durationMs) * 60_000) : null)
       setHeardText(res.transcript)
       setText(res.transcript)
       setMicError(null)
@@ -815,6 +819,7 @@ export default function ExerciseRunner({
                 onInput={(event) => setText((event.target as HTMLTextAreaElement).value)}
                 rows={exercise.type === 'roleplay' ? 3 : 2}
                 placeholder={tAction(stage, 'typeAnswer')}
+                aria-label={tAction(stage, 'typeAnswer')}
                 class="w-full resize-none rounded-2xl bg-base-200 px-4 py-3.5 font-mono text-sm text-base-content placeholder:text-base-content/25 disabled:opacity-70"
                 spellcheck={false}
               />
@@ -842,6 +847,7 @@ export default function ExerciseRunner({
                 onInput={(event) => setText((event.target as HTMLTextAreaElement).value)}
                 rows={2}
                 placeholder="Escribe lo que escuchaste…"
+                aria-label="Escribe lo que escuchaste"
                 class="w-full resize-none rounded-2xl bg-base-200 px-4 py-3.5 font-mono text-sm text-base-content placeholder:text-base-content/25 disabled:opacity-70"
                 spellcheck={false}
               />
@@ -913,7 +919,7 @@ export default function ExerciseRunner({
                     )}
                   </p>
                 )}
-                {micState === 'listening' && (
+                {micState === 'listening' && isMicLevelMeterSupported() && (
                   <div class="flex items-center gap-2" aria-hidden="true">
                     <span class="text-[10px] text-base-content/40">Nivel</span>
                     <span class="h-1 flex-1 overflow-hidden rounded-full bg-base-300">
@@ -974,6 +980,7 @@ export default function ExerciseRunner({
                 }}
                 rows={2}
                 placeholder="Escribe o corrige lo reconocido…"
+                aria-label="Escribe o corrige lo reconocido"
                 class="w-full resize-none rounded-2xl bg-base-200 px-4 py-3.5 font-mono text-sm text-base-content placeholder:text-base-content/25 disabled:opacity-70"
                 spellcheck={false}
               />
@@ -1021,6 +1028,7 @@ export default function ExerciseRunner({
                             value={blankValues[i] || ''}
                             disabled={status === 'correct'}
                             placeholder={`Espacio ${i + 1}`}
+                            aria-label={`Espacio ${i + 1}: completa la frase`}
                             autoComplete="off"
                             autoCapitalize="off"
                             autoCorrect="off"

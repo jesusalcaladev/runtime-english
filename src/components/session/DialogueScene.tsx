@@ -33,6 +33,13 @@ interface DialoguePlayback {
 type AudioReadiness = { ready: number; total: number }
 
 const LINE_GAP_MS = 280
+/** Keep the spoken bubble highlighted long enough to be noticed when TTS finishes instantly. */
+const LINE_HIGHLIGHT_MIN_MS = 900
+
+async function holdHighlight(startedAt: number): Promise<void> {
+  const remaining = LINE_HIGHLIGHT_MIN_MS - (Date.now() - startedAt)
+  if (remaining > 0) await new Promise((resolve) => setTimeout(resolve, remaining))
+}
 
 /** Slight voice differences so Maya and Leo do not sound like the same person. */
 const SPEAKER_STYLES: Record<DialogueLine['speaker'], { pitch: number; rateScale: number }> = {
@@ -66,6 +73,8 @@ function useDialoguePlayback(lines: DialogueLine[]): DialoguePlayback {
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const isMounted = useRef(true)
+  // Scheduled clears must not erase the highlight of a newer line the user tapped.
+  const activeToken = useRef(0)
 
   useEffect(() => {
     isMounted.current = true
@@ -85,25 +94,32 @@ function useDialoguePlayback(lines: DialogueLine[]): DialoguePlayback {
         const upcoming = lines[index + ahead]
         if (upcoming) primeSpeechPhrase(upcoming.en)
       }
+      const token = ++activeToken.current
+      const startedAt = Date.now()
+      // Tapping a single line takes over from continuous playback.
+      setIsPlaying(false)
       setActiveIndex(index)
       await speakLine(line.en, SPEAKER_STYLES[line.speaker])
-      if (isMounted.current) setActiveIndex(null)
+      await holdHighlight(startedAt)
+      if (isMounted.current && activeToken.current === token) setActiveIndex(null)
     },
     [lines],
   )
 
   const togglePlayback = useCallback(async () => {
     if (isPlaying) {
+      activeToken.current += 1
       stopSpeech()
       setIsPlaying(false)
       setActiveIndex(null)
       return
     }
 
+    const token = ++activeToken.current
     setIsPlaying(true)
     stopSpeech()
     for (let index = 0; index < lines.length; index += 1) {
-      if (!isMounted.current) return
+      if (!isMounted.current || activeToken.current !== token) return
       // Keep the next lines generating while the current one is speaking.
       for (let ahead = 1; ahead <= 3; ahead += 1) {
         const upcoming = lines[index + ahead]
@@ -113,9 +129,11 @@ function useDialoguePlayback(lines: DialogueLine[]): DialoguePlayback {
       if (!line) continue
       setActiveIndex(index)
       await speakLine(line.en, SPEAKER_STYLES[line.speaker])
+      // "Detener" must not let the next line light up after speech is cancelled.
+      if (!isMounted.current || activeToken.current !== token) return
       await new Promise((resolve) => setTimeout(resolve, LINE_GAP_MS))
     }
-    if (isMounted.current) {
+    if (isMounted.current && activeToken.current === token) {
       setActiveIndex(null)
       setIsPlaying(false)
     }

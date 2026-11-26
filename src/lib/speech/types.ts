@@ -30,4 +30,6 @@ export type SpeechRecognitionResult = {
   confidence: number
   supported: boolean
   error?: string
+  /** Milliseconds between the first and last heard words, when the engine reports it. */
+  speechDurationMs?: number
 }

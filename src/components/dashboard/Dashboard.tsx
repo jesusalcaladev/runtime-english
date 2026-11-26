@@ -43,7 +43,6 @@ import Roadmap from './Roadmap'
 
 interface Props {
   modules: NavModule[]
-  totalSessions: number
   totalExercises: number
   totalAchievements: number
   exerciseIds: string[]
@@ -58,7 +57,6 @@ function readLevelParam(): Level | null {
 
 export default function Dashboard({
   modules,
-  totalSessions,
   totalExercises,
   totalAchievements,
   exerciseIds,

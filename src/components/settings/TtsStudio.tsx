@@ -17,6 +17,7 @@ import {
   subscribePiperStatus,
   warmSpeechEngine,
 } from '../../lib/speech'
+import { emitToast } from '../../lib/toast'
 import { useProgress } from '../../lib/useProgress'
 
 const PREVIEW_TEXT = 'The build is green. Let us review the pull request before we deploy.'
@@ -69,7 +70,15 @@ export default function TtsStudio() {
   async function preview(name = selected) {
     setPreviewing(true)
     try {
-      await previewVoice(PREVIEW_TEXT, name || undefined)
+      const played = await previewVoice(PREVIEW_TEXT, name || undefined)
+      if (!played) {
+        emitToast(
+          'No se pudo reproducir la muestra. Prueba otro motor en «Pronunciación avanzada».',
+          'error',
+        )
+      }
+    } catch {
+      emitToast('No se pudo reproducir la muestra de voz.', 'error')
     } finally {
       setPreviewing(false)
     }

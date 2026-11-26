@@ -1,6 +1,6 @@
 ---
 import Dashboard from '../components/dashboard/Dashboard'
-import { getAllExerciseIds, getNavData, TOTAL_EXERCISES, TOTAL_SESSIONS } from '../data/curriculum'
+import { getAllExerciseIds, getNavData, TOTAL_EXERCISES } from '../data/curriculum'
 import BaseLayout from '../layouts/BaseLayout.astro'
 import { ACHIEVEMENTS } from '../lib/achievements'
 
@@ -24,7 +24,6 @@ const exerciseIds = getAllExerciseIds()
     <Dashboard
       client:only="preact"
       modules={modules}
-      totalSessions={TOTAL_SESSIONS}
       totalExercises={TOTAL_EXERCISES}
       totalAchievements={ACHIEVEMENTS.length}
       exerciseIds={exerciseIds}

@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   setSettings: vi.fn(),
   previewVoice: vi.fn().mockResolvedValue(true),
   stopTts: vi.fn(),
+  emitToast: vi.fn(),
 }))
 
 vi.mock('../../lib/useProgress', () => ({
@@ -26,6 +27,8 @@ vi.mock('../../lib/useProgress', () => ({
 }))
 
 vi.mock('../../lib/progress', () => ({ progressStore: { setSettings: mocks.setSettings } }))
+
+vi.mock('../../lib/toast', () => ({ emitToast: mocks.emitToast }))
 
 vi.mock('../../hooks/useKokoroStatus', () => ({
   useKokoroStatus: () => ({ state: 'idle', progress: 0, message: '' }),
@@ -53,6 +56,7 @@ afterEach(() => {
   mocks.setSettings.mockClear()
   mocks.previewVoice.mockClear()
   mocks.stopTts.mockClear()
+  mocks.emitToast.mockClear()
 })
 
 describe('TtsStudio', () => {
@@ -78,5 +82,16 @@ describe('TtsStudio', () => {
       ttsVoiceName: '',
       ttsEnabled: true,
     })
+  })
+
+  it('shows an error when the voice preview cannot be played', async () => {
+    mocks.previewVoice.mockResolvedValueOnce(false)
+    render(<TtsStudio />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Probar esta voz' }))
+
+    await waitFor(() =>
+      expect(mocks.emitToast).toHaveBeenCalledWith(expect.stringContaining('No se pudo'), 'error'),
+    )
   })
 })

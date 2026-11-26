@@ -71,6 +71,20 @@ describe('DialogueScene', () => {
     expect(screen.getByText('Morning, Leo.')).toBeTruthy()
   })
 
+  it('keeps a replayed line highlighted briefly even when speech ends instantly', async () => {
+    cleanup()
+    render(<DialogueScene title="Daily" lines={lines} />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reproducir: Leo' }))
+    await Promise.resolve()
+    expect(document.querySelector('[data-active="true"]')?.textContent).toContain(
+      'Morning, Maya.',
+    )
+
+    await new Promise((resolve) => setTimeout(resolve, 950))
+    expect(document.querySelector('[data-active="true"]')).toBeNull()
+  })
+
   it('shows when every line already has audio cached', () => {
     cleanup()
     const status = speech.getSpeechPhraseStatus as ReturnType<typeof vi.fn>

@@ -15,6 +15,12 @@
  * is what makes the first tap feel instant.
  */
 export const TTS_START_TIMEOUT_MS = 700
+/**
+ * Network-backed Web Speech voices (e.g. "Google US English") need real time to
+ * fetch the first audio on a cold start. Cancelling them at 700 ms made them
+ * look broken; local voices still use the short deadline above.
+ */
+export const TTS_REMOTE_START_TIMEOUT_MS = 2_500
 /** How long we wait for an online MP3 to start streaming before falling back. */
 export const TTS_BUFFER_TIMEOUT_MS = 250
 /** Hard cap for a single web utterance once it has started (keep-alive keeps it alive). */

@@ -4,11 +4,16 @@ import {
   getSpeechPitch,
   getSpeechRate,
   isNativePlatform,
-  wait,
 } from './platform'
 import type { SpeechStyle } from './types'
 import { setSpeaking } from './ui'
-import { TTS_START_TIMEOUT_MS, TTS_UTTERANCE_TIMEOUT_MS } from './watchdog'
+import {
+  TTS_REMOTE_START_TIMEOUT_MS,
+  TTS_START_TIMEOUT_MS,
+  TTS_UTTERANCE_TIMEOUT_MS,
+  ttsAttemptDeadlineMs,
+  withFallback,
+} from './watchdog'
 
 let cachedVoice: SpeechSynthesisVoice | null = null
 let voicesPromise: Promise<SpeechSynthesisVoice[]> | null = null
@@ -119,6 +124,11 @@ export function hasUsableWebVoice(): boolean {
   }
 }
 
+/** Network voices need a longer first-word window than local ones. */
+export function ttsStartTimeoutForVoice(voice: SpeechSynthesisVoice | null): number {
+  return voice && !voice.localService ? TTS_REMOTE_START_TIMEOUT_MS : TTS_START_TIMEOUT_MS
+}
+
 export async function stopNativeSpeech() {
   if (!isNativePlatform()) return
   try {
@@ -177,33 +187,45 @@ export async function speakNative(
     const { TextToSpeech } = await import('@capacitor-community/text-to-speech')
     const { lang, voice } = await resolveNativeVoice()
 
-    await TextToSpeech.stop().catch(() => undefined)
-
-    const options = {
+    const makeOptions = (useVoice: boolean): Record<string, unknown> => ({
       text,
       lang,
       rate: getSpeechRate() * (style?.rateScale ?? 1),
       pitch: (style?.pitch ?? 1) * getSpeechPitch(),
       volume: 1,
-      ...(typeof voice === 'number' ? { voice } : {}),
+      ...(useVoice && typeof voice === 'number' ? { voice } : {}),
       queueStrategy: 0,
-    } as Record<string, unknown>
+    })
 
-    // Show "playing" state while native TTS is active.
+    // The plugin resolves `speak()` only on onDone/onError, and `stop()` clears
+    // pending callbacks without settling them. Bound each attempt so a frozen
+    // engine (or an interrupted utterance) can never hang a preview or a lesson.
+    const speakOnce = (useVoice: boolean): Promise<boolean> =>
+      withFallback(
+        TextToSpeech.speak(makeOptions(useVoice) as never)
+          .then(() => true)
+          .catch(() => false),
+        ttsAttemptDeadlineMs(text),
+        false,
+        () => {
+          void TextToSpeech.stop().catch(() => undefined)
+        },
+      )
+
+    await TextToSpeech.stop().catch(() => undefined)
     setSpeaking(button, true)
     try {
-      await TextToSpeech.speak(options as never)
-      return true
-    } catch {
-      await wait(350)
-      await TextToSpeech.speak(options as never)
-      return true
+      if (await speakOnce(true)) return true
+      // A stale/unsupported voice index is a common failure: let Android pick
+      // its own default voice once before giving up.
+      await TextToSpeech.stop().catch(() => undefined)
+      return await speakOnce(false)
+    } finally {
+      setSpeaking(button, false)
     }
   } catch {
     setSpeaking(button, false)
     return false
-  } finally {
-    setSpeaking(button, false)
   }
 }
 
@@ -317,6 +339,8 @@ export async function speakWeb(
 
       // If no audio starts quickly, cancel the stuck native queue and report
       // failure so the router can use the fast online voice without delay.
+      // Remote voices legitimately take longer on their first word.
+      const startTimeout = ttsStartTimeoutForVoice(voice ?? null)
       startTimer = window.setTimeout(() => {
         if (started || finished) return
         abortedByUs = true
@@ -324,7 +348,7 @@ export async function speakWeb(
           synth.cancel()
         } catch {}
         finish(false)
-      }, TTS_START_TIMEOUT_MS)
+      }, startTimeout)
 
       try {
         synth.speak(utterance)

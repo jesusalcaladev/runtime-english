@@ -12,7 +12,7 @@ RuntimeEnglish is a web (PWA-ready) and Android app for learning **technical Eng
 - **A1–C2 technical English path** with curriculum modules and guided sessions
 - **Duolingo-style conversations** in the main sessions: two avatars, sequential TTS playback, per-line replay and microphone shadowing, followed by comprehension questions
 - **Interactive exercises** (e.g. choice, builder, write) with XP, streaks, and session completion
-- **Search and quick practice** (`/search`, `/practice`) to review content efficiently
+- **Search and quick practice** (`/search`, `/practice`) to review content efficiently — search ignores accents, filters by content type, and supports `/` to focus and `Esc` to clear
 - **Dictionary / phrasebook** tools for vocabulary practice
 - **Achievements and dashboard insights** to track progress
 - **Slang deck (2026)** with searchable/filterable developer terms (`/slang`)

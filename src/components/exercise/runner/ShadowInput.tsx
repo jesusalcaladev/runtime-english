@@ -122,6 +122,7 @@ export default function ShadowInput({
         }}
         rows={2}
         placeholder="O escribe aquí lo que repetiste…"
+        aria-label="Escribe lo que repetiste"
         class="w-full resize-none rounded-2xl bg-base-200 px-4 py-3.5 font-mono text-sm text-base-content placeholder:text-base-content/25 disabled:opacity-70"
         spellcheck={false}
       />

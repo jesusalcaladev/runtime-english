@@ -63,6 +63,7 @@ export { previewVoice, stopTts } from './preview'
 export {
   ensureMicrophonePermission,
   getMicrophonePermissionStatus,
+  isMicLevelMeterSupported,
   isSpeechRecognitionSupported,
   recognizeOnce,
   releaseMicStream,
@@ -452,13 +453,27 @@ async function tryKokoroPlayback(text: string, button?: HTMLElement | null): Pro
   return handled
 }
 
+/** Bounded Google playback, shared by the system fallback and the Google engine. */
+function tryOnlinePlayback(text: string, button?: HTMLElement | null): Promise<boolean> {
+  return withFallback(
+    speakWithGoogle(text, button).catch(() => false),
+    ttsAttemptDeadlineMs(text),
+    false,
+    () => stopSpeech(),
+  )
+}
+
 async function playWithSystemVoice(
   text: string,
   button?: HTMLElement | null,
   style?: SpeechStyle,
+  allowOnlineFallback = true,
 ): Promise<boolean> {
   if (isNativePlatform()) {
-    return speakNative(text, button, style)
+    const handledByNative = await speakNative(text, button, style).catch(() => false)
+    if (handledByNative) return true
+    // Some devices have no English TTS data: the online voice still works there.
+    return allowOnlineFallback ? tryOnlinePlayback(text, button) : false
   }
 
   // Skip Web Speech when the browser has no English voice available right now.
@@ -470,13 +485,7 @@ async function playWithSystemVoice(
   }
 
   // Brave/Linux often has no Web Speech voices: use the fast online voice first.
-  const googleHandled = await withFallback(
-    speakWithGoogle(text, button).catch(() => false),
-    ttsAttemptDeadlineMs(text),
-    false,
-    () => stopSpeech(),
-  )
-  if (googleHandled) return true
+  if (await tryOnlinePlayback(text, button)) return true
 
   // Last resort: a Kokoro model that is already loaded (never wait for download).
   return tryKokoroPlayback(text, button)
@@ -490,13 +499,16 @@ async function playSpeech(
   const engine = getSpeechEngine()
 
   if (engine === 'google') {
-    const googleHandled = await withFallback(
-      speakWithGoogle(text, button).catch(() => false),
-      ttsAttemptDeadlineMs(text),
-      false,
-      () => stopSpeech(),
-    )
-    if (googleHandled) return
+    if (await tryOnlinePlayback(text, button)) return
+    if (isNativePlatform()) {
+      // Online failed (blocked endpoint/offline): use the device's own voice.
+      if (await playWithSystemVoice(text, button, style, false)) return
+      if (await tryKokoroPlayback(text, button)) return
+      setSpeaking(button, false)
+      setSpeakLoading(button, false)
+      emitToast('No se pudo reproducir la voz online ni la del dispositivo.', 'error')
+      return
+    }
     if (hasUsableWebVoice()) {
       const handledByWeb = await speakWeb(text, button, style).catch(() => false)
       if (handledByWeb) return
@@ -557,11 +569,12 @@ async function playSpeech(
   }
 
   if (isNativePlatform()) {
-    const handled = await speakNative(text, button, style).catch(() => false)
+    // Native voice first; online voice covers devices without English TTS data.
+    const handled = await playWithSystemVoice(text, button, style).catch(() => false)
     if (!handled) {
       setSpeaking(button, false)
       setSpeakLoading(button, false)
-      emitToast('No se pudo reproducir la voz nativa.', 'error')
+      emitToast('No se pudo reproducir la voz nativa ni la online.', 'error')
     }
     return
   }

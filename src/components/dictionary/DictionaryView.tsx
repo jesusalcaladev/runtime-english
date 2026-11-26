@@ -357,12 +357,14 @@ export default function DictionaryView() {
                   value={manualEn}
                   onInput={(e) => setManualEn((e.target as HTMLInputElement).value)}
                   placeholder="Frase en inglés"
+                  aria-label="Frase en inglés"
                   class="h-10 rounded-xl bg-base-100 px-3 text-sm"
                 />
                 <input
                   value={manualEs}
                   onInput={(e) => setManualEs((e.target as HTMLInputElement).value)}
                   placeholder="Significado"
+                  aria-label="Significado"
                   class="h-10 rounded-xl bg-base-100 px-3 text-sm"
                 />
                 <button

@@ -1,5 +1,5 @@
 import { emitToast } from '../toast'
-import { isNativePlatform } from './platform'
+import { isMobileLikeDevice, isNativePlatform } from './platform'
 import type { SpeechRecognitionResult } from './types'
 
 interface SpeechRecognitionAlternativeLike {
@@ -78,7 +78,8 @@ const WEB_ERROR_MESSAGES: Record<string, string> = {
     'El servicio de reconocimiento de voz no está disponible en este dispositivo.',
   'no-speech': 'No se detectó voz. Habla más cerca del micrófono e inténtalo de nuevo.',
   'audio-capture': 'No se encontró un micrófono disponible.',
-  network: 'Error de red al usar el reconocimiento de voz.',
+  network:
+    'Error de red al usar el reconocimiento de voz. En Chromium/Brave suele faltar el servicio de voz: usa Chrome/Edge o escribe tu respuesta.',
   aborted: 'Reconocimiento cancelado.',
 }
 
@@ -90,11 +91,15 @@ const NATIVE_START_FAILED_MESSAGE =
   'No se pudo iniciar el micrófono. Revisa que haya un servicio de voz disponible.'
 
 /** Time after the last partial result before we treat natural speech as finished. */
-const NATIVE_SILENCE_MS = 1_500
+const NATIVE_SILENCE_MS = 2_500
 /** A `stopped` with no text this soon after start means the recognizer never really started. */
 const NATIVE_STARTUP_GRACE_MS = 600
-/** `onEndOfSpeech` can precede `onResults`; wait briefly for the final transcript. */
-const NATIVE_FINAL_RESULT_GRACE_MS = 250
+/**
+ * Android fires `onEndOfSpeech` before `onResults`, and network recognition can
+ * take a while to deliver the final transcript. Settling any sooner dropped the
+ * final (better) result and produced false "no speech" errors.
+ */
+const NATIVE_FINAL_RESULT_GRACE_MS = 900
 
 let nativeSpeechPromise: Promise<NativeSpeechRecognition | null> | null = null
 let activeWebRecognition: SpeechRecognitionInstance | null = null
@@ -124,9 +129,19 @@ export function releaseMicStream(): void {
   micStream = null
 }
 
+/**
+ * The level meter needs a second getUserMedia capture. That is impossible in the
+ * native WebView and risky on mobile web, where it can break the recognizer's own
+ * audio capture. In those cases the UI must not show a meter stuck at zero.
+ */
+export function isMicLevelMeterSupported(): boolean {
+  if (typeof window === 'undefined' || isNativePlatform() || isMobileLikeDevice()) return false
+  return typeof navigator !== 'undefined' && typeof navigator.mediaDevices?.getUserMedia === 'function'
+}
+
 /** Live 0..1 input level for the listening UI. No-op on platforms without getUserMedia. */
 export async function startMicLevelMeter(onLevel: (level: number) => void): Promise<() => void> {
-  if (typeof window === 'undefined' || isNativePlatform()) return () => {}
+  if (!isMicLevelMeterSupported()) return () => {}
   const stream = await getMicStream()
   if (!stream) return () => {}
 
@@ -413,6 +428,7 @@ type NativeAttemptResult = {
   error?: string
   /** True when a popup retry is worth trying (no permission/not-available/cancel). */
   retryable: boolean
+  speechDurationMs?: number
 }
 
 /**
@@ -432,6 +448,9 @@ function runNativeAttempt(
   return new Promise((resolve) => {
     let isSettled = false
     let lastText = ''
+    let firstTextAt: number | null = null
+    let lastTextAt: number | null = null
+    let stopSignalled = false
     let silenceId: number | null = null
     let finalResultId: number | null = null
     let timeoutId: number | null = null
@@ -466,6 +485,10 @@ function runNativeAttempt(
         confidence: transcript ? 1 : 0,
         error: transcript ? undefined : failure?.message,
         retryable: transcript ? false : Boolean(failure?.retryable),
+        speechDurationMs:
+          firstTextAt !== null && lastTextAt !== null && lastTextAt > firstTextAt
+            ? lastTextAt - firstTextAt
+            : undefined,
       })
     }
 
@@ -479,40 +502,52 @@ function runNativeAttempt(
       } catch {}
     }
 
+    /** Wait for the final `onResults`, then settle with the best text we heard. */
+    const scheduleFinalSettlement = () => {
+      clearFinalResultTimer()
+      finalResultId = window.setTimeout(() => {
+        if (lastText) finish(lastText)
+        else fail(NATIVE_NO_SPEECH_MESSAGE)
+      }, NATIVE_FINAL_RESULT_GRACE_MS)
+    }
+
     const handlePartialResults = (data: NativeListenerData) => {
       if (!usePartial) return
       const text = firstNativeMatch(data.matches)
       if (!text) return
+      const now = Date.now()
+      if (firstTextAt === null) firstTextAt = now
+      lastTextAt = now
       lastText = text
-      if (usePartial) onPartial?.(text)
+      onPartial?.(text)
+      // After stop() the recognizer can still emit its final result; keep the
+      // grace window open instead of throwing that better transcript away.
+      if (stopSignalled) {
+        scheduleFinalSettlement()
+        return
+      }
       clearFinalResultTimer()
       clearSilenceTimer()
-      // Native recognition stays open until stopped: a short pause means the user finished.
+      // Native recognition stays open until stopped: a pause means the user finished.
       silenceId = window.setTimeout(() => {
         stopListening()
-        finish(lastText)
+        scheduleFinalSettlement()
       }, NATIVE_SILENCE_MS)
     }
 
     const handleListeningState = (data: NativeListenerData) => {
       if (data.status !== 'stopped') return
       if (mode.popup) return // The system dialog reports its result through start().
-      if (lastText) {
-        finish(lastText)
-        return
-      }
+      stopSignalled = true
+      clearSilenceTimer()
       const elapsed = Date.now() - startedAt
-      if (elapsed < NATIVE_STARTUP_GRACE_MS) {
+      if (!lastText && elapsed < NATIVE_STARTUP_GRACE_MS) {
         // An instant "stopped" means the recognizer failed to start (missing voice service).
         fail(NATIVE_START_FAILED_MESSAGE)
         return
       }
       // Android fires onEndOfSpeech before onResults; allow the final transcript in.
-      clearFinalResultTimer()
-      finalResultId = window.setTimeout(
-        () => fail(NATIVE_NO_SPEECH_MESSAGE),
-        NATIVE_FINAL_RESULT_GRACE_MS,
-      )
+      scheduleFinalSettlement()
     }
 
     void (async () => {
@@ -564,6 +599,7 @@ function toSpeechResult(attempt: NativeAttemptResult): SpeechRecognitionResult {
     confidence: attempt.confidence,
     supported: true,
     error: attempt.error,
+    speechDurationMs: attempt.speechDurationMs,
   }
 }
 
@@ -653,6 +689,8 @@ function recognizeWithWeb(
     let isSettled = false
     let finalTranscript = ''
     let liveTranscript = ''
+    let firstHeardAt: number | null = null
+    let lastHeardAt: number | null = null
     let finalizeId: number | null = null
     const recognition = new SpeechRecognition()
     activeWebRecognition = recognition
@@ -685,6 +723,10 @@ function recognizeWithWeb(
         confidence: transcript ? 1 : 0,
         supported: true,
         error: transcript ? undefined : error,
+        speechDurationMs:
+          transcript && firstHeardAt !== null && lastHeardAt !== null && lastHeardAt > firstHeardAt
+            ? lastHeardAt - firstHeardAt
+            : undefined,
       })
     }
 
@@ -710,7 +752,12 @@ function recognizeWithWeb(
           }
         }
         const preview = `${finalTranscript} ${liveTranscript}`.trim()
-        if (preview) onPartial?.(preview)
+        if (preview) {
+          const now = Date.now()
+          if (firstHeardAt === null) firstHeardAt = now
+          lastHeardAt = now
+          onPartial?.(preview)
+        }
         if (finalTranscript) {
           // Wait briefly for a possible trailing final result before settling.
           clearFinalizeTimer()

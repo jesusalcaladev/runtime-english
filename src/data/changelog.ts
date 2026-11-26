@@ -40,6 +40,38 @@ export const CHANGELOG: ChangelogRelease[] = [
         kind: 'improvement',
         text: 'Nuevos logros de maestría y el progreso C1-C2 se tiene en cuenta en el nivel de inmersión de la interfaz.',
       },
+      {
+        kind: 'improvement',
+        text: 'Búsqueda más ágil: filtros por tipo de contenido, sin importar tildes, atajo "/" para buscar y "Esc" para limpiar, y mejor acceso con lector de pantalla.',
+      },
+      {
+        kind: 'fix',
+        text: 'En las conversaciones, la línea que suena sigue resaltada el tiempo justo para que se vea aunque la voz termine al instante.',
+      },
+      {
+        kind: 'improvement',
+        text: 'Mejor accesibilidad: todos los campos y controles visibles tienen nombre para lectores de pantalla, incluidos los huecos de los ejercicios y el diccionario.',
+      },
+      {
+        kind: 'fix',
+        text: 'La muestra de pronunciación ya no se corta a los 2 segundos: se considera que suena en cuanto empieza, sin esperar a que termine la frase.',
+      },
+      {
+        kind: 'fix',
+        text: '«Probar voz» usa el motor elegido (Google, Piper, Kokoro si está listo) y, en Android, la voz nativa del dispositivo en vez de depender de la red.',
+      },
+      {
+        kind: 'fix',
+        text: 'La voz online cae a la voz del dispositivo (y al revés) si un motor falla, y una voz nativa bloqueada ya no deja la muestra cargando para siempre.',
+      },
+      {
+        kind: 'fix',
+        text: 'Micrófono en Android: se espera el resultado final de la frase y se toleran pausas más largas, en vez de decir «no te escuché» prematuramente.',
+      },
+      {
+        kind: 'improvement',
+        text: 'El ritmo (palabras/min) se mide solo mientras hablas, sin contar permisos ni arranque, y se oculta el medidor de nivel donde no puede funcionar.',
+      },
     ],
   },
   {

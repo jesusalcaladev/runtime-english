@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { recognizeOnce, stopSpeechRecognition } from './recognition'
+import { isMicLevelMeterSupported, recognizeOnce, stopSpeechRecognition } from './recognition'
 
 type ListenerData = { matches?: string[]; status?: 'started' | 'stopped' }
 type Listener = (data: ListenerData) => void
@@ -69,6 +69,10 @@ describe('recognizeOnce (native plugin)', () => {
     vi.clearAllMocks()
   })
 
+  it('does not offer a level meter that cannot work in the WebView', () => {
+    expect(isMicLevelMeterSupported()).toBe(false)
+  })
+
   it('uses final matches when no partial callback is provided', async () => {
     const native = await getNativeMock()
     native.start.mockResolvedValueOnce({ matches: ['hello world'] })
@@ -98,6 +102,24 @@ describe('recognizeOnce (native plugin)', () => {
     listeners.listeningState?.({ status: 'stopped' })
     const result = await promise
     expect(result.transcript).toBe('hello world')
+  })
+
+  it('waits for the final transcript that arrives after listening stopped', async () => {
+    const native = await getNativeMock()
+    const listeners = captureListeners(native)
+
+    const promise = recognizeOnce('en-US', 3_000, vi.fn())
+    await flushMicrotasks()
+
+    listeners.partialResults?.({ matches: ['hello'] })
+    // Android emits onEndOfSpeech before onResults; the final text comes later.
+    listeners.listeningState?.({ status: 'stopped' })
+    await new Promise((resolve) => setTimeout(resolve, 150))
+    listeners.partialResults?.({ matches: ['hello world'] })
+
+    const result = await promise
+    expect(result.transcript).toBe('hello world')
+    expect(result.speechDurationMs).toBeGreaterThan(0)
   })
 
   it('reports unavailable devices without ever starting recognition', async () => {

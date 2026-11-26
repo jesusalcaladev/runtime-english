@@ -1,11 +1,13 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/preact'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/preact'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import * as speech from '../../lib/speech'
 import type { Exercise } from '../../lib/types'
 import ExerciseRunner from './ExerciseRunner'
 
 vi.mock('../../lib/speech', () => ({
   ensureMicrophonePermission: vi.fn().mockResolvedValue(true),
   getSpeechLanguage: vi.fn().mockReturnValue('en-US'),
+  isMicLevelMeterSupported: vi.fn().mockReturnValue(false),
   isSpeechRecognitionSupported: vi.fn().mockReturnValue(false),
   recognizeOnce: vi.fn().mockResolvedValue({ transcript: '', confidence: 0, supported: false }),
   releaseMicStream: vi.fn(),
@@ -15,6 +17,15 @@ vi.mock('../../lib/speech', () => ({
 }))
 
 const checkButton = () => screen.getByRole('button', { name: /Comprobar|Check/ })
+
+beforeEach(() => {
+  vi.mocked(speech.isSpeechRecognitionSupported).mockReturnValue(false)
+  vi.mocked(speech.recognizeOnce).mockResolvedValue({
+    transcript: '',
+    confidence: 0,
+    supported: false,
+  })
+})
 
 afterEach(() => cleanup())
 
@@ -131,6 +142,61 @@ describe('ExerciseRunner new exercise types', () => {
     fireEvent.click(screen.getByText('roll back'))
     fireEvent.click(checkButton())
     expect(screen.getByText('Dos acciones de despliegue.')).toBeTruthy()
+  })
+
+  it('computes words-per-minute from speech time, not permission/startup time', async () => {
+    vi.mocked(speech.isSpeechRecognitionSupported).mockReturnValue(true)
+    vi.mocked(speech.recognizeOnce).mockResolvedValueOnce({
+      transcript: 'hello world',
+      confidence: 1,
+      supported: true,
+      speechDurationMs: 3_000,
+    })
+    const exercise: Exercise = {
+      id: 'speak-wpm',
+      type: 'speak',
+      prompt: 'Di la frase',
+      answer: 'hello world',
+      explanation: 'Bien.',
+    }
+    render(
+      <ExerciseRunner
+        sessionId="test-speak"
+        sessionTitle="Test"
+        exercises={[exercise]}
+        next={null}
+      />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Practicar pronunciación con micrófono' }))
+
+    await waitFor(() => expect(screen.getByText(/palabras\/min/)).toBeTruthy())
+    // Two words in three seconds of actual speech -> 40 ppm.
+    expect(screen.getByText('40 palabras/min')).toBeTruthy()
+  })
+
+  it('labels fill-in-the-blank inputs and checks the completed sentence', () => {
+    const exercise: Exercise = {
+      id: 'test-fill',
+      type: 'fill-blank',
+      prompt: 'Completa la frase',
+      template: 'I ___ the PR yesterday.',
+      blanks: ['pushed'],
+      explanation: 'Uso correcto del pasado.',
+    }
+    render(
+      <ExerciseRunner
+        sessionId="test-fill-session"
+        sessionTitle="Test"
+        exercises={[exercise]}
+        next={null}
+      />,
+    )
+
+    const blank = screen.getByRole('textbox', { name: 'Espacio 1: completa la frase' })
+    fireEvent.input(blank, { target: { value: 'pushed' } })
+    fireEvent.click(checkButton())
+    expect(screen.getByText('Uso correcto del pasado.')).toBeTruthy()
   })
 
   it('muestra y oculta la pista bajo demanda en cualquier tipo de ejercicio', () => {
