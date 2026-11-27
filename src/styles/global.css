@@ -84,8 +84,8 @@
     sans-serif;
   --font-mono: "Geist Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
   --font-display: "Geist Pixel Variable", "Geist Variable", ui-sans-serif, system-ui, sans-serif;
-  --animate-fade-up: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
-  --animate-pop: pop 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-fade-up: fade-up 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-pop: pop 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-fade-in: fade-in 0.2s ease-out both;
   --animate-fade-out: fade-out 0.2s ease-in both;
   --animate-sheet-up: sheet-up 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -142,22 +142,22 @@
   @keyframes fade-up {
     from {
       opacity: 0;
-      transform: translateY(8px);
+      transform: translate3d(0, 8px, 0);
     }
     to {
       opacity: 1;
-      transform: translateY(0);
+      transform: translate3d(0, 0, 0);
     }
   }
 
   @keyframes pop {
     0% {
       opacity: 0;
-      transform: scale(0.97);
+      transform: scale(0.97) translate3d(0, 0, 0);
     }
     100% {
       opacity: 1;
-      transform: scale(1);
+      transform: scale(1) translate3d(0, 0, 0);
     }
   }
 }

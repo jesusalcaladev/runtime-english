@@ -130,7 +130,9 @@ export default function DictionaryView() {
             />
           </div>
           {hard > 0 && (
-            <p class="mt-1.5 text-[10px] text-base-content/45">{hard} difíciles · {mastered} dominadas</p>
+            <p class="mt-1.5 text-[10px] text-base-content/45">
+              {hard} difíciles · {mastered} dominadas
+            </p>
           )}
         </div>
 
@@ -520,7 +522,9 @@ function PhraseCard({
 
       <div class="mt-3 flex flex-wrap items-center gap-2">
         <span class={`rounded-full px-2.5 py-1 text-[10px] font-medium ${m.tone}`}>{m.label}</span>
-        <span class={`rounded-full px-2.5 py-1 text-[10px] font-medium ${diff.cls}`}>{diff.label}</span>
+        <span class={`rounded-full px-2.5 py-1 text-[10px] font-medium ${diff.cls}`}>
+          {diff.label}
+        </span>
       </div>
       <div class="mt-2 h-1 w-full overflow-hidden rounded-full bg-base-content/[0.07]">
         <div

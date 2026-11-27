@@ -255,7 +255,6 @@ export default function SlangExplorer({ entries }: Props) {
                     <p class="text-[11px] leading-relaxed text-warning/90">{entry.caution}</p>
                   </div>
                 )}
-
               </article>
             )
           })}
