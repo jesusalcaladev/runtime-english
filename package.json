@@ -8,6 +8,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "clean": "rm -rf dist .astro coverage test-results android/app/build android/.gradle android/build android/.kotlin android/app/src/main/assets/public",
     "check": "astro check",
     "test": "vitest run",
     "test:fast": "vitest run src/lib",
