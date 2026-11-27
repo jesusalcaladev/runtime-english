@@ -72,7 +72,7 @@ describe('certificates', () => {
 
   it('builds certificate share URL from PUBLIC_APP_URL', () => {
     vi.stubEnv('PUBLIC_APP_URL', 'https://runtimeenglish.dev/')
-    expect(certificateShareUrl('ab12cd')).toBe('https://runtimeenglish.dev/verify?id=AB12CD')
+    expect(certificateShareUrl('ab12cd')).toBe('https://runtimeenglish.dev/verify.html?id=AB12CD')
   })
 
   it('skips issuance when issue endpoint is not configured', async () => {

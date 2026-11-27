@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const mocks = vi.hoisted(() => ({
   getWebVoices: vi.fn().mockResolvedValue([]),
   hasUsableWebVoice: vi.fn(() => false),
+  noteSpeechCancel: vi.fn(),
   speakNative: vi.fn().mockResolvedValue(true),
   stopNativeSpeech: vi.fn().mockResolvedValue(undefined),
   speakWithGoogle: vi.fn().mockResolvedValue(true),
@@ -24,6 +25,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock('./browser', () => ({
   getWebVoices: mocks.getWebVoices,
   hasUsableWebVoice: mocks.hasUsableWebVoice,
+  noteSpeechCancel: mocks.noteSpeechCancel,
   speakNative: mocks.speakNative,
   stopNativeSpeech: mocks.stopNativeSpeech,
 }))

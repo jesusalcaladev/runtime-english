@@ -21,7 +21,7 @@ import { emitToast } from '../../lib/toast'
 import { useProgress } from '../../lib/useProgress'
 
 const PREVIEW_TEXT = 'The build is green. Let us review the pull request before we deploy.'
-const RATES = [0.6, 0.75, 0.85, 1, 1.1, 1.25, 1.5, 1.75]
+const RATES = [0.75, 1, 1.25, 1.5]
 
 export default function TtsStudio() {
   const state = useProgress()
@@ -284,7 +284,7 @@ export default function TtsStudio() {
         <div class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
           {(
             [
-              { value: 'google' as const, label: 'Google', desc: 'Online gratis, al instante' },
+              { value: 'google' as const, label: 'Online', desc: 'Voz instantánea sin descargas' },
               { value: 'system' as const, label: 'Sistema', desc: 'Voz del dispositivo' },
               { value: 'kokoro' as const, label: 'HQ Kokoro', desc: 'Neural local' },
               { value: 'piper' as const, label: 'Piper', desc: 'Rápida y natural' },
@@ -318,21 +318,6 @@ export default function TtsStudio() {
             )
           })}
         </div>
-
-        <p class="mt-2 text-[10px] leading-relaxed text-base-content/45">
-          Motor activo:{' '}
-          <span class="font-mono text-accent">
-            {state.settings.ttsEngine === 'google'
-              ? 'Google'
-              : state.settings.ttsEngine === 'kokoro'
-                ? 'HQ Kokoro'
-                : state.settings.ttsEngine === 'piper'
-                  ? 'Piper'
-                  : 'Sistema'}
-          </span>
-          . Las líneas siguientes de cada conversación se preparan en segundo plano mientras suena
-          la actual.
-        </p>
 
         {showAdvanced && (state.settings.ttsEngine === 'kokoro' || kokoro.state !== 'idle') && (
           <div class="mt-3 rounded-xl bg-base-100/60 p-3">

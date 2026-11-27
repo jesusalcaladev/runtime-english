@@ -89,6 +89,9 @@ importers:
       preact:
         specifier: ^11.2.0
         version: 11.2.0(preact-render-to-string@6.8.2)
+      qrcode-generator:
+        specifier: ^2.0.4
+        version: 2.0.4
       tailwindcss:
         specifier: ^4.3.5
         version: 4.3.5
@@ -129,6 +132,9 @@ importers:
       happy-dom:
         specifier: ^21.0.4
         version: 21.0.4
+      jsqr:
+        specifier: ^1.4.0
+        version: 1.4.0
       msw:
         specifier: ^2.15.0
         version: 2.15.0(@types/node@26.6.6)(typescript@5.9.3)
@@ -2830,6 +2836,9 @@ packages:
   jspdf@4.2.1:
     resolution: {integrity: sha512-YyAXyvnmjTbR4bHQRLzex3CuINCDlQnBqoSYyjJwTP2x9jDLuKDzy7aKUl0hgx3uhcl7xzg32agn5vlie6HIlQ==}
 
+  jsqr@1.4.0:
+    resolution: {integrity: sha512-dxLob7q65Xg2DvstYkRpkYtmKm2sPJ9oFhrhmudT1dZvNFFTlroai3AWSpLey/w5vMcLBXRgOJsbXpdN9HzU/A==}
+
   kleur@3.0.3:
     resolution: {integrity: sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==}
     engines: {node: '>=6'}
@@ -3296,6 +3305,9 @@ packages:
   protobufjs@7.6.6:
     resolution: {integrity: sha512-dYDWdjSl5RNb7SgPxGQcRU+GtvP7s2fpkrY0r432PcOIaZ0/rBcxEZnQN67iJhFuQiVw754JDoPruPCNdGsbjg==}
     engines: {node: '>=12.0.0'}
+
+  qrcode-generator@2.0.4:
+    resolution: {integrity: sha512-mZSiP6RnbHl4xL2Ap5HfkjLnmxfKcPWpWe/c+5XxCuetEenqmNFf1FH/ftXPCtFG5/TDobjsjz6sSNL0Sr8Z9g==}
 
   queue@6.0.2:
     resolution: {integrity: sha512-iHZWu+q3IdFZFX36ro/lKBkSvfkztY5Y7HMiPlOUjhupPcG2JMfst2KKEpu5XndviX/3UhFbRngUPNKtgvtZiA==}
@@ -6823,6 +6835,8 @@ snapshots:
       dompurify: 3.4.17
       html2canvas: 1.4.1
 
+  jsqr@1.4.0: {}
+
   kleur@3.0.3: {}
 
   kleur@4.1.5: {}
@@ -7289,6 +7303,8 @@ snapshots:
       '@protobufjs/utf8': 1.1.2
       '@types/node': 26.6.6
       long: 5.3.2
+
+  qrcode-generator@2.0.4: {}
 
   queue@6.0.2:
     dependencies:

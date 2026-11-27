@@ -1,3 +1,4 @@
+import { route } from './routes'
 import { supabase } from './supabase'
 
 export interface CertificateRecord {
@@ -170,5 +171,5 @@ export function certificateShareUrl(id: string): string {
     (import.meta.env.PUBLIC_APP_URL as string | undefined) ||
     (typeof window !== 'undefined' ? window.location.origin : '')
   const root = base.replace(/\/+$/, '')
-  return `${root}/verify?id=${encodeURIComponent(code)}`
+  return `${root}${route('/verify')}?id=${encodeURIComponent(code)}`
 }

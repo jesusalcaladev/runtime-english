@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { hasUsableWebVoice, speakWeb } from './browser'
+import { hasUsableWebVoice, noteSpeechCancel, speakWeb } from './browser'
 import { TtsTimeoutError, ttsAttemptDeadlineMs, withFallback, withTimeout } from './watchdog'
 
 class FakeUtterance {
@@ -97,6 +97,19 @@ describe('web voice playback reliability', () => {
     await new Promise((resolve) => setTimeout(resolve, 80))
 
     expect(synth.cancelCount).toBeGreaterThanOrEqual(1)
+    expect(synth.spoken).toHaveLength(1)
+    FakeUtterance.instances[0].onstart?.()
+    FakeUtterance.instances[0].onend?.()
+    await expect(promise).resolves.toBe(true)
+  })
+
+  it('waits a frame after our own stop before speaking again (Chrome cancel race)', async () => {
+    noteSpeechCancel()
+    const promise = speakWeb('Hello there')
+    await Promise.resolve()
+    expect(synth.spoken).toHaveLength(0)
+
+    await new Promise((resolve) => setTimeout(resolve, 80))
     expect(synth.spoken).toHaveLength(1)
     FakeUtterance.instances[0].onstart?.()
     FakeUtterance.instances[0].onend?.()

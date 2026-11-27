@@ -1,6 +1,7 @@
 import { emitToast } from '../toast'
 import {
   hasUsableWebVoice,
+  noteSpeechCancel,
   primeWebVoices,
   speakNative,
   speakWeb,
@@ -407,6 +408,7 @@ export function stopSpeech(): void {
 
   try {
     window.speechSynthesis?.cancel()
+    noteSpeechCancel()
   } catch {
     // Ignore browser synthesis shutdown errors.
   }

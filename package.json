@@ -58,6 +58,7 @@
     "nanostores": "^1.5.5",
     "piper-tts-web": "^1.1.2",
     "preact": "^11.2.0",
+    "qrcode-generator": "^2.0.4",
     "tailwindcss": "^4.3.5",
     "ts-fsrs": "^6.0.0",
     "zod": "^4.6.7"
@@ -73,6 +74,7 @@
     "@vite-pwa/astro": "^2.0.2",
     "@vitest/coverage-v8": "^2.1.9",
     "happy-dom": "^21.0.4",
+    "jsqr": "^1.4.0",
     "msw": "^2.15.0",
     "typescript": "^5.9.3",
     "vitest": "^2.1.9",

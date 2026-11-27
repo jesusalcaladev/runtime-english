@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   primeWebVoices: vi.fn(),
   warmNativeVoices: vi.fn(),
   hasUsableWebVoice: vi.fn(() => false),
+  noteSpeechCancel: vi.fn(),
   speakNative: vi.fn(),
   speakWeb: vi.fn(),
   stopNativeSpeech: vi.fn(),
@@ -63,6 +64,7 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('../toast', () => ({ emitToast: mocks.emitToast }))
 vi.mock('./browser', () => ({
+  noteSpeechCancel: mocks.noteSpeechCancel,
   primeWebVoices: mocks.primeWebVoices,
   speakNative: mocks.speakNative,
   speakWeb: mocks.speakWeb,

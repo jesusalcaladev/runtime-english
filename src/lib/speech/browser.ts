@@ -17,6 +17,16 @@ import {
 
 let cachedVoice: SpeechSynthesisVoice | null = null
 let voicesPromise: Promise<SpeechSynthesisVoice[]> | null = null
+/**
+ * Chromium drops an utterance when `speak()` follows `cancel()` in the same
+ * task. Every stop path flags this so the next line waits one frame before
+ * speaking instead of silently failing.
+ */
+let cancelPending = false
+
+export function noteSpeechCancel(): void {
+  cancelPending = true
+}
 
 const LANG_SCORES: Record<string, number> = {
   'en-us': 40,
@@ -280,11 +290,13 @@ export async function speakWeb(
       resolve(ok)
     }
 
-    // Chrome drops an utterance when cancel() and speak() share a tick, so a
-    // dirty queue needs a one-frame delay. Most taps hit a clean queue — speak
-    // synchronously in that case for the lowest possible time-to-first-word.
-    const needsReset = synth.speaking || synth.pending
-    if (needsReset) {
+    // Chrome drops an utterance when cancel() and speak() share a tick. This
+    // includes our own stopSpeech() at the start of every tap, so a recent
+    // cancel is treated as a dirty queue even if `speaking` is already false.
+    const dirtyQueue = synth.speaking || synth.pending
+    const needsReset = dirtyQueue || cancelPending
+    cancelPending = false
+    if (dirtyQueue) {
       try {
         synth.cancel()
       } catch {}
@@ -360,6 +372,7 @@ export async function speakWeb(
         try {
           synth.cancel()
         } catch {}
+        noteSpeechCancel()
         finish(false)
       }, startTimeout)
 

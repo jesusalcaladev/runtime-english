@@ -4,7 +4,6 @@ import {
   Cloud,
   Copy,
   ExternalLink,
-  Info,
   Loader2,
   RefreshCw,
   ShieldCheck,
@@ -19,6 +18,7 @@ import {
   isLevelUnlocked,
   levelCertificateId,
 } from '../../lib/certificateLevels'
+import { certificateQrSvg } from '../../lib/certificateQr'
 import { certificateShareUrl, issueCertificate, verifyCertificate } from '../../lib/certificates'
 import { getUiStage, tAction } from '../../lib/i18n'
 import { type CertificateState, progressStore } from '../../lib/progress'
@@ -57,9 +57,13 @@ const certStyles = `
     --border-outer: #D4D2CD; --border-inner: #1A1A1A; --seal-stroke: #1A1A1A; --paper-noise-opacity: 0.035;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     background-color: var(--bg-paper); color: var(--text-primary);
-    width: 100%; max-width: 1056px; aspect-ratio: 1.414 / 1; position: relative;
+    width: 100%; max-width: 1056px; position: relative;
     box-shadow: 0 25px 50px -12px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.05);
     overflow: hidden;
+  }
+  /* En móvil la hoja crece con su contenido: una proporción fija recortaba el pie. */
+  @media (min-width: 640px) {
+    .certificate-sheet { aspect-ratio: 1.414 / 1; }
   }
   .certificate-sheet[data-theme="white"] { --bg-paper:#FFFFFF; --text-primary:#0A0A0A; --text-secondary:#404040; --text-muted:#737373; --border-outer:#E5E5E5; --border-inner:#171717; --seal-stroke:#171717; --paper-noise-opacity:0.015; }
   .certificate-sheet[data-theme="dark"] { --bg-paper:#121212; --text-primary:#F5F5F4; --text-secondary:#A8A29E; --text-muted:#78716C; --border-outer:#292524; --border-inner:#57534E; --seal-stroke:#D6D3D1; --paper-noise-opacity:0.04; }
@@ -77,7 +81,11 @@ const certStyles = `
   .text-muted-theme { color: var(--text-muted) !important; }
   .divider-line { background-color: var(--border-outer); }
   .seal-svg { stroke: var(--seal-stroke); }
+  /* 48 px es el mínimo verificado con jsQR a 1x: más pequeño deja de leerse. */
+  .qr-corner { width: 48px; height: 48px; flex: none; background:#fff; box-shadow:0 0 0 1px var(--border-outer); }
+  .qr-corner svg { display:block; width:100%; height:100%; }
   @media print {
+    .qr-corner { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
     @page { size: landscape; margin: 0; }
     body { background:none !important; padding:0 !important; margin:0 !important; display:block !important; }
     .no-print { display:none !important; }
@@ -161,6 +169,7 @@ export default function CertificateView({ initialLevel }: Props) {
   const issuedAtIso = cert?.issuedAt || new Date(completionTimestamp || Date.now()).toISOString()
   const displayDate = cert?.completionDate || completionDate
   const shareUrl = useMemo(() => certificateShareUrl(issueId), [issueId])
+  const qrSvg = useMemo(() => certificateQrSvg(shareUrl), [shareUrl])
   const issueEndpointConfigured = Boolean(import.meta.env.PUBLIC_CERTIFICATE_ISSUE_URL)
   const verifyAvailable =
     isSupabaseConfigured() || Boolean(import.meta.env.PUBLIC_CERTIFICATE_VERIFY_URL)
@@ -423,17 +432,6 @@ export default function CertificateView({ initialLevel }: Props) {
                   </span>
                 )}
               </div>
-              <p class="mt-2 text-[11px] leading-relaxed text-base-content/60">
-                ID <span class="font-mono font-semibold text-base-content/80">{issueId}</span>.
-                Nivel <span class="font-mono font-semibold text-base-content/80">{info.label}</span>
-                .{' '}
-                {issueEndpointConfigured
-                  ? 'Emisión automática en registro verificable'
-                  : 'Registro verificable no configurado en este entorno'}
-                {authed
-                  ? ' y asociado a tu cuenta al emitir.'
-                  : '. Inicia sesión para vincularlo a tu cuenta.'}
-              </p>
               {cert?.lastError && (
                 <p class="mt-1 text-[10px] text-error/80">Último aviso: {cert.lastError}</p>
               )}
@@ -495,11 +493,6 @@ export default function CertificateView({ initialLevel }: Props) {
               <ExternalLink class="h-3 w-3" /> Abrir verificación
             </a>
           </div>
-          <p class="mt-2 flex items-start gap-1.5 text-[10px] leading-relaxed text-base-content/40">
-            <Info class="mt-0.5 h-3 w-3 shrink-0" /> Comparte el enlace para que terceros verifiquen
-            el ID. Si no hay backend configurado, el certificado sigue disponible localmente y se
-            incluirá en tu respaldo/sincronización.
-          </p>
         </div>
       </div>
 
@@ -553,17 +546,14 @@ export default function CertificateView({ initialLevel }: Props) {
             </p>
           </section>
 
-          <footer class="relative z-10 grid grid-cols-3 items-end pt-2 sm:pt-4 pb-1 sm:pb-2 px-2 sm:px-6">
+          <footer class="relative z-10 grid grid-cols-2 gap-3 sm:grid-cols-3 items-end pt-2 sm:pt-4 pb-1 sm:pb-2 px-2 sm:px-6">
             <div class="text-left">
               <p class="text-[9px] sm:text-[10px] font-semibold tracking-[0.22em] uppercase text-muted-theme mb-1">
                 ISSUED ON
               </p>
               <p class="text-xs sm:text-sm font-medium text-primary-theme">{displayDate}</p>
-              <p class="text-[10px] sm:text-xs text-muted-theme mt-0.5">
-                Program: <span class="text-secondary-theme font-medium">RuntimeEnglish</span>
-              </p>
             </div>
-            <div class="flex flex-col items-center justify-center">
+            <div class="hidden sm:flex flex-col items-center justify-center">
               <div class="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center mb-1.5">
                 <svg
                   viewBox="0 0 64 64"
@@ -571,6 +561,7 @@ export default function CertificateView({ initialLevel }: Props) {
                   class="w-full h-full seal-svg"
                   stroke-width="1.2"
                 >
+                  <title>RuntimeEnglish</title>
                   <circle cx="32" cy="32" r="28" stroke-dasharray="2 2" opacity="0.6" />
                   <circle cx="32" cy="32" r="23" />
                   <polyline
@@ -592,16 +583,22 @@ export default function CertificateView({ initialLevel }: Props) {
                 {status === 'verified' ? 'VERIFIED' : status === 'issued' ? 'REGISTERED' : 'ISSUED'}
               </span>
             </div>
-            <div class="text-right">
-              <p class="text-[9px] sm:text-[10px] font-semibold tracking-[0.22em] uppercase text-muted-theme mb-1">
-                CERTIFICATE ID
-              </p>
-              <p class="font-mono-tech text-xs sm:text-sm font-semibold tracking-wider text-primary-theme">
-                {issueId}
-              </p>
-              <p class="text-[10px] sm:text-xs text-muted-theme mt-0.5 break-all">
-                {shareUrl.replace(/^https?:\/\//, '')}
-              </p>
+            <div class="flex items-end justify-end gap-2 sm:gap-3">
+              <div class="min-w-0 text-right">
+                <p class="text-[9px] sm:text-[10px] font-semibold tracking-[0.22em] uppercase text-muted-theme mb-1">
+                  <span class="sm:hidden">ID</span>
+                  <span class="hidden sm:inline">CERTIFICATE ID</span>
+                </p>
+                <p class="font-mono-tech text-[10px] sm:text-sm font-semibold tracking-normal sm:tracking-wider whitespace-nowrap text-primary-theme">
+                  {issueId}
+                </p>
+              </div>
+              <div
+                class="qr-corner"
+                role="img"
+                aria-label={`QR para verificar el certificado ${issueId}`}
+                dangerouslySetInnerHTML={{ __html: qrSvg }}
+              />
             </div>
           </footer>
         </main>

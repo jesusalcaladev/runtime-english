@@ -1,4 +1,10 @@
-import { getWebVoices, hasUsableWebVoice, speakNative, stopNativeSpeech } from './browser'
+import {
+  getWebVoices,
+  hasUsableWebVoice,
+  noteSpeechCancel,
+  speakNative,
+  stopNativeSpeech,
+} from './browser'
 import { speakWithGoogle, stopGooglePlayback } from './google'
 import { isKokoroReady, speakWithKokoro, stopKokoroPlayback } from './kokoro'
 import { getPiperStatus, speakWithPiper, stopPiperPlayback } from './piper'
@@ -16,6 +22,7 @@ export async function stopTts(): Promise<void> {
   if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
     try {
       window.speechSynthesis.cancel()
+      noteSpeechCancel()
     } catch {
       // Best effort.
     }
@@ -121,6 +128,7 @@ export async function previewVoice(text: string, voiceName?: string): Promise<bo
     () => {
       try {
         window.speechSynthesis.cancel()
+        noteSpeechCancel()
       } catch {
         // Best effort.
       }
