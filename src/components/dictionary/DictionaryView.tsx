@@ -234,14 +234,21 @@ export default function DictionaryView() {
               <button
                 type="button"
                 onClick={() => answerReview(false)}
-                class="btn h-11 flex-1 gap-2 rounded-xl bg-error/10 text-error hover:bg-error/20 sm:max-w-[220px]"
+                class="btn h-11 flex-1 gap-2 rounded-xl bg-error/10 text-error hover:bg-error/20 sm:max-w-[180px]"
               >
                 <X class="h-4 w-4" /> Aún no
               </button>
               <button
                 type="button"
+                onClick={() => answerReview(true, true)}
+                class="btn h-11 flex-1 gap-2 rounded-xl bg-base-200 text-base-content/70 hover:bg-base-300 sm:max-w-[180px]"
+              >
+                <RotateCcw class="h-4 w-4" /> Me costó
+              </button>
+              <button
+                type="button"
                 onClick={() => answerReview(true)}
-                class="btn h-11 flex-1 gap-2 rounded-xl bg-accent text-accent-content hover:bg-accent/90 sm:max-w-[220px]"
+                class="btn h-11 flex-1 gap-2 rounded-xl bg-accent text-accent-content hover:bg-accent/90 sm:max-w-[180px]"
               >
                 <Check class="h-4 w-4" /> Lo recordé
               </button>

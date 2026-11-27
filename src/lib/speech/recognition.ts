@@ -136,7 +136,9 @@ export function releaseMicStream(): void {
  */
 export function isMicLevelMeterSupported(): boolean {
   if (typeof window === 'undefined' || isNativePlatform() || isMobileLikeDevice()) return false
-  return typeof navigator !== 'undefined' && typeof navigator.mediaDevices?.getUserMedia === 'function'
+  return (
+    typeof navigator !== 'undefined' && typeof navigator.mediaDevices?.getUserMedia === 'function'
+  )
 }
 
 /** Live 0..1 input level for the listening UI. No-op on platforms without getUserMedia. */
@@ -280,6 +282,19 @@ function mapNativeError(error: unknown): MappedNativeError {
   return { message: 'No se pudo reconocer la voz. Inténtalo de nuevo.', retryable: true }
 }
 
+/** All non-empty transcripts of one recognition result, best-first. */
+function getResultTranscripts(result: SpeechRecognitionResultLike | undefined): string[] {
+  if (!result) return []
+  const transcripts: string[] = []
+  for (let index = 0; index < result.length; index += 1) {
+    const alternative = result[index]
+    const transcript =
+      typeof alternative?.transcript === 'string' ? alternative.transcript.trim() : ''
+    if (transcript && !transcripts.includes(transcript)) transcripts.push(transcript)
+  }
+  return transcripts
+}
+
 function getBestTranscript(result: SpeechRecognitionResultLike | undefined): {
   transcript: string
   confidence: number
@@ -413,11 +428,13 @@ export function stopSpeechRecognition(): void {
   } catch {}
 }
 
-function firstNativeMatch(matches: string[] | undefined): string {
-  return (
-    (matches ?? []).map((match) => (typeof match === 'string' ? match.trim() : '')).find(Boolean) ??
-    ''
-  )
+function nativeMatches(matches: string[] | undefined): string[] {
+  const result: string[] = []
+  for (const match of matches ?? []) {
+    const text = typeof match === 'string' ? match.trim() : ''
+    if (text && !result.includes(text)) result.push(text)
+  }
+  return result
 }
 
 type NativeAttemptMode = { partialResults: boolean; popup: boolean }
@@ -429,6 +446,7 @@ type NativeAttemptResult = {
   /** True when a popup retry is worth trying (no permission/not-available/cancel). */
   retryable: boolean
   speechDurationMs?: number
+  alternatives: string[]
 }
 
 /**
@@ -451,6 +469,7 @@ function runNativeAttempt(
     let firstTextAt: number | null = null
     let lastTextAt: number | null = null
     let stopSignalled = false
+    let lastAlternatives: string[] = []
     let silenceId: number | null = null
     let finalResultId: number | null = null
     let timeoutId: number | null = null
@@ -470,7 +489,11 @@ function runNativeAttempt(
       finalResultId = null
     }
 
-    const finish = (transcript: string, failure?: MappedNativeError) => {
+    const finish = (
+      transcript: string,
+      failure?: MappedNativeError,
+      alternatives: string[] = lastAlternatives,
+    ) => {
       if (isSettled) return
       isSettled = true
       if (timeoutId !== null) window.clearTimeout(timeoutId)
@@ -489,6 +512,7 @@ function runNativeAttempt(
           firstTextAt !== null && lastTextAt !== null && lastTextAt > firstTextAt
             ? lastTextAt - firstTextAt
             : undefined,
+        alternatives: alternatives.length ? alternatives : transcript ? [transcript] : [],
       })
     }
 
@@ -513,8 +537,10 @@ function runNativeAttempt(
 
     const handlePartialResults = (data: NativeListenerData) => {
       if (!usePartial) return
-      const text = firstNativeMatch(data.matches)
+      const alternatives = nativeMatches(data.matches)
+      const text = alternatives[0] ?? ''
       if (!text) return
+      lastAlternatives = alternatives
       const now = Date.now()
       if (firstTextAt === null) firstTextAt = now
       lastTextAt = now
@@ -581,8 +607,8 @@ function runNativeAttempt(
           popup: mode.popup,
         })
         if (usePartial) return // start() is only an ack; the listeners drive completion.
-        const transcript = firstNativeMatch(response?.matches)
-        if (transcript) finish(transcript)
+        const alternatives = nativeMatches(response?.matches)
+        if (alternatives[0]) finish(alternatives[0], undefined, alternatives)
         else fail(NATIVE_NO_SPEECH_MESSAGE)
       } catch (error) {
         // With partialResults the native reject arrives after resolve and is lost,
@@ -600,6 +626,7 @@ function toSpeechResult(attempt: NativeAttemptResult): SpeechRecognitionResult {
     supported: true,
     error: attempt.error,
     speechDurationMs: attempt.speechDurationMs,
+    alternatives: attempt.alternatives,
   }
 }
 
@@ -688,6 +715,7 @@ function recognizeWithWeb(
   return new Promise((resolve) => {
     let isSettled = false
     let finalTranscript = ''
+    const finalAlternatives: string[] = []
     let liveTranscript = ''
     let firstHeardAt: number | null = null
     let lastHeardAt: number | null = null
@@ -727,6 +755,7 @@ function recognizeWithWeb(
           transcript && firstHeardAt !== null && lastHeardAt !== null && lastHeardAt > firstHeardAt
             ? lastHeardAt - firstHeardAt
             : undefined,
+        alternatives: [...new Set([...finalAlternatives, ...(transcript ? [transcript] : [])])],
       })
     }
 
@@ -747,6 +776,9 @@ function recognizeWithWeb(
           if (!transcript) continue
           if (result.isFinal) {
             finalTranscript = `${finalTranscript} ${transcript}`.trim()
+            for (const candidate of getResultTranscripts(result)) {
+              if (!finalAlternatives.includes(candidate)) finalAlternatives.push(candidate)
+            }
           } else {
             liveTranscript = `${liveTranscript} ${transcript}`.trim()
           }

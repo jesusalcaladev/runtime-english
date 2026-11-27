@@ -86,7 +86,7 @@ export default function PracticeView({ items }: Props) {
   const stats = useMemo(() => getPracticeStats(items, state, now), [items, state, now])
 
   return (
-    <div class="mx-auto max-w-[1120px] animate-fade-up">
+    <div class="page-shell animate-fade-up">
       <section class="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p class="mono-label flex items-center gap-2">
@@ -119,18 +119,14 @@ export default function PracticeView({ items }: Props) {
             <Brain class="h-3.5 w-3.5 text-accent" /> <span class="truncate">SRS</span>
           </div>
           <p class="mt-1.5 font-mono text-lg font-medium sm:mt-2 sm:text-xl">{stats.dueReview}</p>
-          <p class="hint-text mt-0.5">
-            Para repasar
-          </p>
+          <p class="hint-text mt-0.5">Para repasar</p>
         </div>
         <div class="rounded-2xl bg-base-200 px-3 py-3 sm:px-4 sm:py-4">
           <div class="hint-text flex items-center gap-2">
             <Target class="h-3.5 w-3.5" /> <span class="truncate">Reforzar</span>
           </div>
           <p class="mt-1.5 font-mono text-lg font-medium sm:mt-2 sm:text-xl">{stats.weak}</p>
-          <p class="hint-text mt-0.5">
-            Más difíciles
-          </p>
+          <p class="hint-text mt-0.5">Más difíciles</p>
         </div>
         <div
           class={`rounded-2xl px-3 py-3 sm:px-4 sm:py-4 ${stats.duePhrases > 0 ? 'bg-accent/[0.08] ring-1 ring-accent/20' : 'bg-base-200'}`}
@@ -146,9 +142,7 @@ export default function PracticeView({ items }: Props) {
             <CheckCircle2 class="h-3.5 w-3.5" /> <span class="truncate">Nuevos</span>
           </div>
           <p class="mt-1.5 font-mono text-lg font-medium sm:mt-2 sm:text-xl">{stats.unseen}</p>
-          <p class="hint-text mt-0.5">
-            Sin intentar
-          </p>
+          <p class="hint-text mt-0.5">Sin intentar</p>
         </div>
       </section>
 
@@ -332,8 +326,8 @@ function PhraseReviewRunner({ entries }: { entries: PhrasebookEntry[] }) {
     )
   }
 
-  function answer(correct: boolean) {
-    progressStore.reviewPhrase(entry.id, correct)
+  function answer(correct: boolean, struggled = false) {
+    progressStore.reviewPhrase(entry.id, correct, { struggled })
     setDone((d) => d + 1)
     setRevealed(false)
     setIndex((i) => i + 1)
@@ -414,7 +408,14 @@ function PhraseReviewRunner({ entries }: { entries: PhrasebookEntry[] }) {
                   onClick={() => answer(false)}
                   class="btn btn-ghost h-10 gap-2 rounded-xl bg-error/10 px-4 text-error"
                 >
-                  <X class="h-4 w-4" /> Me costó
+                  <X class="h-4 w-4" /> No la sabía
+                </button>
+                <button
+                  type="button"
+                  onClick={() => answer(true, true)}
+                  class="btn btn-ghost h-10 gap-2 rounded-xl bg-base-200 px-4 text-base-content/70"
+                >
+                  <RotateCcw class="h-4 w-4" /> Me costó
                 </button>
                 <button
                   type="button"

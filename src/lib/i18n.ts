@@ -196,7 +196,14 @@ export const UI_STRINGS: Record<string, Entry> = {
   notYet: { es: 'Todavía no', en: 'Not yet' },
   answer: { es: 'respuesta', en: 'answer' },
   correctAnswer: { es: 'Respuesta correcta', en: 'Correct answer' },
-  noPenalty: { es: 'Puedes reintentar sin penalización', en: 'You can retry without penalty' },
+  noPenalty: {
+    es: 'Tu respuesta se anota al acertar. Reintentar no cuenta dos veces.',
+    en: 'Your answer is recorded when correct. Retrying is not counted twice.',
+  },
+  firstAttemptAccuracy: {
+    es: 'A la primera',
+    en: 'First try',
+  },
   tapWords: {
     es: 'Toca las palabras para construir la frase.',
     en: 'Tap the words to build the sentence.',

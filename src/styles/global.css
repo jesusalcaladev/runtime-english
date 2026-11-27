@@ -249,6 +249,19 @@
     @apply text-[11px] leading-relaxed text-base-content/60;
   }
 
+  /* One shell scale for every page. Wide = video lab, narrow = forms. */
+  .page-shell {
+    @apply mx-auto w-full max-w-[1120px];
+  }
+
+  .page-shell--wide {
+    @apply mx-auto w-full max-w-[1400px];
+  }
+
+  .page-shell--narrow {
+    @apply mx-auto w-full max-w-[840px];
+  }
+
   .app-container {
     @apply mx-auto w-full max-w-[1120px];
   }
@@ -455,6 +468,18 @@
   .text-\[10px\] {
     font-size: 11px;
     line-height: 1.45;
+  }
+
+  /* Touch targets on mobile: small labels are fine, tiny taps are not. */
+  @media (max-width: 640px) {
+    .btn {
+      min-height: 44px;
+    }
+
+    .speak-btn {
+      min-height: 44px;
+      min-width: 44px;
+    }
   }
 }
 

@@ -140,34 +140,47 @@ export async function stopNativeSpeech() {
 }
 
 type NativeVoiceChoice = { lang: string; voice?: number }
-let nativeVoicePromise: Promise<NativeVoiceChoice> | null = null
+/** One entry per accent: switching en-US/en-GB must not reuse the old voice. */
+const nativeVoicePromises = new Map<string, Promise<NativeVoiceChoice>>()
 
-/** Resuelve la voz nativa una sola vez por sesión (evita consultarla en cada línea). */
+/** Resuelve la voz nativa una sola vez por idioma (evita consultarla en cada línea). */
 function resolveNativeVoice(): Promise<NativeVoiceChoice> {
   const preferredLang = getSpeechLanguage()
-  if (!nativeVoicePromise) {
-    nativeVoicePromise = import('@capacitor-community/text-to-speech')
-      .then(async ({ TextToSpeech }) => {
-        try {
-          const supported = await TextToSpeech.getSupportedVoices()
-          const voices = Array.isArray((supported as { voices?: unknown[] })?.voices)
-            ? ((supported as { voices: Array<{ lang?: string; index?: number }> }).voices ?? [])
-            : []
-          const pick =
-            voices.find(
-              (item) => (item.lang ?? '').toLowerCase() === preferredLang.toLowerCase(),
-            ) ?? voices.find((item) => (item.lang ?? '').toLowerCase().startsWith('en'))
-          return {
-            lang: pick?.lang ?? preferredLang,
-            ...(typeof pick?.index === 'number' ? { voice: pick.index } : {}),
-          }
-        } catch {
-          return { lang: preferredLang }
+  const cached = nativeVoicePromises.get(preferredLang)
+  if (cached) return cached
+
+  const promise = import('@capacitor-community/text-to-speech')
+    .then(async ({ TextToSpeech }) => {
+      try {
+        const supported = await TextToSpeech.getSupportedVoices()
+        const voices = Array.isArray((supported as { voices?: unknown[] })?.voices)
+          ? ((supported as { voices: Array<{ lang?: string; index?: number; name?: string }> })
+              .voices ?? [])
+          : []
+        const matchesLang = voices.filter(
+          (item) => (item.lang ?? '').toLowerCase() === preferredLang.toLowerCase(),
+        )
+        const pool = matchesLang.length
+          ? matchesLang
+          : voices.filter((item) => (item.lang ?? '').toLowerCase().startsWith('en'))
+        const preferredName = getPreferredVoiceName()?.toLowerCase()
+        const pick =
+          (preferredName
+            ? pool.find((item) => (item.name ?? '').toLowerCase() === preferredName)
+            : undefined) ??
+          pool[0] ??
+          voices.find((item) => (item.lang ?? '').toLowerCase().startsWith('en'))
+        return {
+          lang: pick?.lang ?? preferredLang,
+          ...(typeof pick?.index === 'number' ? { voice: pick.index } : {}),
         }
-      })
-      .catch((): NativeVoiceChoice => ({ lang: preferredLang }))
-  }
-  return nativeVoicePromise
+      } catch {
+        return { lang: preferredLang }
+      }
+    })
+    .catch((): NativeVoiceChoice => ({ lang: preferredLang }))
+  nativeVoicePromises.set(preferredLang, promise)
+  return promise
 }
 
 /** Calienta la voz nativa antes de que empiece la primera línea del diálogo. */

@@ -116,10 +116,10 @@ export function useDictionary() {
     setReviewedCount(0)
   }
 
-  function answerReview(correct: boolean) {
+  function answerReview(correct: boolean, struggled = false) {
     const card = reviewQueue[reviewIndex]
     if (!card) return
-    progressStore.reviewPhrase(card.id, correct)
+    progressStore.reviewPhrase(card.id, correct, { struggled })
     setReviewedCount((c) => c + 1)
     const next = reviewIndex + 1
     if (next >= reviewQueue.length) {

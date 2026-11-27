@@ -201,7 +201,8 @@ function updateRetentionChecks(
     const check = next[key]
     if (!check || check.done || check.dueAt > now) continue
     const attempts = check.attempts + 1
-    const passed = correct || attempts >= 2
+    // Retention checks measure recall: two failures must not mark a check done.
+    const passed = correct || (attempts >= 2 && check.correct >= 1)
     next[key] = {
       ...check,
       attempts,
@@ -931,17 +932,28 @@ class ProgressStore {
       correctAnswer?: string
       skills?: string[]
       sessionId?: string
+      /** The learner missed this exercise earlier in the same run. Not a lifetime counter. */
+      struggled?: boolean
+      /** Skip the SRS grade (used for a wrong attempt that will be retried in this run). */
+      skipSrs?: boolean
     },
   ) {
     this.update((state) => {
       const now = Date.now()
       const previousAttempts = state.attempts[exercise.id] ?? 0
       const attempts = { ...state.attempts, [exercise.id]: previousAttempts + 1 }
-      const struggled = correct && previousAttempts > 0
-      const exerciseSrs = {
-        ...state.exerciseSrs,
-        [exercise.id]: nextSrsFsrs(state.exerciseSrs[exercise.id], correct, now, { struggled }),
-      }
+      // `struggled` is supplied by the runner and is local to the current run.
+      // Deriving it from lifetime attempts marked every repeated answer as Hard
+      // and froze the SRS box forever.
+      const struggling = detail?.struggled === true
+      const exerciseSrs = detail?.skipSrs
+        ? state.exerciseSrs
+        : {
+            ...state.exerciseSrs,
+            [exercise.id]: nextSrsFsrs(state.exerciseSrs[exercise.id], correct, now, {
+              struggled: struggling,
+            }),
+          }
 
       let phrasebook = state.phrasebook
       if (correct) {
@@ -1005,12 +1017,12 @@ class ProgressStore {
     })
   }
 
-  reviewPhrase(id: string, correct: boolean) {
+  reviewPhrase(id: string, correct: boolean, options: { struggled?: boolean } = {}) {
     this.update((state) => {
       const prev = state.phrasebook[id]
       if (!prev) return state
       const now = Date.now()
-      const srs = nextPhraseSrs(prev, correct, now)
+      const srs = nextPhraseSrs(prev, correct, now, options)
       return {
         ...state,
         xp: state.xp + (correct ? 4 : 0),
@@ -1298,7 +1310,12 @@ function hashString(value: string): number {
   return h
 }
 
-function nextPhraseSrs(prev: PhrasebookEntry | undefined, correct: boolean, now = Date.now()) {
+function nextPhraseSrs(
+  prev: PhrasebookEntry | undefined,
+  correct: boolean,
+  now = Date.now(),
+  options: { struggled?: boolean } = {},
+) {
   const base = prev
     ? {
         box: prev.box ?? 0,
@@ -1307,7 +1324,7 @@ function nextPhraseSrs(prev: PhrasebookEntry | undefined, correct: boolean, now 
         correctStreak: prev.correctStreak ?? 0,
       }
     : undefined
-  return nextSrsFsrs(base, correct, now)
+  return nextSrsFsrs(base, correct, now, options)
 }
 
 function upsertPhrase(
@@ -1482,7 +1499,10 @@ export function getReviewStats(
     const attempts = state.attempts[id] ?? 0
     const done = Boolean(state.completedExercises[id])
     if (attempts === 0) unseen++
-    if (attempts > 0 && (!done || attempts > 1)) weak++
+    // A retry is not a weakness by itself: only an unsolved exercise or one
+    // whose SRS box is still at zero needs reinforcing.
+    const srs = state.exerciseSrs?.[id]
+    if (attempts > 0 && (!done || (srs?.box ?? 0) === 0)) weak++
     if (isExerciseDue(state, id, now)) due++
   }
   return { due, weak, unseen }

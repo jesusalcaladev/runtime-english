@@ -1,6 +1,8 @@
 import { Lightbulb, Mic, Settings, Volume2 } from 'lucide-preact'
 import { openAppSettings } from '../../../lib/appSettings'
+import type { WordDiff } from '../../../lib/speech'
 import type { ShadowExercise } from '../../../lib/types'
+import WordDiffView from './WordDiffView'
 
 interface Props {
   exercise: ShadowExercise
@@ -10,6 +12,7 @@ interface Props {
   liveText: string
   heardText: string
   score: number | null
+  diff: WordDiff | null
   wpm: number | null
   micError: string | null
   text: string
@@ -25,6 +28,7 @@ export default function ShadowInput({
   liveText,
   heardText,
   score,
+  diff,
   wpm,
   micError,
   text,
@@ -93,6 +97,7 @@ export default function ShadowInput({
             </span>
           </p>
         )}
+        {diff && <WordDiffView diff={diff} />}
         {wpm !== null && (
           <p class="text-[12px] text-base-content/55">
             Ritmo: <span class="font-mono text-accent">{wpm} palabras/min</span>

@@ -31,11 +31,14 @@ import {
   getSpeechLanguage,
   isMicLevelMeterSupported,
   isSpeechRecognitionSupported,
+  pickBestAlternative,
   recognizeOnce,
   releaseMicStream,
   speechMatchScore,
   startMicLevelMeter,
   stopSpeechRecognition,
+  type WordDiff,
+  wordDiff,
 } from '../../lib/speech'
 import type { Exercise, Level } from '../../lib/types'
 import { useProgress } from '../../lib/useProgress'
@@ -53,6 +56,7 @@ import {
   type NextSession,
   type RunnerStatus,
 } from './runner/utils'
+import WordDiffView from './runner/WordDiffView'
 
 interface Props {
   sessionId: string
@@ -111,13 +115,19 @@ export default function ExerciseRunner({
   const [shuffledWords, setShuffledWords] = useState<number[]>([])
   const [micState, setMicState] = useState<'idle' | 'listening' | 'done'>('idle')
   const [heardText, setHeardText] = useState('')
+  const [heardDiff, setHeardDiff] = useState<WordDiff | null>(null)
   const [liveText, setLiveText] = useState('')
   const [micLevel, setMicLevel] = useState(0)
   const [micError, setMicError] = useState<string | null>(null)
   const [speechWpm, setSpeechWpm] = useState<number | null>(null)
   const micRunRef = useRef(0)
   const runAttemptsRef = useRef(0)
+  // Mistakes are local to this run: a retry after a miss is "Hard", but a
+  // correct answer in a later review is "Good", not a lifetime penalty.
+  const mistakesInRunRef = useRef<Record<string, number>>({})
+  const firstAttemptRef = useRef<Record<string, boolean>>({})
   const stopMeterRef = useRef<(() => void) | null>(null)
+  const micRetryTimerRef = useRef<number | null>(null)
 
   const exercise = exercises[index]
   const total = exercises.length
@@ -195,6 +205,7 @@ export default function ExerciseRunner({
     stopMicMeter()
     setMicState('idle')
     setHeardText('')
+    setHeardDiff(null)
     setLiveText('')
     setMicError(null)
     setSpeechWpm(null)
@@ -221,6 +232,8 @@ export default function ExerciseRunner({
     setSolved([])
     setFinished(false)
     runAttemptsRef.current = 0
+    mistakesInRunRef.current = {}
+    firstAttemptRef.current = {}
     resetInteraction()
   }
 
@@ -234,11 +247,20 @@ export default function ExerciseRunner({
     const correct = isCorrectAnswer
     const userAnswer = getUserAnswer()
     const skills = !correct ? detectErrorSkills(exercise, userAnswer, correctAnswerText) : []
+    const mistakes = mistakesInRunRef.current[exercise.id] ?? 0
+    if (!(exercise.id in firstAttemptRef.current)) firstAttemptRef.current[exercise.id] = correct
+    if (!correct) mistakesInRunRef.current[exercise.id] = mistakes + 1
+    // Only grade the SRS card when the exercise is resolved. A wrong attempt
+    // that will be retried right away records the error/retention data but
+    // does not burn an FSRS "Again" grade — retrying really has no penalty
+    // beyond the single "Hard" grade once it is finally solved.
     progressStore.recordExercise(exercise, correct, {
       userAnswer,
       correctAnswer: correctAnswerText,
       skills,
       sessionId,
+      struggled: correct && mistakes > 0,
+      skipSrs: !correct,
     })
     setAttempted(true)
     if (correct) {
@@ -285,6 +307,7 @@ export default function ExerciseRunner({
       stopMicMeter()
       setText('')
       setHeardText('')
+      setHeardDiff(null)
       setLiveText('')
       setMicState('idle')
       setMicError(null)
@@ -315,6 +338,7 @@ export default function ExerciseRunner({
     const run = ++micRunRef.current
     setMicError(null)
     setLiveText('')
+    setHeardDiff(null)
     setMicLevel(0)
     setSpeechWpm(null)
     const permitted = await ensureMicrophonePermission()
@@ -347,9 +371,34 @@ export default function ExerciseRunner({
     let res = await listen()
     if (run !== micRunRef.current) return
     if (!res.transcript && shouldRetryMic(res.error)) {
-      // A silence/timeout often means the user started late: give them one more try.
+      // A silence/timeout often means the user started late. Give them one
+      // guided retry with a visible countdown and a real cancel window.
+      stopMicMeter()
+      setMicState('idle')
       setLiveText('')
-      setMicError('No te escuché. Intento 2 de 2…')
+      const ready = await new Promise<boolean>((resolve) => {
+        let left = 3
+        const tick = () => {
+          if (run !== micRunRef.current) return resolve(false)
+          setMicError(`No te escuché. Reintentando en ${left}…`)
+          if (left <= 0) return resolve(true)
+          left -= 1
+          micRetryTimerRef.current = window.setTimeout(tick, 650)
+        }
+        tick()
+      })
+      micRetryTimerRef.current = null
+      if (!ready || run !== micRunRef.current) return
+      setMicError(null)
+      setMicState('listening')
+      const retryMeter = await startMicLevelMeter((level) => {
+        if (run === micRunRef.current) setMicLevel(level)
+      })
+      if (run !== micRunRef.current) {
+        retryMeter()
+        return
+      }
+      stopMeterRef.current = retryMeter
       res = await listen()
       if (run !== micRunRef.current) return
     }
@@ -358,23 +407,34 @@ export default function ExerciseRunner({
     setMicState('done')
     setLiveText('')
     if (res.transcript) {
+      // Pick the candidate that best matches the phrase under practice instead
+      // of trusting engine confidence, which is often 0 on mobile browsers.
+      const candidates = [exercise.answer, ...(exercise.accept ?? [])]
+      const pool = res.alternatives?.length ? res.alternatives : [res.transcript]
+      const chosen = pickBestAlternative(candidates, pool)
       // Measure only the time the learner was actually speaking. Including the
       // permission prompt, recognizer startup and trailing silence produced a
       // misleadingly low rate (especially on the first attempt).
-      const words = res.transcript.trim().split(/\s+/).filter(Boolean).length
+      const words = chosen.trim().split(/\s+/).filter(Boolean).length
       const durationMs = res.speechDurationMs
-      setSpeechWpm(durationMs && durationMs >= 800 ? Math.round((words / durationMs) * 60_000) : null)
-      setHeardText(res.transcript)
-      setText(res.transcript)
+      setSpeechWpm(
+        durationMs && durationMs >= 800 ? Math.round((words / durationMs) * 60_000) : null,
+      )
+      setHeardText(chosen)
+      setText(chosen)
+      setHeardDiff(wordDiff(exercise.answer, chosen))
       setMicError(null)
     } else {
       setHeardText('')
+      setHeardDiff(null)
       setMicError(res.error || 'No se pudo reconocer la voz. Intenta de nuevo.')
     }
   }
 
   function cancelSpeaking() {
     micRunRef.current += 1
+    if (micRetryTimerRef.current !== null) window.clearTimeout(micRetryTimerRef.current)
+    micRetryTimerRef.current = null
     stopSpeechRecognition()
     stopMicMeter()
     setMicState('idle')
@@ -386,6 +446,8 @@ export default function ExerciseRunner({
   useEffect(() => {
     return () => {
       micRunRef.current += 1
+      if (micRetryTimerRef.current !== null) window.clearTimeout(micRetryTimerRef.current)
+      micRetryTimerRef.current = null
       stopSpeechRecognition()
       stopMicMeter()
       releaseMicStream()
@@ -514,6 +576,27 @@ export default function ExerciseRunner({
     .map(([skill]) => skill)
   const accuracy =
     runAttemptsRef.current === 0 ? 100 : Math.round((solved.length / runAttemptsRef.current) * 100)
+  const firstAttempts = Object.values(firstAttemptRef.current)
+  const firstAttemptAccuracy =
+    firstAttempts.length === 0
+      ? 100
+      : Math.round((firstAttempts.filter(Boolean).length / firstAttempts.length) * 100)
+  const missedIds = exercises
+    .filter((item) => (mistakesInRunRef.current[item.id] ?? 0) > 0)
+    .map((item) => item.id)
+
+  function repeatMissed() {
+    if (missedIds.length === 0) return
+    setSolved((current) => current.filter((id) => !missedIds.includes(id)))
+    for (const id of missedIds) {
+      mistakesInRunRef.current[id] = 0
+      delete firstAttemptRef.current[id]
+    }
+    runAttemptsRef.current = 0
+    setFinished(false)
+    const first = exercises.findIndex((item) => missedIds.includes(item.id))
+    if (first >= 0) goTo(first)
+  }
 
   if (finished) {
     return (
@@ -525,11 +608,14 @@ export default function ExerciseRunner({
         solvedCount={solved.length}
         total={total}
         accuracy={accuracy}
+        firstAttemptAccuracy={firstAttemptAccuracy}
+        missedCount={missedIds.length}
         reviewSkills={reviewSkills}
         level={level}
         levelStats={levelStats}
         levelDone={levelDone}
         onRestart={restart}
+        onRepeatMissed={repeatMissed}
       />
     )
   }
@@ -945,6 +1031,7 @@ export default function ExerciseRunner({
                     </span>
                   </p>
                 )}
+                {heardDiff && <WordDiffView diff={heardDiff} />}
                 {speechWpm !== null && (
                   <p class="text-[12px] text-base-content/55">
                     Ritmo: <span class="font-mono text-accent">{speechWpm} palabras/min</span>
@@ -977,6 +1064,7 @@ export default function ExerciseRunner({
                 onInput={(event) => {
                   setText((event.target as HTMLTextAreaElement).value)
                   setHeardText('')
+                  setHeardDiff(null)
                 }}
                 rows={2}
                 placeholder="Escribe o corrige lo reconocido…"
@@ -996,6 +1084,7 @@ export default function ExerciseRunner({
               liveText={liveText}
               heardText={heardText}
               score={speakScore}
+              diff={heardDiff}
               wpm={speechWpm}
               micError={micError}
               text={text}
@@ -1003,6 +1092,7 @@ export default function ExerciseRunner({
               onText={(value) => {
                 setText(value)
                 setHeardText('')
+                setHeardDiff(null)
               }}
             />
           )}
@@ -1137,7 +1227,7 @@ export default function ExerciseRunner({
           )}
         </div>
 
-        <div class="mt-1 flex flex-wrap items-center justify-between gap-2 px-3 py-2.5 sm:px-4">
+        <div class="sticky bottom-0 z-20 mt-1 flex flex-wrap items-center justify-between gap-2 rounded-b-2xl bg-base-100/95 px-3 py-2.5 backdrop-blur sm:static sm:rounded-none sm:bg-transparent sm:px-4 sm:backdrop-blur-none">
           <p class="text-[10px] text-base-content/30">
             {exercise.type === 'match'
               ? `${matchedPairs.length} / ${exercise.pairs.length} parejas`

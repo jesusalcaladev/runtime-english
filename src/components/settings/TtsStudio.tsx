@@ -249,8 +249,8 @@ export default function TtsStudio() {
         {showAdvanced ? '−' : '+'} {tAction(stage, 'advancedVoice')}
       </button>
 
-      {showAdvanced && (
-        <div class="mt-2 rounded-xl bg-base-100/50 p-3.5">
+      <div class="mt-3 rounded-xl bg-base-100/50 p-3.5">
+        {showAdvanced && (
           <div class="flex flex-wrap items-start justify-between gap-3">
             <div class="flex min-w-0 items-start gap-3">
               <span class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent/12 text-accent">
@@ -279,127 +279,127 @@ export default function TtsStudio() {
                       : 'No descargada'}
             </span>
           </div>
+        )}
 
-          <div class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
-            {(
-              [
-                { value: 'google' as const, label: 'Google', desc: 'Online gratis, al instante' },
-                { value: 'system' as const, label: 'Sistema', desc: 'Voz del dispositivo' },
-                { value: 'kokoro' as const, label: 'HQ Kokoro', desc: 'Neural local' },
-                { value: 'piper' as const, label: 'Piper', desc: 'Rápida y natural' },
-              ] as const
-            ).map((option) => {
-              const active = (state.settings.ttsEngine ?? 'system') === option.value
-              return (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => {
-                    progressStore.setSettings({ ttsEngine: option.value })
-                    if (option.value === 'kokoro') {
-                      if (kokoro.state === 'idle' || kokoro.state === 'error') void loadKokoro()
-                      else maybeWarmKokoroInBackground()
-                    }
-                    if (option.value === 'piper' && piperStatus.state === 'idle') void loadPiper()
-                  }}
-                  class={`rounded-xl p-3 text-left transition ${active ? 'bg-base-100' : 'bg-base-100/40 hover:bg-base-100/70'}`}
-                >
-                  <span class="flex items-center justify-between text-[11px] font-medium">
-                    {option.label}
-                    <span
-                      class={`flex h-4 w-4 items-center justify-center rounded-full ${active ? 'bg-accent text-accent-content' : 'bg-base-300'}`}
-                    >
-                      {active && <Check class="h-2.5 w-2.5" />}
-                    </span>
-                  </span>
-                  <p class="mt-1 text-[10px] text-base-content/40">{option.desc}</p>
-                </button>
-              )
-            })}
-          </div>
-
-          <p class="mt-2 text-[10px] leading-relaxed text-base-content/45">
-            Motor activo:{' '}
-            <span class="font-mono text-accent">
-              {state.settings.ttsEngine === 'google'
-                ? 'Google'
-                : state.settings.ttsEngine === 'kokoro'
-                  ? 'HQ Kokoro'
-                  : state.settings.ttsEngine === 'piper'
-                    ? 'Piper'
-                    : 'Sistema'}
-            </span>
-            . Las líneas siguientes de cada conversación se preparan en segundo plano mientras suena
-            la actual.
-          </p>
-
-          {(state.settings.ttsEngine === 'kokoro' || kokoro.state !== 'idle') && (
-            <div class="mt-3 rounded-xl bg-base-100/60 p-3">
-              <div class="flex flex-wrap items-center justify-between gap-2">
-                <p class="text-[11px] text-base-content/60">{kokoro.message}</p>
-                {kokoro.state === 'loading' && (
-                  <span class="flex items-center gap-1.5 font-mono text-[10px] text-accent">
-                    <Loader2 class="h-3 w-3 animate-spin" /> {kokoro.progress}%
-                  </span>
-                )}
-              </div>
-              {kokoro.state === 'loading' && (
-                <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-base-content/[0.08]">
-                  <div
-                    class="h-full rounded-full bg-accent transition-all duration-300"
-                    style={{ width: `${Math.max(2, kokoro.progress)}%` }}
-                  />
-                </div>
-              )}
-              {kokoro.state === 'error' && kokoro.error && (
-                <p class="mt-1.5 text-[10px] leading-relaxed text-error/80">{kokoro.error}</p>
-              )}
-              <div class="mt-2 flex flex-wrap gap-2">
-                {(kokoro.state === 'idle' || kokoro.state === 'error') && (
-                  <button
-                    type="button"
-                    onClick={() => void loadKokoro()}
-                    class="flex items-center gap-1.5 rounded-full bg-base-content px-3 py-1.5 text-[10px] font-medium text-base-100"
+        <div class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
+          {(
+            [
+              { value: 'google' as const, label: 'Google', desc: 'Online gratis, al instante' },
+              { value: 'system' as const, label: 'Sistema', desc: 'Voz del dispositivo' },
+              { value: 'kokoro' as const, label: 'HQ Kokoro', desc: 'Neural local' },
+              { value: 'piper' as const, label: 'Piper', desc: 'Rápida y natural' },
+            ] as const
+          ).map((option) => {
+            const active = (state.settings.ttsEngine ?? 'system') === option.value
+            return (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => {
+                  progressStore.setSettings({ ttsEngine: option.value })
+                  if (option.value === 'kokoro') {
+                    if (kokoro.state === 'idle' || kokoro.state === 'error') void loadKokoro()
+                    else maybeWarmKokoroInBackground()
+                  }
+                  if (option.value === 'piper' && piperStatus.state === 'idle') void loadPiper()
+                }}
+                class={`rounded-xl p-3 text-left transition ${active ? 'bg-base-100' : 'bg-base-100/40 hover:bg-base-100/70'}`}
+              >
+                <span class="flex items-center justify-between text-[11px] font-medium">
+                  {option.label}
+                  <span
+                    class={`flex h-4 w-4 items-center justify-center rounded-full ${active ? 'bg-accent text-accent-content' : 'bg-base-300'}`}
                   >
-                    <Download class="h-3 w-3" />
-                    {kokoro.state === 'error'
-                      ? 'Reintentar'
-                      : kokoroIsCached()
-                        ? 'Cargar voz HQ (caché)'
-                        : 'Descargar voz HQ'}
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
-
-          {(state.settings.ttsEngine === 'piper' || piperStatus.state !== 'idle') && (
-            <div class="mt-3 rounded-xl bg-base-100/60 p-3">
-              <div class="flex flex-wrap items-center justify-between gap-2">
-                <p class="text-[11px] text-base-content/60">{piperStatus.message}</p>
-                {piperStatus.state === 'loading' && (
-                  <span class="flex items-center gap-1.5 font-mono text-[10px] text-accent">
-                    <Loader2 class="h-3 w-3 animate-spin" />
-                    {tAction(stage, 'loading')}
+                    {active && <Check class="h-2.5 w-2.5" />}
                   </span>
-                )}
+                </span>
+                <p class="mt-1 text-[10px] text-base-content/40">{option.desc}</p>
+              </button>
+            )
+          })}
+        </div>
+
+        <p class="mt-2 text-[10px] leading-relaxed text-base-content/45">
+          Motor activo:{' '}
+          <span class="font-mono text-accent">
+            {state.settings.ttsEngine === 'google'
+              ? 'Google'
+              : state.settings.ttsEngine === 'kokoro'
+                ? 'HQ Kokoro'
+                : state.settings.ttsEngine === 'piper'
+                  ? 'Piper'
+                  : 'Sistema'}
+          </span>
+          . Las líneas siguientes de cada conversación se preparan en segundo plano mientras suena
+          la actual.
+        </p>
+
+        {showAdvanced && (state.settings.ttsEngine === 'kokoro' || kokoro.state !== 'idle') && (
+          <div class="mt-3 rounded-xl bg-base-100/60 p-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <p class="text-[11px] text-base-content/60">{kokoro.message}</p>
+              {kokoro.state === 'loading' && (
+                <span class="flex items-center gap-1.5 font-mono text-[10px] text-accent">
+                  <Loader2 class="h-3 w-3 animate-spin" /> {kokoro.progress}%
+                </span>
+              )}
+            </div>
+            {kokoro.state === 'loading' && (
+              <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-base-content/[0.08]">
+                <div
+                  class="h-full rounded-full bg-accent transition-all duration-300"
+                  style={{ width: `${Math.max(2, kokoro.progress)}%` }}
+                />
               </div>
-              {piperStatus.state === 'error' && (
+            )}
+            {kokoro.state === 'error' && kokoro.error && (
+              <p class="mt-1.5 text-[10px] leading-relaxed text-error/80">{kokoro.error}</p>
+            )}
+            <div class="mt-2 flex flex-wrap gap-2">
+              {(kokoro.state === 'idle' || kokoro.state === 'error') && (
                 <button
                   type="button"
-                  onClick={() => void loadPiper()}
-                  class="mt-2 rounded-full bg-base-content px-3 py-1.5 text-[10px] font-medium text-base-100"
+                  onClick={() => void loadKokoro()}
+                  class="flex items-center gap-1.5 rounded-full bg-base-content px-3 py-1.5 text-[10px] font-medium text-base-100"
                 >
-                  {tAction(stage, 'retry')}
+                  <Download class="h-3 w-3" />
+                  {kokoro.state === 'error'
+                    ? 'Reintentar'
+                    : kokoroIsCached()
+                      ? 'Cargar voz HQ (caché)'
+                      : 'Descargar voz HQ'}
                 </button>
               )}
-              <p class="mt-2 text-[10px] leading-relaxed text-base-content/40">
-                {tAction(stage, 'piperHint')}
-              </p>
             </div>
-          )}
-        </div>
-      )}
+          </div>
+        )}
+
+        {showAdvanced && (state.settings.ttsEngine === 'piper' || piperStatus.state !== 'idle') && (
+          <div class="mt-3 rounded-xl bg-base-100/60 p-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <p class="text-[11px] text-base-content/60">{piperStatus.message}</p>
+              {piperStatus.state === 'loading' && (
+                <span class="flex items-center gap-1.5 font-mono text-[10px] text-accent">
+                  <Loader2 class="h-3 w-3 animate-spin" />
+                  {tAction(stage, 'loading')}
+                </span>
+              )}
+            </div>
+            {piperStatus.state === 'error' && (
+              <button
+                type="button"
+                onClick={() => void loadPiper()}
+                class="mt-2 rounded-full bg-base-content px-3 py-1.5 text-[10px] font-medium text-base-100"
+              >
+                {tAction(stage, 'retry')}
+              </button>
+            )}
+            <p class="mt-2 text-[10px] leading-relaxed text-base-content/40">
+              {tAction(stage, 'piperHint')}
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

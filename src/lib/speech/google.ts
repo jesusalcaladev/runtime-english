@@ -1,5 +1,5 @@
 import { bumpPhraseStatus } from './phraseStatus'
-import { getSpeechRate } from './platform'
+import { getSpeechLanguage, getSpeechRate } from './platform'
 import { setSpeaking } from './ui'
 import { TTS_BUFFER_TIMEOUT_MS, ttsAttemptDeadlineMs } from './watchdog'
 
@@ -23,8 +23,19 @@ let currentAudio: HTMLAudioElement | null = null
 let cancelActivePlay: (() => void) | null = null
 const audioCache = new Map<string, HTMLAudioElement>()
 const inFlight = new Set<string>()
-const prefetchQueue: { chunk: string; priority: boolean; attempts: number }[] = []
+const prefetchQueue: {
+  chunk: string
+  key: string
+  lang: ReturnType<typeof getSpeechLanguage>
+  priority: boolean
+  attempts: number
+}[] = []
 let activePrefetches = 0
+
+/** Cache entries are per accent: `en` and `en-GB` return different audio. */
+function audioKey(text: string, lang = getSpeechLanguage()): string {
+  return `${lang}::${text}`
+}
 
 export function splitGoogleText(text: string): string[] {
   const clean = text.replace(/\s+/g, ' ').trim()
@@ -57,14 +68,14 @@ export function splitGoogleText(text: string): string[] {
   return chunks
 }
 
-function googleAudioUrl(text: string): string {
-  return `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=en&q=${encodeURIComponent(text)}`
+function googleAudioUrl(text: string, lang = getSpeechLanguage()): string {
+  return `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=${lang}&q=${encodeURIComponent(text)}`
 }
 
-function createAudio(text: string): HTMLAudioElement {
+function createAudio(text: string, lang = getSpeechLanguage()): HTMLAudioElement {
   const audio = new Audio()
   audio.preload = 'auto'
-  audio.src = googleAudioUrl(text)
+  audio.src = googleAudioUrl(text, lang)
   try {
     audio.load?.()
   } catch {
@@ -108,20 +119,20 @@ function cacheAudio(text: string, audio: HTMLAudioElement): void {
 function pumpPrefetch(): void {
   while (activePrefetches < MAX_PARALLEL_PREFETCH) {
     const index = prefetchQueue.findIndex(
-      (item) => !inFlight.has(item.chunk) && !audioCache.has(item.chunk),
+      (item) => !inFlight.has(item.key) && !audioCache.has(item.key),
     )
     if (index < 0) return
     const [item] = prefetchQueue.splice(index, 1)
-    inFlight.add(item.chunk)
+    inFlight.add(item.key)
     activePrefetches += 1
 
-    const audio = createAudio(item.chunk)
-    cacheAudio(item.chunk, audio)
+    const audio = createAudio(item.chunk, item.lang)
+    cacheAudio(item.key, audio)
     let settled = false
     const finish = (success: boolean) => {
       if (settled) return
       settled = true
-      inFlight.delete(item.chunk)
+      inFlight.delete(item.key)
       activePrefetches -= 1
       if (!success && item.attempts < MAX_PREFETCH_RETRIES) {
         prefetchQueue.unshift({ ...item, attempts: item.attempts + 1 })
@@ -131,7 +142,7 @@ function pumpPrefetch(): void {
     }
 
     audio.onerror = () => {
-      if (audioCache.get(item.chunk) === audio) audioCache.delete(item.chunk)
+      if (audioCache.get(item.key) === audio) audioCache.delete(item.key)
       finish(false)
     }
     audio.oncanplaythrough = () => finish(true)
@@ -161,10 +172,12 @@ export function stopGooglePlayback(): void {
  */
 export function prefetchGooglePhrase(text: string, priority = false): void {
   if (typeof window === 'undefined') return
+  const lang = getSpeechLanguage()
   for (const chunk of splitGoogleText(text)) {
-    if (!chunk || audioCache.has(chunk) || inFlight.has(chunk)) continue
-    if (prefetchQueue.some((item) => item.chunk === chunk)) continue
-    const item = { chunk, priority, attempts: 0 }
+    const key = audioKey(chunk, lang)
+    if (!chunk || audioCache.has(key) || inFlight.has(key)) continue
+    if (prefetchQueue.some((item) => item.key === key)) continue
+    const item = { chunk, key, lang, priority, attempts: 0 }
     if (priority) prefetchQueue.unshift(item)
     else prefetchQueue.push(item)
   }
@@ -176,10 +189,11 @@ export function prefetchGooglePhrase(text: string, priority = false): void {
 export function getGooglePhraseStatus(texts: string[]): { ready: number; total: number } {
   let ready = 0
   let total = 0
+  const lang = getSpeechLanguage()
   for (const text of texts) {
     for (const chunk of splitGoogleText(text)) {
       total += 1
-      const audio = audioCache.get(chunk)
+      const audio = audioCache.get(audioKey(chunk, lang))
       // 2 === HAVE_CURRENT_DATA (kept as a literal for non-DOM test runtimes).
       if (audio && (audio.readyState ?? 0) >= 2) ready += 1
     }
@@ -205,10 +219,11 @@ async function waitForBuffer(audio: HTMLAudioElement): Promise<void> {
   })
 }
 
-async function playChunk(text: string): Promise<void> {
-  const cached = audioCache.get(text)
-  const audio = cached ?? createAudio(text)
-  if (!cached) cacheAudio(text, audio)
+async function playChunk(text: string, lang = getSpeechLanguage()): Promise<void> {
+  const key = audioKey(text, lang)
+  const cached = audioCache.get(key)
+  const audio = cached ?? createAudio(text, lang)
+  if (!cached) cacheAudio(key, audio)
   await waitForBuffer(audio)
   audio.playbackRate = Math.min(2, Math.max(0.5, getSpeechRate()))
   currentAudio = audio
@@ -222,7 +237,7 @@ async function playChunk(text: string): Promise<void> {
       clearTimeout(watchdog)
       if (cancelActivePlay === cancel) cancelActivePlay = null
       if (currentAudio === audio) currentAudio = null
-      if (!ok) audioCache.delete(text)
+      if (!ok) audioCache.delete(key)
       if (ok) resolve()
       else reject(new Error('Google TTS no disponible'))
     }
@@ -258,6 +273,7 @@ async function playChunk(text: string): Promise<void> {
 export async function speakWithGoogle(text: string, button?: HTMLElement | null): Promise<boolean> {
   if (typeof window === 'undefined') return false
   stopGooglePlayback()
+  const lang = getSpeechLanguage()
   const chunks = splitGoogleText(text)
   if (!chunks.length) return false
 
@@ -270,8 +286,8 @@ export async function speakWithGoogle(text: string, button?: HTMLElement | null)
   try {
     for (const chunk of chunks) {
       // Re-queue a chunk if its download failed or was evicted meanwhile.
-      if (!audioCache.has(chunk)) prefetchGooglePhrase(chunk, true)
-      await playChunk(chunk)
+      if (!audioCache.has(audioKey(chunk, lang))) prefetchGooglePhrase(chunk, true)
+      await playChunk(chunk, lang)
     }
     return true
   } catch {

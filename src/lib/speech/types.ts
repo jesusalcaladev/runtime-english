@@ -32,4 +32,6 @@ export type SpeechRecognitionResult = {
   error?: string
   /** Milliseconds between the first and last heard words, when the engine reports it. */
   speechDurationMs?: number
+  /** Lower-confidence recognition candidates returned alongside the transcript. */
+  alternatives?: string[]
 }

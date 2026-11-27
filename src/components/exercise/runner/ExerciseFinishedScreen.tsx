@@ -14,11 +14,14 @@ interface Props {
   solvedCount: number
   total: number
   accuracy: number
+  firstAttemptAccuracy?: number
+  missedCount?: number
   reviewSkills: string[]
   level?: Level
   levelStats?: { doneSessions: number; sessions: number } | null
   levelDone: boolean
   onRestart: () => void
+  onRepeatMissed?: () => void
 }
 
 export function ExerciseFinishedScreen({
@@ -29,11 +32,14 @@ export function ExerciseFinishedScreen({
   solvedCount,
   total,
   accuracy,
+  firstAttemptAccuracy,
+  missedCount = 0,
   reviewSkills,
   level,
   levelStats,
   levelDone,
   onRestart,
+  onRepeatMissed,
 }: Props) {
   const isLast = !next
   const levelPct =
@@ -64,6 +70,11 @@ export function ExerciseFinishedScreen({
           <span class="rounded-full bg-base-200 px-3 py-1.5 font-mono text-[11px] text-base-content/60">
             {tAction(stage, 'sessionAccuracy')} {accuracy}%
           </span>
+          {firstAttemptAccuracy !== undefined && (
+            <span class="rounded-full bg-base-200 px-3 py-1.5 font-mono text-[11px] text-base-content/45">
+              {tAction(stage, 'firstAttemptAccuracy')} {firstAttemptAccuracy}%
+            </span>
+          )}
           <span class="rounded-full bg-base-200 px-3 py-1.5 font-mono text-[11px] text-base-content/45">
             {solvedCount}/{total} {tAction(stage, 'exercises').toLowerCase()}
           </span>
@@ -133,6 +144,16 @@ export function ExerciseFinishedScreen({
             <ArrowLeft class="h-3.5 w-3.5" />
             {tAction(stage, 'backRoadmap')}
           </a>
+          {missedCount > 0 && onRepeatMissed && (
+            <button
+              type="button"
+              onClick={onRepeatMissed}
+              class="btn btn-ghost btn-sm h-10 gap-2 rounded-xl px-3 text-base-content/55"
+            >
+              <RotateCcw class="h-3.5 w-3.5" />
+              {tAction(stage, 'retryMissed')} ({missedCount})
+            </button>
+          )}
           <button
             type="button"
             onClick={onRestart}

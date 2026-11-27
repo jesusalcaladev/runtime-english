@@ -1,4 +1,13 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+const { languageRef } = vi.hoisted(() => ({
+  languageRef: { current: 'en-US' as 'en-US' | 'en-GB' },
+}))
+vi.mock('./platform', () => ({
+  getSpeechLanguage: () => languageRef.current,
+  getSpeechRate: () => 1,
+}))
+
 import {
   getGooglePhraseStatus,
   prefetchGooglePhrase,
@@ -46,6 +55,22 @@ beforeEach(() => {
 })
 
 describe('Google TTS', () => {
+  it('uses the selected accent in the Google URL and caches per accent', () => {
+    languageRef.current = 'en-GB'
+    prefetchGooglePhrase('Accent test phrase.')
+    expect(FakeAudio.instances[0].src).toContain('tl=en-GB')
+    FakeAudio.instances[0].readyState = 2
+    FakeAudio.instances[0].oncanplaythrough?.()
+
+    languageRef.current = 'en-US'
+    prefetchGooglePhrase('Accent test phrase.')
+    expect(FakeAudio.instances).toHaveLength(2)
+    expect(FakeAudio.instances[1].src).toContain('tl=en-US')
+    FakeAudio.instances[1].readyState = 2
+    FakeAudio.instances[1].oncanplaythrough?.()
+    languageRef.current = 'en-US'
+  })
+
   it('splits long text into safe sentence chunks', () => {
     const text = `${'First sentence. '.repeat(8)}${'Second sentence. '.repeat(8)}`
     const chunks = splitGoogleText(text)

@@ -141,6 +141,81 @@ describe('progress', () => {
     expect(s2.xp).toBe(xpAfterFirst)
   })
 
+  it('only grades SRS when the exercise is resolved; a retry is one Hard grade', () => {
+    progressStore.recordExercise(ex, false, {
+      userAnswer: 'x',
+      correctAnswer: 'work',
+      skipSrs: true,
+    })
+    let s = progressStore.getState()
+    expect(s.attempts[ex.id]).toBe(1)
+    expect(s.exerciseSrs[ex.id]).toBeUndefined()
+    expect(s.errorEvents.length).toBe(1)
+
+    progressStore.recordExercise(ex, true, {
+      userAnswer: 'work',
+      correctAnswer: 'work',
+      struggled: true,
+    })
+    s = progressStore.getState()
+    expect(s.exerciseSrs[ex.id].box).toBe(0)
+    expect(s.exerciseSrs[ex.id].correctStreak).toBe(1)
+  })
+
+  it('grades a correct answer in a later review as Good, not a lifetime Hard', () => {
+    progressStore.recordExercise(ex, true)
+    const first = progressStore.getState().exerciseSrs[ex.id]
+    expect(first.box).toBe(1)
+
+    progressStore.recordExercise(ex, true)
+    const second = progressStore.getState().exerciseSrs[ex.id]
+    expect(second.box).toBeGreaterThan(first.box)
+    expect(second.correctStreak).toBe(2)
+  })
+
+  it('does not mark a recovered exercise weak forever', () => {
+    progressStore.recordExercise(ex, false, { skipSrs: true })
+    progressStore.recordExercise(ex, true, { struggled: true })
+    progressStore.recordExercise(ex, true)
+    const stats = getReviewStats(progressStore.getState(), [ex.id])
+    expect(stats.weak).toBe(0)
+  })
+
+  it('does not complete a retention check after two failures', () => {
+    const now = Date.now()
+    const key = `${ex.id}:1`
+    progressStore.applyRemoteState(
+      mergeState({
+        retentionChecks: {
+          [key]: {
+            exerciseId: ex.id,
+            dueAt: now - 1_000,
+            offsetDays: 1,
+            attempts: 0,
+            correct: 0,
+          },
+        },
+      }),
+    )
+    progressStore.recordExercise(ex, false, { skipSrs: true })
+    progressStore.recordExercise(ex, false, { skipSrs: true })
+    expect(progressStore.getState().retentionChecks[key].done).toBe(false)
+    expect(progressStore.getState().retentionChecks[key].correct).toBe(0)
+  })
+
+  it('records a Hard grade for a flashcard answered with difficulty', () => {
+    const id = phraseId('Hard phrase')
+    progressStore.savePhrase('Hard phrase', 'Frase difícil', 'Manual')
+    progressStore.reviewPhrase(id, true, { struggled: true })
+    const hard = progressStore.getState().phrasebook[id]
+    expect(hard.correctStreak).toBe(1)
+    expect(hard.box).toBe(0)
+
+    progressStore.reviewPhrase(id, true)
+    const good = progressStore.getState().phrasebook[id]
+    expect(good.box).toBeGreaterThan(hard.box)
+  })
+
   it('review stats and due detection work with attempts and srs', () => {
     progressStore.recordExercise(ex, false, {
       userAnswer: 'x',

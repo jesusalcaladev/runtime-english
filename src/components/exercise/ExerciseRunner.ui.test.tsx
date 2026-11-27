@@ -9,6 +9,10 @@ vi.mock('../../lib/speech', () => ({
   getSpeechLanguage: vi.fn().mockReturnValue('en-US'),
   isMicLevelMeterSupported: vi.fn().mockReturnValue(false),
   isSpeechRecognitionSupported: vi.fn().mockReturnValue(false),
+  pickBestAlternative: vi
+    .fn()
+    .mockImplementation((_expected: unknown, alternatives: string[]) => alternatives[0] ?? ''),
+  wordDiff: vi.fn().mockReturnValue(null),
   recognizeOnce: vi.fn().mockResolvedValue({ transcript: '', confidence: 0, supported: false }),
   releaseMicStream: vi.fn(),
   speechMatchScore: vi.fn().mockReturnValue(1),

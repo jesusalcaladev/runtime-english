@@ -67,7 +67,11 @@ describe('recognizeOnce (web speech)', () => {
     const promise = recognizeOnce('en-US', 5_000)
     lastInstance().emit([result(true, alternative('hello world', 0), alternative('hello word', 0))])
 
-    await expect(promise).resolves.toMatchObject({ transcript: 'hello world', supported: true })
+    await expect(promise).resolves.toMatchObject({
+      transcript: 'hello world',
+      supported: true,
+      alternatives: ['hello world', 'hello word'],
+    })
   })
 
   it('reports interim results and resolves with the final transcript', async () => {

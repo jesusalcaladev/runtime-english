@@ -42,15 +42,11 @@ import {
 import { getSpeechEngine, isNativePlatform, isSpeechEnabled, normalizeSpeechText } from './platform'
 import type { SpeechStyle } from './types'
 import { clearAllSpeakStates, setSpeaking, setSpeakLoading } from './ui'
-import {
-  TTS_LINE_TIMEOUT_MS,
-  ttsAttemptDeadlineMs,
-  withFallback,
-  withTimeout,
-} from './watchdog'
+import { TTS_LINE_TIMEOUT_MS, ttsAttemptDeadlineMs, withFallback, withTimeout } from './watchdog'
 
 export { getWebVoices } from './browser'
-export { speechMatchScore } from './match'
+export type { WordDiff, WordDiffToken } from './match'
+export { pickBestAlternative, speechMatchScore, wordDiff } from './match'
 export {
   getPiperStatus,
   loadPiper,
@@ -291,11 +287,8 @@ export async function speakLine(text: string, style?: SpeechStyle): Promise<void
   warmSpeechEngine()
   // A hung voice must never hold back a dialogue or an exercise. Bound the whole
   // line and cancel any stuck native queue when the deadline is reached.
-  await withFallback<void>(
-    playSpeech(cleanText, null, style),
-    TTS_LINE_TIMEOUT_MS,
-    undefined,
-    () => stopSpeech(),
+  await withFallback<void>(playSpeech(cleanText, null, style), TTS_LINE_TIMEOUT_MS, undefined, () =>
+    stopSpeech(),
   )
 }
 
@@ -604,10 +597,8 @@ export function speak(text: string, button?: HTMLElement | null, style?: SpeechS
   setSpeaking(button, false)
   warmSpeechEngine()
 
-  void withTimeout(
-    playSpeech(cleanText, button, style),
-    TTS_LINE_TIMEOUT_MS + 2_000,
-    () => stopSpeech(),
+  void withTimeout(playSpeech(cleanText, button, style), TTS_LINE_TIMEOUT_MS + 2_000, () =>
+    stopSpeech(),
   )
     .catch(() => {
       setSpeaking(button, false)

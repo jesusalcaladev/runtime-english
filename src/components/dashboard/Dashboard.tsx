@@ -159,9 +159,12 @@ export default function Dashboard({
       ? `Hola${state.settings.name ? `, ${state.settings.name}` : ''}.`
       : `Hey${state.settings.name ? `, ${state.settings.name}` : ''}.`
 
-  const totalAttempts = Object.values(state.attempts).reduce((s, v) => s + v, 0)
+  const attemptedExercises = Object.keys(state.attempts).length
+  // Retries are progress, not extra failures: measure solved vs exercises tried.
   const accuracy =
-    totalAttempts === 0 ? 0 : Math.min(100, Math.round((doneExercises / totalAttempts) * 100))
+    attemptedExercises === 0
+      ? 0
+      : Math.min(100, Math.round((doneExercises / attemptedExercises) * 100))
   const review = getReviewStats(state, exerciseIds, Date.now())
   const duePhrases = getDuePhraseEntries(state).length
   const totalDue = review.due + duePhrases
@@ -180,7 +183,7 @@ export default function Dashboard({
   })
   const consistencyTips = getConsistencyFeedback(consistency, plan)
   const weakRate =
-    totalAttempts === 0 ? 0 : Math.round(((totalAttempts - doneExercises) / totalAttempts) * 100)
+    attemptedExercises === 0 ? 0 : Math.round((review.weak / attemptedExercises) * 100)
   const recentErrorEvents = (state.errorEvents ?? []).slice(-120)
   const errorPatterns = aggregateErrorPatterns(recentErrorEvents).slice(0, 5)
 
@@ -568,7 +571,7 @@ export default function Dashboard({
                         <li>
                           • Precisión:{' '}
                           <span class="font-medium text-base-content/75">{accuracy}%</span> (
-                          {doneExercises}/{totalAttempts || 0}).
+                          {doneExercises}/{attemptedExercises || 0}).
                         </li>
                         <li>
                           • A reforzar:{' '}
