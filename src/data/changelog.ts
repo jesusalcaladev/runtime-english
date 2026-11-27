@@ -84,6 +84,14 @@ export const CHANGELOG: ChangelogRelease[] = [
         kind: 'improvement',
         text: 'Mejor sincronización: seguimiento de subtítulos más fino, pausa automática rearmada y repetición de línea con voz en modo sin conexión.',
       },
+      {
+        kind: 'improvement',
+        text: 'Interfaz más limpia: se quitaron notas y explicaciones repetidas de práctica, diccionario, ajustes y recursos, y los consejos se agrupan en un panel desplegable.',
+      },
+      {
+        kind: 'improvement',
+        text: 'Los textos auxiliares ahora tienen un tamaño y contraste legibles también en móvil; tus notas y ejemplos dejan de ocultarse en pantallas pequeñas.',
+      },
     ],
   },
   {

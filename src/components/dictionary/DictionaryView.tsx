@@ -94,9 +94,6 @@ export default function DictionaryView() {
             <p class="flex items-center gap-2 text-sm font-medium">
               <Brain class="h-4 w-4 text-accent" /> Repasar (flashcards SRS)
             </p>
-            <p class="mt-1 hidden text-[12px] leading-relaxed text-base-content/55 sm:block">
-              Repasa frases con tus significados, notas y ejemplos.
-            </p>
           </div>
           <div class="flex flex-wrap gap-2">
             <button
@@ -217,22 +214,20 @@ export default function DictionaryView() {
                     {card.es || '—'}
                   </p>
                   {card.userExample && (
-                    <p class="hidden text-[13px] text-base-content/65 sm:block">
-                      <span class="font-medium text-base-content/45">Tu ejemplo: </span>
+                    <p class="hint-text">
+                      <span class="font-medium text-base-content/75">Tu ejemplo: </span>
                       <span class="font-mono">{card.userExample}</span>
                     </p>
                   )}
                   {card.notes && (
-                    <p class="hidden text-[13px] text-base-content/60 sm:block">
-                      <span class="font-medium text-base-content/45">Nota: </span>
+                    <p class="hint-text">
+                      <span class="font-medium text-base-content/75">Nota: </span>
                       {card.notes}
                     </p>
                   )}
                 </div>
               ) : (
-                <p class="mt-4 hidden text-[12px] text-base-content/40 sm:block">
-                  Piensa el significado y luego revélalo para autoevaluarte.
-                </p>
+                <p class="hint-text mt-4">Piensa el significado y luego revélalo.</p>
               )}
             </div>
             <div class="mt-5 flex flex-col justify-center gap-2 sm:flex-row">
@@ -340,7 +335,7 @@ export default function DictionaryView() {
           aria-expanded={showAdd}
         >
           <span class="flex items-center gap-2 text-sm font-medium">
-            <Plus class="h-4 w-4 text-base-content/50" /> Añadir frase o ver ayuda
+            <Plus class="h-4 w-4 text-base-content/50" /> Añadir frase
           </span>
           <ChevronDown
             class={`h-4 w-4 text-base-content/40 transition-transform duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] ${showAdd ? 'rotate-180' : ''}`}
@@ -375,11 +370,6 @@ export default function DictionaryView() {
                   Añadir
                 </button>
               </div>
-              <ul class="space-y-1 text-[12px] leading-relaxed text-base-content/55">
-                <li>• Se guarda al acertar ejercicios, desde lecciones o manualmente.</li>
-                <li>• Puedes añadir notas, ejemplos, etiquetas y dificultad para repasar mejor.</li>
-                <li>• Se sincroniza con tu cuenta (si inicias sesión).</li>
-              </ul>
               {total > 0 && !state.dictionaryBackfilledAt && (
                 <button
                   type="button"
@@ -460,18 +450,18 @@ function PhraseCard({
             <p class="truncate font-mono text-[14px] font-medium text-base-content">{entry.en}</p>
           </div>
           <p class="mt-2 text-[13px] leading-relaxed text-base-content/70">
-            <span class="hidden font-medium text-base-content/45 sm:inline">Significado: </span>
+            <span class="font-medium text-base-content/65">Significado: </span>
             {entry.es || '—'}
           </p>
           {entry.userExample && (
-            <p class="mt-1.5 hidden rounded-lg bg-base-100/60 px-2.5 py-2 text-[12px] leading-relaxed text-base-content/65 sm:block">
-              <span class="font-medium text-base-content/45">Tu ejemplo: </span>
+            <p class="hint-text mt-1.5 rounded-lg bg-base-100/60 px-2.5 py-2">
+              <span class="font-medium text-base-content/75">Tu ejemplo: </span>
               <span class="font-mono">{entry.userExample}</span>
             </p>
           )}
           {entry.notes && (
-            <p class="mt-1.5 hidden text-[12px] leading-relaxed text-base-content/55 sm:block">
-              <span class="font-medium text-base-content/40">Nota: </span>
+            <p class="hint-text mt-1.5">
+              <span class="font-medium text-base-content/75">Nota: </span>
               {entry.notes}
             </p>
           )}

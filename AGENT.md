@@ -18,7 +18,7 @@ Permanent guide for working in this repository (`lear-english-for-dev`). Keep th
 - `src/data/curriculum/` — modules `m1.ts`…`m11.ts` (m10/m11 are C1/C2 and use `advancedFactory.ts`) and registry/helpers in `index.ts` (`MODULES`, `ALL_SESSIONS`, `getNavData`, etc.).
 - `src/data/slang.ts` — slang deck.
 - `src/lib/` — types (`types.ts`), progress/store (`progress.ts`, `useProgress.ts`), achievements (`achievements.ts`), immersion/i18n (`i18n.ts`), voice (`speech.ts`), toasts (`toast.ts`), APK update logic (`appUpdate.ts`), custom lessons storage/import (`customLessons.ts`), `certificateLevels.ts` (ordered A1-A2 → B1-B2 → C1-C2, completion and progressive unlock), certificates client (`certificates.ts`), etc.
-- `src/styles/global.css` — Tailwind/daisyUI, `runtimeenglish` and `runtimeenglish-dark` themes, base utilities/styles.
+- `src/styles/global.css` — Tailwind/daisyUI, `runtimeenglish` and `runtimeenglish-dark` themes, base utilities/styles. `.hint-text` is the single scale for auxiliary copy (11 px, `/60`) so helper text stays readable on mobile; do not hide user notes/examples behind `hidden sm:block`.
 - `public/` — `favicon.svg`, `manifest.webmanifest`, `sw.js`/custom SW, `app-update.json` (update manifest for the native APK). **APK binaries are not versioned** (`public/runtimeenglish.apk` and `public/*.apk` are ignored).
 - `src/lib/routes.ts` — `route()` helper to generate internal `.html` links compatible with Capacitor/APK.
 - `android/` — native Capacitor project; `dist/` — web build; `apks/` — locally generated APKs (ignored in git, except `.gitkeep`). APKs are distributed via **GitHub Releases**.

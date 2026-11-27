@@ -111,8 +111,8 @@ export function ExerciseFeedback({
             </p>
           )}
           {phraseEntry.notes && (
-            <p class="mt-1 hidden text-[12px] leading-relaxed text-base-content/60 sm:block">
-              <span class="font-medium text-base-content/45">Nota: </span>
+            <p class="hint-text mt-1">
+              <span class="font-medium text-base-content/75">Nota: </span>
               {phraseEntry.notes}
             </p>
           )}

@@ -42,4 +42,13 @@ describe('ResourceExplorer', () => {
     expect(screen.getByText('1 recurso')).toBeTruthy()
     expect(screen.getByText('YouGlish')).toBeTruthy()
   })
+
+  it('keeps tips out of the cards but available in one expandable panel', () => {
+    render(<ResourceExplorer resources={resources} />)
+    expect(screen.queryByText('Escucha dos veces.')).toBeNull()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cómo aprovechar estos recursos' }))
+    expect(screen.getByText('Escucha dos veces.')).toBeTruthy()
+    expect(screen.getByText('Busca phrasal verbs.')).toBeTruthy()
+  })
 })

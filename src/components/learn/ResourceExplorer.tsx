@@ -1,4 +1,4 @@
-import { ExternalLink, Search } from 'lucide-preact'
+import { ChevronDown, ExternalLink, Search } from 'lucide-preact'
 import { useMemo, useState } from 'preact/hooks'
 import type { LearningResource } from '../../data/learningResources'
 import { useUiStage } from '../../hooks/useUiStage'
@@ -38,6 +38,7 @@ export default function ResourceExplorer({ resources }: Props) {
   const [kind, setKind] = useState<KindFilter>('all')
   const [level, setLevel] = useState<LevelFilter>('all')
   const [query, setQuery] = useState('')
+  const [showTips, setShowTips] = useState(false)
 
   const visible = useMemo(() => {
     const needle = query.trim().toLowerCase()
@@ -86,12 +87,36 @@ export default function ResourceExplorer({ resources }: Props) {
             onInput={(event) => setQuery((event.target as HTMLInputElement).value)}
             placeholder={tAction(stage, 'filterResources')}
             aria-label={tAction(stage, 'filterResources')}
-            class="w-full bg-transparent text-[11px] text-base-content/80 outline-none placeholder:text-base-content/30"
+            class="w-full bg-transparent text-[12px] text-base-content/85 outline-none placeholder:text-base-content/50"
           />
         </label>
       </div>
 
-      <p class="font-mono text-[10px] text-base-content/35">
+      <div class="rounded-2xl bg-base-200/70">
+        <button
+          type="button"
+          onClick={() => setShowTips((value) => !value)}
+          aria-expanded={showTips}
+          class="flex w-full cursor-pointer items-center justify-between gap-2 px-4 py-2.5 text-left text-[12px] font-medium text-base-content/70"
+        >
+          Cómo aprovechar estos recursos
+          <ChevronDown
+            class={`h-4 w-4 text-base-content/45 transition-transform duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] ${showTips ? 'rotate-180' : ''}`}
+            aria-hidden="true"
+          />
+        </button>
+        {showTips && (
+          <ul class="hint-text list-disc space-y-1 px-5 pb-3">
+            {visible.map((resource) => (
+              <li key={resource.id}>
+                <span class="font-medium text-base-content/75">{resource.name}:</span> {resource.tip}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <p class="hint-text font-mono">
         {visible.length} recurso{visible.length === 1 ? '' : 's'}
       </p>
 
@@ -115,16 +140,16 @@ export default function ResourceExplorer({ resources }: Props) {
                     {resource.name}
                   </p>
                   <p class="mt-1 flex flex-wrap items-center gap-1.5">
-                    <span class="rounded-full bg-base-100/70 px-2 py-0.5 text-[9px] text-base-content/45">
+                    <span class="rounded-full bg-base-100/70 px-2 py-0.5 text-[10px] text-base-content/60">
                       {resource.kind === 'youtube' ? 'YouTube' : 'Web'}
                     </span>
-                    <span class="rounded-full bg-base-100/70 px-2 py-0.5 text-[9px] text-base-content/45">
+                    <span class="rounded-full bg-base-100/70 px-2 py-0.5 text-[10px] text-base-content/60">
                       {resource.level}
                     </span>
                     {resource.focus.map((tag) => (
                       <span
                         key={tag}
-                        class="rounded-full bg-accent/[0.08] px-2 py-0.5 text-[9px] text-accent/75"
+                        class="rounded-full bg-accent/[0.08] px-2 py-0.5 text-[10px] text-accent/80"
                       >
                         {tag}
                       </span>
@@ -135,10 +160,6 @@ export default function ResourceExplorer({ resources }: Props) {
               </div>
               <p class="mt-3 text-[12px] leading-relaxed text-base-content/60">
                 {resource.description}
-              </p>
-              <p class="mt-2 rounded-xl bg-base-100/60 px-3 py-2 text-[11px] leading-relaxed text-base-content/50">
-                <span class="font-medium text-accent/75">Consejo: </span>
-                {resource.tip}
               </p>
             </a>
           ))}

@@ -244,6 +244,11 @@
     @apply font-mono text-[10px] font-medium tracking-[0.04em] text-base-content/55;
   }
 
+  /* Texto auxiliar legible en móvil y escritorio: una sola escala y contraste. */
+  .hint-text {
+    @apply text-[11px] leading-relaxed text-base-content/60;
+  }
+
   .app-container {
     @apply mx-auto w-full max-w-[1120px];
   }

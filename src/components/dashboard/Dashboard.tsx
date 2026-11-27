@@ -399,32 +399,33 @@ export default function Dashboard({
             />
           </section>
 
-          <p class="mt-2 px-1 text-[11px] text-base-content/45">
-            Retención diferida:{' '}
-            <span class="font-mono text-base-content/70">{retention.rate}%</span> (24 h{' '}
-            {retention.byOffset[1].rate}% · 72 h {retention.byOffset[3].rate}%) · {retention.due}{' '}
-            pruebas pendientes.
-          </p>
+          {retention.due > 0 && (
+            <p class="hint-text mt-2 px-1 font-mono">
+              Retención: {retention.rate}% · {retention.due} pruebas pendientes.
+            </p>
+          )}
 
-          {/* Accesos secundarios compactos (sin duplicar métricas ni navegación) */}
-          <section class="mt-3 flex flex-wrap gap-2">
-            <a
-              href={route('/practice')}
-              class="inline-flex items-center gap-2 rounded-xl bg-base-200 px-3 py-2 text-[12px] text-base-content/70 hover:bg-base-300/70"
-            >
-              <Zap class="h-3.5 w-3.5 text-accent" /> Práctica{' '}
-              {review.due > 0 ? `· ${review.due} SRS` : ''}
-            </a>
-            <a
-              href={route('/dictionary')}
-              class="inline-flex items-center gap-2 rounded-xl bg-base-200 px-3 py-2 text-[12px] text-base-content/70 hover:bg-base-300/70"
-            >
-              <BookText class="h-3.5 w-3.5 text-accent" /> Diccionario{' '}
-              {duePhrases > 0
-                ? `· ${duePhrases} flashcards`
-                : `· ${Object.keys(state.phrasebook ?? {}).length}`}
-            </a>
-          </section>
+          {/* Accesos rápidos solo cuando hay trabajo pendiente. */}
+          {(review.due > 0 || duePhrases > 0) && (
+            <section class="mt-3 flex flex-wrap gap-2">
+              {review.due > 0 && (
+                <a
+                  href={route('/practice')}
+                  class="inline-flex items-center gap-2 rounded-xl bg-base-200 px-3 py-2 text-[12px] text-base-content/70 hover:bg-base-300/70"
+                >
+                  <Zap class="h-3.5 w-3.5 text-accent" /> Práctica · {review.due} SRS
+                </a>
+              )}
+              {duePhrases > 0 && (
+                <a
+                  href={route('/dictionary')}
+                  class="inline-flex items-center gap-2 rounded-xl bg-base-200 px-3 py-2 text-[12px] text-base-content/70 hover:bg-base-300/70"
+                >
+                  <BookText class="h-3.5 w-3.5 text-accent" /> Diccionario · {duePhrases} flashcards
+                </a>
+              )}
+            </section>
+          )}
 
           {/* Bloque 3: Profundizar (colapsable en móvil por defecto) */}
           <section class="mt-4 grid gap-3 lg:grid-cols-2">
@@ -456,8 +457,7 @@ export default function Dashboard({
               >
                 {plan
                   ? `Hoy ${consistency.todayExercises}/${plan.dailyExercises} ejercicios · Semana ${consistency.weekSessions}/${plan.weeklySessions} sesiones.`
-                  : 'Configura tu plan para ver metas diarias, semanales y mensuales.'}
-                <span class="ml-1 text-base-content/40">(ver detalle)</span>
+                  : 'Configura tu plan para ver tus metas diarias.'}
               </p>
               <div
                 class={`grid transition-[grid-template-rows,opacity] duration-200 ease-[cubic-bezier(0.32,0.72,0,1)] ${showHabits ? 'mt-4 grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}

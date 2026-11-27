@@ -444,7 +444,7 @@ export default function SettingsPanel() {
       <SectionCard
         id="profile"
         title="Perfil y plan"
-        description="Nombre, objetivo y metas de estudio."
+        description="Nombre, objetivo y metas."
         icon={User}
         open={open.profile}
         onToggle={() => toggle('profile')}
@@ -681,7 +681,7 @@ export default function SettingsPanel() {
       <SectionCard
         id="account"
         title="Cuenta y sincronización"
-        description="Progreso, diccionario y certificado en la nube."
+        description="Copia de seguridad en la nube."
         icon={Cloud}
         open={open.account}
         onToggle={() => toggle('account')}
@@ -909,7 +909,7 @@ export default function SettingsPanel() {
       <SectionCard
         id="appearance"
         title="Apariencia e idioma"
-        description="Tema, inmersión y estado de idioma."
+        description="Tema e idioma de la interfaz."
         icon={Languages}
         open={open.appearance}
         onToggle={() => toggle('appearance')}
@@ -1033,7 +1033,7 @@ export default function SettingsPanel() {
       <SectionCard
         id="audio"
         title="Audio y recordatorios"
-        description="Pronunciación, voz HQ y avisos de racha."
+        description="Voz y avisos de racha."
         icon={Volume2}
         open={open.audio}
         onToggle={() => toggle('audio')}
@@ -1105,7 +1105,7 @@ export default function SettingsPanel() {
         <SectionCard
           id="permissions"
           title="Permisos"
-          description="Notificaciones, micrófono y acceso rápido a ajustes del sistema."
+          description="Notificaciones y micrófono."
           icon={Shield}
           open={open.permissions}
           onToggle={() => toggle('permissions')}
@@ -1212,14 +1212,11 @@ export default function SettingsPanel() {
                     <SlidersHorizontal class="h-4 w-4 text-base-content/50" />
                     <h3 class="text-sm font-medium">Ajustes de la app / sistema</h3>
                   </div>
-                  <p class="mt-1 text-[11px] leading-relaxed text-base-content/45">
-                    Abre la configuración para activar permisos manualmente si fueron rechazados.
+                  <p class="hint-text mt-1">
+                    {nativeAndroid
+                      ? 'Activa aquí los permisos rechazados por Android.'
+                      : 'Revisa los permisos del sitio en tu navegador.'}
                   </p>
-                  {!nativeAndroid && (
-                    <p class="mt-1 text-[10px] text-base-content/45">
-                      En web, revisa los permisos del sitio en tu navegador.
-                    </p>
-                  )}
                 </div>
                 <button
                   type="button"
@@ -1243,7 +1240,7 @@ export default function SettingsPanel() {
       <SectionCard
         id="about"
         title="Acerca de la app"
-        description="Versión, novedades y actualizaciones."
+        description="Versión y novedades."
         icon={Info}
         open={open.about}
         onToggle={() => toggle('about')}
@@ -1259,11 +1256,13 @@ export default function SettingsPanel() {
                 <p class="mt-1 text-[11px] leading-relaxed text-base-content/55">
                   Versión actual: <span class="font-mono font-semibold">{CURRENT_APP_VERSION}</span>
                 </p>
-                <p class="mt-1 hidden break-all font-mono text-[10px] text-base-content/45 sm:block">
-                  {updateManifestUrl
-                    ? `Manifiesto: ${updateManifestUrl}`
-                    : 'Manifiesto no configurado en esta build.'}
-                </p>
+                {import.meta.env.DEV && (
+                  <p class="hint-text mt-1 hidden break-all font-mono sm:block">
+                    {updateManifestUrl
+                      ? `Manifiesto: ${updateManifestUrl}`
+                      : 'Manifiesto no configurado en esta build.'}
+                  </p>
+                )}
               </div>
               <button
                 type="button"
@@ -1283,19 +1282,16 @@ export default function SettingsPanel() {
                   <RefreshCw class="h-4 w-4 text-base-content/60" />
                   <h3 class="text-sm font-medium">Actualización de la APK</h3>
                 </div>
-                <p class="mt-1 hidden text-[11px] leading-relaxed text-base-content/55 sm:block">
-                  Busca una nueva versión publicada en el manifiesto de actualización.
+                <p class="hint-text mt-1">
+                  {nativeAndroid
+                    ? 'Busca una versión nueva publicada.'
+                    : 'Disponible solo en la app Android.'}
                 </p>
-                {!nativeAndroid && (
-                  <p class="mt-1 text-[11px] text-base-content/55">
-                    Disponible solo en la app Android instalada.
-                  </p>
-                )}
               </div>
               <button
                 type="button"
                 onClick={() => void handleCheckAppUpdate()}
-                disabled={checkingUpdate}
+                disabled={checkingUpdate || !nativeAndroid}
                 class="flex h-9 items-center gap-1.5 rounded-xl bg-base-100 px-3 text-[11px] font-medium text-base-content/70 transition hover:bg-base-200 hover:text-base-content disabled:opacity-50"
               >
                 <RefreshCw class={`h-3.5 w-3.5 ${checkingUpdate ? 'animate-spin' : ''}`} />
@@ -1309,7 +1305,7 @@ export default function SettingsPanel() {
       <SectionCard
         id="data"
         title="Datos"
-        description="Exportar/importar progreso y zona de riesgo."
+        description="Respaldo y reinicio."
         icon={Download}
         open={open.data}
         onToggle={() => toggle('data')}
