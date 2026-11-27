@@ -76,7 +76,7 @@ describe('TtsStudio', () => {
 
     fireEvent.click(screen.getAllByRole('button', { name: 'Modo fácil' })[0])
     expect(mocks.setSettings).toHaveBeenCalledWith({
-      ttsEngine: 'google',
+      ttsEngine: 'system',
       ttsRate: 1,
       ttsPitch: 1,
       ttsVoiceName: '',

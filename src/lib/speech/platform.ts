@@ -87,9 +87,9 @@ export function getPreferredVoiceName(): string | null {
 
 export function getSpeechEngine(): 'system' | 'google' | 'kokoro' | 'piper' {
   const engine = readStoredSpeechSettings()?.ttsEngine
-  // Google is the default for a natural voice; playback falls back to the
-  // device voice when offline or when the endpoint is blocked.
-  return engine === 'kokoro' || engine === 'piper' || engine === 'system' ? engine : 'google'
+  // Offline-first: the device voice is the default. Google/Kokoro/Piper are
+  // explicit opt-ins with their own fallbacks when unavailable.
+  return engine === 'kokoro' || engine === 'piper' || engine === 'google' ? engine : 'system'
 }
 
 export function getSpeechLanguage(): 'en-US' | 'en-GB' {

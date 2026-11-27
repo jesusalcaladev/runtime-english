@@ -141,6 +141,7 @@ import {
   getSpeechPhraseStatus,
   primeSpeechPhrase,
   warmSessionPhrases,
+  warmSpeechEngine,
   warmSpeechPhrases,
 } from './index'
 
@@ -241,9 +242,9 @@ describe('Google fallback warming for the system engine', () => {
     Object.defineProperty(window, 'speechSynthesis', { value: {}, configurable: true })
   })
 
-  it('primes a single phrase for the online fallback', () => {
+  it('primes a single phrase for the online fallback with priority', () => {
     primeSpeechPhrase('Hola')
-    expect(mocks.prefetchGooglePhrase).toHaveBeenCalledWith('Hola')
+    expect(mocks.prefetchGooglePhrase).toHaveBeenCalledWith('Hola', true)
   })
 
   it('warms on-screen phrases with high priority', () => {
@@ -255,5 +256,37 @@ describe('Google fallback warming for the system engine', () => {
   it('reports Google readiness instead of a false "ready"', () => {
     expect(getSpeechPhraseStatus(['One'])).toEqual({ ready: 0, total: 0 })
     expect(mocks.getGooglePhraseStatus).toHaveBeenCalledWith(['One'])
+  })
+})
+
+describe('warmSpeechEngine', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mocks.getSpeechEngine.mockReturnValue('system')
+    mocks.isNativePlatform.mockReturnValue(false)
+    mocks.isSpeechEnabled.mockReturnValue(true)
+    mocks.hasUsableWebVoice.mockReturnValue(true)
+    Object.defineProperty(window, 'speechSynthesis', { value: {}, configurable: true })
+  })
+
+  it('resolves the device voice for the default system engine', () => {
+    warmSpeechEngine()
+    expect(mocks.primeWebVoices).toHaveBeenCalled()
+    expect(mocks.warmNativeVoices).toHaveBeenCalled()
+    expect(mocks.loadKokoro).not.toHaveBeenCalled()
+    expect(mocks.loadPiper).not.toHaveBeenCalled()
+  })
+
+  it('loads Piper on user intent when it is the selected engine', () => {
+    mocks.getSpeechEngine.mockReturnValue('piper')
+    warmSpeechEngine()
+    expect(mocks.loadPiper).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not load heavy models on native', () => {
+    mocks.getSpeechEngine.mockReturnValue('piper')
+    mocks.isNativePlatform.mockReturnValue(true)
+    warmSpeechEngine()
+    expect(mocks.loadPiper).not.toHaveBeenCalled()
   })
 })

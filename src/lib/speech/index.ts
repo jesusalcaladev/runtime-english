@@ -169,15 +169,21 @@ export function primeSpeechPhrase(text: string): void {
         prepareKokoroPhrase(text)
         break
       case 'google':
-        prefetchGooglePhrase(text)
+        // This is an explicit intent (tap or next line), so jump the queue.
+        prefetchGooglePhrase(text, true)
         break
       case 'piper':
+        // Phrase generation is a no-op until the engine is loaded. Start the
+        // gated load here so the first Piper tap does not pay for the bundle.
+        if (!isNativePlatform() && canPrefetchModelOnCurrentConnection()) {
+          void loadPiper().catch(() => {})
+        }
         prefetchPiperPhrase(text)
         break
       default:
         if (canUseWebSpeech()) primeWebVoices()
         warmNativeVoices()
-        if (shouldWarmGoogleAsWebFallback()) prefetchGooglePhrase(text)
+        if (shouldWarmGoogleAsWebFallback()) prefetchGooglePhrase(text, true)
         break
     }
     bumpPhraseStatus()
@@ -213,6 +219,13 @@ export function warmConversationPhrases(texts: string[]): void {
     // On native, avoid a heavy uncached model download just by opening a lesson.
     if (getSpeechEngine() === 'kokoro' && !(isNativePlatform() && !kokoroIsCached())) {
       void loadKokoro().catch(() => {})
+    }
+    if (
+      getSpeechEngine() === 'piper' &&
+      !isNativePlatform() &&
+      canPrefetchModelOnCurrentConnection()
+    ) {
+      void loadPiper().catch(() => {})
     }
   } catch {
     // Warmup is best effort.
@@ -357,18 +370,28 @@ export function warmSpeechEngine(): void {
   if (typeof window === 'undefined') return
 
   try {
+    const engine = getSpeechEngine()
     if (isSpeechEnabled() && canUseWebSpeech()) {
       primeWebVoices()
     }
+    // Resolving the native voice on the first tap otherwise adds a plugin
+    // round-trip to the very first utterance (and to every accent change).
+    if (isSpeechEnabled()) warmNativeVoices()
 
     // Warm/load Kokoro eagerly on user intent when HQ voice is selected.
     // This reduces first-play latency (download/init/warm) compared to waiting for click playback.
-    if (getSpeechEngine() === 'kokoro') {
+    if (engine === 'kokoro') {
       if (!isKokoroReady() && !isKokoroLoading()) {
         void loadKokoro().catch(() => {})
       } else {
         maybeWarmKokoroInBackground()
       }
+    }
+
+    // Piper's engine bundle is large; load it only when selected, on a
+    // connection where downloading it is reasonable, and never on native.
+    if (engine === 'piper' && !isNativePlatform() && canPrefetchModelOnCurrentConnection()) {
+      void loadPiper().catch(() => {})
     }
   } catch {
     // Warmup is best-effort and must never break user interaction.

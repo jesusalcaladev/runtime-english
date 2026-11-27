@@ -86,7 +86,7 @@ export default function TtsStudio() {
 
   function selectEasyMode() {
     progressStore.setSettings({
-      ttsEngine: 'google',
+      ttsEngine: 'system',
       ttsRate: 1,
       ttsPitch: 1,
       ttsVoiceName: '',
@@ -290,7 +290,7 @@ export default function TtsStudio() {
               { value: 'piper' as const, label: 'Piper', desc: 'Rápida y natural' },
             ] as const
           ).map((option) => {
-            const active = (state.settings.ttsEngine ?? 'google') === option.value
+            const active = (state.settings.ttsEngine ?? 'system') === option.value
             return (
               <button
                 key={option.value}

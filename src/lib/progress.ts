@@ -276,7 +276,7 @@ export function createDefaultState(): ProgressState {
       immersion: 'auto',
       ttsEnabled: true,
       ttsRate: 1,
-      ttsEngine: 'google',
+      ttsEngine: 'system',
       speechLanguage: 'en-US',
       reminders: { enabled: false, time: '20:00', lastNudgeDate: null },
       name: '',
