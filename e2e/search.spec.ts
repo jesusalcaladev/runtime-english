@@ -41,9 +41,7 @@ test.describe('search experience', () => {
 
   test('all visible buttons have an accessible name', async ({ page }) => {
     await page.goto('/search.html')
-    await page
-      .getByRole('searchbox', { name: 'Buscar en RuntimeEnglish' })
-      .fill('pull request')
+    await page.getByRole('searchbox', { name: 'Buscar en RuntimeEnglish' }).fill('pull request')
 
     const unnamed = await page.locator('button').evaluateAll((buttons) =>
       buttons

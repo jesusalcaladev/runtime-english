@@ -34,6 +34,18 @@ describe('srsFsrs', () => {
     expect(struggled.due).toBeGreaterThan(struggled.last)
   })
 
+  it('persists real FSRS card state across reviews', () => {
+    const now = Date.now()
+    const first = nextSrsFsrs(undefined, true, now)
+    expect(typeof first.stability).toBe('number')
+    expect(typeof first.fsrsDifficulty).toBe('number')
+    expect(typeof first.fsrsState).toBe('number')
+
+    const second = nextSrsFsrs(first, true, first.last + 60_000)
+    expect(second.stability).toBeGreaterThan(first.stability ?? 0)
+    expect(typeof second.fsrsState).toBe('number')
+  })
+
   it('resets after repeated failures and can recover', () => {
     const now = Date.now()
     const ok = nextSrsFsrs(undefined, true, now)

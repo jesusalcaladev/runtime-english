@@ -1,5 +1,4 @@
 ---
-import { BookText } from '@lucide/astro'
 import DictionaryView from '../components/dictionary/DictionaryView'
 import PageHeader from '../components/ui/PageHeader.astro'
 import BaseLayout from '../layouts/BaseLayout.astro'
@@ -9,19 +8,12 @@ import BaseLayout from '../layouts/BaseLayout.astro'
   title="Diccionario · RuntimeEnglish"
   description="Tu diccionario personal de frases y vocabulario en inglés, con significados y progreso."
 >
-  <div class="page-shell animate-fade-up space-y-8">
+  <div class="page-shell animate-fade-up space-y-6">
     <PageHeader
       eyebrow="Tu aprendizaje"
-      title="Diccionario de frases aprendidas"
-      description="Aquí se van guardando y actualizando las frases y palabras que practicas. Revisa sus significados, escucha la pronunciación y sigue tu progreso."
-    >
-      <div class="mt-5 flex flex-wrap items-center gap-2">
-        <span class="flex items-center gap-1.5 rounded-full bg-accent/10 px-3 py-1.5 text-[10px] font-medium text-accent">
-          <BookText class="h-3 w-3" />
-          Se actualiza con tu práctica
-        </span>
-      </div>
-    </PageHeader>
+      title="Diccionario"
+      description="Tus frases guardadas. Repasa, escucha y edita."
+    />
 
     <DictionaryView client:only="preact" />
   </div>

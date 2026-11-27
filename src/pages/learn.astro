@@ -1,87 +1,66 @@
 ---
-import { BookOpen, Headphones, Repeat2, Sparkles, Volume2 } from '@lucide/astro'
+import MicroPostCard from '../components/learn/MicroPostCard'
+import PracticePackView from '../components/learn/PracticePack'
 import ResourceExplorer from '../components/learn/ResourceExplorer'
 import VideoLibrary from '../components/learn/VideoLibrary'
 import PageHeader from '../components/ui/PageHeader.astro'
 import { LEARNING_RESOURCES, VIDEO_LESSONS } from '../data/learningResources'
+import { MICRO_POSTS } from '../data/posts'
+import { PRACTICE_PACKS } from '../data/practices'
 import BaseLayout from '../layouts/BaseLayout.astro'
 ---
 
 <BaseLayout
   title="Aprende por tu cuenta · RuntimeEnglish"
-  description="Videos con subtítulos en inglés resaltados, ejercicios de shadowing y los mejores recursos para aprender inglés por tu cuenta."
+  description="Videos con subtítulos en inglés resaltados, ejercicios de shadowing, prácticas extra, posts cortos y los mejores recursos para aprender inglés por tu cuenta."
 >
-  <div class="page-shell--wide animate-fade-up space-y-8">
+  <div class="page-shell--wide animate-fade-up space-y-10">
     <PageHeader
-      eyebrow="Aprende por tu cuenta · VideoLab"
-      title="Aprende inglés rápido, con videos reales"
-      description="Mira un video corto, sigue los subtítulos en inglés resaltados, repite en voz alta y guarda las frases útiles. Después, practica con los ejercicios de shadowing y emparejamiento."
-    >
-      <div class="mt-5 flex flex-wrap items-center gap-2">
-        <span class="flex items-center gap-1.5 rounded-full bg-accent/10 px-3 py-1.5 text-[10px] font-medium text-accent">
-          <Sparkles class="h-3 w-3" />
-          {VIDEO_LESSONS.length} videos con transcripción
-        </span>
-        <span class="rounded-full bg-base-200 px-3 py-1.5 text-[10px] text-base-content/50">
-          {LEARNING_RESOURCES.length} recursos curados
-        </span>
-      </div>
-    </PageHeader>
-
-    <section class="grid gap-x-5 gap-y-3 border-y border-base-content/10 py-4 sm:grid-cols-2 lg:grid-cols-4">
-      <div class="flex items-start gap-2.5">
-        <Headphones class="mt-0.5 h-4 w-4 shrink-0 text-accent" />
-        <div>
-          <p class="text-[12px] font-medium text-base-content/80">1 · Escucha</p>
-          <p class="mt-0.5 text-[11px] leading-snug text-base-content/45">
-            Subtítulos en inglés, sin traducir todavía.
-          </p>
-        </div>
-      </div>
-      <div class="flex items-start gap-2.5">
-        <Volume2 class="mt-0.5 h-4 w-4 shrink-0 text-accent" />
-        <div>
-          <p class="text-[12px] font-medium text-base-content/80">2 · Repite</p>
-          <p class="mt-0.5 text-[11px] leading-snug text-base-content/45">
-            Repite la frase con el mismo ritmo.
-          </p>
-        </div>
-      </div>
-      <div class="flex items-start gap-2.5">
-        <BookOpen class="mt-0.5 h-4 w-4 shrink-0 text-accent" />
-        <div>
-          <p class="text-[12px] font-medium text-base-content/80">3 · Guarda</p>
-          <p class="mt-0.5 text-[11px] leading-snug text-base-content/45">
-            3 frases en tu diccionario y repásalas.
-          </p>
-        </div>
-      </div>
-      <div class="flex items-start gap-2.5">
-        <Repeat2 class="mt-0.5 h-4 w-4 shrink-0 text-accent" />
-        <div>
-          <p class="text-[12px] font-medium text-base-content/80">4 · Practica</p>
-          <p class="mt-0.5 text-[11px] leading-snug text-base-content/45">
-            Sin red, usa el modo transcripción con voz.
-          </p>
-        </div>
-      </div>
-    </section>
+      eyebrow="Aprende por tu cuenta"
+      title="Aprende inglés por tu cuenta"
+      description="Videos reales con subtítulos, prácticas extra, posts cortos y recursos. Todo suma al mismo progreso."
+    />
 
     <section class="space-y-4">
+      <h2 class="text-[15px] font-semibold tracking-tight text-base-content/90">Videos</h2>
       <VideoLibrary lessons={VIDEO_LESSONS} client:load />
     </section>
 
     <section class="space-y-4">
       <div>
-        <p class="mono-label text-base-content/45">Recursos</p>
-        <h2 class="mt-1 text-[19px] font-semibold tracking-tight text-base-content/90">
-          Los mejores sitios y canales para practicar por tu cuenta
-        </h2>
+        <h2 class="text-[15px] font-semibold tracking-tight text-base-content/90">Prácticas extra</h2>
         <p class="mt-1 text-[12px] text-base-content/45">
-          Todos los enlaces son externos y se abren en una pestaña nueva.
+          Ejercicios cortos para afianzar; cuentan para tu progreso y repaso.
         </p>
       </div>
+      <div class="grid gap-3 sm:grid-cols-2">
+        {PRACTICE_PACKS.map((pack) => (
+          <PracticePackView pack={pack} client:only="preact" />
+        ))}
+      </div>
+    </section>
 
+    <section class="space-y-4">
+      <div>
+        <h2 class="text-[15px] font-semibold tracking-tight text-base-content/90">Posts</h2>
+        <p class="mt-1 text-[12px] text-base-content/45">
+          Tips cortos estilo X. Escucha, guarda la frase y practica.
+        </p>
+      </div>
+      <div class="grid gap-3 sm:grid-cols-2">
+        {MICRO_POSTS.map((post) => (
+          <MicroPostCard post={post} client:only="preact" />
+        ))}
+      </div>
+    </section>
+
+    <section class="space-y-4">
+      <div>
+        <h2 class="text-[15px] font-semibold tracking-tight text-base-content/90">Recursos</h2>
+        <p class="mt-1 text-[12px] text-base-content/45">
+          Sitios y canales externos. Se abren en otra pestaña.
+        </p>
+      </div>
       <ResourceExplorer resources={LEARNING_RESOURCES} client:load />
     </section>
   </div>

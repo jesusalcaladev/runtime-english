@@ -77,11 +77,11 @@ test.describe('player sync and accessibility', () => {
 test.describe('self-study and placement', () => {
   test('the resource directory filters and searches', async ({ page }) => {
     await page.goto('/learn.html')
-    await expect(page.getByRole('heading', { name: /Aprende inglés rápido/ })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /Aprende inglés por tu cuenta/ })).toBeVisible()
 
     const resources = page
       .locator('section')
-      .filter({ has: page.getByRole('heading', { name: /Los mejores sitios/ }) })
+      .filter({ has: page.getByRole('heading', { name: 'Recursos', exact: true }) })
 
     await resources.getByRole('button', { name: 'YouTube', exact: true }).click()
     await expect(resources.getByText('BBC Learning English (YouTube)')).toBeVisible()

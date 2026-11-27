@@ -1,5 +1,5 @@
 ---
-import { CalendarClock, Languages, Sparkles, TrendingUp, TriangleAlert } from '@lucide/astro'
+import { TriangleAlert } from '@lucide/astro'
 import SlangExplorer from '../components/slang/SlangExplorer'
 import PageHeader from '../components/ui/PageHeader.astro'
 import { ALL_SESSIONS } from '../data/curriculum'
@@ -8,9 +8,6 @@ import BaseLayout from '../layouts/BaseLayout.astro'
 import { route } from '../lib/routes'
 import { getSessionMinutes } from '../lib/sessionTime'
 
-const newTerms = SLANG.filter((entry) => entry.status === '2026').length
-const rising = SLANG.filter((entry) => entry.status === 'en alza').length
-const categories = new Set(SLANG.map((entry) => entry.category)).size
 const slangSessions = ALL_SESSIONS.filter((entry) => entry.module.id === 'm7').map(
   (entry) => entry.session,
 )
@@ -22,115 +19,52 @@ const slangSessions = ALL_SESSIONS.filter((entry) => entry.module.id === 'm7').m
 >
   <div class="page-shell animate-fade-up space-y-8">
     <PageHeader
-      eyebrow="Slang / Noviembre 2026"
+      eyebrow="Slang"
       title="El inglés que no aparece en los libros"
-      description="Slang de IA, jerga de equipo y memes de 2026. Entiéndelo primero; úsalo solo cuando el contexto lo permita. Cada ficha indica registro, estado y advertencias."
-    >
-      <div class="mt-5 flex flex-wrap items-center gap-2">
-        <span class="flex items-center gap-1.5 rounded-full bg-accent/10 px-3 py-1.5 text-[10px] font-medium text-accent">
-          <Sparkles class="h-3 w-3" />
-          {SLANG.length} términos vivos
-        </span>
-        <span class="rounded-full bg-base-200 px-3 py-1.5 text-[10px] text-base-content/40">
-          Nov 2026
-        </span>
-        <span class="rounded-full bg-base-200 px-3 py-1.5 text-[10px] text-base-content/50">
-          Guarda términos con el marcador para crear tu lista personal
-        </span>
-      </div>
-    </PageHeader>
+      description="Jerga de IA, equipo y 2026. Entiéndela antes de usarla; solo cuando el contexto lo permita."
+    />
 
-    <section class="grid gap-3 sm:grid-cols-3">
-      <div class="flex items-center gap-3 rounded-2xl bg-base-200 p-4">
-        <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-base-100/70 text-base-content/50">
-          <CalendarClock class="h-4 w-4" />
-        </span>
-        <div>
-          <p class="font-mono text-lg font-medium leading-none">{newTerms}</p>
-          <p class="mt-1 text-[10px] tracking-wide text-base-content/35">
-            términos de 2026
-          </p>
+    {slangSessions.length > 0 && (
+      <section class="space-y-3">
+        <h2 class="text-[15px] font-semibold tracking-tight text-base-content/90">
+          Práctica con slang
+        </h2>
+        <div class="grid gap-3 sm:grid-cols-2">
+          {slangSessions.map((session) => (
+            <a
+              href={route(`/session/${session.slug}`)}
+              class="group rounded-2xl bg-base-200 p-4 transition hover:bg-base-300/70"
+            >
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-mono text-[10px] text-base-content/55">{session.step}</span>
+                <span class="rounded-full bg-base-100/70 px-2 py-0.5 font-mono text-[10px] text-base-content/55">
+                  {session.cefr}
+                </span>
+              </div>
+              <h3 class="mt-2.5 text-[15px] font-medium leading-snug text-base-content">
+                {session.title}
+              </h3>
+              <p class="mt-1.5 text-[13px] leading-relaxed text-base-content/65">{session.summary}</p>
+              <p class="mt-3 text-[11px] text-base-content/50">
+                {getSessionMinutes(session)} min · {session.exercises.length} ejercicios
+              </p>
+            </a>
+          ))}
         </div>
-      </div>
-      <div class="flex items-center gap-3 rounded-2xl bg-base-200 p-4">
-        <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-info/10 text-info">
-          <TrendingUp class="h-4 w-4" />
-        </span>
-        <div>
-          <p class="font-mono text-lg font-medium leading-none">{rising}</p>
-          <p class="mt-1 text-[10px] tracking-wide text-base-content/35">
-            en alza ahora
-          </p>
-        </div>
-      </div>
-      <div class="flex items-center gap-3 rounded-2xl bg-base-200 p-4">
-        <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-base-100/70 text-base-content/50">
-          <Languages class="h-4 w-4" />
-        </span>
-        <div>
-          <p class="font-mono text-lg font-medium leading-none">{categories}</p>
-          <p class="mt-1 text-[10px] tracking-wide text-base-content/35">
-            categorías de uso
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <section class="space-y-3">
-      <div class="flex flex-wrap items-end justify-between gap-2">
-        <div>
-          <p class="mono-label">Slang / Práctica</p>
-          <h2 class="font-pixel mt-1.5 text-[1.5rem] leading-tight tracking-tight">
-            Sesiones para usar el slang
-          </h2>
-        </div>
-        <span class="font-mono text-[10px] text-base-content/50">
-          {slangSessions.length} sesiones · 4 ejercicios cada una
-        </span>
-      </div>
-
-      <div class="grid gap-3 sm:grid-cols-2">
-        {slangSessions.map((session) => (
-          <a
-            href={route(`/session/${session.slug}`)}
-            class="group rounded-2xl bg-base-200 p-4 transition hover:bg-base-300/70"
-          >
-            <div class="flex items-center justify-between gap-2">
-              <span class="font-mono text-[10px] text-base-content/55">
-                {session.step}
-              </span>
-              <span class="rounded-full bg-base-100/70 px-2 py-0.5 font-mono text-[10px] text-base-content/55">
-                {session.cefr}
-              </span>
-            </div>
-            <h3 class="mt-2.5 text-[15px] font-medium leading-snug text-base-content">
-              {session.title}
-            </h3>
-            <p class="mt-1.5 text-[13px] leading-relaxed text-base-content/65">
-              {session.summary}
-            </p>
-            <p class="mt-3 text-[11px] text-base-content/50">
-              {getSessionMinutes(session)} min · {session.exercises.length} ejercicios
-            </p>
-          </a>
-        ))}
-      </div>
-    </section>
+      </section>
+    )}
 
     <SlangExplorer client:only="preact" entries={SLANG} />
 
-    <section class="mt-4 flex gap-3 rounded-2xl bg-warning/[0.06] p-4">
+    <section class="flex gap-3 rounded-2xl bg-warning/[0.06] p-4">
       <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-warning/10 text-warning">
         <TriangleAlert class="h-3.5 w-3.5" />
       </span>
-      <div>
-        <p class="text-xs font-medium text-base-content/75">Cómo usar este deck</p>
-        <p class="mt-1 max-w-3xl text-[11px] leading-relaxed text-base-content/45">
-          “Consolidado” se entiende en cualquier equipo. “En alza” es vocabulario que está entrando
-          ahora. “2026” es jerga nueva: entiéndela antes de producirla. Los términos marcados como
-          meme no pertenecen a una daily formal ni a una conversación con cliente.
-        </p>
-      </div>
+      <p class="max-w-3xl text-[11px] leading-relaxed text-base-content/55">
+        <span class="font-medium text-base-content/75">Cómo usar el deck.</span> “Consolidado” se entiende
+        en cualquier equipo; “en alza” está entrando; “2026” es jerga nueva. Lo marcado como meme no va en
+        una daily formal ni con clientes.
+      </p>
     </section>
   </div>
 </BaseLayout>

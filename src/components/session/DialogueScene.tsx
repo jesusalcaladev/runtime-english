@@ -34,7 +34,7 @@ type AudioReadiness = { ready: number; total: number }
 
 const LINE_GAP_MS = 280
 /** Keep the spoken bubble highlighted long enough to be noticed when TTS finishes instantly. */
-const LINE_HIGHLIGHT_MIN_MS = 900
+const LINE_HIGHLIGHT_MIN_MS = 1800
 
 async function holdHighlight(startedAt: number): Promise<void> {
   const remaining = LINE_HIGHLIGHT_MIN_MS - (Date.now() - startedAt)

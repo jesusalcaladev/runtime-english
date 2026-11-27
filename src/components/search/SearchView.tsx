@@ -1,12 +1,4 @@
-import {
-  ArrowRight,
-  BookOpen,
-  Code2,
-  MessageSquareText,
-  Search,
-  Sparkles,
-  X,
-} from 'lucide-preact'
+import { ArrowRight, BookOpen, Code2, MessageSquareText, Search, Sparkles, X } from 'lucide-preact'
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks'
 
 interface SearchItem {
@@ -190,7 +182,11 @@ export default function SearchView({ items }: Props) {
       </div>
 
       {hasQuery && (
-        <div class="mt-4 flex flex-wrap gap-2" aria-label="Filtrar resultados por tipo">
+        <div
+          class="mt-4 flex flex-wrap gap-2"
+          role="group"
+          aria-label="Filtrar resultados por tipo"
+        >
           {KIND_OPTIONS.map((option) => (
             <button
               key={option.value}

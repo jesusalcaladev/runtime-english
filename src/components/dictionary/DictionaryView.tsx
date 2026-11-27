@@ -5,7 +5,6 @@ import {
   BookText,
   Brain,
   Check,
-  CheckCircle2,
   ChevronDown,
   ChevronUp,
   Download,
@@ -76,7 +75,6 @@ export default function DictionaryView() {
     filtered,
     total,
     learned,
-    saved,
     mastered,
     hard,
     progressPct,
@@ -111,47 +109,41 @@ export default function DictionaryView() {
             >
               <RotateCcw class="h-4 w-4" /> Reforzar débiles
             </button>
-            {total === 0 && (
-              <button
-                type="button"
-                onClick={() => progressStore.backfillPhrasebook()}
-                class="btn btn-ghost btn-sm h-9 gap-2 rounded-xl bg-base-100 px-3"
-              >
-                <Download class="h-4 w-4" /> Backfill inicial
-              </button>
-            )}
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-2 sm:grid-cols-2 lg:grid-cols-5">
+        <div class="grid grid-cols-3 gap-2">
           <Stat label="Total" value={String(total)} />
           <Stat label="Aprendidas" value={String(learned)} accent />
-          <div class="hidden sm:block">
-            <Stat label="Guardadas" value={String(saved)} />
-          </div>
           <Stat label="Vencidas" value={String(dueEntries.length)} warn={dueEntries.length > 0} />
-          <div class="col-span-2 rounded-2xl bg-accent/[0.07] p-3 sm:col-span-1">
-            <p class="font-mono text-lg font-medium leading-none text-accent">{progressPct}%</p>
-            <p class="mt-1 hidden text-[10px] text-base-content/45 sm:block">
-              Dominio ({mastered}) · {hard} difíciles
-            </p>
-            <div class="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-base-content/10">
-              <div class="h-full rounded-full bg-accent" style={{ width: `${progressPct}%` }} />
-            </div>
+        </div>
+
+        <div class="rounded-2xl bg-accent/[0.07] p-3">
+          <div class="flex items-center justify-between gap-2">
+            <p class="text-[10px] text-base-content/45">Dominio</p>
+            <p class="font-mono text-sm font-medium leading-none text-accent">{progressPct}%</p>
           </div>
+          <div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-base-content/10">
+            <div
+              class="h-full rounded-full bg-accent transition-[width] duration-500"
+              style={{ width: `${progressPct}%` }}
+            />
+          </div>
+          {hard > 0 && (
+            <p class="mt-1.5 text-[10px] text-base-content/45">{hard} difíciles · {mastered} dominadas</p>
+          )}
         </div>
 
         {!state.dictionaryBackfilledAt && total > 0 && (
           <p class="rounded-xl bg-info/10 px-3 py-2 text-[11px] text-info">
-            Puedes importar frases del contenido y de tus ejercicios ya completados con{' '}
+            Importa frases del contenido y de tus ejercicios ya completados.{' '}
             <button
               type="button"
               class="font-medium underline"
               onClick={() => progressStore.backfillPhrasebook()}
             >
-              Backfill inicial
+              Importar frases iniciales
             </button>
-            .
           </p>
         )}
 
@@ -306,7 +298,7 @@ export default function DictionaryView() {
             </p>
             <p class="mt-1 hidden text-xs text-base-content/40 sm:block">
               {total === 0
-                ? 'Completa ejercicios, guarda frases en las lecciones o usa el backfill inicial.'
+                ? 'Completa ejercicios, guarda frases en las lecciones o importa las iniciales.'
                 : 'Prueba con otra búsqueda o filtro.'}
             </p>
             {total === 0 && (
@@ -315,7 +307,7 @@ export default function DictionaryView() {
                 onClick={() => progressStore.backfillPhrasebook()}
                 class="btn btn-primary btn-sm mt-4 h-9 gap-2 rounded-xl px-4"
               >
-                <Download class="h-4 w-4" /> Importar frases iniciales (backfill)
+                <Download class="h-4 w-4" /> Importar frases iniciales
               </button>
             )}
           </div>
@@ -377,15 +369,6 @@ export default function DictionaryView() {
                   Añadir
                 </button>
               </div>
-              {total > 0 && !state.dictionaryBackfilledAt && (
-                <button
-                  type="button"
-                  onClick={() => progressStore.backfillPhrasebook()}
-                  class="btn btn-ghost btn-sm h-9 gap-2 rounded-xl bg-base-100 px-3"
-                >
-                  <Download class="h-4 w-4" /> Importar frases iniciales
-                </button>
-              )}
             </div>
           </div>
         </div>
@@ -537,28 +520,13 @@ function PhraseCard({
 
       <div class="mt-3 flex flex-wrap items-center gap-2">
         <span class={`rounded-full px-2.5 py-1 text-[10px] font-medium ${m.tone}`}>{m.label}</span>
-        <span
-          class={`hidden rounded-full px-2.5 py-1 text-[10px] font-medium sm:inline-flex ${diff.cls}`}
-        >
-          {diff.label}
-        </span>
-        {entry.correct > 0 && (
-          <span class="hidden items-center gap-1 text-[10px] text-base-content/45 sm:flex">
-            <CheckCircle2 class="h-3 w-3 text-accent/70" /> {entry.correct} acierto
-            {entry.correct === 1 ? '' : 's'}
-          </span>
-        )}
-        {entry.seen > 0 && (
-          <span class="hidden text-[10px] text-base-content/35 sm:inline">
-            {entry.seen} práctica{entry.seen === 1 ? '' : 's'}
-          </span>
-        )}
-        {entry.source && (
-          <span class="hidden text-[10px] text-base-content/35 sm:inline">· {entry.source}</span>
-        )}
+        <span class={`rounded-full px-2.5 py-1 text-[10px] font-medium ${diff.cls}`}>{diff.label}</span>
       </div>
-      <div class="mt-2 hidden h-1 w-full overflow-hidden rounded-full bg-base-content/[0.07] sm:block">
-        <div class="h-full rounded-full bg-accent/70" style={{ width: `${m.pct}%` }} />
+      <div class="mt-2 h-1 w-full overflow-hidden rounded-full bg-base-content/[0.07]">
+        <div
+          class="h-full rounded-full bg-accent/70 transition-[width] duration-500"
+          style={{ width: `${m.pct}%` }}
+        />
       </div>
 
       {editing && (

@@ -37,9 +37,51 @@ function clampBox(box: number): number {
 
 type FsrsCard = ReturnType<typeof scheduler.newCard>
 
+type FsrsCardFields = {
+  stability?: number
+  stabilityFast?: number
+  difficulty?: number
+  state?: number
+  learningStep?: number
+}
+
+/** Pull the real FSRS fields out of a scheduler card without depending on its private types. */
+function readFsrsFields(card: unknown): FsrsCardFields {
+  const value = card as Partial<FsrsCardFields>
+  const finite = (input: unknown): number | undefined =>
+    typeof input === 'number' && Number.isFinite(input) ? input : undefined
+  return {
+    stability: finite(value.stability),
+    stabilityFast: finite(value.stabilityFast),
+    difficulty: finite(value.difficulty),
+    state: finite(value.state),
+    learningStep: finite(value.learningStep),
+  }
+}
+
 function toSchedulerCard(prev: ExerciseSrs | undefined, now: Date): FsrsCard {
   if (!prev) {
     return scheduler.newCard({ now })
+  }
+
+  // Persisted FSRS state is authoritative. Reconstructing stability from the
+  // coarse `box`/streak made every review start from a nearly-new card.
+  if (
+    prev.stability !== undefined &&
+    prev.fsrsDifficulty !== undefined &&
+    prev.fsrsState !== undefined
+  ) {
+    const stability = Math.max(0.4, prev.stability)
+    return {
+      stability,
+      stabilityFast: Math.max(0.4, prev.stabilityFast ?? stability * 0.8),
+      difficulty: Math.min(10, Math.max(1, prev.fsrsDifficulty ?? 6.8)),
+      state: prev.fsrsState as State,
+      scheduleStatus: prev.fsrsState === State.Review ? 'review' : 'learning',
+      dueAt: new Date(prev.due),
+      lastReviewAt: new Date(prev.last),
+      learningStep: Math.max(0, Math.round(prev.learningStep ?? 0)),
+    } as unknown as FsrsCard
   }
 
   const reps = Math.max(0, prev.correctStreak || 0)
@@ -80,6 +122,14 @@ export function nextSrsFsrs(
 
   const nextDueAt = nextCard.dueAt instanceof Date ? nextCard.dueAt : new Date(nextCard.dueAt)
   const due = nextDueAt.getTime()
+  const fields = readFsrsFields(nextCard)
+  const persisted = {
+    ...(fields.stability !== undefined ? { stability: fields.stability } : {}),
+    ...(fields.stabilityFast !== undefined ? { stabilityFast: fields.stabilityFast } : {}),
+    ...(fields.difficulty !== undefined ? { fsrsDifficulty: fields.difficulty } : {}),
+    ...(fields.state !== undefined ? { fsrsState: fields.state } : {}),
+    ...(fields.learningStep !== undefined ? { learningStep: fields.learningStep } : {}),
+  }
 
   if (!correct) {
     return {
@@ -87,6 +137,7 @@ export function nextSrsFsrs(
       due,
       last: nowMs,
       correctStreak: 0,
+      ...persisted,
     }
   }
 
@@ -97,5 +148,6 @@ export function nextSrsFsrs(
     due,
     last: nowMs,
     correctStreak: (prev?.correctStreak ?? 0) + 1,
+    ...persisted,
   }
 }

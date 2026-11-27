@@ -1,5 +1,9 @@
 import { defineConfig, devices } from '@playwright/test'
 
+// Allows running the suite against a frozen dist snapshot when another build
+// is writing to `dist` in the same workspace. CI keeps the default.
+const distDir = process.env.E2E_DIST_DIR ?? 'dist'
+
 export default defineConfig({
   testDir: './e2e',
   timeout: 30_000,
@@ -15,7 +19,7 @@ export default defineConfig({
   webServer: {
     // Astro preview daemonizes in this environment, which Playwright interprets as
     // "webServer exited early". A plain static server stays in the foreground.
-    command: 'python3 -m http.server 4321 --directory dist --bind 127.0.0.1',
+    command: `python3 -m http.server 4321 --directory ${distDir} --bind 127.0.0.1`,
     url: 'http://127.0.0.1:4321',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

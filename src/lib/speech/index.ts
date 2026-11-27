@@ -135,10 +135,18 @@ export function warmSpeechPhrases(texts: string[]): void {
   try {
     const engine = getSpeechEngine()
     if (engine === 'kokoro') prewarmKokoroPhrases(texts)
-    else if (engine === 'google') texts.forEach((text) => prefetchGooglePhrase(text, true))
-    else if (engine === 'piper') texts.forEach((text) => prefetchPiperPhrase(text))
+    else if (engine === 'google')
+      texts.forEach((text) => {
+        prefetchGooglePhrase(text, true)
+      })
+    else if (engine === 'piper')
+      texts.forEach((text) => {
+        prefetchPiperPhrase(text)
+      })
     else if (shouldWarmGoogleAsWebFallback()) {
-      texts.forEach((text) => prefetchGooglePhrase(text, true))
+      texts.forEach((text) => {
+        prefetchGooglePhrase(text, true)
+      })
     }
   } catch {
     // Warmup is best effort.
@@ -241,10 +249,12 @@ export function warmSessionPhrases(texts: string[]): void {
       const bulk = canPrefetchModelOnCurrentConnection()
       const limit = bulk ? GOOGLE_WARM_LIMIT : SESSION_WARM_LIMIT
       const googleTexts = texts.slice(0, limit)
-      googleTexts
-        .slice(0, SESSION_PRIORITY_PHRASES)
-        .forEach((text) => prefetchGooglePhrase(text, true))
-      googleTexts.slice(SESSION_PRIORITY_PHRASES).forEach((text) => prefetchGooglePhrase(text))
+      googleTexts.slice(0, SESSION_PRIORITY_PHRASES).forEach((text) => {
+        prefetchGooglePhrase(text, true)
+      })
+      googleTexts.slice(SESSION_PRIORITY_PHRASES).forEach((text) => {
+        prefetchGooglePhrase(text)
+      })
       bumpPhraseStatus()
       return
     }
@@ -268,10 +278,12 @@ export function warmSessionPhrases(texts: string[]): void {
         0,
         canPrefetchModelOnCurrentConnection() ? GOOGLE_WARM_LIMIT : SESSION_WARM_LIMIT,
       )
-      googleTexts
-        .slice(0, SESSION_PRIORITY_PHRASES)
-        .forEach((text) => prefetchGooglePhrase(text, true))
-      googleTexts.slice(SESSION_PRIORITY_PHRASES).forEach((text) => prefetchGooglePhrase(text))
+      googleTexts.slice(0, SESSION_PRIORITY_PHRASES).forEach((text) => {
+        prefetchGooglePhrase(text, true)
+      })
+      googleTexts.slice(SESSION_PRIORITY_PHRASES).forEach((text) => {
+        prefetchGooglePhrase(text)
+      })
     }
 
     bumpPhraseStatus()

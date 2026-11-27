@@ -10,11 +10,11 @@ import {
   cues as apisCues,
   durationSeconds as apisDuration,
 } from './videoTranscripts/apis-explained'
+import { cues as cicdCues, durationSeconds as cicdDuration } from './videoTranscripts/cicd'
 import {
   cues as codeReviewCues,
   durationSeconds as codeReviewDuration,
 } from './videoTranscripts/code-review'
-import { cues as cicdCues, durationSeconds as cicdDuration } from './videoTranscripts/cicd'
 import {
   cues as communicateCues,
   durationSeconds as communicateDuration,
@@ -28,10 +28,6 @@ import {
   durationSeconds as cybersecurityDuration,
 } from './videoTranscripts/cybersecurity'
 import {
-  cues as dockerCues,
-  durationSeconds as dockerDuration,
-} from './videoTranscripts/docker-basics'
-import {
   cues as devCommunicationCues,
   durationSeconds as devCommunicationDuration,
 } from './videoTranscripts/dev-communication'
@@ -43,6 +39,10 @@ import {
   cues as devVocabularyCues,
   durationSeconds as devVocabularyDuration,
 } from './videoTranscripts/dev-vocabulary'
+import {
+  cues as dockerCues,
+  durationSeconds as dockerDuration,
+} from './videoTranscripts/docker-basics'
 import { cues as emailCues, durationSeconds as emailDuration } from './videoTranscripts/email'
 import {
   cues as gitCues,
@@ -1611,14 +1611,16 @@ export const VIDEO_LESSONS: VideoLesson[] = [
           'Una base de datos en la nube.',
         ],
         answer: 0,
-        explanation: 'Dice “think of it like a fake environment that you can run your application from end to end”.',
+        explanation:
+          'Dice “think of it like a fake environment that you can run your application from end to end”.',
       },
       {
         id: 'docker-q2',
         prompt: '¿Qué archivo se usa en el video para construir la imagen?',
         options: ['Dockerfile.', 'package.json.', 'README.md.', 'docker-compose.yml.'],
         answer: 0,
-        explanation: '“This is what makes the container. With a Dockerfile, you can then build the image.”',
+        explanation:
+          '“This is what makes the container. With a Dockerfile, you can then build the image.”',
       },
       {
         id: 'docker-q3',
@@ -1630,7 +1632,8 @@ export const VIDEO_LESSONS: VideoLesson[] = [
           'Una captura de pantalla del deploy.',
         ],
         answer: 0,
-        explanation: 'Explica que las imágenes son versiones (1.0, 1.2) y que el contenedor las ejecuta de forma aislada.',
+        explanation:
+          'Explica que las imágenes son versiones (1.0, 1.2) y que el contenedor las ejecuta de forma aislada.',
       },
     ],
   },
@@ -1662,7 +1665,12 @@ export const VIDEO_LESSONS: VideoLesson[] = [
       {
         id: 'standups-q2',
         prompt: '¿Quién ordena el product backlog por valor?',
-        options: ['El product owner.', 'El equipo de diseño.', 'El cliente final.', 'Nadie, está desordenado.'],
+        options: [
+          'El product owner.',
+          'El equipo de diseño.',
+          'El cliente final.',
+          'Nadie, está desordenado.',
+        ],
         answer: 0,
         explanation: 'El video dice que el product owner posee la lista y la ordena por valor.',
       },
@@ -1705,7 +1713,8 @@ export const VIDEO_LESSONS: VideoLesson[] = [
           'Ninguna, todo debe revisarse a mano.',
         ],
         answer: 0,
-        explanation: 'El video distingue estándares automatizables de los que requieren criterio humano.',
+        explanation:
+          'El video distingue estándares automatizables de los que requieren criterio humano.',
       },
       {
         id: 'code-review-q3',
@@ -1717,7 +1726,8 @@ export const VIDEO_LESSONS: VideoLesson[] = [
           'Que no haya tests.',
         ],
         answer: 0,
-        explanation: 'Dice que el revisor debe asegurarse de que el automated test “really” comprueba lo que toca.',
+        explanation:
+          'Dice que el revisor debe asegurarse de que el automated test “really” comprueba lo que toca.',
       },
     ],
   },

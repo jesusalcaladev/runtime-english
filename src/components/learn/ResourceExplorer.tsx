@@ -109,7 +109,8 @@ export default function ResourceExplorer({ resources }: Props) {
           <ul class="hint-text list-disc space-y-1 px-5 pb-3">
             {visible.map((resource) => (
               <li key={resource.id}>
-                <span class="font-medium text-base-content/75">{resource.name}:</span> {resource.tip}
+                <span class="font-medium text-base-content/75">{resource.name}:</span>{' '}
+                {resource.tip}
               </li>
             ))}
           </ul>
@@ -125,42 +126,27 @@ export default function ResourceExplorer({ resources }: Props) {
           {tAction(stage, 'noResources')}
         </div>
       ) : (
-        <div class="grid gap-3 sm:grid-cols-2">
+        <div class="grid gap-2 sm:grid-cols-2">
           {visible.map((resource) => (
             <a
               key={resource.id}
               href={resource.url}
               target="_blank"
               rel="noopener noreferrer"
-              class="group rounded-2xl bg-base-200 p-4 ring-1 ring-base-content/[0.04] transition hover:bg-base-300/60 hover:ring-accent/20"
+              class="group flex items-start justify-between gap-3 rounded-xl bg-base-200 p-3 ring-1 ring-base-content/[0.04] transition hover:bg-base-300/60 hover:ring-accent/20"
             >
-              <div class="flex items-start justify-between gap-3">
-                <div class="min-w-0">
-                  <p class="text-[14px] font-medium text-base-content/85 group-hover:text-accent">
-                    {resource.name}
-                  </p>
-                  <p class="mt-1 flex flex-wrap items-center gap-1.5">
-                    <span class="rounded-full bg-base-100/70 px-2 py-0.5 text-[10px] text-base-content/60">
-                      {resource.kind === 'youtube' ? 'YouTube' : 'Web'}
-                    </span>
-                    <span class="rounded-full bg-base-100/70 px-2 py-0.5 text-[10px] text-base-content/60">
-                      {resource.level}
-                    </span>
-                    {resource.focus.map((tag) => (
-                      <span
-                        key={tag}
-                        class="rounded-full bg-accent/[0.08] px-2 py-0.5 text-[10px] text-accent/80"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </p>
-                </div>
-                <ExternalLink class="h-3.5 w-3.5 shrink-0 text-base-content/25 group-hover:text-accent" />
+              <div class="min-w-0">
+                <p class="flex items-center gap-1.5 text-[13px] font-medium text-base-content/85 group-hover:text-accent">
+                  <span class="truncate">{resource.name}</span>
+                  <span class="shrink-0 rounded-full bg-base-100/70 px-1.5 py-0.5 text-[9px] font-normal text-base-content/50">
+                    {resource.kind === 'youtube' ? 'YouTube' : 'Web'}
+                  </span>
+                </p>
+                <p class="mt-1 line-clamp-2 text-[11px] leading-snug text-base-content/55">
+                  {resource.description}
+                </p>
               </div>
-              <p class="mt-3 text-[12px] leading-relaxed text-base-content/60">
-                {resource.description}
-              </p>
+              <ExternalLink class="mt-0.5 h-3.5 w-3.5 shrink-0 text-base-content/25 group-hover:text-accent" />
             </a>
           ))}
         </div>

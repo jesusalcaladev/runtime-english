@@ -1,4 +1,6 @@
 import { ALL_SESSIONS } from '../data/curriculum'
+import { MICRO_POST_CHECKS } from '../data/posts'
+import { PRACTICE_PACK_EXERCISES } from '../data/practices'
 import { type ErrorSkill, inferExerciseSkills, SKILL_LABELS } from './errorPatterns'
 import { getDuePhraseEntries, isExerciseDue, type ProgressState } from './progress'
 
@@ -33,12 +35,16 @@ const DAY_MS = 86_400_000
 export function getSkillProfile(state: ProgressState, now = Date.now()): SkillProfileItem[] {
   const totals = new Map<ErrorSkill, { seen: number; errors: number; recentErrors: number }>()
   const exerciseSkills = new Map<string, ErrorSkill[]>()
+  // Ejercicios de currículo + prácticas extra + micro-posts (todo integrado).
+  const knownExercises = [
+    ...ALL_SESSIONS.flatMap(({ session }) => session.exercises),
+    ...PRACTICE_PACK_EXERCISES,
+    ...MICRO_POST_CHECKS,
+  ]
   const findSkills = (exerciseId: string): ErrorSkill[] => {
     let skills = exerciseSkills.get(exerciseId)
     if (!skills) {
-      const entry = ALL_SESSIONS.flatMap(({ session }) => session.exercises).find(
-        (exercise) => exercise.id === exerciseId,
-      )
+      const entry = knownExercises.find((exercise) => exercise.id === exerciseId)
       skills = entry ? inferExerciseSkills(entry) : []
       exerciseSkills.set(exerciseId, skills)
     }

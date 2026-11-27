@@ -77,11 +77,9 @@ describe('DialogueScene', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Reproducir: Leo' }))
     await Promise.resolve()
-    expect(document.querySelector('[data-active="true"]')?.textContent).toContain(
-      'Morning, Maya.',
-    )
+    expect(document.querySelector('[data-active="true"]')?.textContent).toContain('Morning, Maya.')
 
-    await new Promise((resolve) => setTimeout(resolve, 950))
+    await new Promise((resolve) => setTimeout(resolve, 1950))
     expect(document.querySelector('[data-active="true"]')).toBeNull()
   })
 

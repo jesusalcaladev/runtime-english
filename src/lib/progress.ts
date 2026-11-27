@@ -70,6 +70,13 @@ export interface ExerciseSrs {
   due: number // timestamp ms
   last: number // last review timestamp ms
   correctStreak: number
+  // Real FSRS-7 card state. Older entries omit these and are reconstructed
+  // from box/streak by `srsFsrs.toSchedulerCard` for backwards compatibility.
+  stability?: number
+  stabilityFast?: number
+  fsrsDifficulty?: number
+  fsrsState?: number
+  learningStep?: number
 }
 
 export interface PhrasebookEntry {
@@ -91,6 +98,11 @@ export interface PhrasebookEntry {
   due: number
   last: number
   correctStreak: number
+  stability?: number
+  stabilityFast?: number
+  fsrsDifficulty?: number
+  fsrsState?: number
+  learningStep?: number
 }
 
 export interface CertificateState {
@@ -264,7 +276,7 @@ export function createDefaultState(): ProgressState {
       immersion: 'auto',
       ttsEnabled: true,
       ttsRate: 1,
-      ttsEngine: 'system',
+      ttsEngine: 'google',
       speechLanguage: 'en-US',
       reminders: { enabled: false, time: '20:00', lastNudgeDate: null },
       name: '',
@@ -414,7 +426,19 @@ function normalizeSrsEntry(raw: unknown, fallbackLast = Date.now()): ExerciseSrs
     typeof r.correctStreak === 'number' && Number.isFinite(r.correctStreak)
       ? Math.max(0, Math.round(r.correctStreak))
       : box
-  return { box, due, last, correctStreak }
+  const optional = (value: unknown): number | undefined =>
+    typeof value === 'number' && Number.isFinite(value) ? value : undefined
+  return {
+    box,
+    due,
+    last,
+    correctStreak,
+    stability: optional(r.stability),
+    stabilityFast: optional(r.stabilityFast),
+    fsrsDifficulty: optional(r.fsrsDifficulty),
+    fsrsState: optional(r.fsrsState),
+    learningStep: optional(r.learningStep),
+  }
 }
 
 // (nextSrs helper removed; using nextSrsFsrs directly)
@@ -543,6 +567,11 @@ export function mergeState(raw: unknown): ProgressState {
       due,
       last,
       correctStreak: getNumber(value.correctStreak) ?? box,
+      stability: getNumber(value.stability),
+      stabilityFast: getNumber(value.stabilityFast),
+      fsrsDifficulty: getNumber(value.fsrsDifficulty),
+      fsrsState: getNumber(value.fsrsState),
+      learningStep: getNumber(value.learningStep),
     }
   }
 
@@ -1322,6 +1351,11 @@ function nextPhraseSrs(
         due: prev.due ?? now,
         last: prev.last ?? now,
         correctStreak: prev.correctStreak ?? 0,
+        stability: prev.stability,
+        stabilityFast: prev.stabilityFast,
+        fsrsDifficulty: prev.fsrsDifficulty,
+        fsrsState: prev.fsrsState,
+        learningStep: prev.learningStep,
       }
     : undefined
   return nextSrsFsrs(base, correct, now, options)

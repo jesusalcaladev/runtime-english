@@ -270,6 +270,12 @@ async function playChunk(text: string, lang = getSpeechLanguage()): Promise<void
   })
 }
 
+/**
+ * Plays chunks back-to-back from the prefetch queue. True sample-accurate
+ * gapless playback would need Web Audio decoding, but the Google endpoint does
+ * not send CORS headers and this app is a static bundle (no origin proxy), so
+ * buffering every chunk before its turn is the best available approximation.
+ */
 export async function speakWithGoogle(text: string, button?: HTMLElement | null): Promise<boolean> {
   if (typeof window === 'undefined') return false
   stopGooglePlayback()

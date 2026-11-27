@@ -88,7 +88,9 @@ describe('SearchView', () => {
 
   it('clears the query with the clear button and with Escape', () => {
     render(<SearchView items={items} />)
-    const input = screen.getByRole('searchbox', { name: 'Buscar en RuntimeEnglish' }) as HTMLInputElement
+    const input = screen.getByRole('searchbox', {
+      name: 'Buscar en RuntimeEnglish',
+    }) as HTMLInputElement
 
     type('code')
     fireEvent.click(screen.getByRole('button', { name: 'Limpiar búsqueda' }))
@@ -102,7 +104,9 @@ describe('SearchView', () => {
 
   it('focuses search when "/" is pressed outside an input', () => {
     render(<SearchView items={items} />)
-    const input = screen.getByRole('searchbox', { name: 'Buscar en RuntimeEnglish' }) as HTMLInputElement
+    const input = screen.getByRole('searchbox', {
+      name: 'Buscar en RuntimeEnglish',
+    }) as HTMLInputElement
 
     fireEvent.keyDown(document, { key: '/' })
     expect(document.activeElement).toBe(input)

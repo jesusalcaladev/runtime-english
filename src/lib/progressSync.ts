@@ -346,7 +346,19 @@ function asSrsRecord(value: unknown): Record<string, ExerciseSrs> {
       continue
     }
 
-    result[id] = { box, due, last, correctStreak }
+    const optional = (value: unknown): number | undefined =>
+      typeof value === 'number' && Number.isFinite(value) ? value : undefined
+    result[id] = {
+      box,
+      due,
+      last,
+      correctStreak,
+      stability: optional(entry.stability),
+      stabilityFast: optional(entry.stabilityFast),
+      fsrsDifficulty: optional(entry.fsrsDifficulty),
+      fsrsState: optional(entry.fsrsState),
+      learningStep: optional(entry.learningStep),
+    }
   }
   return result
 }
@@ -392,6 +404,11 @@ function asPhrasebookRecord(value: unknown): Record<string, PhrasebookEntry> {
       due,
       last,
       correctStreak: toFiniteNumber(entry.correctStreak, 0),
+      stability: toOptionalFiniteNumber(entry.stability),
+      stabilityFast: toOptionalFiniteNumber(entry.stabilityFast),
+      fsrsDifficulty: toOptionalFiniteNumber(entry.fsrsDifficulty),
+      fsrsState: toOptionalFiniteNumber(entry.fsrsState),
+      learningStep: toOptionalFiniteNumber(entry.learningStep),
     }
   }
 
@@ -713,6 +730,12 @@ function mergePhrasebook(
       due: Math.max(localEntry.due ?? 0, remoteEntry.due ?? 0),
       last: Math.max(localEntry.last ?? 0, remoteEntry.last ?? 0),
       correctStreak: Math.max(localEntry.correctStreak ?? 0, remoteEntry.correctStreak ?? 0),
+      stability: Math.max(localEntry.stability ?? 0, remoteEntry.stability ?? 0) || undefined,
+      stabilityFast:
+        Math.max(localEntry.stabilityFast ?? 0, remoteEntry.stabilityFast ?? 0) || undefined,
+      fsrsDifficulty: remoteEntry.fsrsDifficulty ?? localEntry.fsrsDifficulty,
+      fsrsState: remoteEntry.fsrsState ?? localEntry.fsrsState,
+      learningStep: remoteEntry.learningStep ?? localEntry.learningStep,
     }
   }
 

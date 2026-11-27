@@ -53,7 +53,9 @@ describe('speakNative', () => {
   })
 
   it('retries with the default voice when the selected voice fails', async () => {
-    mocks.speak.mockRejectedValueOnce(new Error('unsupported voice')).mockResolvedValueOnce(undefined)
+    mocks.speak
+      .mockRejectedValueOnce(new Error('unsupported voice'))
+      .mockResolvedValueOnce(undefined)
 
     await expect(speakNative('Hello there')).resolves.toBe(true)
     expect(mocks.speak).toHaveBeenCalledTimes(2)

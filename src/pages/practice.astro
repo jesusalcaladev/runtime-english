@@ -1,9 +1,11 @@
 ---
 import PracticeView from '../components/practice/PracticeView'
 import { ALL_SESSIONS } from '../data/curriculum'
+import { MICRO_POST_CHECKS } from '../data/posts'
+import { PRACTICE_PACK_EXERCISES } from '../data/practices'
 import BaseLayout from '../layouts/BaseLayout.astro'
 
-const items = ALL_SESSIONS.flatMap(({ session, module }) =>
+const curriculumItems = ALL_SESSIONS.flatMap(({ session, module }) =>
   session.exercises.map((exercise) => ({
     exercise,
     sessionId: session.id,
@@ -13,6 +15,28 @@ const items = ALL_SESSIONS.flatMap(({ session, module }) =>
     cefr: session.cefr,
   })),
 )
+
+// Prácticas extra + micro-posts se integran en el mismo pool y progreso.
+const extraItems = [
+  ...PRACTICE_PACK_EXERCISES.map((exercise) => ({
+    exercise,
+    sessionId: 'practice-packs',
+    sessionSlug: 'aprende-por-tu-cuenta',
+    sessionTitle: 'Prácticas extra',
+    moduleCode: 'X',
+    cefr: 'A1',
+  })),
+  ...MICRO_POST_CHECKS.map((exercise) => ({
+    exercise,
+    sessionId: 'micro-posts',
+    sessionSlug: 'aprende-por-tu-cuenta',
+    sessionTitle: 'Posts',
+    moduleCode: 'X',
+    cefr: 'A1',
+  })),
+]
+
+const items = [...curriculumItems, ...extraItems]
 ---
 
 <BaseLayout title="Práctica rápida · RuntimeEnglish" description="Repasa con ejercicios mezclados y enfócate en lo que más te cuesta.">

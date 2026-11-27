@@ -131,11 +131,7 @@ export default function SidebarNav() {
           open ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div class="flex items-center justify-between px-4 py-3 lg:hidden">
-          <div class="flex items-center gap-2">
-            <span class="font-pixel-square text-base">RuntimeEnglish</span>
-            <span class="font-mono text-[9px] tracking-normal text-base-content/35">Core</span>
-          </div>
+        <div class="flex items-center justify-end px-4 py-3 lg:hidden">
           <button
             type="button"
             onClick={() => {

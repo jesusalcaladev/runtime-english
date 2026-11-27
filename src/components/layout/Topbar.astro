@@ -52,6 +52,12 @@ const iconButtonClass =
           totalExercises={totalExercises}
         />
       </div>
+
+      <a href={route("/search")} class={iconButtonClass} aria-label="Buscar" title="Buscar">
+        <Search class="h-4 w-4" />
+      </a>
+      <ThemeToggle client:only="preact" />
+
       <span class="relative flex shrink-0">
         <a href={route("/settings")} class={iconButtonClass} aria-label="Ajustes de perfil" title="Ajustes">
           <User class="h-4 w-4" />
@@ -59,11 +65,11 @@ const iconButtonClass =
         <ChangelogDot client:only="preact" />
       </span>
 
-      <div class="relative">
+      <div class="relative sm:hidden">
         <button
           id="topbar-more-btn"
           type="button"
-          class={`${iconButtonClass} sm:hidden`}
+          class={iconButtonClass}
           aria-label="Más acciones"
           aria-expanded="false"
           aria-controls="topbar-more-menu"
@@ -73,13 +79,9 @@ const iconButtonClass =
 
         <div
           id="topbar-more-menu"
-          class="absolute right-0 top-11 z-50 hidden w-56 flex-col gap-1 rounded-2xl border border-base-content/10 bg-base-100 p-2 shadow-xl sm:static sm:flex sm:w-auto sm:flex-row sm:items-center sm:gap-1.5 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none"
+          class="absolute right-0 top-11 z-50 hidden w-56 flex-col gap-1 rounded-2xl border border-base-content/10 bg-base-100 p-2 shadow-xl"
         >
           <InstallAppButton client:only="preact" />
-          <a href={route("/search")} class={iconButtonClass} aria-label="Buscar" title="Buscar">
-            <Search class="h-4 w-4" />
-          </a>
-          <ThemeToggle client:only="preact" />
         </div>
       </div>
     </div>

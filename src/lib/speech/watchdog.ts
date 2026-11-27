@@ -46,7 +46,11 @@ export class TtsTimeoutError extends Error {
 }
 
 /** Reject with `TtsTimeoutError` when `promise` does not settle within `ms`. */
-export function withTimeout<T>(promise: Promise<T>, ms: number, onTimeout?: () => void): Promise<T> {
+export function withTimeout<T>(
+  promise: Promise<T>,
+  ms: number,
+  onTimeout?: () => void,
+): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     let done = false
     const timer = setTimeout(() => {

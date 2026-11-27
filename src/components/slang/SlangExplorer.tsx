@@ -147,37 +147,10 @@ export default function SlangExplorer({ entries }: Props) {
         </div>
       </div>
 
-      {state.savedSlang.length > 0 && !onlySaved && (
-        <div class="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-accent/[0.07] px-4 py-3">
-          <div class="flex items-center gap-2.5">
-            <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-accent/10 text-accent">
-              <BookmarkCheck class="h-4 w-4" />
-            </span>
-            <div>
-              <p class="text-[13px] font-medium text-base-content/85">Tus términos guardados</p>
-              <p class="hidden text-[11px] text-base-content/50 sm:block">
-                {state.savedSlang.length} guardado{state.savedSlang.length === 1 ? '' : 's'} · se
-                actualiza cuando marcas términos
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => setOnlySaved(true)}
-            class="rounded-full bg-accent px-3.5 py-1.5 text-[12px] font-medium text-accent-content transition hover:opacity-90"
-          >
-            Ver mis guardados
-          </button>
-        </div>
-      )}
-
       {onlySaved && (
         <div class="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-base-200 px-4 py-3">
           <p class="text-[13px] text-base-content/70">
-            <span class="sm:hidden">Guardados ({filtered.length})</span>
-            <span class="hidden sm:inline">
-              Mostrando tu lista personal de slang guardado ({filtered.length}).
-            </span>
+            Tus guardados <span class="font-mono text-base-content/55">({filtered.length})</span>
           </p>
           <button
             type="button"
@@ -189,16 +162,10 @@ export default function SlangExplorer({ entries }: Props) {
         </div>
       )}
 
-      <div class="flex items-center justify-between gap-3 px-1">
-        <p class="text-[12px] text-base-content/55">
-          <span class="font-mono font-medium text-base-content">{filtered.length}</span> términos
-          {onlySaved ? ' guardados' : ''} <span class="hidden sm:inline">· nov 2026</span>
-        </p>
-        <p class="hidden items-center gap-1.5 text-[11px] text-base-content/50 sm:flex">
-          <Bookmark class="h-3 w-3" />
-          Toca el marcador en cada tarjeta para guardarla
-        </p>
-      </div>
+      <p class="px-1 text-[12px] text-base-content/55">
+        <span class="font-mono font-medium text-base-content">{filtered.length}</span> términos
+        {onlySaved ? ' guardados' : ''}
+      </p>
 
       {filtered.length === 0 ? (
         <div class="rounded-3xl bg-base-200 px-4 py-12 text-center sm:px-6 sm:py-16">
@@ -289,9 +256,6 @@ export default function SlangExplorer({ entries }: Props) {
                   </div>
                 )}
 
-                <p class="mt-3 hidden text-[10px] tracking-[0.08em] text-base-content/45 sm:block">
-                  {entry.updated}
-                </p>
               </article>
             )
           })}

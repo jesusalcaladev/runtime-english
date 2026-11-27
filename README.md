@@ -24,6 +24,7 @@ RuntimeEnglish is a web (PWA-ready) and Android app for learning **technical Eng
 - **Optional Supabase integration** for auth, progress sync, and certificate issuance/verification
 - **Custom lessons ("Mis lecciones")** with a strict AI prompt that generates import-ready JSON, including optional two-person dialogue blocks for conversational topics
 - **"Aprende por tu cuenta"**: a daily routine built automatically from your progress (due phrases, unfinished videos, weakest quiz, new content) — synced with your account — plus a **transcript/offline mode** that reads the bundled subtitles with the app's voice when YouTube is unavailable
+- **"Aprende por tu cuenta"** also includes **Prácticas extra** (short integrated practice packs reusing `ExerciseRunner` + your progress) and **Posts** (short X-style micro-posts, offline, with optional inline checks + save phrase); both feed the same progress and `/practice` pool
 - **Android-only "Permisos" settings section** (notifications, microphone, system settings)
 
 ## Tech stack
