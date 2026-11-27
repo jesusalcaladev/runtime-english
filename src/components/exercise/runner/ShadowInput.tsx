@@ -98,6 +98,11 @@ export default function ShadowInput({
           </p>
         )}
         {diff && <WordDiffView diff={diff} />}
+        {heardText && micState === 'done' && (
+          <p class="hint-text" aria-live="polite">
+            Comprobando en un momento… puedes corregir el texto antes.
+          </p>
+        )}
         {wpm !== null && (
           <p class="text-[12px] text-base-content/55">
             Ritmo: <span class="font-mono text-accent">{wpm} palabras/min</span>

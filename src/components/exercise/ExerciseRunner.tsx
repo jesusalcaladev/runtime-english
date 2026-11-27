@@ -128,6 +128,8 @@ export default function ExerciseRunner({
   const firstAttemptRef = useRef<Record<string, boolean>>({})
   const stopMeterRef = useRef<(() => void) | null>(null)
   const micRetryTimerRef = useRef<number | null>(null)
+  const autoCheckTimerRef = useRef<number | null>(null)
+  const checkRef = useRef<() => void>(() => {})
 
   const exercise = exercises[index]
   const total = exercises.length
@@ -203,6 +205,7 @@ export default function ExerciseRunner({
     micRunRef.current += 1
     stopSpeechRecognition()
     stopMicMeter()
+    clearAutoCheck()
     setMicState('idle')
     setHeardText('')
     setHeardDiff(null)
@@ -271,6 +274,12 @@ export default function ExerciseRunner({
       setStatus('incorrect')
     }
   }
+  checkRef.current = check
+
+  function clearAutoCheck() {
+    if (autoCheckTimerRef.current !== null) window.clearTimeout(autoCheckTimerRef.current)
+    autoCheckTimerRef.current = null
+  }
 
   function advance() {
     if (!exercise) return
@@ -305,6 +314,7 @@ export default function ExerciseRunner({
       micRunRef.current += 1
       stopSpeechRecognition()
       stopMicMeter()
+      clearAutoCheck()
       setText('')
       setHeardText('')
       setHeardDiff(null)
@@ -424,6 +434,13 @@ export default function ExerciseRunner({
       setText(chosen)
       setHeardDiff(wordDiff(exercise.answer, chosen))
       setMicError(null)
+      // Auto-check shortly after a final transcript for speaking exercises.
+      // The learner can still edit the text or cancel before the timer fires.
+      clearAutoCheck()
+      autoCheckTimerRef.current = window.setTimeout(() => {
+        autoCheckTimerRef.current = null
+        if (run === micRunRef.current) checkRef.current()
+      }, 900)
     } else {
       setHeardText('')
       setHeardDiff(null)
@@ -435,6 +452,7 @@ export default function ExerciseRunner({
     micRunRef.current += 1
     if (micRetryTimerRef.current !== null) window.clearTimeout(micRetryTimerRef.current)
     micRetryTimerRef.current = null
+    clearAutoCheck()
     stopSpeechRecognition()
     stopMicMeter()
     setMicState('idle')
@@ -448,6 +466,7 @@ export default function ExerciseRunner({
       micRunRef.current += 1
       if (micRetryTimerRef.current !== null) window.clearTimeout(micRetryTimerRef.current)
       micRetryTimerRef.current = null
+      clearAutoCheck()
       stopSpeechRecognition()
       stopMicMeter()
       releaseMicStream()
@@ -1032,6 +1051,11 @@ export default function ExerciseRunner({
                   </p>
                 )}
                 {heardDiff && <WordDiffView diff={heardDiff} />}
+                {heardText && micState === 'done' && !attempted && (
+                  <p class="hint-text" aria-live="polite">
+                    Comprobando en un momento… puedes corregir el texto antes.
+                  </p>
+                )}
                 {speechWpm !== null && (
                   <p class="text-[12px] text-base-content/55">
                     Ritmo: <span class="font-mono text-accent">{speechWpm} palabras/min</span>
@@ -1062,6 +1086,7 @@ export default function ExerciseRunner({
                 value={text}
                 disabled={status === 'correct'}
                 onInput={(event) => {
+                  clearAutoCheck()
                   setText((event.target as HTMLTextAreaElement).value)
                   setHeardText('')
                   setHeardDiff(null)
@@ -1090,6 +1115,7 @@ export default function ExerciseRunner({
               text={text}
               onMicClick={micState === 'listening' ? cancelSpeaking : startSpeaking}
               onText={(value) => {
+                clearAutoCheck()
                 setText(value)
                 setHeardText('')
                 setHeardDiff(null)

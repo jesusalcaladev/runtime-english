@@ -179,6 +179,36 @@ describe('ExerciseRunner new exercise types', () => {
     expect(screen.getByText('40 palabras/min')).toBeTruthy()
   })
 
+  it('auto-checks a successful mic transcript without pressing Comprobar', async () => {
+    vi.mocked(speech.isSpeechRecognitionSupported).mockReturnValue(true)
+    vi.mocked(speech.recognizeOnce).mockResolvedValueOnce({
+      transcript: 'hello world',
+      confidence: 1,
+      supported: true,
+      speechDurationMs: 3_000,
+    })
+    const exercise: Exercise = {
+      id: 'speak-autocheck',
+      type: 'speak',
+      prompt: 'Di la frase',
+      answer: 'hello world',
+      explanation: 'Bien.',
+    }
+    render(
+      <ExerciseRunner
+        sessionId="test-speak-auto"
+        sessionTitle="Test"
+        exercises={[exercise]}
+        next={null}
+      />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Practicar pronunciación con micrófono' }))
+    await waitFor(() => expect(screen.getAllByText(/Correcto/).length).toBeGreaterThan(0), {
+      timeout: 3_000,
+    })
+  })
+
   it('labels fill-in-the-blank inputs and checks the completed sentence', () => {
     const exercise: Exercise = {
       id: 'test-fill',
